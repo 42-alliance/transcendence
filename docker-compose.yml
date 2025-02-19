@@ -20,9 +20,16 @@ services:
     build: backend/
     ports:
       - "3000:3000"
-    
+    volumes:
+      - api_volume:/app
     restart: on-failure
     env_file:
       - ./.env
     
-
+volumes:
+  api_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: backend/api/
+      o: bind

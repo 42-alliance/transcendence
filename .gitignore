@@ -5,3 +5,4 @@ backend/media/
 media/files/*
 backend/api/node_modules/
 backend/api/package-*
+backend/api/.objs/
