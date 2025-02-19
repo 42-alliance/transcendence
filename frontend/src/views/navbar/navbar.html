@@ -1,0 +1,49 @@
+<nav class="navbar navbar-expand-lg navbar-override">
+	<div class="container-fluid d-flex justify-content-between align-items-center navbar-container-override">
+		<a class="navbar-brand mx-auto" href="/" data-link>
+			<img class="navbar-logo" src="assets/logo.png" alt="Dragon_Pong_Logo">
+		</a>
+		<!-- Bouton Toggle (Toujours à gauche) -->
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+
+		<div class="collapse navbar-collapse justify-content-between navbar-button-override" id="navbarSupportedContent">
+			<ul class="navbar-nav">
+				<li class="nav-item"><a class="nav-link hide-or-show" href="/" data-link>Home</a></li>
+				<li class="nav-item"><a class="nav-link hide-or-show" href="/friends" data-link>Friends</a></li>
+			</ul>
+
+			<!-- Center Play Button
+			<ul class="navbar-nav">
+				<li class="nav-item"><a class="btn play-button px-4" href="/game" data-link>🌟 Play</a></li>
+			</ul> -->
+
+			<!-- Right menu (rapproché) -->
+			<ul class="navbar-nav me-3">
+				<li id="user-profile" class="nav-item dropdown"  style="display: none;">
+					<!-- User profile button (Hidden by default) -->
+					<div class="btn btn-secondary dropdown-toggle d-flex align-items-center navbar-user-button-color" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<span id="user-id" class="me-2"></span>
+					</div>
+					<ul class="dropdown-menu">
+						<li><button class="dropdown-item text-danger" onclick="logOutUserApi()">Logout</></li>
+						<li><button class="dropdown-item text-danger" onclick="deleteUserApi()">Delete Account</></li>
+					</ul>
+					
+				</li>
+				<div id="login-button" onclick="getAuthUrl()" class="	auth-login-button-navbar" style="display: none;">
+					<strong class="auth-login-text">Login</strong>
+				</div>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Language</a>
+					<ul class="dropdown-menu">
+						<li><button class="dropdown-item" onclick="changeLanguage('en')">English</></li>
+						<li><button class="dropdown-item" onclick="changeLanguage('fr')">Français</></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>

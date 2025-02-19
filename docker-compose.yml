@@ -1,0 +1,18 @@
+services:
+  nginx:
+    container_name: nginx
+    build: frontend/nginx
+    ports:
+      - "8080:80"
+    restart: on-failure
+    volumes:
+      - ./frontend:/var/www/html
+  media:
+    container_name: media
+    build: media/nginx
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./media/files:/data/files/
+    restart: on-failure
+
