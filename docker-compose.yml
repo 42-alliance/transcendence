@@ -15,4 +15,14 @@ services:
     volumes:
       - ./media/files:/data/files/
     restart: on-failure
+  api:
+    container_name: api
+    build: backend/
+    ports:
+      - "3000:3000"
+    
+    restart: on-failure
+    env_file:
+      - ./.env
+    
 

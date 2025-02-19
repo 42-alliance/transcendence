@@ -25,13 +25,9 @@ check:
 fclean : down
 	docker system prune -af
 	docker volume prune -af
-	rm -rf backend/*/__pycache__/* || true
-	rm -rf backend/*/*/__pycache__/*  || true
-	@docker rmi $(shell docker images --filter "reference=postgres" --format "{{.ID}}") || true
 
 dbclean : down
 	docker volume prune -af
-	@docker rmi $(shell docker images --filter "reference=postgres" --format "{{.ID}}") || true
 	docker compose up --build
 
 log :
