@@ -1,0 +1,40 @@
+.card-login-container {
+    height: 500px;
+    width: 400px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #1a1826;
+}
+
+.card-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.banner-and-picture {
+    height: 220px;
+}
+
+.banner-container {
+    width: 410px;
+    height: 150px;
+    overflow: hidden;
+}
+
+.banner-card {
+    width: 450px;
+}
+
+
+.profile-picture-card {
+    border-radius: 50%;
+    width: 130px;
+    height: 130px;
+    top: -70px;
+    left: 5%;
+    position: relative;;
+}
+
+.card-user-infos {
+    margin-left: 2rem;
+}

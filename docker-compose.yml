@@ -1,0 +1,33 @@
+services:
+  nginx:
+    container_name: nginx
+    build: frontend/nginx
+    ports:
+      - "8080:80"
+    restart: on-failure
+    volumes:
+      - ./frontend:/var/www/html
+  media:
+    container_name: media
+    build: media/nginx
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./media/files:/data/files/
+    restart: on-failure
+  api:
+    container_name: api
+    build: ./backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/api:/app
+    env_file:
+      - .env
+
+  db:
+    container_name: db
+    image: keinos/sqlite3:latest
+    volumes:
+      - ./backend/api/database:/app/data
+    command: tail -f /dev/null

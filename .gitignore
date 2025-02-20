@@ -1,0 +1,8 @@
+.env
+backend/*/*/__pycache__/*
+backend/*/__pycache__/*
+backend/media/
+media/files/*
+backend/api/node_modules/
+backend/api/package-*
+backend/api/.objs/
