@@ -19,6 +19,8 @@ server.decorate('db', db);
 
 await setUpRoutes(server);  // Passer server comme argument
 
+
+
 server.listen({ port: 3000, host: "0.0.0.0" }, (err, address) => {
     if (err) {
         console.error(err);

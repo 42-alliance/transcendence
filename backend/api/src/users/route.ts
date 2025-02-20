@@ -8,23 +8,28 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
  * @returns {Promise<object>} L'utilisateur ajouté.
  */
 export async function addUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object> {
-	const { username, intra_picture, upload_picture } = request.body as {
-		username: string,
-		intra_picture: string,
-		upload_picture: string,
-	};
-	
-	try {
-		const result = await server.db.run(
-			'INSERT INTO users (username, intra_picture, upload_picture) VALUES (?, ?, ?)',
-			[username, intra_picture, upload_picture]
-		);
+    const { username, intra_picture, upload_picture } = request.body as {
+        username: string;
+        intra_picture: string;
+        upload_picture?: string;
+    };
 
-		return { id: result.lastID };
-	} catch (error) {
-		console.error("Erreur lors de l'insertion de l'utilisateur :", error);
-		return reply.status(500).send({ error: "Erreur serveur" });
-	}
+    try {
+        const result = await server.db.run(
+            "INSERT INTO users (username, intra_picture, upload_picture) VALUES (?, ?, ?)",
+            [username, intra_picture, upload_picture ?? null] // Si `upload_picture` est undefined, on met `null`
+        );
+
+        return { id: result.lastID };
+    } catch (error: any) {
+        console.error("Erreur lors de l'insertion de l'utilisateur :", error);
+
+        if (error.code === "SQLITE_CONSTRAINT") {
+            return reply.status(400).send({ error: "Le nom d'utilisateur est déjà pris." });
+        }
+
+        return reply.status(500).send({ error: "Erreur serveur." });
+    }
 }
 
 /**
