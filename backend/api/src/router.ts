@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { oui } from "./oui/route.js";
-import { addUserDatabase, getAllUsers } from './users/route.js';
+import { addUserDatabase, deleteUserDatabase, getAllUsers } from './users/route.js';
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -14,7 +14,11 @@ async function setupUsersRoute(server: FastifyInstance) {
 	});
 	
 	server.get('/users', async function handler(request, reply) {
-		return await getAllUsers(server);
+		return await getAllUsers(server, reply);
+	});
+
+	server.delete("/users", async function handler(request, reply) {
+		return await deleteUserDatabase(server, request, reply);
 	});
 }
 
