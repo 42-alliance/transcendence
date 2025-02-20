@@ -1,25 +1,21 @@
-FROM node:23.8-alpine AS builder
+# Utilise l'image Alpine Linux comme base
+FROM alpine:latest
 
+# Installer Node.js et npm
+RUN apk add --no-cache nodejs npm
+
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-COPY ./api/package.json ./api/package-lock.json ./
+# Copier les fichiers de l'application dans le conteneur
+COPY ./api/package.json ./api/package-lock.json* ./
+COPY . .
 
-RUN npm ci --omit=dev
+# Installer les dépendances de l'application
+RUN npm install
 
-COPY ./api .
-
-FROM node:23.8-alpine
-
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-WORKDIR /app
-
-COPY --from=builder /app /app
-
-RUN chown -R appuser:appgroup /app
-
-USER appuser
-
+# Exposer le port sur lequel l'application écoute (ajustez selon votre application)
 EXPOSE 3000
 
+# Commande pour démarrer l'application
 CMD ["npm", "run", "server"]
