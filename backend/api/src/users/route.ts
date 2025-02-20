@@ -8,12 +8,16 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
  * @returns {Promise<object>} L'utilisateur ajouté.
  */
 export async function addUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object> {
-	const { username, intra_picture } = request.body as { username: string, intra_picture: string };
+	const { username, intra_picture, upload_picture } = request.body as {
+		username: string,
+		intra_picture: string,
+		upload_picture: string,
+	};
 	
 	try {
 		const result = await server.db.run(
-			'INSERT INTO users (username, intra_picture) VALUES (?, ?)',
-			[username, intra_picture]
+			'INSERT INTO users (username, intra_picture, upload_picture) VALUES (?, ?, ?)',
+			[username, intra_picture, upload_picture]
 		);
 
 		return { id: result.lastID };
