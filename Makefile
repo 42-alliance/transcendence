@@ -25,6 +25,8 @@ check:
 fclean : down
 	docker system prune -af
 	docker volume prune -af
+	@docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
+
 
 dbclean : down
 	docker volume prune -af

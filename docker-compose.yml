@@ -17,19 +17,10 @@ services:
     restart: on-failure
   api:
     container_name: api
-    build: backend/
+    build: ./backend
     ports:
       - "3000:3000"
     volumes:
-      - api_volume:/app
-    restart: on-failure
+      - ./backend/api:/app
     env_file:
-      - ./.env
-    
-volumes:
-  api_volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: backend/api/
-      o: bind
+      - .env

@@ -1,5 +1,28 @@
 # 📖 Documentation de l'API
 
+## COMMENT INSTALLER NPM
+
+	Prerequis
+```bash
+sudo apt-get install -y nodejs
+sudo apt install -y npm
+```
+
+	1. In api folder run theses commands 
+```
+npm init -y
+npm i fastify
+npm i -D typescript @types/node
+```
+
+	2. Add the following lines to the "scripts" section of the package.json:
+```
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node index.js"
+  }
+```
+
 ## 🚀 Introduction
 
 Cette API permet la gestion des utilisateurs, de leur authentification et des relations d'amitié. Elle utilise des tokens JWT pour sécuriser les accès aux différentes routes.
