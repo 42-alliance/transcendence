@@ -17,7 +17,7 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
     try {
         const result = await server.db.run(
             "INSERT INTO users (username, intra_picture, upload_picture) VALUES (?, ?, ?)",
-            [username, intra_picture, upload_picture ?? null] // Si `upload_picture` est undefined, on met `null`
+            [username, intra_picture, upload_picture || null] // Si `upload_picture` est undefined, on met `null`
         );
 
         return { id: result.lastID };

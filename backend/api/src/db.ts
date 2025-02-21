@@ -15,7 +15,19 @@ export async function initializeDatabase(): Promise<Database> {
 			intra_picture TEXT NOT NULL,
 			upload_picture TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
+        );
+
+		CREATE TABLE IF NOT EXISTS friends (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id1 INTEGER NOT NULL,
+            user_id2 INTEGER NOT NULL,
+            status TEXT DEFAULT 'pending',  -- 'pending', 'accepted', 'rejected', 'blocked'
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id1) REFERENCES users(id),
+            FOREIGN KEY (user_id2) REFERENCES users(id),
+            UNIQUE (user_id1, user_id2)  -- Empêche les doublons
+        );
     `);
+	
     return db;
 }
