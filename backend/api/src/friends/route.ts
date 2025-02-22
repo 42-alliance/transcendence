@@ -4,6 +4,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 export async function addFriend(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	const { id, friendId, friendName } = request.body as { id: number, friendId: number, friendName: string };
 
+	request.params
 	try {
 		// Ajout de la relation d'amitié avec un statut 'pending'
 		await server.db.run(
@@ -85,7 +86,6 @@ export async function areFriends(server: FastifyInstance, request: FastifyReques
 		`;
 		
 		const friend = await server.db.get(query, [id, friend_id, friend_id, id]);
-		
 
 		console.error("friend or not: ", friend);
 		// return !!friend;  // Retourne true si amis, false sinon
@@ -100,7 +100,7 @@ export async function getFriends(server: FastifyInstance, request: FastifyReques
 	const { id } = request.body as { id: number };
 
 	const query = `
-		SELECT u.id, u.username, u.intra_picture, u.upload_picture
+		SELECT u.id, u.name, u.picture
 		FROM friends f
 		JOIN users u ON (f.user_id1 = u.id OR f.user_id2 = u.id)
 		WHERE (f.user_id1 = ? OR f.user_id2 = ?) AND f.status = 'accepted'
@@ -124,7 +124,7 @@ export async function getPendingFriendRequest(server: FastifyInstance, request: 
     console.log("Getting pending requests for user:", userId);
 
     const query = `
-        SELECT u.id, u.username, u.intra_picture, u.upload_picture
+        SELECT u.id, u.name, u.picture
         FROM friends f
         JOIN users u ON (f.user_id1 = u.id OR f.user_id2 = u.id)
         WHERE (f.user_id1 = ? OR f.user_id2 = ?) AND f.status = 'pending'

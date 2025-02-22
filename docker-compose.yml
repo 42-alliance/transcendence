@@ -4,7 +4,7 @@ services:
     build: frontend/nginx
     ports:
       - "8080:80"
-    restart: on-failure
+    restart: always
     volumes:
       - ./frontend:/var/www/html
   media:
@@ -14,7 +14,7 @@ services:
       - "9000:9000"
     volumes:
       - ./media/files:/data/files/
-    restart: on-failure
+    restart: always
   api:
     container_name: api
     build: ./backend
@@ -24,3 +24,4 @@ services:
       - ./backend/api:/app
     env_file:
       - .env
+    restart: always
