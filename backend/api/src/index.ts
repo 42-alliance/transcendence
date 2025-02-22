@@ -2,23 +2,29 @@ import fastify from 'fastify';
 import { setUpRoutes } from './router.js';
 import { initializeDatabase } from './db.js';
 import './types.js';  // Important: importer les types
+import jwt from "@fastify/jwt";
+import cookie from "@fastify/cookie";
 
 export const server = fastify({
-    logger: {
-        transport: {
-            target: "pino-pretty",
-            options: { colorize: true },
-        },
-    },
+    // logger: {
+    //     transport: {
+    //         target: "pino-pretty",
+    //         options: { colorize: true },
+    //     },
+    // },
 });
 
 // Initialiser la base de données
 const db = await initializeDatabase();
+
+server.register(jwt, {
+	secret: process.env.JWT_SECRET_TOKEN || "CHEF_REGARDE_ENV"
+});
+
 // Ajouter la base de données au contexte de Fastify
 server.decorate('db', db);
 
 await setUpRoutes(server);  // Passer server comme argument
-
 
 
 server.listen({ port: 3000, host: "0.0.0.0" }, (err, address) => {

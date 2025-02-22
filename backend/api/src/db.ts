@@ -4,7 +4,7 @@ import { FastifyInstance } from 'fastify';
 
 export async function initializeDatabase(): Promise<Database> {
     const db = await open({
-        filename: process.env.DATABASE_PATH || '/app/data/database.sqlite',
+        filename: process.env.DATABASE_PATH || 'CHEF_REGARDE_ENV_FILE',
         driver: sqlite3.Database
     });
 

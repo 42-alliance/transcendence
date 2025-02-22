@@ -4,6 +4,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 export async function addFriend(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	const { id, friendId, friendName } = request.body as { id: number, friendId: number, friendName: string };
 
+	request.params
 	try {
 		// Ajout de la relation d'amitié avec un statut 'pending'
 		await server.db.run(
@@ -85,7 +86,6 @@ export async function areFriends(server: FastifyInstance, request: FastifyReques
 		`;
 		
 		const friend = await server.db.get(query, [id, friend_id, friend_id, id]);
-		
 
 		console.error("friend or not: ", friend);
 		// return !!friend;  // Retourne true si amis, false sinon
