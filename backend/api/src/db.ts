@@ -18,8 +18,8 @@ export async function initializeDatabase(): Promise<Database> {
 
 		CREATE TABLE IF NOT EXISTS friends (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id1 INTEGER NOT NULL,
-            user_id2 INTEGER NOT NULL,
+            user_id1 BIGINT NOT NULL,
+            user_id2 BIGINT NOT NULL,
             status TEXT DEFAULT 'pending',  -- 'pending', 'accepted', 'rejected', 'blocked'
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id1) REFERENCES users(id),
