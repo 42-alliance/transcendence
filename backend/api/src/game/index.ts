@@ -1,6 +1,6 @@
 import fastify from 'fastify';
 import { setUpRoutes } from './router.js';
-import { initializeDatabase } from './db.js';
+import { initializeDatabase } from '../db.js';
 import './types.js';  // Important: importer les types
 import jwt from "@fastify/jwt";
 import cookie from "@fastify/cookie";
@@ -20,13 +20,13 @@ const db = await initializeDatabase();
 server.decorate('db', db);
 
 server.register(jwt, {
-	secret: process.env.JWT_SECRET_TOKEN || "CHEF_REGARDE_ENV"
+    secret: process.env.JWT_SECRET_TOKEN || "CHEF_REGARDE_ENV"
 });
 
 await setUpRoutes(server);  // Passer server comme argument
 
 
-server.listen({ port: 3000, host: "0.0.0.0" }, (err, address) => {
+server.listen({ port: 8765, host: "0.0.0.0" }, (err, address) => {
     if (err) {
         console.error(err);
         process.exit(1);

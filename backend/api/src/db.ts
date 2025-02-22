@@ -11,7 +11,7 @@ export async function initializeDatabase(): Promise<Database> {
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id BIGINT UNIQUE,
-            name TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
 			picture TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
