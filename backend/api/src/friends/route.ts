@@ -100,7 +100,7 @@ export async function getFriends(server: FastifyInstance, request: FastifyReques
 	const { id } = request.body as { id: number };
 
 	const query = `
-		SELECT u.id, u.username, u.intra_picture, u.upload_picture
+		SELECT u.id, u.name, u.picture
 		FROM friends f
 		JOIN users u ON (f.user_id1 = u.id OR f.user_id2 = u.id)
 		WHERE (f.user_id1 = ? OR f.user_id2 = ?) AND f.status = 'accepted'
@@ -124,7 +124,7 @@ export async function getPendingFriendRequest(server: FastifyInstance, request: 
     console.log("Getting pending requests for user:", userId);
 
     const query = `
-        SELECT u.id, u.username, u.intra_picture, u.upload_picture
+        SELECT u.id, u.name, u.picture
         FROM friends f
         JOIN users u ON (f.user_id1 = u.id OR f.user_id2 = u.id)
         WHERE (f.user_id1 = ? OR f.user_id2 = ?) AND f.status = 'pending'

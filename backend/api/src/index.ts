@@ -6,12 +6,12 @@ import jwt from "@fastify/jwt";
 import cookie from "@fastify/cookie";
 
 export const server = fastify({
-    // logger: {
-    //     transport: {
-    //         target: "pino-pretty",
-    //         options: { colorize: true },
-    //     },
-    // },
+    logger: {
+        transport: {
+            target: "pino-pretty",
+            options: { colorize: true },
+        },
+    },
 });
 
 // Initialiser la base de données

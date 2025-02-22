@@ -2,10 +2,9 @@ export const addUserDatabaseSchema = {
     body: {
         type: 'object',
   		properties: {
-			username: { type: 'string' },
-			intra_picture: { type: 'string' },
-			upload_picrure: { type: 'string' },
+			name: { type: 'string' },
+			picture: { type: 'string' },
   		},
- 	 	required: ['username', 'intra_picture'],
+ 	 	required: ['name', 'picture'],
     },
 };

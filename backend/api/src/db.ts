@@ -10,10 +10,9 @@ export async function initializeDatabase(): Promise<Database> {
 
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-			intra_picture TEXT NOT NULL,
-			upload_picture TEXT,
+            id BIGINT UNIQUE,
+            name TEXT NOT NULL UNIQUE,
+			picture TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 

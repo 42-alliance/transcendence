@@ -9,9 +9,8 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
  */
 
 interface userBody {
-    username: string;
-    intra_picture: string;
-    upload_picrure: string | null; 
+    name: string;
+    picture: string;
 }
 
 export async function addUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object> {
@@ -19,8 +18,8 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 
     try {
         const result = await server.db.run(
-            "INSERT INTO users (username, intra_picture, upload_picture) VALUES (?, ?, ?)",
-            [body.username, body.intra_picture, body.upload_picrure || null] // Si `upload_picture` est undefined, on met `null`
+            "INSERT INTO users (name, picture) VALUES (?, ?)",
+            [body.name, body.picture]
         );
 
         return { id: result.lastID };
@@ -66,7 +65,7 @@ export async function deleteUserDatabase(server: FastifyInstance, request:Fastif
 	
 	try {
 
-		const result = await server.db.run(
+		await server.db.run(
 			'DELETE FROM users WHERE id=(?)',
 			[id]
 		);

@@ -60,6 +60,12 @@ async function setupFriendsRoute(server: FastifyInstance) {
 	});
 }
 
+
+/**
+ * Configure les routes pour la gestion de l'authentification.
+ *
+ * @param {FastifyInstance} server - Instance du serveur Fastify.
+ */
 async function setupAuthRoute(server: FastifyInstance) {
 	server.get('/auth/redirect', async function handler(request, reply) {
 		return await authRedirect(server, request, reply);
