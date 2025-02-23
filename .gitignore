@@ -3,3 +3,4 @@ media/files/*
 backend/*/node_modules/
 backend/*/package-*
 backend/*/.objs/
+./backend/user/node_modules
