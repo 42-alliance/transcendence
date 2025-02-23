@@ -20,18 +20,17 @@ server.register(jwt, {
 });
 
 server.register(proxy, {
-    upstream: `http://user:${config.users.port}`,
+    upstream: `http://${config.users.host}:${config.users.port}`,
     prefix: '/users',
-	rewritePrefix: '/users',
+    rewritePrefix: '/users',
     http2: false,
-	preHandler: async (request, reply) => {	
-        verifyJWT(server, request, reply);
-	}
+    preHandler: async (request, reply) => {	
+        await verifyJWT(server, request, reply);
+    }
 });
 
-// /auth/redirect -> proxy vers http://localhost:<auth.port>/auth/redirect (RESTE IDENTIQUE)
 server.register(proxy, {
-	upstream: `http://auth:${config.auth.port}`,
+	upstream: `http://${config.auth.host}:${config.auth.port}`,
     prefix: '/auth',
 	rewritePrefix: '/auth',
     http2: false,

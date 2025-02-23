@@ -43,14 +43,13 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 */
 export async function getAllUsers(server: FastifyInstance, reply: FastifyReply): Promise<object[]> {
 	try {
-		const items = await server.db.all('SELECT * FROM users');
-		return items;
+		const users = await server.db.all('SELECT * FROM users');
+		return users;
 	} catch (error) {
 		console.error("Erreur lors de la recuperation des utilisateurs :", error);
 		return reply.status(500).send({ error: "Erreur serveur" });
 	}
 }
-
 
 /**
  * Route DELETE `/users` - Supprime un utilisateur de la base de données.
@@ -60,19 +59,22 @@ export async function getAllUsers(server: FastifyInstance, reply: FastifyReply):
  * @param {import("fastify").FastifyReply} reply - Réponse HTTP.
  * @returns {Promise<object>} Liste des utilisateurs.
  */
-export async function deleteUserDatabase(server: FastifyInstance, request:FastifyRequest, reply: FastifyReply): Promise<object> {
-	const { id } = request.body as { id: number };
-	
+export async function deleteUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object> {
 	try {
+		const userId = Number(request.headers["x-user-id"]); // Get userId from header
+
+		if (!userId) {
+			return reply.status(401).send({ error: "Unauthorized. No user ID found." });
+		}
 
 		await server.db.run(
-			'DELETE FROM users WHERE id=(?)',
-			[id]
+			'DELETE FROM users WHERE id = ?',
+			[userId]
 		);
-		
-		return {message: "user sucessfully deleted"};
+
+		return { message: "User successfully deleted" };
 	} catch (error) {
-		console.error("Erreur lors de la suppresion de l'utilisateur :", error);
-		return reply.status(500).send({ error: "Erreur serveur" });		
+		console.error("Erreur lors de la suppression de l'utilisateur :", error);
+		return reply.status(500).send({ error: "Erreur serveur" });
 	}
 }
