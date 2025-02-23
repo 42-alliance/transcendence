@@ -2,9 +2,10 @@ export const addUserDatabaseSchema = {
     body: {
         type: 'object',
   		properties: {
+			id: { type: 'number' },
 			name: { type: 'string' },
 			picture: { type: 'string' },
   		},
- 	 	required: ['name', 'picture'],
+ 	 	required: ['id', 'name', 'picture'],
     },
 };

@@ -13,7 +13,7 @@ export async function setAuthRoutes(server: FastifyInstance) {
 		return await authCallback(server, request, reply);
 	});
 
-	server.get('/auth/jwt/refresh', async function handler(request, reply) {
+	server.post('/auth/jwt/refresh', { schema: refreshJWTSchema}, async function handler(request, reply) {
 		return await refreshJWT(server, request, reply);
 	});
 }

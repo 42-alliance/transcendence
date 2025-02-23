@@ -9,6 +9,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
  */
 
 interface userBody {
+	id: string;
     name: string;
     picture: string;
 }
@@ -16,10 +17,22 @@ interface userBody {
 export async function addUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object> {
     const body: userBody = request.body as userBody;
 
+
+	console.error("[users] - User body => ", body);
     try {
+
+		const user = await server.db.get(
+			"SELECT * FROM users WHERE id = ?",
+			[body.id]
+		);
+
+		if (user) {
+			return { id: user.id };
+		}
+		
         const result = await server.db.run(
-            "INSERT INTO users (name, picture) VALUES (?, ?)",
-            [body.name, body.picture]
+            "INSERT INTO users (id, name, picture) VALUES (?, ?, ?)",
+            [body.id, body.name, body.picture]
         );
 
         return { id: result.lastID };

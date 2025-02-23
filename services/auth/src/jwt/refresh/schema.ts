@@ -2,11 +2,12 @@
 import { FastifySchema } from 'fastify';
 
 export const refreshJWTSchema: FastifySchema = {
-  headers: {
+  body: {
     type: 'object',
     properties: {
-      Authorization: { type: 'string' }
+      token: { type: 'string' }
     },
-    required: ['Authorization']
+    required: ['token'],
   }
 };
+

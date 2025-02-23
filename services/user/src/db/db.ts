@@ -3,14 +3,14 @@ import { Database, open } from 'sqlite';
 
 export async function initializeDatabase(): Promise<Database> {
     const db = await open({
-        filename: process.env.DATABASE_PATH || 'CHEF_REGARDE_ENV_FILE',
+        filename: process.env.USER_DATABASE_PATH!,
         driver: sqlite3.Database
     });
 
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id BIGINT UNIQUE,
-            name TEXT NOT NULL,
+            name TEXT NOT NULL UNIQUE,
 			picture TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );

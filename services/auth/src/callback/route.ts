@@ -51,23 +51,43 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
 
     try {
         const userInfo = await getUserGoogleInfo(code);
-		
-        let user = await server.db.get("SELECT * FROM users WHERE id = ?", [userInfo.id]);
-		
-        if (!user) {
-			await server.db.run(
-				"INSERT INTO users (id, name, picture) VALUES (?, ?, ?)",
-                [userInfo.id, userInfo.given_name, userInfo.picture]
-            );
+
+		const accessToken = server.jwt.sign(
+			{
+				id: userInfo.id,
+				type: "access_token"
+			}, 
+			{ expiresIn: "15m" }
+		);
+		const refreshToken = server.jwt.sign(
+			{
+				id: userInfo.id,
+				type: "refresh_token"
+			},
+			{ expiresIn: "7d" }
+		);
+
+        try {
+			const response = await fetch('http://user:4000/users', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json', // <-- Important !
+				},
+				body: JSON.stringify({
+					"id": userInfo.id,
+					"picture": userInfo.picture,
+					"name": userInfo.given_name
+				})
+			});
 			
-            user = await server.db.get("SELECT * FROM users WHERE id = ?", [userInfo.id]);
+
+            if (!response.ok) {
+                console.error("[callback] - response => ", response);
+				return reply.status(response.status).send({error: "Failed to register user"});
+            }
+        } catch (e) {
+            return reply.status(500).send({ error: "Unexpected error : " + e});
         }
-		
-        if (!user) {
-			throw new Error("L'utilisateur ne peut pas être récupéré après insertion.");
-        }
-		const accessToken = server.jwt.sign({ id: user.id }, { expiresIn: "15m" });
-		const refreshToken = server.jwt.sign({ id: user.id }, { expiresIn: "7d" });
 		
 		reply.setCookie("refresh_token", refreshToken, {
 			httpOnly: true,
@@ -79,7 +99,6 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         return reply.status(200).send({
             message: "Authentification réussie",
             accessToken,
-            user,
         });
 
     } catch (error) {
