@@ -15,13 +15,25 @@ services:
     volumes:
       - ./media/files:/data/files/
     restart: always
-  api:
-    container_name: api
-    build: ./backend
+  user:
+    container_name: user
+    build: ./backend/user
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend/user:/app
+      - ./database:/database
+    env_file:
+      - .env
+    restart: always
+  auth:
+    container_name: auth
+    build: ./backend/auth
     ports:
       - "3000:3000"
     volumes:
-      - ./backend/api:/app
+      - ./backend/auth:/app
+      - ./database:/database
     env_file:
       - .env
     restart: always
