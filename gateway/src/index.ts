@@ -19,18 +19,13 @@ server.register(jwt, {
 	secret: config.jwt.secret,
 });
 
-// /users -> proxy vers http://localhost:<users.port>/users (RESTE IDENTIQUE)
 server.register(proxy, {
     upstream: `http://user:${config.users.port}`,
     prefix: '/users',
 	rewritePrefix: '/users',
     http2: false,
 	preHandler: async (request, reply) => {	
-
-        // verifier l'authenticité du token recus en header
         verifyJWT(server, request, reply);
-        
-		// console.log("PreHandler");
 	}
 });
 

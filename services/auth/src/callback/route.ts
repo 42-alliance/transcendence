@@ -50,14 +50,9 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     }
 
     try {
-		console.error("❌test1");
         const userInfo = await getUserGoogleInfo(code);
 		
-		console.error("❌test2");
         let user = await server.db.get("SELECT * FROM users WHERE id = ?", [userInfo.id]);
-		
-		console.error("	❌user", user);
-		console.error("❌test3");
 		
         if (!user) {
 			await server.db.run(
@@ -67,23 +62,20 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
 			
             user = await server.db.get("SELECT * FROM users WHERE id = ?", [userInfo.id]);
         }
-		console.error("❌test5");
 		
         if (!user) {
 			throw new Error("L'utilisateur ne peut pas être récupéré après insertion.");
         }
-		console.error("❌test6");
-		const accessToken = server.jwt.sign({ id: user.id }, { expiresIn: "1m" });
+		const accessToken = server.jwt.sign({ id: user.id }, { expiresIn: "15m" });
 		const refreshToken = server.jwt.sign({ id: user.id }, { expiresIn: "7d" });
 		
-		reply.setCookie("refreshToken", refreshToken, {
+		reply.setCookie("refresh_token", refreshToken, {
 			httpOnly: true,
             secure: process.env.NODE_ENV === "production", // HTTPS en prod
             path: "/",
             maxAge: 7 * 24 * 60 * 60, // 7 jours
         });
 		
-		console.error("❌test7");
         return reply.status(200).send({
             message: "Authentification réussie",
             accessToken,
