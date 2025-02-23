@@ -16,24 +16,47 @@ services:
       - ./media/files:/data/files/
     restart: always
   user:
-    container_name: user
-    build: ./backend/user
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./backend/user:/app
-      - ./database:/database
-    env_file:
-      - .env
-    restart: always
+      container_name: user
+      build: ./services/user
+      ports:
+        - "4000:4000"
+      volumes:
+        - ./services/user:/app
+        - ./database:/database
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - services_network
   auth:
-    container_name: auth
-    build: ./backend/auth
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./backend/auth:/app
-      - ./database:/database
-    env_file:
-      - .env
-    restart: always
+      container_name: auth
+      build: ./services/auth
+      ports:
+        - "3000:3000"
+      volumes:
+        - ./services/auth:/app
+        - ./database:/database
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - services_network
+  gateway:
+      container_name: gateway
+      build: ./gateway
+      ports:
+        - "8000:8000"
+      volumes:
+        - ./gateway:/app
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - services_network
+      depends_on:
+        - user
+        - auth
+
+networks:
+  services_network:
+    driver: bridge

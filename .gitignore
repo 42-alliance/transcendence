@@ -1,6 +1,8 @@
 .env
 media/files/*
-backend/*/node_modules/
-backend/*/package-*
-backend/*/.objs/
-./backend/user/node_modules
+services/*/node_modules/
+services/*/package-*
+services/*/.objs/
+./services/user/node_modules
+gateway/node_modules
+gateway/.objs
