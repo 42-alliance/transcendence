@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { addFriend, areFriends, getFriends, getPendingFriendRequest, removeFriend, updateFriendStatus } from "./friends/route.js";
 import { areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
-import { deleteUserDatabase, getAllUsers } from "./users/route.js";
+import { deleteUserDatabase, getAllUsers, addUserDatabase } from "./users/route.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -15,6 +15,10 @@ async function setupUsersRoute(server: FastifyInstance) {
 
 	server.delete("/users", async function handler(request, reply) {
 		return await deleteUserDatabase(server, request, reply);
+	});
+
+	server.post("/users", async function handler(request, reply) {
+		return await addUserDatabase(server, request, reply);
 	});
 }
 

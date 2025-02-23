@@ -12,8 +12,6 @@ export async function initializeDatabase(): Promise<Database> {
             id BIGINT UNIQUE,
             name TEXT NOT NULL,
 			picture TEXT NOT NULL,
-			access_token TEXT NOT NULL,
-			refresh_token TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 

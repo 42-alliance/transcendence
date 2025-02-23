@@ -9,4 +9,7 @@ export const config = {
 	users: {	// Configuration du service USERS_PORT
 		port: parseInt(process.env.USER_PORT!),	// Port d'écoute du service users
 	},
+	jwt: {	// Configuration du service
+		secret: process.env.JWT_SECRET!,	// Secret pour la génération des tokens JWT
+	},
 };

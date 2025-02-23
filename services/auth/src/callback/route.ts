@@ -9,7 +9,7 @@ async function getUserGoogleInfo(code: string) {
     params.append("client_id", process.env.CLIENT_ID!);
     params.append("client_secret", process.env.CLIENT_SECRET!);
     params.append("code", code);
-    params.append("redirect_uri", "http://localhost:3000/auth/callback");
+    params.append("redirect_uri", "http://localhost:8000/auth/callback");
 
     try {
         const tokenResponse = await fetch(tokenUrl, {
@@ -50,38 +50,40 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     }
 
     try {
+		console.error("❌test1");
         const userInfo = await getUserGoogleInfo(code);
-
+		
+		console.error("❌test2");
         let user = await server.db.get("SELECT * FROM users WHERE id = ?", [userInfo.id]);
-
-		const accessToken = server.jwt.sign({ id: user.id }, { expiresIn: "15m" });
-		const refreshToken = server.jwt.sign({ id: user.id }, { expiresIn: "7d" });
-
+		
+		console.error("	❌user", user);
+		console.error("❌test3");
+		
         if (!user) {
-            await server.db.run(
-                "INSERT INTO users (id, name, picture, access_token, refresh_token) VALUES (?, ?, ?)",
-                [userInfo.id, userInfo.given_name, userInfo.picture, accessToken, refreshToken]
-            );
-
-            user = await server.db.get("SELECT * FROM users WHERE id = ?", [userInfo.id]);
-        } else {
 			await server.db.run(
-				"UPDATE users SET access_token = ?, refresh_token = ? WHERE id = ?",
-				[accessToken, refreshToken, userInfo.id]
-			);
-		}
-
-        if (!user) {
-            throw new Error("L'utilisateur ne peut pas être récupéré après insertion.");
+				"INSERT INTO users (id, name, picture) VALUES (?, ?, ?)",
+                [userInfo.id, userInfo.given_name, userInfo.picture]
+            );
+			
+            user = await server.db.get("SELECT * FROM users WHERE id = ?", [userInfo.id]);
         }
-
+		console.error("❌test5");
+		
+        if (!user) {
+			throw new Error("L'utilisateur ne peut pas être récupéré après insertion.");
+        }
+		console.error("❌test6");
+		const accessToken = server.jwt.sign({ id: user.id }, { expiresIn: "1m" });
+		const refreshToken = server.jwt.sign({ id: user.id }, { expiresIn: "7d" });
+		
 		reply.setCookie("refreshToken", refreshToken, {
-            httpOnly: true,
+			httpOnly: true,
             secure: process.env.NODE_ENV === "production", // HTTPS en prod
             path: "/",
             maxAge: 7 * 24 * 60 * 60, // 7 jours
         });
-
+		
+		console.error("❌test7");
         return reply.status(200).send({
             message: "Authentification réussie",
             accessToken,

@@ -19,14 +19,9 @@ server.decorate('db', db);
 
 await setupRoutes(server);  // Passer server comme argument
 
-const port = process.env.USER_PORT || process.exit(1);
+const port =  parseInt(process.env.USER_PORT!);
 
-if (port === null) {
-	console.error("AUTH_PORT env key is not set");
-	process.exit(1);
-}
-
-server.listen({ port: parseInt(port), host: "0.0.0.0" }, (err, address) => {
+server.listen({ port: port, host: "0.0.0.0" }, (err, address) => {
     if (err) {
         console.error(err);
 		process.exit(1);
