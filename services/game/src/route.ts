@@ -5,11 +5,17 @@ export async function ConnectWSonline(username: string) {
         console.error('Aucun nom d\'utilisateur fourni');
         return;
     }
-    const socket = new WebSocket('ws://localhost:8765');
+    const socket = new WebSocket('ws://localhost:8790');
+    if (!socket) {
+        console.error('Impossible de se connecter au serveur WebSocket');
+        return;
+    }
     socket.onopen = () => {
-          console.log('Connecté au serveur WebSocket');
-          socket.send(JSON.stringify({ type: 'online', username: username }));
-    };
+        console.log('Connecté au serveur WebSocket');
+        socket.send(JSON.stringify({ type: 'online', username: username }));
+        console.log('Message envoyé');
+    }
+
 }
 
 export async function ConnectWSlocal(username: string) {
@@ -17,7 +23,7 @@ export async function ConnectWSlocal(username: string) {
         console.error('Aucun nom d\'utilisateur fourni');
         return;
     }
-    const socket = new WebSocket('ws://localhost:8765');
+    const socket = new WebSocket('ws://localhost:8790');
     socket.onopen = () => {
           console.log('Connecté au serveur WebSocket local');
           socket.send(JSON.stringify({ type: 'local', username: username }));

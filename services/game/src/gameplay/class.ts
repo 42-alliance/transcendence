@@ -86,6 +86,7 @@ class player {
 }
 
 class Game {
+    match: string = "";
     paddle_1: Paddle;
     paddle_2: Paddle;
     p1: player;

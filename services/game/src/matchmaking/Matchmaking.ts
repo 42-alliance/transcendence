@@ -2,7 +2,6 @@ import { platform } from 'os';
 import { WebSocketServer, WebSocket } from 'ws';
 
 
-export const wss = new WebSocketServer({ port: 8765 });
 
 export interface Player {
     socket: WebSocket;
@@ -19,37 +18,44 @@ export const session: { match: typeof match }[] = [];
 const queue_local: Player[] = [];
 const queue_online: Player[] = [];
 
-
-wss.on('connection', (ws) => {
-    console.log('Nouvelle connexion');
-
-    ws.on('message', (message) => {
-        try {
-            const data = JSON.parse(message.toString());
-
-            if (data.type === 'online') {
-                if (!queue_online.find(player => player.username === data.username)) {
-                    console.log(`${data.username} a choisi le mode en ligne et entre dans la file`);
-                    queue_online.push({ socket: ws, username: data.username ,type: 'online' });
-                    matchPlayers(queue_online);
-                } else {
-                    console.log(`${data.username} est déjà dans la file online.`);
-                }
-            } else if (data.type === 'local') {
-                if (!queue_local.find(player => player.username === data.username)) {
-                    console.log(`${data.username} a choisi le mode local et entre dans la file`);
-                    queue_local.push({ socket: ws, username: data.username ,type: 'local' });
-                    matchPlayers(queue_local);
-                } else {
-                    console.log(`${data.username} est déjà dans la file locale.`);
+export const wss = new WebSocketServer({ port: 8790 });
+console.log('Serveur WebSocket lancé sur ws://localhost:8790');
+export async function setupMatchmaking() {
+    console.log('Setting up matchmaking');
+    wss.on('connection', (ws) => {
+        
+        console.log('Nouvelle connexion');
+        ws.on('message', (message) => {
+            try {
+                const data = JSON.parse(message.toString());
+                
+                if (data.type === 'online') {
+                    if (!queue_online.find(player => player.username === data.username)) {
+                        console.log(`${data.username} a choisi le mode en ligne et entre dans la file`);
+                        queue_online.push({ socket: ws, username: data.username ,type: 'online' });
+                        matchPlayers(queue_online);
+                    } else {
+                        console.log(`${data.username} est déjà dans la file online.`);
+                    }
+                } else if (data.type === 'local') {
+                    if (!queue_local.find(player => player.username === data.username)) {
+                        console.log(`${data.username} a choisi le mode local et entre dans la file`);
+                        queue_local.push({ socket: ws, username: data.username ,type: 'local' });
+                        matchPlayers(queue_local);
+                    } else {
+                        console.log(`${data.username} est déjà dans la file locale.`);
+                    }
                 }
             }
-        }
-        catch (error) {
-            console.error('Erreur de parsing JSON:', error);
-        }
+            catch (error) {
+                console.error('Erreur de parsing JSON:', error);
+            }
+        });
     });
-});
+    wss.on('close', () => {
+        console.log('Fermeture de la connexion');
+    });
+}
 
 /**
  * Associe les joueurs par paires pour jouer.
@@ -96,4 +102,4 @@ function matchPlayers(queue: Player[]) {
     }
 }
 
-console.log('Serveur WebSocket lancé sur ws://localhost:8765');
+ 
