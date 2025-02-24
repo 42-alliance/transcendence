@@ -1,3 +1,13 @@
+export const addFriendSchema = {
+    headers: {
+        type: 'object',
+        properties: {
+            "x-user-id": {type: 'string'}
+        },
+        required: ['x-user-id'],
+    }
+}
+
 
 export const areFriendsSchema = {
     params: {

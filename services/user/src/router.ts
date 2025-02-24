@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { addFriend, areFriends, getFriends, getPendingFriendRequest, removeFriend, updateFriendStatus } from "./friends/route.js";
-import { areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
+import { addFriendSchema, areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
 import { deleteUserDatabase, getAllUsers, addUserDatabase } from "./users/route.js";
-import { addUserDatabaseSchema } from "./users/schema.js";
+import { addUserDatabaseSchema, deleteUserDatabaseSchema } from "./users/schema.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -14,7 +14,7 @@ async function setupUsersRoute(server: FastifyInstance) {
 		return await getAllUsers(server, reply);
 	});
 
-	server.delete("/users", async function handler(request, reply) {
+	server.delete("/users", { schema: deleteUserDatabaseSchema }, async function handler(request, reply) {
 		return await deleteUserDatabase(server, request, reply);
 	});
 
@@ -30,10 +30,9 @@ async function setupUsersRoute(server: FastifyInstance) {
  * @param {FastifyInstance} server - Instance du serveur Fastify.
  */
 async function setupFriendsRoute(server: FastifyInstance) {
-	server.post('/friends', async function handler(request, reply) {
+	server.post('/friends', { schema:addFriendSchema }, async function handler(request, reply) {
 		return await addFriend(server, request, reply);
 	});
-
 
 	server.post<{Params: { friendId: string }}>('/friends/:friendId/status', async function handler(request, reply) {
 		return await updateFriendStatus(server, request, reply);
@@ -51,7 +50,7 @@ async function setupFriendsRoute(server: FastifyInstance) {
 		return await getFriends(server, request, reply);
 	});
 
-	server.get<{Params: { userId: string }}>('/friends/pending/:userId', {schema: pendingRequestsSchema}, async function handler(request, reply) {
+	server.get('/friends/pending/', async function handler(request, reply) {
 		return await getPendingFriendRequest(server, request, reply);
 	});
 }

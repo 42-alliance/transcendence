@@ -52,50 +52,40 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     try {
         const userInfo = await getUserGoogleInfo(code);
 
-		const accessToken = server.jwt.sign(
-			{
-				id: userInfo.id,
-				type: "access_token"
-			}, 
-			{ expiresIn: "15m" }
-		);
-		const refreshToken = server.jwt.sign(
-			{
-				id: userInfo.id,
-				type: "refresh_token"
-			},
-			{ expiresIn: "7d" }
-		);
+        const response = await fetch('http://user:4000/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                picture: userInfo.picture,
+                name: userInfo.given_name,
+            }),
+        });
 
-        try {
-			const response = await fetch('http://user:4000/users', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json', // <-- Important !
-				},
-				body: JSON.stringify({
-					"id": userInfo.id,
-					"picture": userInfo.picture,
-					"name": userInfo.given_name
-				})
-			});
-			
-
-            if (!response.ok) {
-                console.error("[callback] - response => ", response);
-				return reply.status(response.status).send({error: "Failed to register user"});
-            }
-        } catch (e) {
-            return reply.status(500).send({ error: "Unexpected error : " + e});
+        if (!response.ok) {
+            console.error("[callback] - response => ", response);
+            return reply.status(response.status).send({ error: "Failed to register user" });
         }
-		
-		reply.setCookie("refresh_token", refreshToken, {
-			httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // HTTPS en prod
+
+        const user = await response.json();
+
+        const accessToken = server.jwt.sign(
+            { id: user.id, type: "access_token" },
+            { expiresIn: "15m" }
+        );
+        const refreshToken = server.jwt.sign(
+            { id: user.id, type: "refresh_token" },
+            { expiresIn: "7d" }
+        );
+
+        reply.setCookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
             path: "/",
             maxAge: 7 * 24 * 60 * 60, // 7 jours
         });
-		
+
         return reply.status(200).send({
             message: "Authentification réussie",
             accessToken,
@@ -106,3 +96,4 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         return reply.status(500).send({ error: "Erreur d'authentification" });
     }
 }
+

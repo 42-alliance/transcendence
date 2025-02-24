@@ -2,6 +2,10 @@ import fastify from 'fastify';
 import { setupRoutes } from './router.js';
 import { initializeDatabase } from './db/db.js';
 import './types.js';  // Important: importer les types
+import { PrismaClient } from '@prisma/client';
+
+
+export const prisma = new PrismaClient(); // client prisma
 
 export const server = fastify({
     logger: {
