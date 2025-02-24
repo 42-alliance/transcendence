@@ -1,19 +1,15 @@
-import { Type } from '@sinclair/typebox';
+import { Required, Type } from '@sinclair/typebox';
 
 export const addUserDatabaseSchema = {
   body: Type.Object({
     name: Type.String(),
     picture: Type.String(),
-  }),
+  }, { required: ["name", "picture"]}),
 };
 
 
-export const deleteUserDatabaseSchema = { 
-    headers: {
-        type: 'object',
-        properties: {
-            "x-user-id": {type: 'string'}
-        },
-        required: ['x-user-id'],
-    }
+export const deleteUserDatabaseSchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String(),
+	}, { required: ["x-user-id"] })
 };

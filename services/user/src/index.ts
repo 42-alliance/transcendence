@@ -1,7 +1,5 @@
 import fastify from 'fastify';
 import { setupRoutes } from './router.js';
-import { initializeDatabase } from './db/db.js';
-import './types.js';  // Important: importer les types
 import { PrismaClient } from '@prisma/client';
 
 
@@ -15,11 +13,6 @@ export const server = fastify({
         },
     },
 });
-
-// Initialiser la base de données
-const db = await initializeDatabase();
-// Ajouter la base de données au contexte de Fastify
-server.decorate('db', db);
 
 await setupRoutes(server);  // Passer server comme argument
 
