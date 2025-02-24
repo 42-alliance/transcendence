@@ -10,6 +10,6 @@ COPY . .
 
 RUN chmod 777 ./tools/script.sh
 
-EXPOSE 3000
+EXPOSE 4000
 
 CMD ["sh", "/app/tools/script.sh"]
