@@ -15,12 +15,13 @@ class Paddle {
       this.dx = 0; // Paddle's horizontal speed
     }
 
-    moveLeft() {
-      this.dx = -this.speed;
+
+    moveUp() {
+      this.y += this.speed;
     }
-  
-    moveRight() {
-      this.dx = this.speed;
+
+    moveDown() {
+      this.y -= this.speed;
     }
   
     stop() {
@@ -37,7 +38,7 @@ class Paddle {
       } else if (this.x + this.width > maxX) {
         this.x = maxX - this.width;
       }
-    }-*+
+    }
   }
 
 class Ball {
@@ -76,6 +77,7 @@ class player {
     username: string;
     score: number;
     paddle: Paddle;
+    ws: any;
     constructor(username: string, score: number, paddle: Paddle) {
         this.username = username;
         this.score = score;
@@ -93,6 +95,7 @@ class Game {
     score_p2: number;
     width: number;
     height: number;
+    mode : string;
 
     constructor(paddle_1: Paddle, paddle_2: Paddle, ball: Ball, width: number, height: number) {
         this.paddle_1 = paddle_1;
@@ -102,6 +105,7 @@ class Game {
         this.score_p2 = 0;
         this.width = width;
         this.height = height;
+        this.mode = "local";
 
         // Set initial positions and sizes
         this.paddle_1.x = 10;
@@ -112,7 +116,38 @@ class Game {
         this.ball.y = height / 2;
         this.p1 = new player("player1", 0, paddle_1);
         this.p2 = new player("player2", 0, paddle_2);
-    }   
-  }
+    }
+    update() {
+        this.paddle_1.update();
+        this.paddle_2.update();
+        this.ball.update();
+    }
+    checkBounds(minX: number, minY: number, maxX: number, maxY: number) {
+        this.ball.checkBounds(minX, minY, maxX, maxY);
+    }
+    checkPaddleCollision(paddle: Paddle) {
+        if (this.ball.x - this.ball.radius < paddle.x + paddle.width &&
+            this.ball.y > paddle.y &&
+            this.ball.y < paddle.y + paddle.height) {
+            this.ball.dx = -this.ball.dx;
+        }
+    }
+    sendData() {
+      const gameState = {
+        paddle1: { x: this.paddle_1.x, y: this.paddle_1.y },
+        paddle2: { x: this.paddle_2.x, y: this.paddle_2.y },
+        ball: { x: this.ball.x, y: this.ball.y },
+        score: { p1: this.score_p1, p2: this.score_p2 }
+      };
+
+      if (this.p1.ws) {
+        this.p1.ws.send(JSON.stringify(gameState));
+      }
+      if (this.p2.ws) {
+        this.p2.ws.send(JSON.stringify(gameState));
+      }
+    }
+}
+
 
 export { Paddle, Ball, Game };

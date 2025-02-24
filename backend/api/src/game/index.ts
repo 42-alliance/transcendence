@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { setUpRoutes } from './router.js';
+import { setUpRoutesGame } from './router.js';
 import { initializeDatabase } from '../db.js';
 import './types.js';  // Important: importer les types
 import jwt from "@fastify/jwt";
@@ -23,7 +23,7 @@ server.register(jwt, {
     secret: process.env.JWT_SECRET_TOKEN || "CHEF_REGARDE_ENV"
 });
 
-await setUpRoutes(server);  // Passer server comme argument
+await setUpRoutesGame(server);  // Passer server comme argument
 
 
 server.listen({ port: 8765, host: "0.0.0.0" }, (err, address) => {

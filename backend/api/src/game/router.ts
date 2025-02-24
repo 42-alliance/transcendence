@@ -1,7 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { ConnectWSonline } from './route.js';
 import { ConnectWSlocal } from './route.js';
-
+import fastify from 'fastify';
+import jwt from "@fastify/jwt";
+import cookie from "@fastify/cookie";
+import { db } from '../index.js';
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -9,8 +12,10 @@ import { ConnectWSlocal } from './route.js';
  * @param {FastifyInstance} server - Instance du serveur Fastify.
  */
 
-async function setupModeRoute(server: FastifyInstance) {
-	server.get('/ws/online', async function handler(request, reply) {
+export async function setupModeRoute(serverGame: FastifyInstance) {
+    console.log("Setting up game routes");
+	serverGame.get('/ws/online', async function handler(request, reply) {
+        console.log("catched requqeust************************");
         let token = request.headers['Authorization'];
         if (!token) {
             reply.code(401).send({error: 'Unauthorized'});
@@ -32,7 +37,7 @@ async function setupModeRoute(server: FastifyInstance) {
 		return await ConnectWSonline(data.username);
 	});
 
-    server.get('/ws/local', async function handler(request, reply) {
+    serverGame.get('/ws/local', async function handler(request, reply) {
         let token = request.headers['Authorization'];
         if (!token) {
             reply.code(401).send({error: 'Unauthorized'});
@@ -56,6 +61,6 @@ async function setupModeRoute(server: FastifyInstance) {
 }
 
 
-export async function setUpRoutes(server: FastifyInstance) {
-	await setupModeRoute(server);
+export async function setUpRoutesGame(serverGame: FastifyInstance) {
+	await setupModeRoute(serverGame);
 }

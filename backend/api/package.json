@@ -13,8 +13,6 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@fastify/cookie": "^11.0.2",
-		"@fastify/jwt": "^9.0.4",
 		"@fastify/middie": "^9.0.3",
 		"fast-jwt": "^5.0.5",
 		"fastify": "^5.2.1",
@@ -25,6 +23,8 @@
 		"ws": "^8.18.1"
 	},
 	"devDependencies": {
+		"@fastify/cookie": "^11.0.2",
+		"@fastify/jwt": "^9.0.4",
 		"@types/node": "^22.13.5",
 		"@types/ws": "^8.5.14",
 		"nodemon": "^3.1.9",

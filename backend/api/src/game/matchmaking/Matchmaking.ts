@@ -4,7 +4,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 
 export const wss = new WebSocketServer({ port: 8765 });
 
-interface Player {
+export interface Player {
     socket: WebSocket;
     username: string;
     type: string;
@@ -15,8 +15,7 @@ export const match = {
     //a tab of two interface player
     players: [] as Player[],
 }
-export const session: { match: Player[] }[] = [];
-
+export const session: { match: typeof match }[] = [];
 const queue_local: Player[] = [];
 const queue_online: Player[] = [];
 
@@ -64,7 +63,7 @@ function matchPlayers(queue: Player[]) {
             if (player1.socket.readyState === WebSocket.OPEN) {
                 player1.socket.send(matchMessage1);
             }
-            session.push({ match: [player1] });
+            session.push({ match: { players: [player1] } });
             continue;
         }
         const player2 = queue.shift();
@@ -76,7 +75,7 @@ function matchPlayers(queue: Player[]) {
             }
             if (player1)
                 queue.unshift(player1);
-            session.push({ match: [player2] });
+            session.push({ match: { players: [player2] } });
             continue;
         }
         else if (player1 && player2) {
@@ -92,7 +91,7 @@ function matchPlayers(queue: Player[]) {
             if (player2.socket.readyState === WebSocket.OPEN) {
                 player2.socket.send(matchMessage2);
             }
-            session.push({ match: [player1, player2] });
+            session.push({ match: { players: [player1, player2] } });
         }
     }
 }

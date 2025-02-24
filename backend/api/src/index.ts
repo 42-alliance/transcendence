@@ -4,6 +4,7 @@ import { initializeDatabase } from './db.js';
 import './types.js';  // Important: importer les types
 import jwt from "@fastify/jwt";
 import cookie from "@fastify/cookie";
+import { setupModeRoute, setUpRoutesGame } from './game/router.js';
 
 export const server = fastify({
     logger: {
@@ -15,7 +16,7 @@ export const server = fastify({
 });
 
 // Initialiser la base de données
-const db = await initializeDatabase();
+export const db = await initializeDatabase();
 // Ajouter la base de données au contexte de Fastify
 server.decorate('db', db);
 
@@ -24,7 +25,7 @@ server.register(jwt, {
 });
 
 await setUpRoutes(server);  // Passer server comme argument
-
+await setUpRoutesGame(server);
 
 server.listen({ port: 3000, host: "0.0.0.0" }, (err, address) => {
     if (err) {
