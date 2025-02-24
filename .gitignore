@@ -3,6 +3,8 @@ media/files/*
 services/*/node_modules/
 services/*/package-*
 services/*/.objs/
-./services/user/node_modules
+services/user/node_modules
 gateway/node_modules
-gateway/.objs
+gateway/.objs/
+backend/auth/node_modules/
+backend/user/.objs/
