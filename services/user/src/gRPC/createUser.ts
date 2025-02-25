@@ -1,4 +1,5 @@
 import { prisma } from '../index.js';
+import * as grpc from "@grpc/grpc-js";
 
 export const createUser = async (call: any, callback: any) => {
 	try {
@@ -15,6 +16,6 @@ export const createUser = async (call: any, callback: any) => {
 		callback(null, { id: newUser.id });
 	} catch (error) {
 		console.error("Erreur gRPC - CreateUser:", error);
-		callback({ code: 13, message: "Erreur serveur" });
+		callback({ code: grpc.status.INTERNAL, message: "Erreur serveur" });
 	}
 };

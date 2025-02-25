@@ -1,6 +1,11 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "../index.js";
 
+interface userBody {
+    name: string;
+    picture: string;
+}
+
 /**
  * Route POST `/users` - Ajoute un nouvel utilisateur à la base de données.
  *
@@ -8,12 +13,6 @@ import { prisma } from "../index.js";
  * @param {import("fastify").FastifyReply} reply - Réponse HTTP.
  * @returns {Promise<object>} L'utilisateur ajouté.
  */
-
-interface userBody {
-    name: string;
-    picture: string;
-}
-
 export async function addUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object> {
     const body: userBody = request.body as userBody;
 

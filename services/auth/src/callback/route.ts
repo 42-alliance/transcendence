@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { createUser } from '../gRPC/grpc-client.js';
+import { createUser, getUserById } from '../gRPC/grpc-client.js';
 
 async function getUserGoogleInfo(code: string) {
     const tokenUrl = "https://oauth2.googleapis.com/token";
@@ -42,7 +42,6 @@ async function getUserGoogleInfo(code: string) {
     }
 }
 
-
 export async function authCallback(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
     const { code } = request.query as { code: string };
 
@@ -54,8 +53,11 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     try {
         const userInfo = await getUserGoogleInfo(code);
 
-        // Appel gRPC pour créer un utilisateur
         const user = await createUser(userInfo.picture, userInfo.given_name);
+
+		const userTest = await getUserById(user.id);
+
+		console.log("[test] - grpc respose => ", userTest);
 
         // Génération des tokens
         const accessToken = server.jwt.sign(
