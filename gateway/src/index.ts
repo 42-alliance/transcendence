@@ -36,6 +36,21 @@ server.register(proxy, {
     http2: false,
 });
 
+// TODO: for /graphiql
+server.register(proxy, {
+    upstream: `http://${config.users.host}:${config.users.port}`,
+    prefix: '/graphiql',
+    rewritePrefix: '/graphiql',
+    http2: false,
+});
+
+server.register(proxy, {
+    upstream: `http://${config.users.host}:${config.users.port}`,
+    prefix: '/graphql',
+    rewritePrefix: '/graphql',
+    http2: false,
+});
+
 server.listen({ port: config.gateway.port, host: "0.0.0.0" }, (err, address) => {
     if (err) {
         console.error(err);

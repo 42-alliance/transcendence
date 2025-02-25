@@ -1,4 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { request } from 'graphql-request';
+
+const GRAPHQL_USER_SERVICE = 'http://user:4000/graphql';
+
+const QLreq = request;
 
 async function getUserGoogleInfo(code: string) {
     const tokenUrl = "https://oauth2.googleapis.com/token";
@@ -41,6 +46,15 @@ async function getUserGoogleInfo(code: string) {
     }
 }
 
+interface GraphQLResponse {
+    createOrUpdateUser?: {
+        id: string;
+        name: string;
+        picture: string | null;
+    };
+}
+
+
 export async function authCallback(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
     const { code } = request.query as { code: string };
 
@@ -52,30 +66,35 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     try {
         const userInfo = await getUserGoogleInfo(code);
 
-        const response = await fetch('http://user:4000/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                picture: userInfo.picture,
-                name: userInfo.given_name,
-            }),
+        const mutation = `
+            mutation createOrUpdateUser($name: String!, $picture: String!) {
+                createOrUpdateUser(name: $name, picture: $picture) {
+                    id
+                    name
+                    picture
+                }
+            }
+        `;
+
+        const userTest = await QLreq<GraphQLResponse>(GRAPHQL_USER_SERVICE, mutation, {
+            name: userInfo.given_name,
+            picture: userInfo.picture
         });
 
-        if (!response.ok) {
-            console.error("[callback] - response => ", response);
-            return reply.status(response.status).send({ error: "Failed to register user" });
+        if (!userTest?.createOrUpdateUser?.id) {
+            console.error("❌ Erreur lors de la création/mise à jour de l'utilisateur dans User Service");
+            return reply.status(500).send({ error: "Impossible de créer ou mettre à jour l'utilisateur" });
         }
+        
+		console.log("[test] - grpc respose => ", userTest);
 
-        const user = await response.json();
-
+        // Génération des tokens
         const accessToken = server.jwt.sign(
-            { id: user.id, type: "access_token" },
+            { id: userTest.createOrUpdateUser.id, type: "access_token" },
             { expiresIn: "15m" }
         );
         const refreshToken = server.jwt.sign(
-            { id: user.id, type: "refresh_token" },
+            { id: userTest.createOrUpdateUser.id, type: "refresh_token" },
             { expiresIn: "7d" }
         );
 
@@ -96,4 +115,5 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         return reply.status(500).send({ error: "Erreur d'authentification" });
     }
 }
+
 
