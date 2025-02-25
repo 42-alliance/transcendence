@@ -1,0 +1,74 @@
+services:
+  nginx:
+    container_name: nginx
+    build: frontend/nginx
+    ports:
+      - "8080:80"
+    restart: always
+    volumes:
+      - ./frontend:/var/www/html
+  media:
+    container_name: media
+    build: media/nginx
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./media/files:/data/files/
+    restart: always
+  user:
+    container_name: user
+    build: ./backend/user
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend/user:/app
+      - ./database:/database
+    env_file:
+      - .env
+    restart: always
+  auth:
+    container_name: auth
+    build: ./backend/auth
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/auth:/app
+      - ./database:/database
+    env_file:
+      - .env
+    restart: always
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+     - GF_SERVER_ROOT_URL=http://my.grafana.server/
+     - GF_PLUGINS_PREINSTALL=grafana-clock-panel
+    ports:
+     - '2000:3000'
+    volumes:
+     - 'media/grafana:/var/lib/grafana'
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '-config.file=/etc/prometheus/prometheus.yml'
+      - '-storage.local.path=/prometheus'
+      - '-alertmanager.url=http://alertmanager:9093'
+      - '-storage.local.memory-chunks=100000'
+    restart: unless-stopped
+    expose:
+      - 9090
+    ports:
+      - 9090:9090
+    networks:
+      - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"
+
+volumes:
+  grafana_storage: {}

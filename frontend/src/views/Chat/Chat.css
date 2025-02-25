@@ -1,0 +1,139 @@
+.chat-container {
+    font-family: 'gg sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 45rem;
+    overflow: hidden;
+    width: 70%;
+}
+
+.msg-box {
+    display: flex;
+}
+
+.chat-box {
+    display: flex;
+    flex-grow: 1;
+    overflow-y: auto;
+    gap: 1rem;
+    flex-direction: column;
+    max-height: 34rem;
+    overflow-x: hidden;
+}
+
+.chat-profile-img {
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+}
+
+.header-msg {
+    display: flex;
+    gap: 1rem;
+    height: 2rem;
+}
+
+.sender-name {
+    font-size: 1rem;
+    align-self: flex-start;
+    color: black;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.sender-name:hover {
+    text-decoration: underline;
+}
+
+.msg-content {
+    margin-left: 4rem;
+    font-size: 1.0rem;
+    font-family: 'gg sans Normal', sans-serif;
+}
+
+.input {
+    color: black;
+    border-radius: 10px;
+    outline: 2px solid #FEBF00;
+    border: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #e2e2e2;
+    outline-offset: 3px;
+    padding: 10px 1rem;
+    transition: 0.25s;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 100%;
+  }
+  
+  .input:focus {
+    outline-offset: 5px;
+    background-color: #fff
+  }
+
+/* ooko */
+
+.input-group {
+	position: relative;
+}
+
+.content-container {
+	position: relative;
+	flex-grow: 1;
+	overflow: hidden;
+}
+
+#chat-message {
+	transition: all 0.3s ease-out;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+#chat-message.slide-out {
+	transform: translateX(-100%);
+	opacity: 0;
+}
+
+.search-container {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	transform: translateX(100%);
+	opacity: 0;
+	transition: all 0.3s ease-out;
+}
+
+.search-container.slide-in {
+	transform: translateX(0);
+	opacity: 1;
+}
+
+/* Style pour l'icône dans l'input */
+.input-icon-container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+#chat-search {
+	padding-right: 40px; /* Espace pour l'icône */
+}
+
+.input-icon {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #6c757d;
+	cursor: pointer;
+	z-index: 10;
+}
+
+.input-icon:hover {
+	color: #0d6efd;
+}
