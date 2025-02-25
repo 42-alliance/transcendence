@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { createUser, getUserById } from '../gRPC/grpc-client.js';
 
 async function getUserGoogleInfo(code: string) {
     const tokenUrl = "https://oauth2.googleapis.com/token";
@@ -52,50 +53,29 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     try {
         const userInfo = await getUserGoogleInfo(code);
 
-		const accessToken = server.jwt.sign(
-			{
-				id: userInfo.id,
-				type: "access_token"
-			}, 
-			{ expiresIn: "15m" }
-		);
-		const refreshToken = server.jwt.sign(
-			{
-				id: userInfo.id,
-				type: "refresh_token"
-			},
-			{ expiresIn: "7d" }
-		);
+        const user = await createUser(userInfo.picture, userInfo.given_name);
 
-        try {
-			const response = await fetch('http://user:4000/users', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json', // <-- Important !
-				},
-				body: JSON.stringify({
-					"id": userInfo.id,
-					"picture": userInfo.picture,
-					"name": userInfo.given_name
-				})
-			});
-			
+		const userTest = await getUserById(user.id);
 
-            if (!response.ok) {
-                console.error("[callback] - response => ", response);
-				return reply.status(response.status).send({error: "Failed to register user"});
-            }
-        } catch (e) {
-            return reply.status(500).send({ error: "Unexpected error : " + e});
-        }
-		
-		reply.setCookie("refresh_token", refreshToken, {
-			httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // HTTPS en prod
+		console.log("[test] - grpc respose => ", userTest);
+
+        // Génération des tokens
+        const accessToken = server.jwt.sign(
+            { id: user.id, type: "access_token" },
+            { expiresIn: "15m" }
+        );
+        const refreshToken = server.jwt.sign(
+            { id: user.id, type: "refresh_token" },
+            { expiresIn: "7d" }
+        );
+
+        reply.setCookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
             path: "/",
             maxAge: 7 * 24 * 60 * 60, // 7 jours
         });
-		
+
         return reply.status(200).send({
             message: "Authentification réussie",
             accessToken,
@@ -106,3 +86,5 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         return reply.status(500).send({ error: "Erreur d'authentification" });
     }
 }
+
+

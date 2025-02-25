@@ -28,6 +28,8 @@ services:
   auth:
       container_name: auth
       build: ./services/auth
+      volumes:
+        - ./services/auth:/app
       env_file:
         - .env
       restart: always

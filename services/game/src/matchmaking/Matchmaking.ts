@@ -18,6 +18,7 @@ export const session: { match: typeof match }[] = [];
 const queue_local: Player[] = [];
 const queue_online: Player[] = [];
 
+let i = 0;
 export const wss = new WebSocketServer({ port: 8790 });
 console.log('Serveur WebSocket lancé sur ws://localhost:8790');
 export async function setupMatchmaking() {
@@ -28,7 +29,8 @@ export async function setupMatchmaking() {
         ws.on('message', (message) => {
             try {
                 const data = JSON.parse(message.toString());
-                
+                data.username = "test" + i;
+                i++;
                 if (data.type === 'online') {
                     if (!queue_online.find(player => player.username === data.username)) {
                         console.log(`${data.username} a choisi le mode en ligne et entre dans la file`);
