@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { addFriend, getFriends, getPendingFriendRequest, removeFriend } from "./friends/route.js";
+import { addFriend, getFriends, removeFriend } from "./friends/route.js";
 import { getFriendStatus, updateFriendStatus } from "./friends/status/route.js";
+import { getPendingFriendRequest } from "./friends/pending/route.js";
 import { addFriendSchema, areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
 import { deleteUserDatabase, getAllUsers, addUserDatabase } from "./users/route.js";
 import { addUserDatabaseSchema, deleteUserDatabaseSchema } from "./users/schema.js";
@@ -54,7 +55,7 @@ async function setupFriendsRoute(server: FastifyInstance) {
 	});
 
 	// /friends/pending
-	server.get('/friends/pending/', async function handler(request, reply) {
+	server.get('/friends/pending', async function handler(request, reply) {
 		return await getPendingFriendRequest(server, request, reply);
 	});
 }

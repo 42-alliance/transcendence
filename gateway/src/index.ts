@@ -7,7 +7,6 @@ import jwt from "@fastify/jwt";
 
 export const server = Fastify({
     logger: {
-        level: 'debug',
         transport: {
             target: "pino-pretty",
             options: { colorize: true },
@@ -23,6 +22,16 @@ server.register(proxy, {
     upstream: `http://${config.users.host}:${config.users.port}`,
     prefix: '/users',
     rewritePrefix: '/users',
+    http2: false,
+    preHandler: async (request, reply) => {	
+        await verifyJWT(server, request, reply);
+    }
+});
+
+server.register(proxy, {
+    upstream: `http://${config.users.host}:${config.users.port}`,
+    prefix: '/friends',
+    rewritePrefix: '/friends',
     http2: false,
     preHandler: async (request, reply) => {	
         await verifyJWT(server, request, reply);

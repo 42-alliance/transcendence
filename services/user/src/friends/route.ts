@@ -8,10 +8,13 @@ export async function addFriend(server: FastifyInstance, request: FastifyRequest
 
 	const { friendId, friendName } = request.body as { friendId: number, friendName: string };
 
+	if (!friendName) {
+		return reply.status(400).send({ error: "friendName is required" });
+	}
+	
 	try {
 		const friend = await prisma.users.findUnique({
 			where: {
-				id: friendId,
 				name: friendName,
 			}
 		});
@@ -21,7 +24,7 @@ export async function addFriend(server: FastifyInstance, request: FastifyRequest
 			return reply.status(400).send({ error: "This friend don't exist" });
 		}
 
-		await prisma.friends.create({
+		const oui = await prisma.friends.create({
 			data: {
 				senderId: userId,
 				receiverId: friendId,
@@ -139,32 +142,3 @@ export async function getFriends(server: FastifyInstance, request: FastifyReques
 	}
 }
 
-export async function getPendingFriendRequest(server: FastifyInstance, request: FastifyRequest,reply: FastifyReply) {
-
-	const userId = extractUserId(request);
-
-    console.log("Getting pending requests for user:", userId);
-
-    try {
-		const incomingPendingRequests = await prisma.friends.findMany({
-			where: {
-			  receiverId: userId,
-			  status: 'pending'
-			},
-			include: {
-			  sender: true
-			}
-		});
-		  
-		const requestSenders = incomingPendingRequests.map(request => ({
-			id: request.sender.id,
-			name: request.sender.name,
-			picture: request.sender.picture
-		}));
-
-        return reply.status(200).send(requestSenders);
-    } catch (error) {
-        console.error("Error server:", error);
-        return reply.status(500).send({ error: "Erreur serveur." });
-    }
-}
