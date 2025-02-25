@@ -1,8 +1,7 @@
 import Fastify from 'fastify';
-import jwt from "@fastify/jwt";
 import { setAuthRoutes } from './router.js';
-import cookie from "@fastify/cookie";
 import { config } from './config.js';
+import { setupPlugins } from './plugins/setupPlugins.js';
 
 export const server = Fastify({
     logger: {
@@ -13,15 +12,9 @@ export const server = Fastify({
     },
 });
 
-server.register(cookie, {
-	parseOptions: {}, // Options de parsing
-});
+setupPlugins(server);
 
-server.register(jwt, {
-	secret: config.jwt.secret,
-});
-
-await setAuthRoutes(server);  // Passer server comme argument
+await setAuthRoutes(server);
 
 server.listen({ port: config.auth.port, host: "0.0.0.0" }, (err, address) => {
     if (err) {

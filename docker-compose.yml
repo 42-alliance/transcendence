@@ -37,11 +37,11 @@ services:
         - services_network
   gateway:
       container_name: gateway
-      build: ./gateway
+      build: ./services/gateway
       ports:
         - "8000:8000"
       volumes:
-        - ./gateway:/app
+        - ./services/gateway:/app
       env_file:
         - .env
       restart: always
