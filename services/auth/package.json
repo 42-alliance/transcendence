@@ -19,7 +19,6 @@
 		"@fastify/jwt": "^9.0.4",
 		"fastify": "^5.2.1",
 		"fastify-plugin": "^5.0.1",
-		"graphql-request": "^7.1.2",
 		"nodemon": "^3.1.9",
 		"pino-pretty": "^13.0.0"
 	},

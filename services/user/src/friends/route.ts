@@ -1,14 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "../index.js";
-import { extractUserId } from "../utils.js";
+import { extractUserId } from "../utils.js"
 
-const StatusEnum = {
-	pending: 'pending',
-	accepted: 'accepted',
-	rejected: 'rejected',
-	blocked: 'blocked',
-};
-
+// POST
 export async function addFriend(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	const userId = extractUserId(request);
 
@@ -42,49 +36,7 @@ export async function addFriend(server: FastifyInstance, request: FastifyRequest
 	}
 }
 
-export async function updateFriendStatus(server: FastifyInstance, request: FastifyRequest<{Params: { friendId: string }}>, reply: FastifyReply) {
-    const { friendId } = request.params;
-	const userId = extractUserId(request);
-    const { status } = request.body as { status: string };
-
-	if (!Object.values(StatusEnum).includes(status)) {
-		return reply.status(400).send({ error: 'Statut invalide' });
-	}
-	
-	const fID = parseInt(friendId);
-	
-    try {
-		const query = await prisma.friends.updateMany({
-			where: {
-				OR: [
-					{
-						senderId: userId,
-						receiverId: fID,
-					},
-					{
-						senderId: fID,
-						receiverId: userId,
-					},
-				],
-			},
-			data: {
-				status: status as keyof typeof StatusEnum,
-			},
-		});
-		
-		if (query.count === 0) {
-			return reply.status(400).send({ message: "User not found in database" });
-		}
-
-        console.log(`Demande d'ami entre ${userId} et ${friendId} est maintenant ${status}.`);
-
-        return reply.status(200).send({ message: `Friend request is now ${status}` });
-    } catch (error) {
-        console.error("Error server:" + error);
-        return reply.status(500).send({ error: error });
-    }
-}
-
+// DELETE
 export async function removeFriend(server: FastifyInstance, request: FastifyRequest<{Params: { friendId: string }}>, reply: FastifyReply) {
 	const { friendId } = request.params;
 
@@ -124,44 +76,7 @@ export async function removeFriend(server: FastifyInstance, request: FastifyRequ
 	}
 }
 
-export async function areFriends(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<boolean> {
-
-	const userId = extractUserId(request);
-	
-	const { friend_id } = request.body as {
-		friend_id: number,
-	};
-
-	try {
-		const friend = await prisma.friends.findMany({
-			where: {
-				OR: [
-					{
-						senderId: userId,
-						receiverId: friend_id,
-					},
-					{
-						senderId: friend_id,
-						receiverId: userId,
-					}
-				],
-				AND: [
-					{
-						status: "accepted" as keyof typeof StatusEnum,
-					}
-				],
-			}
-		});
-
-		
-		console.error("are friend ? : ", friend.length >= 1);
-        return reply.status(200).send({ message: friend.length >= 1 });		
-	} catch (error) {
-		console.error("Error server:" + error);
-        return reply.status(500).send({ error: "Erreur serveur." });		
-	}
-}
-
+// GET
 export async function getFriends(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	try {
 		const userId = extractUserId(request);

@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
-import { addFriend, areFriends, getFriends, getPendingFriendRequest, removeFriend, updateFriendStatus } from "./friends/route.js";
+import { addFriend, getFriends, getPendingFriendRequest, removeFriend } from "./friends/route.js";
+import { getFriendStatus, updateFriendStatus } from "./friends/status/route.js";
 import { addFriendSchema, areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
 import { deleteUserDatabase, getAllUsers, addUserDatabase } from "./users/route.js";
 import { addUserDatabaseSchema, deleteUserDatabaseSchema } from "./users/schema.js";
@@ -30,26 +31,29 @@ async function setupUsersRoute(server: FastifyInstance) {
  * @param {FastifyInstance} server - Instance du serveur Fastify.
  */
 async function setupFriendsRoute(server: FastifyInstance) {
+	// /friends
 	server.post('/friends', { schema:addFriendSchema }, async function handler(request, reply) {
 		return await addFriend(server, request, reply);
 	});
-
-	server.post<{Params: { friendId: string }}>('/friends/:friendId/status', async function handler(request, reply) {
-		return await updateFriendStatus(server, request, reply);
-	});
-
+	
 	server.delete<{Params: { friendId: string }}>('/friends/:friendId', async function handler(request, reply) {
 		return await removeFriend(server, request, reply);
 	});
-
-	server.get('/friends/relationship', {schema: areFriendsSchema}, async function handler(request, reply) {
-		return await areFriends(server, request, reply);
-	});
-
+	
 	server.get('/friends', async function handler(request, reply) {
 		return await getFriends(server, request, reply);
 	});
 
+	// /friends/status
+	server.post<{Params: { friendId: string }}>('/friends/:friendId/status', async function handler(request, reply) {
+		return await updateFriendStatus(server, request, reply);
+	});
+
+	server.get('/friends/status', {schema: areFriendsSchema}, async function handler(request, reply) {
+		return await getFriendStatus(server, request, reply);
+	});
+
+	// /friends/pending
 	server.get('/friends/pending/', async function handler(request, reply) {
 		return await getPendingFriendRequest(server, request, reply);
 	});
