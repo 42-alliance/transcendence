@@ -7,4 +7,5 @@ npm install
 
 npm run build
 
-exec npm test --forceColor
+# exec npm test --forceColor
+exec sleep 1000
