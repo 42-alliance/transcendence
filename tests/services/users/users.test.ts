@@ -40,11 +40,11 @@ describe("User API Endpoints", () => {
     expect(res.body.length).toBeGreaterThan(0);
   });
   
-  test("DELETE /users - Should delete a user", async () => {
-    const res = await request(baseURL)
-      .delete("/users")
-      .set("x-user-id", userId.toString());
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ message: "User successfully deleted" });
-  });
+	test("DELETE /users - Should delete a user", async () => {
+		const res = await request(baseURL)
+			.delete("/users")
+			.set("x-user-id", userId.toString());
+		expect(res.status).toBe(200);
+		expect(res.body).toEqual({ message: "User successfully deleted" });
+	});
 });

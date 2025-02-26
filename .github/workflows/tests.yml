@@ -1,0 +1,45 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+      - api
+      - frontend
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: docker compose version
+
+      - name: Create .env file
+        run: |
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+          echo "AUTH_HOST=${{ secrets.AUTH_HOST }}" >> .env
+          echo "USER_HOST=${{ secrets.USER_HOST }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
+          echo "USER_DATABASE_PATH=${{ secrets.USER_DATABASE_PATH }}" >> .env
+          echo "GATEWAY_PORT=${{ secrets.GATEWAY_PORT }}" >> .env
+          echo "AUTH_PORT=${{ secrets.AUTH_PORT }}" >> .env
+          echo "USER_PORT=${{ secrets.USER_PORT }}" >> .env
+          echo "PRISMA_USER_DATABASE_PATH=${{ secrets.PRISMA_USER_DATABASE_PATH }}" >> .env
+
+      - name: Build and start containers
+        run: docker compose up --build -d
+
+      - name: Run tests
+        run: make tests
+
+      - name: Stop and clean up
+        run: make fclean
