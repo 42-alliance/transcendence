@@ -9,3 +9,5 @@ gateway/.objs/
 backend/auth/node_modules/
 backend/user/.objs/
 frontend/node_modules/
+tests/node_modules/
+tests/.objs/

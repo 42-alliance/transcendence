@@ -1,4 +1,3 @@
-import { watch } from "fs";
 import request from "supertest";
 
 // Use the BASE_URL environment variable for the API address
