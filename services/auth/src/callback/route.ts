@@ -86,5 +86,3 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         return reply.status(500).send({ error: "Erreur d'authentification" });
     }
 }
-
-

@@ -8,3 +8,4 @@ gateway/node_modules
 gateway/.objs/
 backend/auth/node_modules/
 backend/user/.objs/
+frontend/node_modules/

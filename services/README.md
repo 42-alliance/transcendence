@@ -31,28 +31,13 @@ Cette API permet la gestion des utilisateurs, de leur authentification et des re
 
 ## 🛣️ Routes
 
-### 💂 Création d'un utilisateur
-
-#### `POST /api/create-user/`
-
-Permet de créer un nouvel utilisateur API, ce qui génère des identifiants pour l'authentification.
-
-📌 **Exemple de requête :**
-
-```json
-{
-  "username": "pepe",
-  "password": "pepe"
-}
-```
-
 ---
 
 ### 🔐 Authentification
 
-#### `POST /api-token-auth/`
+#### `GET /auth/redirect`
 
-Génère un token JWT permettant l'authentification auprès de l'API et de toutes ses routes.
+Génère une url de connexion oauth2 avec google et redirige vers le callback.
 
 📌 **Exemple de requête :**
 

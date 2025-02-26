@@ -32,6 +32,8 @@ services:
         - ./services/auth:/app
       env_file:
         - .env
+      volumes:
+        - ./services/auth:/app
       restart: always
       networks:
         - services_network
