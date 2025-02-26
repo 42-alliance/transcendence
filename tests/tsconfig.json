@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-	  "target": "es2022",
-	  "module": "esnext",
-	  "moduleResolution": "node",
+	  "target": "ES2022",  // Update from ES2024 to ES2022 (though both should work)
+	  "module": "NodeNext", // Change from ESNext to NodeNext
+	  "moduleResolution": "NodeNext",
 	  "outDir": "./.objs",
 	  "esModuleInterop": true,
 	  "forceConsistentCasingInFileNames": true,
@@ -10,17 +10,16 @@
 	  "skipLibCheck": true,
 	  "typeRoots": [
 		"./node_modules/@types",
-		"./src/@types"
+		"./services/@types"
 	  ],
 	  "resolveJsonModule": true,
 	  "sourceMap": true
 	},
 	"include": [
-	  "services/**/*",    // Inclure les fichiers dans services
+	  "services/**/*"
 	],
 	"exclude": [
 	  "node_modules",
 	  ".objs"
 	]
   }
-  

@@ -11,7 +11,7 @@ export default {
 		},
 	  ],
 	},
-	collectCoverageFrom: ["src/**/*.ts"], // Avoid collecting from .objs
+	collectCoverageFrom: ["services/**/*.ts"],
 	modulePathIgnorePatterns: ["<rootDir>/.objs"],
-};
+  };
   
