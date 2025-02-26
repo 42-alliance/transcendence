@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package common;
-
-message User {
-  string userId = 1;
-  string email = 2;
-  string username = 3;
-}
