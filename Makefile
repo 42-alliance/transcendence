@@ -12,6 +12,12 @@ down :
 
 oui : down up
 
+tests :
+	docker compose up --build -d
+	# sleep 5
+	docker attach tests
+	docker compose down
+
 check:
 	@echo "$(MAGENTA)CONTAINER:$(RESET)"
 	@docker ps -a
@@ -27,14 +33,11 @@ fclean : down
 	docker volume prune -af
 	@docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
 
-
-dbclean : down
-	docker volume prune -af
-	docker compose up --build
-
 log :
 	docker compose logs -f
 
 re : fclean all
 
-.PHONY : all up down fclean log re
+retest : fclean tests
+
+.PHONY : all up down fclean log re tests retest check oui

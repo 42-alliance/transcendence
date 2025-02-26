@@ -1,7 +1,6 @@
 import fastify from 'fastify';
 import { setupRoutes } from './router.js';
 import { PrismaClient } from '@prisma/client';
-import { setupGrpcServer } from './gRPC/grpc.server.js';
 
 export const prisma = new PrismaClient(); // client prisma
 
@@ -16,8 +15,6 @@ export const server = fastify({
 });
 
 await setupRoutes(server);
-
-setupGrpcServer();
 
 const port =  parseInt(process.env.USER_PORT!);
 

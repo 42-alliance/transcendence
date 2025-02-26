@@ -23,7 +23,7 @@ async function setupUsersRoute(server: FastifyInstance) {
 	server.post("/users", { schema: addUserDatabaseSchema }, async function handler(request, reply) {
 		return await addUserDatabase(server, request, reply);
 	});
-}
+} 
 
 
 /**

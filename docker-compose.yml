@@ -28,8 +28,6 @@ services:
   auth:
       container_name: auth
       build: ./services/auth
-      volumes:
-        - ./services/auth:/app
       env_file:
         - .env
       volumes:
@@ -37,6 +35,20 @@ services:
       restart: always
       networks:
         - services_network
+  tests:
+      container_name: tests
+      build: ./tests/docker/.
+      volumes:
+        - ./tests:/app
+      env_file:
+        - .env
+      networks:
+        - services_network
+      depends_on:
+        - user
+        - auth
+        - gateway
+      tty: true
   gateway:
       container_name: gateway
       build: ./gateway
