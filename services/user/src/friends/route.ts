@@ -19,15 +19,28 @@ export async function addFriend(server: FastifyInstance, request: FastifyRequest
 			}
 		});
 
-		if (friend === null) {
+		if (!friend) {
 			console.error("This friend don't exist");
 			return reply.status(400).send({ error: "This friend don't exist" });
+		}
+
+		const existingFriendChip = await prisma.friends.findFirst({
+			where: {
+				OR: [
+					{ senderId: userId, receiverId: friend.id},
+					{ senderId: friend.id, receiverId: userId}
+				]
+			}
+		});
+
+		if (existingFriendChip) {
+			return reply.status(400).send({error: "Friend request already exists"});
 		}
 
 		const oui = await prisma.friends.create({
 			data: {
 				senderId: userId,
-				receiverId: friendId,
+				receiverId: friend.id,
 			}
 		});
 		console.log(`Demande d'ami envoyée de ${userId} à ${friendName}.`);

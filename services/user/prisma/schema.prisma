@@ -11,34 +11,32 @@ generator client {
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
-
 model Users {
-	id     		Int		@id @default(autoincrement())
-	name   		String		@unique
-	picture		String
-	created_at	DateTime	@default(now())
-
-	friends1	Friends[]	@relation("Sender")
-	friends2	Friends[]	@relation("Receiver")
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  picture    String
+  created_at DateTime  @default(now())
+  sentRequests     Friends[] @relation("SentRequests")
+  receivedRequests Friends[] @relation("ReceivedRequests")
 }
 
-
 enum Status {
-	pending
-	accepted
-	rejected
-	blocked
+  pending
+  accepted
+  rejected
+  blocked
 }
 
 model Friends {
-	id			Int         @id @default(autoincrement())
-	senderId	Int		
-	receiverId 	Int
-	status		Status		@default(pending)
-	created_at	DateTime	@default(now())
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     Status   @default(pending)
+  created_at DateTime @default(now())
 
-	sender		Users		@relation("Sender", fields: [senderId], references: [id])	
-	receiver	Users		@relation("Receiver", fields: [receiverId], references: [id])	
+  sender   Users  @relation("SentRequests", fields: [senderId], references: [id])
+  receiver Users  @relation("ReceivedRequests", fields: [receiverId], references: [id])
+  usersId  Int?
 
-	@@unique([senderId, receiverId])
+  @@unique([senderId, receiverId])
 }

@@ -1,17 +1,17 @@
 
 export const config = {
-	gateway: {	// Configuration du service gateway
-		port: parseInt(process.env.GATEWAY_PORT!),	// Port d'écoute du service gateway
+	gateway: {	
+		port: parseInt(process.env.GATEWAY_PORT!),
 	},
-	auth: {	// Configuration du service AUTH_PORT
-		host: process.env.AUTH_HOST!,	// Host du service auth
-		port: parseInt(process.env.AUTH_PORT!),	// Port d'écoute du service auth
+	auth: {
+		host: process.env.AUTH_HOST!,
+		port: parseInt(process.env.AUTH_PORT!),
 	},
-	users: {	// Configuration du service USERS_PORT
-		host: process.env.USER_HOST!,	// Host du service users
-		port: parseInt(process.env.USER_PORT!),	// Port d'écoute du service users
+	users: {	
+		host: process.env.USER_HOST!,	
+		port: parseInt(process.env.USER_PORT!),
 	},
-	jwt: {	// Configuration du service
-		secret: process.env.JWT_SECRET!,	// Secret pour la génération des tokens JWT
+	jwt: {
+		secret: process.env.JWT_SECRET!,
 	},
 };
