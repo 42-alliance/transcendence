@@ -4,19 +4,21 @@ const baseURL = "http://user:4000";
 let userId: number;
 
 const wait = async () => {
-  while (true) {
-    console.log("Waiting for user service to start...");
-    // await new Promise((resolve) => setTimeout(resolve, 5000));
-    try {
-      await request(baseURL).get("/users");
-      break;
-    } catch (error) {
+	while (true) {
+	  console.log("Waiting for user service to start...");
+	  try {
+		const res = await request(baseURL).get("/users");
+		if (res.status === 200) {
+		  console.log("User service is up!");
+		  break;
+		}
+	  } catch (error) {
 		console.log("User service not ready yet...");
-    }
-	setTimeout(() => {}, 5000);
-  }
-};
-
+	  }
+	  await new Promise((resolve) => setTimeout(resolve, 1000));
+	}
+  };
+  
 // This will run before any tests and Jest will wait for it to complete
 beforeAll(async () => {
   await wait();
