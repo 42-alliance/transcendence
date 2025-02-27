@@ -78,9 +78,8 @@ function matchPlayers(queue: Player[]) {
         if (player2 && player2.type === 'local') {
             console.log(`Match trouvé : ${player2.username}`);
             const matchMessage1 = JSON.stringify({ type: 'match_found', opponent: player2.username });
-            if (player2.socket.readyState === WebSocket.OPEN) {
-                player2.socket.send(matchMessage1);
-            }
+            console.log('sending match message');
+            player2.socket.send(matchMessage1);
             if (player1)
                 queue.unshift(player1);
             session.push({ match: { players: [player2] } });
@@ -88,20 +87,17 @@ function matchPlayers(queue: Player[]) {
         }
         else if (player1 && player2) {
             console.log(`Match trouvé : ${player1.username} vs ${player2.username}`);
-
+            
             const matchMessage1 = JSON.stringify({ type: 'match_found', opponent: player2.username });
             const matchMessage2 = JSON.stringify({ type: 'match_found', opponent: player1.username });
-
-            if (player1.socket.readyState === WebSocket.OPEN) {
-                player1.socket.send(matchMessage1);
+            player1.socket.send(matchMessage1);
+            player2.socket.send(matchMessage2);
+            console.log('sending match message');
             }
-
-            if (player2.socket.readyState === WebSocket.OPEN) {
-                player2.socket.send(matchMessage2);
-            }
-            session.push({ match: { players: [player1, player2] } });
+            if (player1 && player2)
+                session.push({ match: { players: [player1, player2] } });
         }
     }
-}
+
 
  
