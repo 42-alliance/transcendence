@@ -1,5 +1,4 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { createUser, getUserById } from '../gRPC/grpc-client.js';
 
 async function getUserGoogleInfo(code: string) {
     const tokenUrl = "https://oauth2.googleapis.com/token";
@@ -53,11 +52,23 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     try {
         const userInfo = await getUserGoogleInfo(code);
 
-        const user = await createUser(userInfo.picture, userInfo.given_name);
+		const response = await fetch('http://user:4000/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                picture: userInfo.picture,
+                name: userInfo.given_name,
+            }),
+        });
 
-		const userTest = await getUserById(user.id);
+        if (!response.ok) {
+            console.error("[callback] - response => ", response);
+            return reply.status(response.status).send({ error: "Failed to register user" });
+        }
 
-		console.log("[test] - grpc respose => ", userTest);
+        const user = await response.json();
 
         // Génération des tokens
         const accessToken = server.jwt.sign(
