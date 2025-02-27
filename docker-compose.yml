@@ -44,11 +44,10 @@ services:
         - .env
       networks:
         - services_network
+      tty: true
       depends_on:
         - user
         - auth
-        - gateway
-      tty: true
   gateway:
       container_name: gateway
       build: ./gateway
