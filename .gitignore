@@ -1,1 +1,13 @@
-ouijetest
+.env
+media/files/*
+services/*/node_modules/
+services/*/package-*
+services/*/.objs/
+services/user/node_modules
+gateway/node_modules
+gateway/.objs/
+backend/auth/node_modules/
+backend/user/.objs/
+frontend/node_modules/
+tests/node_modules/
+tests/.objs/
