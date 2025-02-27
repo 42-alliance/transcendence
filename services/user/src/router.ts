@@ -4,7 +4,7 @@ import { getFriendStatus, updateFriendStatus } from "./friends/status/route.js";
 import { getPendingFriendRequest } from "./friends/pending/route.js";
 import { addFriendSchema, areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
 import { deleteUserDatabase, getAllUsers, addUserDatabase } from "./users/route.js";
-import { addUserDatabaseSchema, deleteUserDatabaseSchema } from "./users/schema.js";
+import { addUserDatabaseSchema, userIdHeader } from "./users/schema.js";
 import { me } from "./users/@me/route.js";
 
 /**
@@ -17,7 +17,7 @@ async function setupUsersRoute(server: FastifyInstance) {
 		return await getAllUsers(server, reply);
 	});
 
-	server.delete("/users", { schema: deleteUserDatabaseSchema }, async function handler(request, reply) {
+	server.delete("/users", { schema: userIdHeader }, async function handler(request, reply) {
 		return await deleteUserDatabase(server, request, reply);
 	});
 
@@ -25,7 +25,7 @@ async function setupUsersRoute(server: FastifyInstance) {
 		return await addUserDatabase(server, request, reply);
 	});
 
-	server.get('/users/@me', async function handler(request, reply) {
+	server.get('/users/@me', { schema: userIdHeader }, async function handler(request, reply) {
 		return await me(server, request, reply);
 	});
 }

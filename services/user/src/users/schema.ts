@@ -8,7 +8,7 @@ export const addUserDatabaseSchema = {
 };
 
 
-export const deleteUserDatabaseSchema = {
+export const userIdHeader = {
 	headers: Type.Object({
 		"x-user-id": Type.String(),
 	}, { required: ["x-user-id"] })

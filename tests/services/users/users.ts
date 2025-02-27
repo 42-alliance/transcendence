@@ -8,7 +8,7 @@ interface User {
 }
 
 let users: User[] = [];
-const USERS = 1;
+const USERS = 100;
 
 export function test_users_routes(baseURL: string) {
 	test("POST /users - Should create a new user", async () => {
@@ -16,7 +16,7 @@ export function test_users_routes(baseURL: string) {
 			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), id: 0};
 			const res = await request(baseURL)
 			.post("/users")
-			.send({ name: generateRandomString(10), picture: generateRandomString(10) });
+			.send({ name: users[i].name, picture: users[i].picture });
 			expect(res.status).toBe(200);
 			expect(res.body).toHaveProperty("id");
 			users[i].id = res.body.id;
@@ -52,7 +52,6 @@ export function test_users_routes(baseURL: string) {
 				.get("/users/@me")
 				.set("x-user-id", userId.toString());
 			expect(res.status).toBe(200);
-			console.log(res.body);
 			expect(res.body).toHaveProperty("name");
 			expect(res.body.name).toBe(users[i].name);
 			expect(res.body).toHaveProperty("picture");
@@ -63,7 +62,7 @@ export function test_users_routes(baseURL: string) {
 	});
 
 	test("GET /users/@me - Should return an error if the user ID is missing", async () => {
-		const res = await request(baseURL).get("/users");
+		const res = await request(baseURL).get("/users/@me");
 		expect(res.status).toBe(400);
 		expect(res.body.message).toEqual("headers must have required property 'x-user-id'");
 	});

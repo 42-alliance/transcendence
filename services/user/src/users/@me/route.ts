@@ -4,6 +4,7 @@ import { extractUserId } from "../../utils.js"
 
 export async function me(server:FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object[]> {
     const id = extractUserId(request);
+
     try {
         const me = await prisma.users.findUnique({
             where: {
