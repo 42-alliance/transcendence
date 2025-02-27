@@ -63,7 +63,19 @@ services:
       depends_on:
         - user
         - auth
-
+  chat:
+      container_name: chat
+      build: ./services/chat
+      ports:
+        - "5000:5000"
+      volumes:
+        - ./services/chat:/app
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - services_network
+      
 networks:
   services_network:
     driver: bridge

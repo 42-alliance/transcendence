@@ -45,20 +45,30 @@ server.register(proxy, {
     http2: false,
 });
 
-// TODO: for /graphiql
 server.register(proxy, {
-    upstream: `http://${config.users.host}:${config.users.port}`,
-    prefix: '/graphiql',
-    rewritePrefix: '/graphiql',
+	upstream: `ws://${config.chat.host}:${config.chat.port}`,
+    websocket: true,
+    prefix: '/chat',
+	rewritePrefix: '/chat',
     http2: false,
+    preHandler: async (request, reply) => {	
+        request.headers['x-user-id'] = await verifyJWT(server, request, reply);
+    },
+    wsClientOptions: (req: any) => {
+        return {
+          headers: {
+            "x-user-id": req.headers["x-user-id"], // Transfère le header
+          },
+        };
+      },
 });
 
-server.register(proxy, {
-    upstream: `http://${config.users.host}:${config.users.port}`,
-    prefix: '/graphql',
-    rewritePrefix: '/graphql',
-    http2: false,
-});
+// server.register(proxy, {
+// 	upstream: `http://${config.chat.host}:${config.chat.port}`,
+//     prefix: '/chat',
+// 	rewritePrefix: '/chat',
+//     http2: false,
+// });
 
 server.listen({ port: config.gateway.port, host: "0.0.0.0" }, (err, address) => {
     if (err) {
