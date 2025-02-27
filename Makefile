@@ -14,7 +14,6 @@ oui : down up
 
 tests :
 	docker compose up --build -d
-	sleep 5
 	docker exec -e FORCE_COLOR=1 tests npm test --force-color
 	docker compose down
 
