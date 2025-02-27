@@ -50,13 +50,11 @@ export async function me(server:FastifyInstance, request: FastifyRequest, reply:
         ];
 
         return reply.status(200).send({
-            user: {
-                id: me.id,
-                name: me.name,
-                picture: me.picture,
-                created_at: me.created_at,
-                friends: friendsList
-            }
+			id: me.id,
+			name: me.name,
+			picture: me.picture,
+			created_at: me.created_at,
+			friends: friendsList
         });
     } catch (e) {
         return reply.status(500).send({error: e});

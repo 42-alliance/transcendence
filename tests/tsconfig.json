@@ -13,7 +13,9 @@
 		"./services/@types"
 	  ],
 	  "resolveJsonModule": true,
-	  "sourceMap": true
+	  "sourceMap": true,
+	  "allowImportingTsExtensions": true,
+	  "noEmit": true,
 	},
 	"include": [
 	  "services/**/*"
