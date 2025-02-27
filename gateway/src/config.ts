@@ -14,4 +14,8 @@ export const config = {
 	jwt: {
 		secret: process.env.JWT_SECRET!,
 	},
+	chat: {
+		host: process.env.CHAT_HOST!,
+		port: parseInt(process.env.CHAT_PORT!),
+	}
 };

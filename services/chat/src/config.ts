@@ -16,6 +16,6 @@ export const config = {
 	},
 	chat: {
 		host: process.env.CHAT_HOST!,
-		port: parseInt(process.env.CHAR_PORT!),
+		port: parseInt(process.env.CHAT_PORT!),
 	}
 };

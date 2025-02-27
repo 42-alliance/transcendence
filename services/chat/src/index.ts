@@ -1,4 +1,4 @@
-import Fastify, { fastify } from "fastify";
+import Fastify, { fastify, FastifyRequest } from "fastify";
 import { config } from './config.js';
 import { PrismaClient } from "@prisma/client";
 import fastifyWebsocket from "@fastify/websocket";
@@ -6,20 +6,16 @@ import { error } from "console";
 
 export const prisma = new PrismaClient();
 
-interface JoinMessage {
-    type: "join";
-    userId: number;
-    actors: { id: number; username: string }[];
-}
+
 
 interface ChatMessage {
     type: "message";
-    discussionId: number;
-    userId: number;
+    roomId: number;
     content: string;
+    authorId: number;
 }
 
-type WebSocketMessage = JoinMessage | ChatMessage;
+type WebSocketMessage =  ChatMessage;
 
 export const server = Fastify({
     logger: {
@@ -30,28 +26,40 @@ export const server = Fastify({
     }
 })
 
-server.register(fastifyWebsocket)
+server.register(fastifyWebsocket);
 
 const client = new Map<number, Set<WebSocket>>();
 
-server.get("/chat", {websocket: true}, (socket, req) => {
-    socket.on("message", async (message: string) => {
-        try {
-            const data: WebSocketMessage = JSON.parse(message);
-            
-            switch(data.type) {
-                case "join":
-                    await handleJoin(socket, data.userId, data.actors);
-                    break ;
-                case "message":
-                    await handleMessage(data.discussionId, data.userId, data.content);
-                    break ;
+export function extractUserId(request: FastifyRequest) {
+	return Number(request.headers["x-user-id"] as string);
+}
+
+server.register(async function (fastify) {
+    server.get("/chat", {websocket: true}, (socket, req) => {
+
+        console.log("userId: ", req.headers["x-user-id"]);
+
+        socket.on("message", async (message: string) => {
+            try {
+                const data: WebSocketMessage = JSON.parse(message.toString());
+                // socket.send(JSON.stringify({
+                //     message: message.toString()
+                // }));
+                console.log("header: ", req.headers)
+                // data.authorId = extractUserId(req);
+                socket.send(JSON.stringify(data))
+            } catch (e) {
+                console.error("ERROR WebSocket connection => ", error);
             }
-        } catch (e) {
-            console.error("ERROR WebSocket connection => ", error);
-        }
+        });
+
+        socket.on('close', () => {
+            console.log("Travail terminer");
+        })
+        
     })
 })
+
 
 
 server.listen({ port: config.chat.port, host: "0.0.0.0" }, (err, address) => {
