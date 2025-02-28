@@ -8,7 +8,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN chmod 777 ./script.sh
+RUN chmod 777 ./script.sh \
+	&& npm install
 
 EXPOSE 3000
 
