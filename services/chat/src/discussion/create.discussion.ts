@@ -74,8 +74,6 @@ export async function createDiscussion(server: FastifyInstance, request: Fastify
 		  });
 		}
 
-		console.log("users: ", users)
-		console.error("-----TEST1-----");
 		// Créer la conversation dans la base de données
 		const conversation = await prisma.conversation.create({
 			data: {
@@ -84,11 +82,8 @@ export async function createDiscussion(server: FastifyInstance, request: Fastify
 			},
 		});
 
-		console.log("conversation.id: ", conversation.id);
-		console.error("-----TEST2-----");
   
 		const memberPromises = users.map(user => {
-			console.log("userId == ", user.id)
 			return prisma.conversationMember.create({
 				data: {
 					userId: user.id,
@@ -97,11 +92,9 @@ export async function createDiscussion(server: FastifyInstance, request: Fastify
 				},
 			});
 		});
-		console.error("-----TEST3-----");
 	
 		// Attendre que tous les membres soient ajoutés
 		await Promise.all(memberPromises);
-		console.error("-----TEST4-----");
 	
 		// Récupérer la conversation complète avec ses membres
 		const completeConversation = await prisma.conversation.findUnique({
@@ -112,7 +105,6 @@ export async function createDiscussion(server: FastifyInstance, request: Fastify
 				members: true,
 			}
 		});
-		console.error("-----TEST5-----");
 	
 		return reply.status(201).send({ 
 			message: "Discussion créée avec succès",

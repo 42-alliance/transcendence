@@ -14,8 +14,22 @@ export async function checkIfUserExist(username: string) {
 	}
 	const user: User = await response.json();
 	return user;
-  }
+}
 
+export async function getUserById(userId: number) {
+	const headers = new Headers();
+	headers.append("x-user-id", userId.toString());
+
+	const response = await fetch(`http://${config.users.host}:${config.users.port}/users/@me`, {
+	  method: "GET",
+	  headers: headers,
+	});
+	if (!response.ok) {
+	  throw new Error("Error when get user Info");
+	}
+	const user: User = await response.json();
+	return user;
+}
 
 
 export function extractUserIdHeader(request: FastifyRequest) {

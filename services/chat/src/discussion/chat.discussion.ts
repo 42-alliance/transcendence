@@ -6,69 +6,7 @@
 
 
 // // Route pour récupérer les messages d'une discussion
-// export async function getMessages(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
-//   try {
-//     const { conversationId } = request.params as { conversationId: string };
-//     const { userId } = request.query as { userId: string };
-//     const { page = 1, limit = 20 } = request.query as { page?: number, limit?: number };
 
-//     // Vérifier si l'utilisateur existe
-//     const user = await checkIfUserExist(userId);
-
-//     // Vérifier si l'utilisateur est membre de la conversation
-//     const membership = await prisma.conversationMember.findUnique({
-//       where: {
-//         userId_conversationId: {
-//           userId: user.id,
-//           conversationId
-//         }
-//       }
-//     });
-
-//     if (!membership) {
-//       return reply.status(403).send({ error: "Vous n'êtes pas membre de cette conversation." });
-//     }
-
-//     // Calculer l'offset pour la pagination
-//     const skip = (page - 1) * limit;
-
-//     // Récupérer les messages avec pagination
-//     const messages = await prisma.message.findMany({
-//       where: {
-//         conversationId
-//       },
-//       orderBy: {
-//         createdAt: 'desc' // Messages les plus récents d'abord
-//       },
-//       skip,
-//       take: limit,
-//       include: {
-//         sender: true, // Inclure les informations sur l'expéditeur
-//         readBy: true // Inclure les informations de lecture
-//       }
-//     });
-
-//     // Compter le nombre total de messages pour la pagination
-//     const totalMessages = await prisma.message.count({
-//       where: {
-//         conversationId
-//       }
-//     });
-
-//     return reply.status(200).send({
-//       data: messages,
-//       pagination: {
-//         total: totalMessages,
-//         page,
-//         limit,
-//         pages: Math.ceil(totalMessages / limit)
-//       }
-//     });
-//   } catch (error) {
-//     console.error("❌ Erreur lors de la récupération des messages :", error);
-//     return reply.status(400).send({ error: "Impossible de récupérer les messages." });
-//   }
-// }
 
 // // Marquer un message comme lu
 // export async function markMessageAsRead(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {

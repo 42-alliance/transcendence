@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import { config } from './config.js';
+import WebSocket from "ws";
 import { PrismaClient } from "@prisma/client";
 import fastifyWebsocket from "@fastify/websocket";
 import { setupWebsocket } from "./chat/websocket.js";
@@ -18,7 +19,8 @@ export const server = Fastify({
 
 server.register(fastifyWebsocket);
 
-const client = new Map<number, Set<WebSocket>>();
+export const clients = new Map<number, Set<WebSocket.WebSocket>>(); // Stocke les WebSockets des utilisateurs connectés
+
 
 server.register(async function (server) {
 	server.get("/ws/chat", { websocket: true }, (socket, req) => {

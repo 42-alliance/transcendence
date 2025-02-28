@@ -2,14 +2,9 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../index.js';
 import { checkIfUserExist } from '../utils.js';
 import { WebSocketMessage } from '../types.js';
-import { measureMemory } from 'vm';
-
-function checkInfos(data: WebSocketMessage) {
-
-}
 
 // Route pour envoyer un message dans une discussion
-export async function sendMessage(sender: number, data: WebSocketMessage) {
+export async function storeMessage(sender: number, data: WebSocketMessage) {
 	
 	if (!data.content || !data.conversationId) {
 		throw new Error("Message format not good");
