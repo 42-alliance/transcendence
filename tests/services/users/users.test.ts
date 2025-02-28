@@ -1,5 +1,6 @@
 import request from "supertest";
 import { test_users_routes } from "./users.ts";
+import { test_friends_routes } from "./friends.ts";
 
 const baseURL = "http://user:4000";
 
@@ -31,4 +32,8 @@ beforeAll(async () => {
 describe("User API Endpoints", () => {
 	test_users_routes(baseURL);
 	
+});
+
+describe("Friends API Endpoints", () => {
+	test_friends_routes(baseURL);
 });

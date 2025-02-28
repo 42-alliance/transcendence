@@ -27,6 +27,10 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 			return { id: user.id };
 		}
 		
+		if (body.name.length > 100) {
+			return reply.status(400).send({message: "name must be at most 100 characters long"});
+		}
+
 		const result = await prisma.users.create({
 			data: {
 				name: body.name,
@@ -64,18 +68,22 @@ export async function getAllUsers(server: FastifyInstance, reply: FastifyReply):
 	}
 }
 
-export async function getUserByName(server: FastifyInstance, request: FastifyRequest<{Params: { name: string }}>, reply: FastifyReply) {
+export async function getUserByName(server: FastifyInstance, request: FastifyRequest<{ Params: { name: string } }>, reply: FastifyReply) {
 	const { name } = request.params;
-	
+  
 	try {
 		const user = await prisma.users.findUnique({
-			where: { name: name}
+			where: { name: name },
 		});
-		
-		return user;
+  
+		if (!user) {
+			return reply.status(404).send({ error: "User not found" });
+		}
+  
+	  	return user;
 	} catch (error) {
 		console.error("Error when trying to search user: ", error);
-		return reply.status(500).send({ error: "Erreur serveur" });
+		return reply.status(500).send({ error: "Internal server error" });
 	}
 }
 
@@ -100,6 +108,6 @@ export async function deleteUserDatabase(server: FastifyInstance, request: Fasti
 		return { message: "User successfully deleted" };
 	} catch (error) {
 		console.error("Erreur lors de la suppression de l'utilisateur :", error);
-		return reply.status(500).send({ error: "Erreur serveur" });
+		return reply.status(404).send({message: "User not found"});
 	}
 }

@@ -4,20 +4,18 @@ import { WebSocketMessage } from "../types.js";
 import { storeMessage } from "../message/send.message.js";
 import { clients, prisma } from "../index.js";
 
-export function extractUserId(request: FastifyRequest) {
+export function extractUserIdParams(request: FastifyRequest) {
     const url = new URL(request.url, `http://${request.headers.host}`);
     return Number(url.searchParams.get("userId"));
 }
 
 async function broadcastMessage(conversationId: number, message: any) {
-	// Récupérer les membres de la conversation
 	try {
 		const members = await prisma.conversationMember.findMany({
 			where: { conversationId },
 			select: { userId: true },
 		});
 	
-		// Envoyer le message à chaque membre connecté
 		members.forEach(({ userId }) => {
 			const userSockets = clients.get(userId);
 			if (userSockets) {
@@ -35,7 +33,7 @@ async function broadcastMessage(conversationId: number, message: any) {
 }
 
 export function setupWebsocket(socket: WebSocket.WebSocket, req: FastifyRequest) {
-	const userId = extractUserId(req);
+	const userId = extractUserIdParams(req);
 	console.log("✅ User ID reçu:", userId);
 
 	if (!userId) {
@@ -44,7 +42,6 @@ export function setupWebsocket(socket: WebSocket.WebSocket, req: FastifyRequest)
 		return;
 	}
 
-	// Stocker la connexion WebSocket de l'utilisateur
 	if (!clients.has(userId)) {
 		clients.set(userId, new Set());
 	}

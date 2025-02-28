@@ -24,7 +24,7 @@ export async function me(server:FastifyInstance, request: FastifyRequest, reply:
             }
         });
         if (!me) {
-            return reply.status(400).send({error: "User not found"});
+            return reply.status(404).send({message: "User not found"});
         }
 
         const friendsList = [
