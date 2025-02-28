@@ -13,3 +13,13 @@ export const userIdHeader = {
 		"x-user-id": Type.String(),
 	}, { required: ["x-user-id"] })
 };
+
+export const nameParamsSchema = {
+    params: {
+        type: 'object',
+        properties: {
+            name: { type: 'string' },
+        },
+        required: ['name']
+    }
+};

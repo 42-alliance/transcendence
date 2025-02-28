@@ -3,8 +3,8 @@ import { addFriend, getFriends, removeFriend } from "./friends/route.js";
 import { getFriendStatus, updateFriendStatus } from "./friends/status/route.js";
 import { getPendingFriendRequest } from "./friends/pending/route.js";
 import { addFriendSchema, areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
-import { deleteUserDatabase, getAllUsers, addUserDatabase } from "./users/route.js";
-import { addUserDatabaseSchema, userIdHeader } from "./users/schema.js";
+import { deleteUserDatabase, getAllUsers, addUserDatabase, getUserByName } from "./users/route.js";
+import { addUserDatabaseSchema, nameParamsSchema, userIdHeader } from "./users/schema.js";
 import { me } from "./users/@me/route.js";
 
 /**
@@ -15,6 +15,11 @@ import { me } from "./users/@me/route.js";
 async function setupUsersRoute(server: FastifyInstance) {
 	server.get('/users', async function handler(request, reply) {
 		return await getAllUsers(server, reply);
+	});
+
+
+	server.get<{Params: { name: string }}>('/users/:name', { schema: nameParamsSchema }, async function handler(request, reply) {
+		return await getUserByName(server, request, reply);
 	});
 
 	server.delete("/users", { schema: userIdHeader }, async function handler(request, reply) {

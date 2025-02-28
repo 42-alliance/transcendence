@@ -16,6 +16,7 @@ export async function verifyJWT(server: FastifyInstance, request: FastifyRequest
 		console.log("✅ [JWT] decode:", decoded);
 
     request.headers['x-user-id'] = String(decoded.id); // Attach `userId` to headers
+	console.log("request.headers gateway: ", request.headers);
 		return request.headers['x-user-id'];
 	} catch (error: any) {
 		console.error("❌ [JWT Error]", error);

@@ -46,21 +46,34 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-	upstream: `ws://${config.chat.host}:${config.chat.port}`,
+    upstream: `http://${config.chat.host}:${config.chat.port}`,
     websocket: true,
+    prefix: "/ws/chat",
+    rewritePrefix: "/ws/chat",
+    http2: false,
+    preHandler: async (request, reply) => {    
+        await verifyJWT(server, request, reply);
+
+        const userId = request.headers["x-user-id"];  // JWT extrait ici
+        const url = new URL(request.url, `http://${request.headers.host}`);
+
+        // Ajoute `userId` dans la query string avant de proxyfier
+        url.searchParams.set("userId", userId as string);
+
+        // 🔥 Modifie directement `request.raw.url` avant que Fastify Proxy ne traite la requête
+        request.raw.url = url.pathname + url.search;
+        console.log("🚀 Nouvelle URL proxyfiée:", request.raw.url);
+    }
+});
+
+server.register(proxy, {
+	upstream: `http://${config.chat.host}:${config.chat.port}`,
     prefix: '/chat',
 	rewritePrefix: '/chat',
     http2: false,
-    preHandler: async (request, reply) => {	
-        request.headers['x-user-id'] = await verifyJWT(server, request, reply);
-    },
-    wsClientOptions: (req: any) => {
-        return {
-          headers: {
-            "x-user-id": req.headers["x-user-id"], // Transfère le header
-          },
-        };
-      },
+	preHandler: async (request, reply) => {	
+        await verifyJWT(server, request, reply);
+    }
 });
 
 // server.register(proxy, {
