@@ -35,11 +35,9 @@ jobs:
           echo "USER_PORT=${{ secrets.USER_PORT }}" >> .env
           echo "PRISMA_USER_DATABASE_PATH=${{ secrets.PRISMA_USER_DATABASE_PATH }}" >> .env
 
-      - name: Build and start containers
-        run: docker compose up --build -d
 
       - name: Run tests
-        run: make tests
+        run: make github
 
       - name: Stop and clean up
         run: make fclean
