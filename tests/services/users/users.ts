@@ -15,8 +15,8 @@ export function test_users_routes(baseURL: string) {
 		for (let i = 0; i < USERS; i++) {
 			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), id: 0};
 			const res = await request(baseURL)
-			.post("/users")
-			.send({ name: users[i].name, picture: users[i].picture });
+				.post("/users")
+				.send({ name: users[i].name, picture: users[i].picture });
 			expect(res.status).toBe(200);
 			expect(res.body).toHaveProperty("id");
 			users[i].id = res.body.id;
@@ -25,16 +25,16 @@ export function test_users_routes(baseURL: string) {
 
 	test("POST /users - Should return an error if the name is missing", async () => {
 		const res = await request(baseURL)
-		.post("/users")
-		.send({ picture: generateRandomString(10) });
+			.post("/users")
+			.send({ picture: generateRandomString(10) });
 		expect(res.status).toBe(400);
 		expect(res.body.message).toEqual("body must have required property 'name'" );
 	});
 	
 	test("POST /users - Should return an error if the picture is missing", async () => {
 		const res = await request(baseURL)
-		.post("/users")
-		.send({ name: generateRandomString(10) });
+			.post("/users")
+			.send({ name: generateRandomString(10) });
 		expect(res.status).toBe(400);
 		expect(res.body.message).toEqual("body must have required property 'picture'");
 	});
@@ -83,6 +83,29 @@ export function test_users_routes(baseURL: string) {
 		expect(res.body.message).toEqual("User not found");
 	});
 
+	test("Should return a user if the name exists", async () => {
+		for (let i = 0; i < USERS; i++) {
+			const user: User = users[i];
+			const res = await request(baseURL)
+				.post("/users")
+				.send({ name: user.name, picture: user.picture });
+			expect(res.status).toBe(200);
+			expect(res.body).toHaveProperty("id");
+			user.id = res.body.id;
+	
+			const test = await request(baseURL)
+				.get(`/users/${user.name}`);
+			expect(test.status).toBe(200);
+			expect(test.body).toHaveProperty("id");
+			expect(test.body.id).toEqual(user.id);
+			expect(test.body).toHaveProperty("name");
+			expect(test.body.name).toEqual(user.name);
+			expect(test.body).toHaveProperty("picture");
+			expect(test.body.picture).toEqual(user.picture);
+		}
+	});
+
+
 	test("DELETE /users - Should delete a user", async () => {
 		for (let i = 0; i < USERS; i++) {
 			const userId = users[i].id;
@@ -108,27 +131,6 @@ export function test_users_routes(baseURL: string) {
 		expect(res.body.message).toEqual("User not found");
 	});
 
-	test("Should return a user if the name exists", async () => {
-		let user: User;
-
-		user = { name: generateRandomString(10), picture: generateRandomString(10), id: 0};
-		const res = await request(baseURL)
-			.post("/users")
-			.send({ name: user.name, picture: user.picture });
-		expect(res.status).toBe(200);
-		expect(res.body).toHaveProperty("id");
-		user.id = res.body.id;
-
-		const test = await request(baseURL)
-			.get(`/users/${user.name}`);
-		expect(test.status).toBe(200);
-		expect(test.body).toHaveProperty("id");
-		expect(test.body.id).toEqual(user.id);
-		expect(test.body).toHaveProperty("name");
-		expect(test.body.name).toEqual(user.name);
-		expect(test.body).toHaveProperty("picture");
-		expect(test.body.picture).toEqual(user.picture);
-	});
 
 	test("Should return a 404 error if the user does not exist", async () => {
 		// Appelez la route avec un nom qui n'existe pas

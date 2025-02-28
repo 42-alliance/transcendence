@@ -34,9 +34,8 @@ model Friends {
   status     Status   @default(pending)
   created_at DateTime @default(now())
 
-  sender   Users  @relation("SentRequests", fields: [senderId], references: [id])
-  receiver Users  @relation("ReceivedRequests", fields: [receiverId], references: [id])
-  usersId  Int?
+  sender   Users  @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver Users  @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
 }

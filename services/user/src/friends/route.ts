@@ -6,11 +6,7 @@ import { extractUserId } from "../utils.js"
 export async function addFriend(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	const userId = extractUserId(request);
 
-	const { friendId, friendName } = request.body as { friendId: number, friendName: string };
-
-	if (!friendName) {
-		return reply.status(400).send({ error: "friendName is required" });
-	}
+	const { friendName } = request.body as { friendName: string };
 	
 	try {
 		const friend = await prisma.users.findUnique({
@@ -21,7 +17,12 @@ export async function addFriend(server: FastifyInstance, request: FastifyRequest
 
 		if (!friend) {
 			console.error("This friend don't exist");
-			return reply.status(400).send({ error: "This friend don't exist" });
+			return reply.status(404).send({ message: "This friend don't exist" });
+		}
+		
+		if (userId === friend.id) {
+			console.error("You cannot add yourself as a friend");
+			return reply.status(400).send({ message: "You cannot add yourself as a friend" });
 		}
 
 		const existingFriendChip = await prisma.friends.findFirst({
@@ -34,7 +35,7 @@ export async function addFriend(server: FastifyInstance, request: FastifyRequest
 		});
 
 		if (existingFriendChip) {
-			return reply.status(400).send({error: "Friend request already exists"});
+			return reply.status(400).send({message: "Friend request already exists"});
 		}
 
 		const oui = await prisma.friends.create({
@@ -48,47 +49,49 @@ export async function addFriend(server: FastifyInstance, request: FastifyRequest
 		return reply.status(201).send({ message: `Friend request sent to ${friend.name}` });
 	} catch (error) {
 		console.error("Error server:" + error);
-		return reply.status(500).send({ error: "Erreur serveur." });
+		return reply.status(500).send({ message: "Erreur serveur." });
 	}
 }
 
 // DELETE
-export async function removeFriend(server: FastifyInstance, request: FastifyRequest<{Params: { friendId: string }}>, reply: FastifyReply) {
+export async function removeFriend(server: FastifyInstance, request: FastifyRequest<{ Params: { friendId: string } }>, reply: FastifyReply) {
 	const { friendId } = request.params;
-
 	const userId = extractUserId(request);
+
+	// Vérifiez si friendId est manquant
+	if (!friendId) {
+		return reply.status(400).send({ message: "Friend ID is required" });
+	}
 	
-	const { friend_name } = request.body as {
-		friend_name: string,
-	};
-
-	const fID = parseInt(friendId);
+	const fID = Number(friendId);
+	if (isNaN(fID)) {
+	  return reply.status(400).send({ message: "Invalid friend ID" });
+	}
+  
 	try {
-		const query = await prisma.friends.deleteMany({
-			where:{
-				OR : [
-					{
-						senderId: userId,
-						receiverId: fID,
-					},
-					{
-						senderId: fID,
-						receiverId: userId,
-					}
-				]
-			}
-		})
-
-		if (query.count === 0) {
-			return reply.status(400).send({ message: "User not found in database" });
-		}
-
-		console.log(`Relation d'amitié supprimée entre ${userId} et ${friend_name}.`);
-		
-		return {message: `Friend deleted succesfully`};
+	  const query = await prisma.friends.deleteMany({
+		where: {
+		  OR: [
+			{
+			  senderId: userId,
+			  receiverId: fID,
+			},
+			{
+			  senderId: fID,
+			  receiverId: userId,
+			},
+		  ],
+		},
+	  });
+  
+	  if (query.count === 0) {
+		return reply.status(400).send({ message: "Relation not found in database" });
+	  }
+  
+	  return { message: "Friend deleted successfully" };
 	} catch (error) {
-		console.error("Error server:" + error);
-        return reply.status(500).send({ error: "Erreur serveur." });			
+	  console.error("Error server:", error);
+	  return reply.status(500).send({ message: "Internal server error" });
 	}
 }
 

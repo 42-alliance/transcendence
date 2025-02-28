@@ -1,6 +1,7 @@
 import request from "supertest";
 import { test_users_routes } from "./users.ts";
-import { test_friends_routes } from "./friends.ts";
+import { addFriend_tests } from "./friends/add.friends.ts";
+import { removeFriend_tests } from "./friends/remove.friend.ts";
 
 const baseURL = "http://user:4000";
 
@@ -35,5 +36,10 @@ describe("User API Endpoints", () => {
 });
 
 describe("Friends API Endpoints", () => {
-	test_friends_routes(baseURL);
+	describe("add Friend function", () => {
+		addFriend_tests(baseURL);
+	});
+	describe("remove Friend function", () => {
+		removeFriend_tests(baseURL);
+	});
 });

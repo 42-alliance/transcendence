@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import { addFriend, getFriends, removeFriend } from "./friends/route.js";
 import { getFriendStatus, updateFriendStatus } from "./friends/status/route.js";
 import { getPendingFriendRequest } from "./friends/pending/route.js";
-import { addFriendSchema, areFriendsSchema, pendingRequestsSchema } from "./friends/schemas.js";
+import { addFriendSchema, areFriendsSchema, pendingRequestsSchema, removeFriendSchema } from "./friends/schemas.js";
 import { deleteUserDatabase, getAllUsers, addUserDatabase, getUserByName } from "./users/route.js";
 import { addUserDatabaseSchema, nameParamsSchema, userIdHeader } from "./users/schema.js";
 import { me } from "./users/@me/route.js";
@@ -43,11 +43,11 @@ async function setupUsersRoute(server: FastifyInstance) {
  */
 async function setupFriendsRoute(server: FastifyInstance) {
 	// /friends
-	server.post('/friends', { schema:addFriendSchema }, async function handler(request, reply) {
+	server.post('/friends', { schema: addFriendSchema }, async function handler(request, reply) {
 		return await addFriend(server, request, reply);
 	});
 	
-	server.delete<{Params: { friendId: string }}>('/friends/:friendId', async function handler(request, reply) {
+	server.delete<{Params: { friendId: string }}>('/friends/:friendId', { schema: removeFriendSchema }, async function handler(request, reply) {
 		return await removeFriend(server, request, reply);
 	});
 	
