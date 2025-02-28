@@ -4,7 +4,7 @@ import { checkIfUserExist, extractUserIdHeader } from '../utils.js';
 import { prisma } from '../index.js';
 import { Type } from '@sinclair/typebox'
 
-export const createDiscussionSchema = {
+export const createConversationSchema = {
 	body: Type.Object({
 		members: Type.Array(Type.String(), { minItems: 2 }),
 	}, { required: ["members"] })
@@ -41,7 +41,7 @@ async function findExistingConversation(members: number[]): Promise<number | nul
   return null;
 }
 
-export async function createDiscussion(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
+export async function createConversation(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	try {
 		const adminId = extractUserIdHeader(request);
 
