@@ -14,7 +14,7 @@ const wait = async () => {
 	while (retries > 0) {
 	  console.log(`Waiting for user service... (${retries} retries left)`);
 	  try {
-		const res = await request(baseURL).get("/users");
+		const res = await request(baseURL).get("/users/healthcheck");
 		if (res.status === 200) {
 		  console.log("User service is ready!");
 		  return;
@@ -63,4 +63,8 @@ describe("Friends API Endpoints", () => {
 	describe("get pending Friends request function", () => {
 		getPendingFriendRequest_tests(baseURL);
 	});
+});
+
+describe("Chat API Endpoints", () => {
+
 });

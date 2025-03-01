@@ -14,6 +14,10 @@ export const server = fastify({
     },
 });
 
+server.get("/users/healthcheck", async function handler(request, reply) {
+	return reply.status(200).send("user server is ready");
+});
+
 await setupRoutes(server);
 
 const port =  parseInt(process.env.USER_PORT!);

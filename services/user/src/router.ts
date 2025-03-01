@@ -13,7 +13,7 @@ import { me } from "./users/@me/route.js";
  * @param {FastifyInstance} server - Instance du serveur Fastify.
  */
 async function setupUsersRoute(server: FastifyInstance) {
-	server.get('/users', async function handler(request, reply) {
+	server.get('/users', { schema: userIdHeader}, async function handler(request, reply) {
 		return await getAllUsers(server, reply);
 	});
 

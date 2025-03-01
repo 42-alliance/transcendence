@@ -26,10 +26,6 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 		if (user) {
 			return { id: user.id };
 		}
-		
-		if (body.name.length > 100) {
-			return reply.status(400).send({message: "name must be at most 100 characters long"});
-		}
 
 		const result = await prisma.users.create({
 			data: {

@@ -1,25 +1,25 @@
 import { Required, Type } from '@sinclair/typebox';
+import { FastifySchema } from 'fastify';
 
-export const addUserDatabaseSchema = {
-  body: Type.Object({
-    name: Type.String(),
-    picture: Type.String(),
-  }, { required: ["name", "picture"]}),
+export const addUserDatabaseSchema: FastifySchema = {
+	body: Type.Object({
+		name: Type.String({maxLength: 100, pattern: "^[a-zA-Z0-9_]+$"}),
+		picture: Type.String(),
+	}, { required: ["name", "picture"]}),
 };
 
 
 export const userIdHeader = {
 	headers: Type.Object({
-		"x-user-id": Type.String(),
-	}, { required: ["x-user-id"] })
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	})
 };
 
-export const nameParamsSchema = {
-    params: {
-        type: 'object',
-        properties: {
-            name: { type: 'string' },
-        },
-        required: ['name']
-    }
+export const nameParamsSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+	params: Type.Object({
+		name: Type.String({maxLength: 100, pattern: "^[a-zA-Z0-9_]+$"}),
+	})
 };
