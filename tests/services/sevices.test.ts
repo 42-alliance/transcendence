@@ -1,11 +1,11 @@
 import request from "supertest";
-import { test_users_routes } from "./users.ts";
-import { addFriend_tests } from "./friends/add.friends.ts";
-import { removeFriend_tests } from "./friends/remove.friend.ts";
-import { getFriendStatus_tests } from "./friends/getFriendStatus.ts";
-import { updateFriendStatus_tests } from "./friends/updateFriendStatus.ts";
-import { getFriends_tests } from "./friends/getFriends.ts";
-import { getPendingFriendRequest_tests } from "./friends/getPendingFriendRequests.ts";
+import { test_users_routes } from "./users/users.ts";
+import { addFriend_tests } from "./users/friends/add.friends.ts";
+import { removeFriend_tests } from "./users/friends/remove.friend.ts";
+import { getFriendStatus_tests } from "./users/friends/getFriendStatus.ts";
+import { updateFriendStatus_tests } from "./users/friends/updateFriendStatus.ts";
+import { getFriends_tests } from "./users/friends/getFriends.ts";
+import { getPendingFriendRequest_tests } from "./users/friends/getPendingFriendRequests.ts";
 
 const baseURL = "http://user:4000";
 

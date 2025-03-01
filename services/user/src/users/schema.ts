@@ -1,11 +1,11 @@
-import { Required, Type } from '@sinclair/typebox';
+import { Type } from '@sinclair/typebox';
 import { FastifySchema } from 'fastify';
 
 export const addUserDatabaseSchema: FastifySchema = {
 	body: Type.Object({
 		name: Type.String({maxLength: 100, pattern: "^[a-zA-Z0-9_]+$"}),
 		picture: Type.String(),
-	}, { required: ["name", "picture"]}),
+	}),
 };
 
 
