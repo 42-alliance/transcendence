@@ -82,7 +82,7 @@ export function removeFriend_tests(baseURL: string) {
       .set("x-user-id", userId.toString())
       .expect(400);
 
-    expect(res.body.message).toBe("Invalid friend ID");
+    expect(res.body.message).toBe("params/friendId must match pattern \"^[0-9]+$\"");
   });
 
   test("DELETE /friends/:friendId - Should return an error if the friend ID params set", async () => {
@@ -93,6 +93,6 @@ export function removeFriend_tests(baseURL: string) {
       .set("x-user-id", userId.toString())
       .expect(400);
 
-    expect(res.body.message).toBe("Friend ID is required");
+    expect(res.body.message).toBe("params/friendId must match pattern \"^[0-9]+$\"");
   });
 }

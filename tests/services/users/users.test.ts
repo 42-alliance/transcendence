@@ -4,6 +4,8 @@ import { addFriend_tests } from "./friends/add.friends.ts";
 import { removeFriend_tests } from "./friends/remove.friend.ts";
 import { getFriendStatus_tests } from "./friends/getFriendStatus.ts";
 import { updateFriendStatus_tests } from "./friends/updateFriendStatus.ts";
+import { getFriends_tests } from "./friends/getFriends.ts";
+import { getPendingFriendRequest_tests } from "./friends/getPendingFriendRequests.ts";
 
 const baseURL = "http://user:4000";
 
@@ -52,5 +54,13 @@ describe("Friends API Endpoints", () => {
 	
 	describe("update Friend status function", () => {
 		updateFriendStatus_tests(baseURL);
+	});
+	
+	describe("get Friends function", () => {
+		getFriends_tests(baseURL);
+	});
+
+	describe("get pending Friends request function", () => {
+		getPendingFriendRequest_tests(baseURL);
 	});
 });

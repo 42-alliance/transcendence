@@ -3,59 +3,58 @@ import { Type } from '@sinclair/typebox'
 
 
 export const addFriendSchema: FastifySchema = {
-    headers: {
-        type: 'object',
-        properties: {
-            "x-user-id": {type: 'string'}
-        },
-        required: ['x-user-id'],
-    },
-    body: {
-        type: 'object',
-        properties: {
-            friendName: {type: 'string'}
-        },
-        required: ["friendName"],
-    },
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+	body: Type.Object({
+		friendName: Type.String(),
+	}),
 }
 
 export const removeFriendSchema: FastifySchema = {
 	headers: Type.Object({
-		"x-user-id": Type.String(),
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
 	}),
 	params: Type.Object({
-		friendId: Type.String(),
+		friendId: Type.String({ pattern: "^[0-9]+$" }),
 	})
 };
 
-export const areFriendsSchema = {
-	params: {
-		type: "object",
-		properties: {
-			friendId: { type: "string", pattern: "^[0-9]+$" }, // Valide que friendId est un nombre
-		},
-		required: ["friendId"],
-	},
+export const getFriendsSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+};
+
+export const getFriendStatusSchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+	params: Type.Object({
+		friendId: Type.String({ pattern: "^[0-9]+$" }),
+	})
 };
 
 export const pendingRequestsSchema = {
-    params: {
-        type: 'object',
-        properties: {
-            userId: { type: 'number' }
-        },
-        required: ['userId']
-    }
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
 };
 
 export const updateFriendStatusSchema: FastifySchema = {
-  params: Type.Object({
-    friendId: Type.String({ pattern: "^[0-9]+$" }),
-  }),
-  headers: Type.Object({
-    "x-user-id": Type.String({ pattern: "^[0-9]+$" }),
-  }),
-  body: Type.Object({
-    status: Type.String(),
-  }),
+	params: Type.Object({
+		friendId: Type.String({ pattern: "^[0-9]+$" }),
+	}),
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+	body: Type.Object({
+		status: Type.String(),
+	}),
+};
+
+export const getPendingFriendRequestSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
 };

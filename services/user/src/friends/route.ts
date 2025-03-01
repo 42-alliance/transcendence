@@ -157,4 +157,3 @@ export async function getFriends(server: FastifyInstance, request: FastifyReques
 	  return reply.status(500).send({ error: "Erreur serveur." });
 	}
 }
-
