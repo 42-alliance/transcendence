@@ -9,40 +9,40 @@ const StatusEnum = {
 	blocked: 'blocked',
 };
 
-export async function getFriendStatus(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<boolean> {
-
+export async function getFriendStatus(server: FastifyInstance, request: FastifyRequest<{ Params: { friendId: string } }>, reply: FastifyReply) {
+	const { friendId } = request.params; // Récupérez friendId depuis les paramètres de l'URL
 	const userId = extractUserId(request);
-	
-	const { friend_id } = request.body as {
-		friend_id: number,
-	};
-
+  
+	// Validation de l'ID de l'ami
+	const fID = Number(friendId);
+	if (isNaN(fID)) {
+	  return reply.status(400).send({ error: "Invalid friend ID" });
+	}
+  
 	try {
-		const friends = await prisma.friends.findMany({
-			where: {
-				OR: [
-					{
-						senderId: userId,
-						receiverId: friend_id,
-					},
-					{
-						senderId: friend_id,
-						receiverId: userId,
-					}
-				]
-			}
-		});
-
-		if (friends.length != 1) {
-			return reply.status(400).send({ error: "Bad request"});
-		}
-
-
-		// console.error("are friend ? : ", friends.length >= 1);
-        return reply.status(200).send({ status: friends[0].status });		
+	  const friends = await prisma.friends.findMany({
+		where: {
+		  OR: [
+			{
+			  senderId: userId,
+			  receiverId: fID,
+			},
+			{
+			  senderId: fID,
+			  receiverId: userId,
+			},
+		  ],
+		},
+	  });
+  
+	  if (friends.length !== 1) {
+		return reply.status(400).send({ error: "Bad request" });
+	  }
+  
+	  return reply.status(200).send({ status: friends[0].status });
 	} catch (error) {
-		console.error("Error server:" + error);
-        return reply.status(500).send({ error: "Erreur serveur." });		
+	  console.error("Error server:", error);
+	  return reply.status(500).send({ error: "Internal server error" });
 	}
 }
 
@@ -52,7 +52,7 @@ export async function updateFriendStatus(server: FastifyInstance, request: Fasti
     const { status } = request.body as { status: string };
 
 	if (!Object.values(StatusEnum).includes(status)) {
-		return reply.status(400).send({ error: 'Statut invalide' });
+		return reply.status(400).send({ error: 'Error: invalid status' });
 	}
 	
 	const fID = parseInt(friendId);
@@ -77,7 +77,7 @@ export async function updateFriendStatus(server: FastifyInstance, request: Fasti
 		});
 		
 		if (query.count === 0) {
-			return reply.status(400).send({ message: "User not found in database" });
+			return reply.status(400).send({ message: "Relation not found in database" });
 		}
 
         console.log(`Demande d'ami entre ${userId} et ${friendId} est maintenant ${status}.`);

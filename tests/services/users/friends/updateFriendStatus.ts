@@ -5,7 +5,7 @@ import { User } from "../../utils/types.ts";
 let users: User[] = [];
 const USERS = 2;
 
-export function removeFriend_tests(baseURL: string) {
+export function updateFriendStatus_tests(baseURL: string) {
   // Créez des utilisateurs pour les tests
   beforeAll(async () => {
     for (let i = 0; i < USERS; i++) {
@@ -39,60 +39,79 @@ export function removeFriend_tests(baseURL: string) {
     }
   });
 
-  test("DELETE /friends/:friendId - Should remove a friend", async () => {
+  test("POST /friends/requests/:friendId/status - Should update the friend request status", async () => {
     const userId = users[0].id;
     const friendId = users[1].id;
 
     const res = await request(baseURL)
-      .delete(`/friends/${friendId}`)
+      .post(`/friends/requests/${friendId}/status`)
       .set("x-user-id", userId.toString())
+      .send({ status: "accepted" })
       .expect(200);
 
-    expect(res.body.message).toBe("Friend deleted successfully");
+    expect(res.body.message).toBe("Friend request is now accepted");
   });
 
-  test("DELETE /friends/:friendId - Should return an error if the friend relation does not exist", async () => {
+  test("POST /friends/requests/:friendId/status - Should return an error if the status is invalid", async () => {
     const userId = users[0].id;
     const friendId = users[1].id;
 
-    // Essayez de supprimer une relation qui n'existe plus
     const res = await request(baseURL)
-      .delete(`/friends/${friendId}`)
+      .post(`/friends/requests/${friendId}/status`)
       .set("x-user-id", userId.toString())
+      .send({ status: "invalid_status" })
+      .expect(400);
+
+    expect(res.body.error).toBe("Error: invalid status");
+  });
+
+  test("POST /friends/requests/:friendId/status - Should return an error if the friend relation does not exist", async () => {
+    const userId = users[0].id;
+    const nonExistentFriendId = 9999; // ID qui n'existe pas
+
+    const res = await request(baseURL)
+      .post(`/friends/requests/${nonExistentFriendId}/status`)
+      .set("x-user-id", userId.toString())
+      .send({ status: "accepted" })
       .expect(400);
 
     expect(res.body.message).toBe("Relation not found in database");
   });
 
-  test("DELETE /friends/:friendId - Should return an error if the user ID is missing", async () => {
+  test("POST /friends/requests/:friendId/status - Should return an error if the friend ID is invalid", async () => {
+    const userId = users[0].id;
+
+    const res = await request(baseURL)
+      .post("/friends/requests/invalid_id/status")
+      .set("x-user-id", userId.toString())
+      .send({ status: "accepted" })
+      .expect(400);
+
+    expect(res.body.message).toBe("params/friendId must match pattern \"^[0-9]+$\"");
+  });
+
+  test("POST /friends/requests/:friendId/status - Should return an error if the status is missing", async () => {
+    const userId = users[0].id;
     const friendId = users[1].id;
 
     const res = await request(baseURL)
-      .delete(`/friends/${friendId}`)
-      .expect(400);
-
-    expect(res.body.message).toBe("headers must have required property 'x-user-id'");
-  });
-
-  test("DELETE /friends/:friendId - Should return an error if the friend ID is invalid", async () => {
-    const userId = users[0].id;
-
-    const res = await request(baseURL)
-      .delete("/friends/invalid_id")
+      .post(`/friends/requests/${friendId}/status`)
       .set("x-user-id", userId.toString())
+	  .send({})
+      .expect(400);
+	  
+	  expect(res.body.message).toBe("body must have required property 'status'");
+	});
+	
+	test("POST /friends/requests/:friendId/status - Should return an error if the status is missing", async () => {
+		const userId = users[0].id;
+		const friendId = users[1].id;
+		
+		const res = await request(baseURL)
+		.post(`/friends/requests/${friendId}/status`)
+		.set("x-user-id", userId.toString())
       .expect(400);
 
-    expect(res.body.message).toBe("Invalid friend ID");
-  });
-
-  test("DELETE /friends/:friendId - Should return an error if the friend ID params set", async () => {
-    const userId = users[0].id;
-
-    const res = await request(baseURL)
-      .delete("/friends/")
-      .set("x-user-id", userId.toString())
-      .expect(400);
-
-    expect(res.body.message).toBe("Friend ID is required");
+    expect(res.body.message).toBe("body must be object");
   });
 }

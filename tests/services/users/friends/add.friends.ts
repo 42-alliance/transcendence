@@ -32,33 +32,33 @@ export function addFriend_tests(baseURL: string) {
   });
 
   // Les tests restent inchangés
-  test("POST /friends - Add a friend", async () => {
+  test("POST /friends/requests - Add a friend", async () => {
     const userId = users[0].id;
 
     const res = await request(baseURL)
-      .post("/friends")
+      .post("/friends/requests")
       .set("x-user-id", userId.toString())
       .send({ friendName: users[1].name })
       .expect(201);
     expect(res.body.message).toBe(`Friend request sent to ${users[1].name}`);
   });
 
-  test("POST /friends - Should return an error because friend request already exists", async () => {
+  test("POST /friends/requests - Should return an error because friend request already exists", async () => {
     const userId = users[0].id;
 
     const res = await request(baseURL)
-      .post("/friends")
+      .post("/friends/requests")
       .set("x-user-id", userId.toString())
       .send({ friendName: users[1].name })
       .expect(400);
     expect(res.body.message).toBe("Friend request already exists");
   });
 
-  test("POST /friends - Should return an error if the friend does not exist", async () => {
+  test("POST /friends/requests - Should return an error if the friend does not exist", async () => {
     const userId = users[0].id;
 
     const res = await request(baseURL)
-      .post("/friends")
+      .post("/friends/requests")
       .set("x-user-id", userId.toString())
       .send({ friendName: "non_existent_user" })
       .expect(404);
@@ -66,22 +66,22 @@ export function addFriend_tests(baseURL: string) {
     expect(res.body.message).toBe("This friend don't exist");
   });
 
-  test("POST /friends - Should return an error if body is not a object", async () => {
+  test("POST /friends/requests - Should return an error if body is not a object", async () => {
     const userId = users[0].id;
 
     const res = await request(baseURL)
-      .post("/friends")
+      .post("/friends/requests")
       .set("x-user-id", userId.toString())
       .expect(400);
 
     expect(res.body.message).toBe("body must be object");
   });
 
-  test("POST /friends - Should return an error if the friendName is not set", async () => {
+  test("POST /friends/requests - Should return an error if the friendName is not set", async () => {
     const userId = users[0].id;
 
     const res = await request(baseURL)
-      .post("/friends")
+      .post("/friends/requests")
       .set("x-user-id", userId.toString())
       .send({})
       .expect(400);
@@ -89,11 +89,11 @@ export function addFriend_tests(baseURL: string) {
     expect(res.body.message).toBe("body must have required property 'friendName'");
   });
 
-  test("POST /friends - Should return an error if the user tries to add themselves as a friend", async () => {
+  test("POST /friends/requests - Should return an error if the user tries to add themselves as a friend", async () => {
     const userId = users[0].id;
 
     const res = await request(baseURL)
-      .post("/friends")
+      .post("/friends/requests")
       .set("x-user-id", userId.toString())
       .send({ friendName: users[0].name })
       .expect(400);

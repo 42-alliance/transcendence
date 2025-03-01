@@ -148,7 +148,7 @@ export async function getFriends(server: FastifyInstance, request: FastifyReques
 		  name: friend.sender.name,
 		  picture: friend.sender.picture
 		}))
-	  ];
+	];
 	
 	  const sortedFriendsList = friendsList.sort((a, b) => a.name.localeCompare(b.name));
 	  return reply.status(200).send(sortedFriendsList);

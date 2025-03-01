@@ -2,6 +2,8 @@ import request from "supertest";
 import { test_users_routes } from "./users.ts";
 import { addFriend_tests } from "./friends/add.friends.ts";
 import { removeFriend_tests } from "./friends/remove.friend.ts";
+import { getFriendStatus_tests } from "./friends/getFriendStatus.ts";
+import { updateFriendStatus_tests } from "./friends/updateFriendStatus.ts";
 
 const baseURL = "http://user:4000";
 
@@ -39,7 +41,16 @@ describe("Friends API Endpoints", () => {
 	describe("add Friend function", () => {
 		addFriend_tests(baseURL);
 	});
+
 	describe("remove Friend function", () => {
 		removeFriend_tests(baseURL);
+	});
+	
+	describe("get Friend status function", () => {
+		getFriendStatus_tests(baseURL);
+	});
+	
+	describe("update Friend status function", () => {
+		updateFriendStatus_tests(baseURL);
 	});
 });

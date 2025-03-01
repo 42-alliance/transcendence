@@ -29,14 +29,13 @@ export const removeFriendSchema: FastifySchema = {
 };
 
 export const areFriendsSchema = {
-    params: {
-        type: 'object',
-        properties: {
-            id: { type: 'number' },
-            friendId: { type: 'number' }
-        },
-        required: ['id', 'friendId']
-    }
+	params: {
+		type: "object",
+		properties: {
+			friendId: { type: "string", pattern: "^[0-9]+$" }, // Valide que friendId est un nombre
+		},
+		required: ["friendId"],
+	},
 };
 
 export const pendingRequestsSchema = {
@@ -47,4 +46,16 @@ export const pendingRequestsSchema = {
         },
         required: ['userId']
     }
+};
+
+export const updateFriendStatusSchema: FastifySchema = {
+  params: Type.Object({
+    friendId: Type.String({ pattern: "^[0-9]+$" }),
+  }),
+  headers: Type.Object({
+    "x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+  }),
+  body: Type.Object({
+    status: Type.String(),
+  }),
 };
