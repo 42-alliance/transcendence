@@ -1,11 +1,22 @@
-<div class="game-body">
-	<section class="game-section">
-		<script type="module" src="script/Game.js"></script>
-		<link rel="stylesheet" href="Game.css">
-		</style>
-		<canvas id="game-canvas" width="1200" height="700">
-			Game canvas
-		</canvas>
-		<button type="button" onclick="render()">render on canvas</button>
-	</section>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <link rel="stylesheet" href="Game.css">
+    <!-- Add BabylonJS CDN scripts in the head -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+</head>
+<body>
+    <div class="game-body">
+        <section class="game-section">
+            <!-- The canvas element -->
+            <canvas id="game-canvas" width="1200" height="700">Game canvas</canvas>
+        </section>
+    </div>
+
+    <script  src="./dist/Game.js"></script>
+</body>
+</html>
