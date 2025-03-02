@@ -3,8 +3,10 @@ import { config } from "./config.js";
 import { FastifyRequest } from "fastify";
 
 // Fonction utilitaire pour vérifier si un utilisateur existe
-export async function checkIfUserExist(username: string) {
+export async function checkIfUserExist(username: string, userId: number) {
 	const headers = new Headers();
+
+	headers.set("x-user-id", userId.toString());
 	const response = await fetch(`http://${config.users.host}:${config.users.port}/users/${username}`, {
 	  method: "GET",
 	  headers: headers,

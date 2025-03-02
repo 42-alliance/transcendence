@@ -51,17 +51,12 @@ export async function createConversation(server: FastifyInstance, request: Fasti
 			isGroup?: boolean 
 		};
   
-		// Vérifier qu'il y a au moins 2 membres pour créer une discussion
-		if (!members || members.length < 2) {
-			return reply.status(400).send({ error: "Une discussion doit contenir au moins 2 membres." });
-		}
-  
 	  	let users: User[] = [];
 		let userIDs: number[] = [];
 	  
 		// Vérifier si tous les membres existent
 		for (const member of members) {
-			const user = await checkIfUserExist(member);
+			const user = await checkIfUserExist(member, adminId);
 			users.push(user);
 			userIDs.push(user.id);
 		}
