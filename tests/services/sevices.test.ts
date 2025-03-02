@@ -15,7 +15,7 @@ const chatURL_WS = "ws://chat:5000";
 const chatURL_HTTP = "http://chat:5000";
 
 const waitUser = async () => {
-	let retries = 30; // Essayer pendant 30s max (1 requête/s)
+	let retries = 100; // Essayer pendant 30s max (1 requête/s)
 	while (retries > 0) {
 	  console.log(`Waiting for user service... (${retries} retries left)`);
 	  try {
@@ -34,7 +34,7 @@ const waitUser = async () => {
 };
 
 const waitChat = async () => {
-	let retries = 30; // Essayer pendant 30s max (1 requête/s)
+	let retries = 100; // Essayer pendant 30s max (1 requête/s)
 	while (retries > 0) {
 	  console.log(`Waiting for chat service... (${retries} retries left)`);
 	  try {
