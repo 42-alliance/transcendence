@@ -38,7 +38,7 @@ const waitChat = async () => {
 	while (retries > 0) {
 	  console.log(`Waiting for chat service... (${retries} retries left)`);
 	  try {
-		const res = await request(chatURL_HTTP.replace("ws", "http")).get("/chat/healthcheck");
+		const res = await request(chatURL_HTTP).get("/chat/healthcheck");
 		if (res.status === 200) {
 		  console.log("Chat service is ready!");
 		  return;
