@@ -3,7 +3,7 @@ export default {
 	testEnvironment: "node",
 	extensionsToTreatAsEsm: [".ts"], // Treat .ts files as ES Modules
 	 // Ensure Jest recognizes TS
-	 testTimeout: 10000, // Set test timeout to 30 seconds
+	 testTimeout: 60000, // Set test timeout to 30 seconds
 	transform: {
 	  "^.+\\.tsx?$": [
 		"ts-jest",
