@@ -1,6 +1,13 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyInstance, FastifyRequest, FastifyReply, FastifySchema } from 'fastify';
 import { prisma } from '../index.js';
 import { extractUserIdHeader, getUserById } from '../utils.js';
+import { Type } from "@sinclair/typebox"
+
+export const getAllConversationsSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	})
+};
 
 export async function getAllConversations(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	try {
