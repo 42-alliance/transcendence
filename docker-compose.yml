@@ -66,8 +66,8 @@ services:
   chat:
       container_name: chat
       build: ./services/chat
-      ports:
-        - "5000:5000"
+      # ports:
+      #   - "5000:5000"
       volumes:
         - ./services/chat:/app
       env_file:

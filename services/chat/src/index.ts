@@ -31,7 +31,7 @@ server.register(async function (server) {
 setupChatRoutes(server);
 
 server.get("/chat/healthcheck", async function handler(request, reply) {
-	return reply.status(200).send();
+	return reply.status(200).send("chat server is ready");
 });
 
 server.listen({ port: config.chat.port, host: "0.0.0.0" }, (err, address) => {

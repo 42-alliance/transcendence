@@ -54,7 +54,7 @@ const waitChat = async () => {
   
 // This will run before any tests and Jest will wait for it to complete
 beforeAll(async () => {
-	jest.setTimeout(30000);
+	// jest.setTimeout(30000);
 	await waitUser();
 	await waitChat();
 });

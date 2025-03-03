@@ -19,7 +19,7 @@ tests :
 
 github :
 	docker compose up --build -d
-	sleep 10
+	sleep 30
 	docker exec -e FORCE_COLOR=1 tests npm test --force-color
 	docker compose down
 
