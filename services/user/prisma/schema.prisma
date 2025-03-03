@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = env("PRISMA_USER_DATABASE_PATH")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+model Users {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  picture    String
+  created_at DateTime  @default(now())
+  sentRequests     Friends[] @relation("SentRequests")
+  receivedRequests Friends[] @relation("ReceivedRequests")
+}
+
+enum Status {
+  pending
+  accepted
+  rejected
+  blocked
+}
+
+model Friends {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     Status   @default(pending)
+  created_at DateTime @default(now())
+
+  sender   Users  @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver Users  @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+}
