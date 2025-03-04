@@ -58,25 +58,16 @@ export async function updateFriendStatus(server: FastifyInstance, request: Fasti
 	const fID = parseInt(friendId);
 	
     try {
-		const query = await prisma.friends.updateMany({
+		const query = await prisma.friends.update({
 			where: {
-				OR: [
-					{
-						senderId: userId,
-						receiverId: fID,
-					},
-					{
-						senderId: fID,
-						receiverId: userId,
-					},
-				],
+				id: fID
 			},
 			data: {
 				status: status as keyof typeof StatusEnum,
 			},
 		});
 		
-		if (query.count === 0) {
+		if (!query) {
 			return reply.status(400).send({ message: "Relation not found in database" });
 		}
 
