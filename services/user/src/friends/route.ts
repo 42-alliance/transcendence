@@ -136,21 +136,29 @@ export async function getFriends(server: FastifyInstance, request: FastifyReques
 			})
 	  ]);
 	  
-	  // Combiner et formater les résultats
 	  const friendsList = [
 		...acceptedFriends[0].map(friend => ({
-		  id: Number(friend.receiver.id),
-		  name: friend.receiver.name,
-		  picture: friend.receiver.picture
+		  receiver_id: Number(friend.receiver.id),
+		  receiver_name: friend.receiver.name,
+		  received_at: friend.created_at,
+		  picture: friend.receiver.picture,
+		  relation_id: friend.id,
+		  status: friend.status,
+		  type: "sent"
 		})),
 		...acceptedFriends[1].map(friend => ({
-		  id: Number(friend.sender.id),
-		  name: friend.sender.name,
-		  picture: friend.sender.picture
+		  sender_id: Number(friend.sender.id),
+		  sender_name: friend.sender.name,
+		  sent_at: friend.created_at,
+		  picture: friend.sender.picture,
+		  relation_id: friend.id,
+		  status: friend.status,
+		  type: "received"
 		}))
 	];
 	
-	  const sortedFriendsList = friendsList.sort((a, b) => a.name.localeCompare(b.name));
+	//   const sortedFriendsList = friendsList.sort((a, b) => a.name.localeCompare(b.name));
+	  const sortedFriendsList = friendsList.sort((a, b) => a.relation_id - b.relation_id);
 	  return reply.status(200).send(sortedFriendsList);
 	} catch (error) {
 	  console.error("Error server:", error);

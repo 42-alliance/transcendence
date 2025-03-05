@@ -31,8 +31,9 @@ export async function me(server:FastifyInstance, request: FastifyRequest, reply:
             ...me.sentRequests
             .filter(friend => friend.receiver.id !== id)
             .map(friend => ({
-                id: friend.receiver.id,
-                name: friend.receiver.name,
+                receiver_id: friend.receiver.id,
+                receiver_name: friend.receiver.name,
+                received_at: friend.created_at,
                 picture: friend.receiver.picture,
                 relation_id: friend.id,
                 status: friend.status,
@@ -41,8 +42,9 @@ export async function me(server:FastifyInstance, request: FastifyRequest, reply:
             ...me.receivedRequests
             .filter(friend => friend.sender.id !== id)
             .map(friend => ({
-                id: friend.sender.id,
-                name: friend.sender.name,
+                sender_id: friend.sender.id,
+                sender_name: friend.sender.name,
+        		sent_at: friend.created_at,
                 picture: friend.sender.picture,
                 relation_id: friend.id,
                 status: friend.status,
