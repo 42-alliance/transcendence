@@ -1,9 +1,8 @@
 export default {
-	preset: "ts-jest/presets/default-esm", // Ensure TS is compiled as ESM
+	preset: "ts-jest/presets/default-esm",
 	testEnvironment: "node",
-	extensionsToTreatAsEsm: [".ts"], // Treat .ts files as ES Modules
-	 // Ensure Jest recognizes TS
-	 testTimeout: 60000, // Set test timeout to 30 seconds
+	extensionsToTreatAsEsm: [".ts"],
+	testTimeout: 60000, // 60s pour éviter les timeouts sur tests lourds
 	transform: {
 	  "^.+\\.tsx?$": [
 		"ts-jest",
@@ -14,5 +13,8 @@ export default {
 	},
 	collectCoverageFrom: ["services/**/*.ts"],
 	modulePathIgnorePatterns: ["<rootDir>/.objs"],
-  };
-  
+	
+	// 🏎️ Exécution parallèle optimisée
+	maxWorkers: "50%", // Utilise la moitié des cœurs CPU (ajuste si nécessaire)
+	maxConcurrency: 5, // Limite le nombre de tests exécutés en même temps (augmente si besoin)
+};

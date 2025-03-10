@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"test": "jest --verbose --config jest.config.mjs",
+		"test": "jest --verbose --maxWorkers=50% --config jest.config.mjs",
 		"build": "tsc -p tsconfig.json"
 	},
 	"keywords": [],

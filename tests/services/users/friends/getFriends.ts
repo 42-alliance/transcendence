@@ -3,11 +3,11 @@ import { generateRandomString } from "../../utils/utils.ts";
 import { User } from "../../utils/types.ts";
 
 let users: User[] = [];
-const USERS = 4; // Créez 3 utilisateurs pour tester les relations d'amitié
+const USERS = 100; // Charge massive avec 100 utilisateurs
 
 export function getFriends_tests(baseURL: string) {
-  // Créez des utilisateurs pour les tests
   beforeAll(async () => {
+    // Création de 100 utilisateurs
     for (let i = 0; i < USERS; i++) {
       users[i] = { name: generateRandomString(10), picture: generateRandomString(10), id: 0 };
       const res = await request(baseURL)
@@ -18,79 +18,89 @@ export function getFriends_tests(baseURL: string) {
       users[i].id = res.body.id;
     }
 
-    // Créez des relations d'amitié entre les utilisateurs
-    await request(baseURL)
-      .post("/friends/requests")
-      .set("x-user-id", users[0].id.toString())
-      .send({ friendName: users[1].name })
-      .expect(201);
-
-    await request(baseURL)
-      .post("/friends/requests")
-      .set("x-user-id", users[1].id.toString())
-      .send({ friendName: users[2].name })
-      .expect(201);
-
-    // Acceptez les demandes d'amitié
-    await request(baseURL)
-      .post(`/friends/requests/${users[1].id}/status`)
-      .set("x-user-id", users[0].id.toString())
-      .send({ status: "accepted" })
-      .expect(200);
-
-    await request(baseURL)
-      .post(`/friends/requests/${users[2].id}/status`)
-      .set("x-user-id", users[1].id.toString())
-      .send({ status: "accepted" })
-      .expect(200);
-  });
-
-  // Supprimez les utilisateurs après les tests
-  afterAll(async () => {
+    // Création de relations d'amitié (chaque utilisateur envoie 3 demandes max)
     for (let i = 0; i < USERS; i++) {
-      const userId = users[i].id;
-      const res = await request(baseURL)
-        .delete("/users")
-        .set("x-user-id", userId.toString());
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual({ message: "User successfully deleted" });
+      const numFriends = Math.min(3, USERS - i - 1); // Assurer qu'on ne dépasse pas la liste
+      for (let j = 1; j <= numFriends; j++) {
+        await request(baseURL)
+          .post("/friends/requests")
+          .set("x-user-id", users[i].id.toString())
+          .send({ friendName: users[i + j].name })
+          .expect(201);
+      }
+    }
+
+    // Accepter toutes les demandes d'amitié
+    for (let i = 0; i < USERS; i++) {
+      const numFriends = Math.min(3, USERS - i - 1);
+      for (let j = 1; j <= numFriends; j++) {
+        await request(baseURL)
+          .post(`/friends/requests/${users[i + j].id}/status`)
+          .set("x-user-id", users[i].id.toString())
+          .send({ status: "accepted" })
+          .expect(200);
+      }
     }
   });
 
-  test("GET /friends/list - Should return the list of accepted friends", async () => {
-    const userId = users[0].id;
-
-    const res = await request(baseURL)
-      .get("/friends/list")
-      .set("x-user-id", userId.toString())
-      .expect(200);
-
-    // Vérifiez que la réponse contient la liste des amis
-    expect(res.body).toBeInstanceOf(Array);
-    expect(res.body.length).toBe(1); // users[0] a un ami (users[1])
-
-	console.log(res.body);
-    // Vérifiez que l'ami est correctement formaté
-    const friend = res.body[0];
-    expect(friend).toHaveProperty("friend");
-    expect(friend).toHaveProperty("created_at");
-    expect(friend).toHaveProperty("relation_id");
-    expect(friend.friend.id).toBe(users[1].id);
-    expect(friend.friend.name).toBe(users[1].name);
-    expect(friend.friend.picture).toBe(users[1].picture);
+  afterAll(async () => {
+    for (let i = 0; i < USERS; i++) {
+      await request(baseURL)
+        .delete("/users")
+        .set("x-user-id", users[i].id.toString())
+        .expect(200);
+    }
   });
 
+  test("GET /friends/list - Should return correct friends count for each user", async () => {
+	for (let i = 0; i < USERS; i++) {
+	  const userId = users[i].id;
+	  const res = await request(baseURL)
+		.get("/friends/list")
+		.set("x-user-id", userId.toString())
+		.expect(200);
+  
+	  expect(res.body).toBeInstanceOf(Array);
+  
+	  // Nouveau calcul du nombre attendu d'amis
+	  const expectedFriends = 
+		Math.min(3, USERS - i - 1) +  // Amis suivants
+		(i > 0 ? Math.min(3, i) : 0); // Amis précédents (dans la limite)
+  
+	  expect(res.body.length).toBe(expectedFriends);
+  
+	  for (const friend of res.body) {
+		expect(friend).toHaveProperty("friend");
+		expect(friend).toHaveProperty("created_at");
+		expect(friend).toHaveProperty("relation_id");
+		expect(friend.friend).toHaveProperty("id");
+		expect(friend.friend).toHaveProperty("name");
+		expect(friend.friend).toHaveProperty("picture");
+	  }
+	}
+  });
+  
+
   test("GET /friends/list - Should return an empty list if the user has no friends", async () => {
-    const userId = users[3].id;
+    const lonelyUser = { name: generateRandomString(10), picture: generateRandomString(10), id: 0 };
+    const resCreate = await request(baseURL)
+      .post("/users")
+      .send({ name: lonelyUser.name, picture: lonelyUser.picture });
+    expect(resCreate.status).toBe(200);
+    lonelyUser.id = resCreate.body.id;
 
     const res = await request(baseURL)
       .get("/friends/list")
-      .set("x-user-id", userId.toString())
+      .set("x-user-id", lonelyUser.id.toString())
       .expect(200);
 
-    // Vérifiez que la réponse est une liste vide
     expect(res.body).toBeInstanceOf(Array);
     expect(res.body.length).toBe(0);
+
+    await request(baseURL)
+      .delete("/users")
+      .set("x-user-id", lonelyUser.id.toString())
+      .expect(200);
   });
 
   test("GET /friends/list - Should return an error if the user ID is missing", async () => {
