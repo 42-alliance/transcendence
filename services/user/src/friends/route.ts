@@ -97,71 +97,73 @@ export async function removeFriend(server: FastifyInstance, request: FastifyRequ
 
 // GET
 export async function getFriends(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
-	try {
-		const userId = extractUserId(request);
+    try {
+        const userId = extractUserId(request);
 
-		const acceptedFriends = await prisma.$transaction([
-		// L'utilisateur a envoyé la demande d'amitié
-			prisma.friends.findMany({
-				where: {
-					senderId: userId,
-					status: 'accepted'
-				},
-				include: {
-					receiver: {
-						select: {
-							id: true,
-							name: true,
-							picture: true
-						}
-					}
-				}
-			}),
-		
-		// L'utilisateur a reçu la demande d'amitié
-			prisma.friends.findMany({
-				where: {
-					receiverId: userId,
-					status: 'accepted'
-				},
-				include: {
-					sender: {
-						select: {
-							id: true,
-							name: true,
-							picture: true
-						}
-					}
-				}
-			})
-	  ]);
-	  
-	  const friendsList = [
-		...acceptedFriends[0].map(friend => ({
-		  receiver_id: Number(friend.receiver.id),
-		  receiver_name: friend.receiver.name,
-		  received_at: friend.created_at,
-		  picture: friend.receiver.picture,
-		  relation_id: friend.id,
-		  status: friend.status,
-		  type: "sent"
-		})),
-		...acceptedFriends[1].map(friend => ({
-		  sender_id: Number(friend.sender.id),
-		  sender_name: friend.sender.name,
-		  sent_at: friend.created_at,
-		  picture: friend.sender.picture,
-		  relation_id: friend.id,
-		  status: friend.status,
-		  type: "received"
-		}))
-	];
-	
-	//   const sortedFriendsList = friendsList.sort((a, b) => a.name.localeCompare(b.name));
-	  const sortedFriendsList = friendsList.sort((a, b) => a.relation_id - b.relation_id);
-	  return reply.status(200).send(sortedFriendsList);
-	} catch (error) {
-	  console.error("Error server:", error);
-	  return reply.status(500).send({ error: "Erreur serveur." });
-	}
+        const acceptedFriends = await prisma.$transaction([
+            // L'utilisateur a envoyé la demande d'amitié
+            prisma.friends.findMany({
+                where: {
+                    senderId: userId,
+                    status: 'accepted'
+                },
+                include: {
+                    receiver: {
+                        select: {
+                            id: true,
+                            name: true,
+                            picture: true
+                        }
+                    }
+                }
+            }),
+        
+            // L'utilisateur a reçu la demande d'amitié
+            prisma.friends.findMany({
+                where: {
+                    receiverId: userId,
+                    status: 'accepted'
+                },
+                include: {
+                    sender: {
+                        select: {
+                            id: true,
+                            name: true,
+                            picture: true
+                        }
+                    }
+                }
+            })
+        ]);
+
+        // Uniformisation de la sortie
+        const friendsList = [
+            ...acceptedFriends[0].map(friend => ({
+                friend: {
+                    id: Number(friend.receiver.id),
+                    name: friend.receiver.name,
+                    picture: friend.receiver.picture
+                },
+                relation_id: friend.id,
+                created_at: friend.created_at
+            })),
+            ...acceptedFriends[1].map(friend => ({
+                friend: {
+                    id: Number(friend.sender.id),
+                    name: friend.sender.name,
+                    picture: friend.sender.picture
+                },
+                relation_id: friend.id,
+                created_at: friend.created_at
+            }))
+        ];
+
+        // Tri par `friend.name`
+        const sortedFriendsList = friendsList.sort((a, b) => a.friend.name.localeCompare(b.friend.name));
+
+        return reply.status(200).send(sortedFriendsList);
+    } catch (error) {
+        console.error("Error server:", error);
+        return reply.status(500).send({ error: "Erreur serveur." });
+    }
 }

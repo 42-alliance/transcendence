@@ -69,14 +69,15 @@ export function getFriends_tests(baseURL: string) {
     expect(res.body).toBeInstanceOf(Array);
     expect(res.body.length).toBe(1); // users[0] a un ami (users[1])
 
+	console.log(res.body);
     // Vérifiez que l'ami est correctement formaté
     const friend = res.body[0];
-    expect(friend).toHaveProperty("id");
-    expect(friend).toHaveProperty("name");
-    expect(friend).toHaveProperty("picture");
-    expect(friend.id).toBe(users[1].id);
-    expect(friend.name).toBe(users[1].name);
-    expect(friend.picture).toBe(users[1].picture);
+    expect(friend).toHaveProperty("friend");
+    expect(friend).toHaveProperty("created_at");
+    expect(friend).toHaveProperty("relation_id");
+    expect(friend.friend.id).toBe(users[1].id);
+    expect(friend.friend.name).toBe(users[1].name);
+    expect(friend.friend.picture).toBe(users[1].picture);
   });
 
   test("GET /friends/list - Should return an empty list if the user has no friends", async () => {

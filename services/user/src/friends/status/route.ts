@@ -46,36 +46,48 @@ export async function getFriendStatus(server: FastifyInstance, request: FastifyR
 	}
 }
 
-export async function updateFriendStatus(server: FastifyInstance, request: FastifyRequest<{Params: { friendId: string }}>, reply: FastifyReply) {
+export async function updateFriendStatus(server: FastifyInstance, request: FastifyRequest<{ Params: { friendId: string } }>, reply: FastifyReply) {
     const { friendId } = request.params;
-	const userId = extractUserId(request);
+    const userId = extractUserId(request);
     const { status } = request.body as { status: string };
 
-	if (!Object.values(StatusEnum).includes(status)) {
-		return reply.status(400).send({ error: 'Error: invalid status' });
-	}
-	
-	const fID = parseInt(friendId);
-	
-    try {
-		const query = await prisma.friends.update({
-			where: {
-				id: fID
-			},
-			data: {
-				status: status as keyof typeof StatusEnum,
-			},
-		});
-		
-		if (!query) {
-			return reply.status(400).send({ message: "Relation not found in database" });
-		}
+    if (!Object.values(StatusEnum).includes(status)) {
+        return reply.status(400).send({ error: 'Error: invalid status' });
+    }
 
-        console.log(`Demande d'ami entre ${userId} et ${friendId} est maintenant ${status}.`);
+    const friendID = parseInt(friendId);
+
+    try {
+        // Recherche de la relation d'amitié
+        const friendship = await prisma.friends.findFirst({
+            where: {
+                OR: [
+                    { senderId: userId, receiverId: friendID },
+                    { senderId: friendID, receiverId: userId }
+                ]
+            }
+        });
+
+        if (!friendship) {
+            return reply.status(404).send({ message: "Friendship relation not found" });
+        }
+
+        // Mise à jour du statut de l'amitié
+        await prisma.friends.updateMany({
+            where: {
+                senderId: friendship.senderId,
+                receiverId: friendship.receiverId
+            },
+            data: {
+                status: status as keyof typeof StatusEnum,
+            }
+        });
+
+        console.log(`Friend request between ${friendship.senderId} and ${friendship.receiverId} is now ${status}.`);
 
         return reply.status(200).send({ message: `Friend request is now ${status}` });
     } catch (error) {
-        console.error("Error server:" + error);
-        return reply.status(500).send({ error: error });
+        console.error("Server error:", error);
+        return reply.status(500).send({ error: "Internal server error" });
     }
 }

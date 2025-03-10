@@ -73,9 +73,9 @@ export function updateFriendStatus_tests(baseURL: string) {
       .post(`/friends/requests/${nonExistentFriendId}/status`)
       .set("x-user-id", userId.toString())
       .send({ status: "accepted" })
-      .expect(400);
+      .expect(404);
 
-    expect(res.body.message).toBe("Relation not found in database");
+    expect(res.body.message).toBe("Friendship relation not found");
   });
 
   test("POST /friends/requests/:friendId/status - Should return an error if the friend ID is invalid", async () => {
