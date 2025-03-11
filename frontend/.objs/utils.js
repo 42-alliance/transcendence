@@ -14,11 +14,20 @@ export async function fetchApi(url, options = {}) {
             Authorization: `Bearer ${token}`,
         };
     }
+    console.error("options: ", options);
     const response = await fetch(url, options);
     if (!response.ok) {
-        console.error("Failed to fetch data from server", response.status);
+        console.error("Failed to fetch data from server: ", await response.json());
         throw new Error("Failed to fetch data from server: " + response.statusText);
     }
     return response;
+}
+export function getHeader() {
+    const headers = new Headers();
+    const token = localStorage.getItem("access_token");
+    if (token) {
+        headers.append("Authorization", `Bearer ${token}`);
+    }
+    return headers;
 }
 //# sourceMappingURL=utils.js.map

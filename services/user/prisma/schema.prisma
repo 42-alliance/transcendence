@@ -12,12 +12,14 @@ generator client {
 }
 
 model Users {
-  id         Int       @id @default(autoincrement())
-  name       String    @unique
-  picture    String
-  created_at DateTime  @default(now())
-  sentRequests     Friends[] @relation("SentRequests")
-  receivedRequests Friends[] @relation("ReceivedRequests")
+  id				Int       @id @default(autoincrement())
+  name				String    @unique
+  picture			String
+  banner			String?
+  bio				String?
+  created_at		DateTime  @default(now())
+  sentRequests		Friends[] @relation("SentRequests")
+  receivedRequests	Friends[] @relation("ReceivedRequests")
 }
 
 enum Status {

@@ -1,5 +1,5 @@
 import AView from "../AView.js";
-import { addUser } from "../../User/addUser.js";
+import { updateUserInfos } from "../../User/addUser.js";
 import { injectUserCard, previewImage, updateUserCardFromForm } from "../userCard/userCard.js";
 export default class extends AView {
     constructor() {
@@ -55,6 +55,7 @@ async function validUsername(username, errorMessage) {
     return true;
 }
 export async function formSubmit() {
+    console.log("je passse ici");
     const form = document.querySelector('.login-form');
     if (form === null)
         return;
@@ -86,8 +87,7 @@ export async function formSubmit() {
         }
         if (profilePicture)
             console.log("profilePicture name : " + profilePicture.name);
-        console.log("User not log try to Sign IN");
-        addUser(username, profilePicture);
+        updateUserInfos(username);
     });
 }
 // Gestion des événements après le chargement du DOM

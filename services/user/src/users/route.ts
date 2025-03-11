@@ -30,7 +30,7 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 		const result = await prisma.users.create({
 			data: {
 				name: body.name,
-				picture: body.picture
+				picture: body.picture,
 			}
 		});
 		

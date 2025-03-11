@@ -1,4 +1,4 @@
-import { fetchApi } from "../utils.js";
+import { getHeader } from "../utils.js";
 import { navigateTo } from "../Views/viewManager.js";
 /**
  * Adds a new user with the given username and profile picture.
@@ -6,20 +6,27 @@ import { navigateTo } from "../Views/viewManager.js";
  * @param username - The username of the new user.
  * @param profilePicture - The profile picture file of the new user.
  */
-export async function addUser(username, profilePicture) {
+export async function updateUserInfos(name, picture, banner, bio) {
     try {
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        await fetchApi('http://localhost:8000/users/@me', {
-            method: 'POST',
+        const headers = getHeader();
+        headers.append("Content-Type", "application/json");
+        headers.append("Accept", "application/json");
+        const test = JSON.stringify({
+            name: name,
+        });
+        console.log("test: ", test);
+        const response = await fetch('http://localhost:8000/users/@me', {
+            method: 'PUT',
             headers: headers,
             credentials: 'include',
             body: JSON.stringify({
-                'name': username,
-                // 'picture': profilePicture,
-            })
+                name: name,
+            }),
         });
-        console.log("User succesfully updated");
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+        console.log("User successfully updated");
         navigateTo("/");
     }
     catch (e) {
