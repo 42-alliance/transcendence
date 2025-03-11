@@ -2,6 +2,7 @@ import AView from "../AView.js";
 import { userIsLogin } from "../../User/userIsLogin.js";
 import { navigateTo } from "../viewManager.js";
 import { addUser } from "../../User/addUser.js";
+import { injectUserCard, previewImage, updateUserCardFromForm } from "../userCard/userCard.js";
 
 export default class extends AView {
     constructor() {
@@ -60,10 +61,9 @@ async function validUsername(username: string, errorMessage: HTMLSpanElement) {
 		return false;
 	}
 
-	if (await verifyIfUsernameInDatabase(username) === true) {
-		return false;
-	}
-	
+	// if (await verifyIfUsernameInDatabase(username) === true) {
+	// 	return false;
+	// }
 	return true;
 }
 
@@ -109,3 +109,26 @@ export async function formSubmit() {
 		addUser(username, profilePicture);
     });
 }
+
+// Gestion des événements après le chargement du DOM
+document.addEventListener("DOMContentLoaded", async () => {
+	await new Promise<void>((r) => setTimeout(r, 400));
+  
+	injectUserCard("card-login-container-id");
+  
+	const userForm = document.getElementById("user-form") as HTMLFormElement;
+	userForm.addEventListener("input", () => {
+	  updateUserCardFromForm("user-form", "card-login-container-id");
+	});
+  
+	const profileImageInput = document.getElementById("profileImageInput") as HTMLInputElement;
+	profileImageInput.addEventListener("change", (event) => {
+	  previewImage(event, "profile-picture-card", "banner-card", "profileBannerInput");
+	});
+  
+	const profileBannerInput = document.getElementById("profileBannerInput") as HTMLInputElement;
+	profileBannerInput.addEventListener("change", (event) => {
+	  previewImage(event, "banner-card", "profile-picture-card", "profileImageInput");
+	});
+  });
+  

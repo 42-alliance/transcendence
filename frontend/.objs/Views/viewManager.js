@@ -1,3 +1,4 @@
+import { setUserInfo } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
 import Auth from "./Auth/Auth.js";
 import AuthSuccess from "./Auth/AuthSuccess.js";
@@ -32,6 +33,7 @@ const router = async () => {
         // { path: "/selection", view: Selection },
     ];
     let match;
+    await setUserInfo();
     const pageBuffer = localStorage.getItem('pageBuffer');
     if (pageBuffer !== null && await needToAuthenticate(pageBuffer) === false) {
         match = routes.find(route => pageBuffer === route.path) || routes[0];

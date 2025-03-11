@@ -9,7 +9,6 @@ export default class extends AView {
     // Charge le contenu HTML du formulaire
     async getHtml() {
         if (await userIsLogin() === true) {
-            console.log("error");
             navigateTo("/");
             return "";
         }

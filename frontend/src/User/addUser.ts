@@ -12,16 +12,16 @@ export async function addUser(username: string, profilePicture: File) : Promise<
 		const headers = new Headers();
 		headers.append('Content-Type', 'application/json');
 		
-		await fetchApi('http://localhost:8000/api/user/', {
+		await fetchApi('http://localhost:8000/users/@me', {
 			method: 'POST',
 			headers: headers,
 			credentials: 'include',
 			body: JSON.stringify({
 				'name': username,
-				'upload_picture': profilePicture,
+				// 'picture': profilePicture,
 			})
 		});
-		console.log("User creation test succesed");
+		console.log("User succesfully updated");
 		navigateTo("/");
 	} catch (e) {
 		console.error('Erreur :', e)

@@ -12,7 +12,6 @@ export default class extends AView {
 	async getHtml(): Promise<string> {
 
         if (await userIsLogin() === true) {
-			console.log("error")
             navigateTo("/");
             return "";
         }

@@ -6,10 +6,17 @@
  * @returns The response from the fetch request.
  * @throws Will throw an error if the fetch request fails.
  */
-export async function fetchApi(url, options) {
+export async function fetchApi(url, options = {}) {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+        options.headers = {
+            ...options.headers,
+            Authorization: `Bearer ${token}`,
+        };
+    }
     const response = await fetch(url, options);
     if (!response.ok) {
-        console.error("Failed to fetch data from server");
+        console.error("Failed to fetch data from server", response.status);
         throw new Error("Failed to fetch data from server: " + response.statusText);
     }
     return response;

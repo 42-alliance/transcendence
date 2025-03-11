@@ -1,4 +1,5 @@
 import { WebSockets } from "../types.js";
+import { setUserInfo } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
 import Auth from "./Auth/Auth.js";
 import AuthSuccess from "./Auth/AuthSuccess.js";
@@ -38,7 +39,7 @@ const router = async (): Promise<void> => {
   ];
 
   let match;
-
+  await setUserInfo();
   const pageBuffer = localStorage.getItem('pageBuffer');
 
   if (pageBuffer !== null && await needToAuthenticate(pageBuffer) === false) {

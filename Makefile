@@ -12,6 +12,10 @@ down :
 
 oui : down up
 
+dbclean :
+	rm -rf services/chat/prisma/database services/chat/prisma/migrations
+	rm -rf services/user/prisma/database services/user/prisma/migrations
+
 tests :
 	docker compose up --build -d
 	docker exec -e FORCE_COLOR=1 tests npm test --force-color
@@ -46,4 +50,4 @@ re : fclean all
 
 retest : fclean tests
 
-.PHONY : all up down fclean log re tests retest check oui
+.PHONY : all up down fclean log re tests retest check oui dbclean

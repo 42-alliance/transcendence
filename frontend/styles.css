@@ -34,6 +34,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+	color: var(--white-color);
     font-family: 'Poppins';
     box-sizing: border-box;
 	scroll-behavior: smooth;
@@ -67,7 +68,7 @@ html, body {
 	visibility: hidden;
 	opacity: 0;
 	transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-  }
+}
   
   #loader.visible {
 	visibility: visible;

@@ -6,6 +6,7 @@ import { addFriendSchema, getFriendStatusSchema, getFriendsSchema, getPendingFri
 import { deleteUserDatabase, getAllUsers, addUserDatabase, getUserByName } from "./users/route.js";
 import { addUserDatabaseSchema, nameParamsSchema, userIdHeader } from "./users/schema.js";
 import { me } from "./users/@me/route.js";
+import { updateUserInfos } from "./users/@me/updateUserInfos.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -32,6 +33,10 @@ async function setupUsersRoute(server: FastifyInstance) {
 
 	server.get('/users/@me', { schema: userIdHeader }, async function handler(request, reply) {
 		return await me(server, request, reply);
+	});
+
+	server.post('/users/@me', async function handler(request, reply) {
+		return await updateUserInfos(request, reply);
 	});
 }
 
