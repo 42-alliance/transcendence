@@ -12,7 +12,7 @@ export async function getAllConversations_tests(userURL: string, chatURL: string
 			const res = await request(userURL)
 				.post("/users")
 				.send({ name: users[i].name, picture: users[i].picture });
-			expect(res.status).toBe(200);
+			expect(res.status).toBe(201);
 			expect(res.body).toHaveProperty("id");
 			users[i].id = res.body.id;
 		}

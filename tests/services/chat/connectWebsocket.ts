@@ -14,7 +14,7 @@ export function websocket_chat_tests(userURL: string, chatURL_HTTP: string, chat
 			const res = await request(userURL)
 				.post("/users")
 				.send({ name: users[i].name, picture: users[i].picture });
-			expect(res.status).toBe(200);
+			expect(res.status).toBe(201);
 			expect(res.body).toHaveProperty("id");
 			users[i].id = res.body.id;
 		}
