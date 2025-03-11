@@ -86,12 +86,10 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
             path: "/",
             maxAge: 7 * 24 * 60 * 60, // 7 jours
         });
-
-        return reply.status(200).send({
-            message: "Authentification réussie",
-            accessToken,
-        });
-
+		if (response.status === 200)
+			return reply.redirect(`http://localhost:8080/auth-success?token=${accessToken}`);
+		if (response.status === 201)
+			return reply.redirect(`http://localhost:8080/auth-success?token=${accessToken}&register=true`);
     } catch (error) {
         console.error("❌ Erreur d'authentification :", error);
         return reply.status(500).send({ error: "Erreur d'authentification" });

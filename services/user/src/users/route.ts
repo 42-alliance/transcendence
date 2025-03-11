@@ -24,17 +24,17 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 		});
 
 		if (user) {
-			return { id: user.id };
+			return reply.status(200).send({ id: user.id });
 		}
-
+		
 		const result = await prisma.users.create({
 			data: {
 				name: body.name,
 				picture: body.picture
 			}
 		});
-
-        return { id: result.id };
+		
+		return reply.status(201).send({ id: result.id });
     } catch (error: any) {
         console.error("Erreur lors de l'insertion de l'utilisateur :", error);
 

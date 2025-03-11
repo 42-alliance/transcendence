@@ -3,6 +3,7 @@ import proxy from "@fastify/http-proxy";
 import { config } from "./config.js";
 import { verifyJWT } from "./verify.js";
 import jwt from "@fastify/jwt";
+import cors from "@fastify/cors";
 
 
 export const server = Fastify({
@@ -13,6 +14,13 @@ export const server = Fastify({
         },
     },
 });
+
+server.register(cors, {
+    origin: ['http://localhost:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Autorisez les méthodes nécessaires
+    credentials: true,  // Si vous avez besoin de cookies ou d'autres informations de session
+});
+
 
 server.register(jwt, {
 	secret: config.jwt.secret,

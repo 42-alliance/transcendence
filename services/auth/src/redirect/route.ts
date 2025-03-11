@@ -10,5 +10,5 @@ export async function authRedirect(server: FastifyInstance, request: FastifyRequ
 
     const url = `${base_url}?scope=email%20profile&redirect_uri=${redirect_uri}&response_type=code&client_id=${client_id}`;
 
-    return reply.status(302).redirect(url);
+    return reply.status(200).send({auth_url: url});
 }
