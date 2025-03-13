@@ -6,9 +6,6 @@ import util from "util";
 import FormData from "form-data";
 import { config } from "../../config.js";
 
-
-const pump = util.promisify(pipeline);
-
 interface userBody {
     name?: string;
     picture?: string;
@@ -18,13 +15,15 @@ interface userBody {
 
 export async function saveFile(part: any): Promise<string | undefined> {
     const formData = new FormData();
-    formData.append("file", part.file, part.filename); // ✅ On envoie directement le stream
+	console.log("part.file: ", part.file);
+    formData.append("file", part.file, { filename: part.filename }); // ✅ Envoie directement le stream
 
     try {
-		console.log("url == ", `http://gateway:${config.gateway.port}/media/files`);
-        const response = await fetch(`http://gateway:${config.gateway.port}/media/files`, {
+        console.log("url == ", `http://${config.media.host}:${config.media.port}/files`);
+        const response = await fetch(`http://${config.media.host}:${config.media.port}/files`, {
             method: "POST",
-            body: formData as unknown as BodyInit,
+			headers: formData.getHeaders(),
+            body: formData as any, // ✅ Pas besoin de définir "Content-Type"
         });
 
         if (!response.ok) {
@@ -37,6 +36,7 @@ export async function saveFile(part: any): Promise<string | undefined> {
         console.error("Erreur upload:", error);
     }
 }
+
 
 export async function updateUserInfos(request: FastifyRequest, reply: FastifyReply) {
     const userId = extractUserId(request);

@@ -16,7 +16,7 @@ export const server = Fastify({
 });
 
 server.register(cors, {
-    origin: ['http://localhost:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
+    origin: ['http://localhost:8080', 'http://127.0.0.1:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Autorisez les méthodes nécessaires
     credentials: true,  // Si vous avez besoin de cookies ou d'autres informations de session
 });

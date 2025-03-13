@@ -24,9 +24,11 @@ export async function uploadFileCDN(request: FastifyRequest, reply: FastifyReply
 		
 		let fileUploaded = false;
 
+		console.log("test1");
 		// Traitement de chaque partie de la requête multipart
 		for await (const part of parts) {
 			if (part.type === 'file') {
+				console.log("test2");
 				// Vérifier qu'on n'a pas déjà traité un fichier
 				if (fileUploaded) {
 					return reply.code(400).send({ error: "Un seul fichier par requête est autorisé" });
@@ -36,6 +38,8 @@ export async function uploadFileCDN(request: FastifyRequest, reply: FastifyReply
 				const filepath = path.join(publicPath, filename);
 				
 				// Écrire le fichier sur le disque
+
+				console.log(part.file)
 				await pipeline(part.file, createWriteStream(filepath));
 				fileUploaded = true;
 				
@@ -43,13 +47,15 @@ export async function uploadFileCDN(request: FastifyRequest, reply: FastifyReply
 				console.log(`Fichier uploadé: ${filename}, mimetype: ${part.mimetype}`);
 			} else {
 				return reply.code(400).send({ error: "Il faut envoyer un fichier" });
-
+				
 			}
 		}
+		console.log("test3");
 		
 		if (!fileUploaded) {
 			return reply.code(400).send({ error: "Aucun fichier n'a été envoyé" });
 		}
+		console.log("test4");
 		
 		return reply.code(201).send({ 
 			message: "Fichier uploadé avec succès",

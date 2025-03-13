@@ -2,7 +2,6 @@ import Fastify from "fastify";
 import path from "path";
 import fastifyStatic from "@fastify/static";
 import fs from "fs"; // Pour vérifier si un fichier existe
-import { config } from "./config.js";
 export const server = Fastify({
     logger: {
         transport: {
@@ -29,7 +28,8 @@ server.setNotFoundHandler((request, reply) => {
         return reply.sendFile("index.html");
     }
 });
-server.listen({ port: config.frontend.port, host: "0.0.0.0" }, (err, address) => {
+const PORT = 80;
+server.listen({ port: PORT, host: "0.0.0.0" }, (err, address) => {
     if (err) {
         console.error(err);
         process.exit(1);
