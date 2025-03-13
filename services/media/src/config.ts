@@ -1,6 +1,7 @@
 export const config = {
 	gateway: {	// Configuration du service gateway
 		port: parseInt(process.env.GATEWAY_PORT!),	// Port d'écoute du service gateway
+		host: process.env.GATEWAY_HOST!,	// Port d'écoute du service gateway
 	},
 	auth: {	// Configuration du service AUTH_PORT
 		host: process.env.AUTH_HOST!,	// Host du service auth
@@ -20,7 +21,7 @@ export const config = {
 	media: {
 		host: process.env.MEDIA_HOST!,
 		port: parseInt(process.env.MEDIA_PORT!),
-		upload_folder: parseInt(process.env.UPLOAD_FOLDER!),
+		upload_folder: process.env.UPLOAD_FOLDER!,
 	},
 	frontend: {
 		host: process.env.FRONTEND_HOST!,

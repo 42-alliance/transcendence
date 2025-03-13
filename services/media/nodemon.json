@@ -1,0 +1,7 @@
+{
+	"watch": ["src"],
+	"ext": "ts",
+	"ignore": [".objs", "node_modules"],
+	"exec": "npm run dev"
+  }
+  

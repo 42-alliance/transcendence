@@ -87,7 +87,7 @@ export async function formSubmit() {
         }
         if (profilePicture)
             console.log("profilePicture name : " + profilePicture.name);
-        updateUserInfos(username);
+        updateUserInfos(username, profilePicture);
     });
 }
 // Gestion des événements après le chargement du DOM

@@ -7,14 +7,20 @@ services:
     restart: always
     volumes:
       - ./frontend:/var/www/html
+    env_file:
+      - ./.env
   media:
     container_name: media
-    build: media/nginx
+    build: services/media/docker
     ports:
-      - "9000:9000"
+      - "6000:6000"
     volumes:
-      - ./media/files:/data/files/
+      - ./services/media/:/app
+    env_file:
+      - ./.env
     restart: always
+    networks:
+      - services_network
   user:
       container_name: user
       build: ./services/user

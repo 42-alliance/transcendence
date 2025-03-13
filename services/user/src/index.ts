@@ -1,9 +1,9 @@
 import fastify from 'fastify';
 import { setupRoutes } from './router.js';
 import { PrismaClient } from '@prisma/client';
+import multipart from "@fastify/multipart";
 
 export const prisma = new PrismaClient(); // client prisma
-
 
 export const server = fastify({
     logger: {
@@ -12,6 +12,12 @@ export const server = fastify({
             options: { colorize: true },
         },
     },
+});
+
+await server.register(multipart, {
+	limits: {
+	  fileSize: 10 * 1024 * 1024 // limite à 10Mo par exemple
+	}
 });
 
 server.get("/users/healthcheck", async function handler(request, reply) {

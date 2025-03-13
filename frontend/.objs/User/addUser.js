@@ -1,5 +1,28 @@
+import { config } from "../config.js";
 import { getHeader } from "../utils.js";
 import { navigateTo } from "../Views/viewManager.js";
+async function uploadFileCDN(file) {
+    const headers = getHeader();
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await fetch(`${config.api.path}/media/files`, {
+            method: 'POST',
+            headers: headers,
+            credentials: 'include',
+            body: formData,
+        });
+        if (!response.ok) {
+            throw new Error("Error when trying to upload file");
+        }
+        const data = await response.json();
+        console.log(data.message);
+        return data.url;
+    }
+    catch (error) {
+        console.error("Error: ", error);
+    }
+}
 /**
  * Adds a new user with the given username and profile picture.
  *
@@ -9,19 +32,20 @@ import { navigateTo } from "../Views/viewManager.js";
 export async function updateUserInfos(name, picture, banner, bio) {
     try {
         const headers = getHeader();
-        headers.append("Content-Type", "application/json");
-        headers.append("Accept", "application/json");
-        const test = JSON.stringify({
-            name: name,
-        });
-        console.log("test: ", test);
+        const formData = new FormData();
+        if (picture)
+            formData.append('picture', picture);
+        if (banner)
+            formData.append('banner', banner);
+        if (bio)
+            formData.append('bio', bio);
+        if (name)
+            formData.append('name', name);
         const response = await fetch('http://localhost:8000/users/@me', {
-            method: 'PUT',
+            method: 'PATCH',
             headers: headers,
             credentials: 'include',
-            body: JSON.stringify({
-                name: name,
-            }),
+            body: formData,
         });
         if (!response.ok) {
             throw new Error(await response.text());

@@ -106,7 +106,7 @@ export async function formSubmit() {
         }
         if (profilePicture)
             console.log("profilePicture name : " + profilePicture.name);
-		updateUserInfos(username);
+		updateUserInfos(username, profilePicture);
     });
 }
 

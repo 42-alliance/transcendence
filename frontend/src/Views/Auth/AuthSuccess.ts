@@ -15,11 +15,12 @@ export default class extends AView {
 		const token = params.get("token");
 		const register = params.get("register");
 
+        if (token) {
+			localStorage.setItem("access_token", token);
+		}
 		const view = new Login(); // temporaire
 		return await view.getHtml();
 
-        // if (token) {
-		// 	localStorage.setItem("access_token", token);
 		// 	await setUserInfo();
 		// 	window.history.replaceState({}, document.title, "/auth-success");
 		// 	// if (register && register === "true") {

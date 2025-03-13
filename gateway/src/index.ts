@@ -84,12 +84,11 @@ server.register(proxy, {
     }
 });
 
-// server.register(proxy, {
-// 	upstream: `http://${config.chat.host}:${config.chat.port}`,
-//     prefix: '/chat',
-// 	rewritePrefix: '/chat',
-//     http2: false,
-// });
+server.register(proxy, {
+	upstream: `http://${config.media.host}:${config.media.port}`,
+    prefix: '/media',
+    http2: false,
+});
 
 server.listen({ port: config.gateway.port, host: "0.0.0.0" }, (err, address) => {
     if (err) {
