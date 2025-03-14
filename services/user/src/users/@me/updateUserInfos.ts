@@ -29,7 +29,6 @@ export async function saveFile(part: MultipartFile): Promise<string | undefined>
             throw new Error("Le fichier est vide.");
         }
 
-        // ✅ Utiliser un Blob pour éviter les problèmes avec FormData
         const blob = new Blob([buffer], { type: part.mimetype });
         const formData = new FormData();
 		const headers = new Headers();
@@ -61,7 +60,6 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
     try {
         for await (const part of parts) {
             if (part.type === "file") {
-				console.log("part.file: ", part.file);
                 if (part.fieldname === "picture") {
                     updateUser.picture = await saveFile(part);
                 } else if (part.fieldname === "banner") {
@@ -87,4 +85,3 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
         return reply.status(500).send({ message: "Erreur interne du serveur." });
     }
 }
-

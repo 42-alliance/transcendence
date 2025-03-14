@@ -31,9 +31,15 @@ jobs:
           echo "USER_PORT=${{ secrets.USER_PORT }}" >> .env
           echo "CHAT_HOST=${{ secrets.CHAT_HOST }}" >> .env
           echo "CHAT_PORT=${{ secrets.CHAT_PORT }}" >> .env
+          echo "MEDIA_HOST=${{ secrets.MEDIA_HOST }}" >> .env
+          echo "MEDIA_PORT=${{ secrets.MEDIA_PORT }}" >> .env
+          echo "UPLOAD_FOLDER=${{ secrets.UPLOAD_FOLDER }}" >> .env
+          echo "FRONTEND_HOST=${{ secrets.FRONTEND_HOST }}" >> .env
+          echo "FRONTEND_PORT=${{ secrets.FRONTEND_PORT }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
           echo "GATEWAY_PORT=${{ secrets.GATEWAY_PORT }}" >> .env
+          echo "GATEWAY_HOST=${{ secrets.GATEWAY_HOST }}" >> .env
           echo "PRISMA_CHAT_DATABASE_PATH=${{ secrets.PRISMA_CHAT_DATABASE_PATH }}" >> .env
           echo "PRISMA_USER_DATABASE_PATH=${{ secrets.PRISMA_USER_DATABASE_PATH }}" >> .env
 
