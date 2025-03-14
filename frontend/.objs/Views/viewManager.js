@@ -1,7 +1,7 @@
-import { setUserInfo } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
 import Auth from "./Auth/Auth.js";
 import AuthSuccess from "./Auth/AuthSuccess.js";
+import Dashboard from "./Dashboard/Dashboard.js";
 // Initialisation du WebSocket
 export const webSockets = {
     chat: null,
@@ -14,17 +14,15 @@ export const navigateTo = (url) => {
 };
 // Fonction de vérification de l'authentification
 async function needToAuthenticate(currentPath) {
-    const protectedRoutes = ["/", "/game", "/friends", "/selection"];
-    if (protectedRoutes.includes(currentPath) && (await userIsLogin()) === false) {
+    if ((currentPath != "/auth" && currentPath != "/auth-success") && (await userIsLogin()) === false)
         return true;
-    }
     return false;
 }
 let previousPage;
 // Fonction principale du routeur
 const router = async () => {
     const routes = [
-        // { path: "/", view: Dashboard },
+        { path: "/", view: Dashboard },
         // { path: "/login", view: Login },
         // { path: "/game", view: Game },
         // { path: "/friends", view: Friends },
@@ -33,18 +31,9 @@ const router = async () => {
         // { path: "/selection", view: Selection },
     ];
     let match;
-    await setUserInfo();
-    const pageBuffer = localStorage.getItem('pageBuffer');
-    if (pageBuffer !== null && await needToAuthenticate(pageBuffer) === false) {
-        match = routes.find(route => pageBuffer === route.path) || routes[0];
-        history.pushState(null, "", match.path);
-        localStorage.removeItem('pageBuffer');
-    }
-    else {
-        match = routes.find(route => location.pathname === route.path) || routes[0];
-    }
+    // await setUserInfo();
+    match = routes.find(route => location.pathname === route.path) || routes[0];
     if (await needToAuthenticate(match.path) === true) {
-        localStorage.setItem('pageBuffer', match.path);
         navigateTo("/auth");
         return;
     }

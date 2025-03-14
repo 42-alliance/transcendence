@@ -1,26 +1,5 @@
 import { getHeader } from "../utils.js";
 import { navigateTo } from "../Views/viewManager.js";
-// async function uploadFileCDN(file: File): Promise<string | undefined> {
-// 	const headers = getHeader();
-// 	const formData = new FormData();
-// 	formData.append('file', file);
-// 	try {
-// 		const response = await fetch(`http/media/files`, {
-// 			method: 'POST',
-// 			headers: headers,
-// 			credentials: 'include',
-// 			body: formData,
-// 		});
-// 		if (!response.ok) {
-// 			throw new Error("Error when trying to upload file");
-// 		}
-// 		const data = await response.json();
-// 		console.log(data.message);
-// 		return data.url;
-// 	} catch (error) {
-// 		console.error("Error: ", error);
-// 	}
-// }
 /**
  * Adds a new user with the given username and profile picture.
  *

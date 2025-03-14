@@ -56,6 +56,8 @@ export async function me(server:FastifyInstance, request: FastifyRequest, reply:
 			id: me.id,
 			name: me.name,
 			picture: me.picture,
+			banner: me.banner,
+			bio: me.bio,
 			created_at: me.created_at,
 			friends: friendsList
         });

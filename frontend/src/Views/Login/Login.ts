@@ -1,7 +1,7 @@
 import AView from "../AView.js";
 import { userIsLogin } from "../../User/userIsLogin.js";
 import { navigateTo } from "../viewManager.js";
-import { updateUserInfos } from "../../User/addUser.js";
+import { updateUserInfos } from "../../User/updateUser.js";
 import { injectUserCard, previewImage, updateUserCardFromForm } from "../userCard/userCard.js";
 
 export default class extends AView {
@@ -68,7 +68,6 @@ async function validUsername(username: string, errorMessage: HTMLSpanElement) {
 }
 
 export async function formSubmit() {
-	console.log("je passse ici");
     const form = document.querySelector('.login-form');
     if (form === null) return;
 
@@ -117,18 +116,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 	injectUserCard("card-login-container-id");
   
 	const userForm = document.getElementById("user-form") as HTMLFormElement;
-	userForm.addEventListener("input", () => {
-	  updateUserCardFromForm("user-form", "card-login-container-id");
-	});
+	if (userForm)
+		userForm.addEventListener("input", () => {
+			updateUserCardFromForm("user-form", "card-login-container-id");
+		});
   
 	const profileImageInput = document.getElementById("profileImageInput") as HTMLInputElement;
-	profileImageInput.addEventListener("change", (event) => {
-	  previewImage(event, "profile-picture-card", "banner-card", "profileBannerInput");
-	});
+	if (profileImageInput)
+		profileImageInput.addEventListener("change", (event) => {
+			previewImage(event, "profile-picture-card", "banner-card", "profileBannerInput");
+		});
   
 	const profileBannerInput = document.getElementById("profileBannerInput") as HTMLInputElement;
-	profileBannerInput.addEventListener("change", (event) => {
-	  previewImage(event, "banner-card", "profile-picture-card", "profileImageInput");
-	});
+	if (profileBannerInput)
+		profileBannerInput.addEventListener("change", (event) => {
+			previewImage(event, "banner-card", "profile-picture-card", "profileImageInput");
+		});
   });
   

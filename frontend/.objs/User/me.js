@@ -5,7 +5,7 @@ export let userInfos = {};
  * sinon fait un appel à `me()` pour les récupérer.
  */
 export async function setUserInfo() {
-    if (userInfos.id && userInfos.name && userInfos.picture && userInfos.banner) {
+    if (userInfos.id && userInfos.name && userInfos.picture && userInfos.banner && userInfos.bio) {
         return userInfos; // 🔹 Déjà complet, pas besoin d'un nouvel appel
     }
     console.log("🔄 Récupération des informations utilisateur...");

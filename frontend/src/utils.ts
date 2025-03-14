@@ -15,8 +15,6 @@ export async function fetchApi(url: string, options: RequestInit = {}): Promise<
 		};
 	}
 
-	console.error("options: ", options);
-
     const response = await fetch(url, options);
 
     if (!response.ok) {

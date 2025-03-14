@@ -35,7 +35,7 @@ async function setupUsersRoute(server: FastifyInstance) {
 		return await me(server, request, reply);
 	});
 
-	server.patch('/users/@me', async function handler(request, reply) {
+	server.put('/users/@me', async function handler(request, reply) {
 		return await updateUserInfos(request, reply);
 	});
 }

@@ -88,6 +88,11 @@ server.register(proxy, {
 	upstream: `http://${config.media.host}:${config.media.port}`,
     prefix: '/media',
     http2: false,
+	preHandler: async (request, reply) => {	
+        if (request.method !== 'GET') {
+            return reply.status(405).send({ error: 'Method not allowed' });
+        }
+    }
 });
 
 server.listen({ port: config.gateway.port, host: "0.0.0.0" }, (err, address) => {

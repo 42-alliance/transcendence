@@ -1,5 +1,5 @@
 import AView from "../AView.js";
-import { updateUserInfos } from "../../User/addUser.js";
+import { updateUserInfos } from "../../User/updateUser.js";
 import { injectUserCard, previewImage, updateUserCardFromForm } from "../userCard/userCard.js";
 export default class extends AView {
     constructor() {
@@ -55,7 +55,6 @@ async function validUsername(username, errorMessage) {
     return true;
 }
 export async function formSubmit() {
-    console.log("je passse ici");
     const form = document.querySelector('.login-form');
     if (form === null)
         return;
@@ -95,16 +94,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     await new Promise((r) => setTimeout(r, 400));
     injectUserCard("card-login-container-id");
     const userForm = document.getElementById("user-form");
-    userForm.addEventListener("input", () => {
-        updateUserCardFromForm("user-form", "card-login-container-id");
-    });
+    if (userForm)
+        userForm.addEventListener("input", () => {
+            updateUserCardFromForm("user-form", "card-login-container-id");
+        });
     const profileImageInput = document.getElementById("profileImageInput");
-    profileImageInput.addEventListener("change", (event) => {
-        previewImage(event, "profile-picture-card", "banner-card", "profileBannerInput");
-    });
+    if (profileImageInput)
+        profileImageInput.addEventListener("change", (event) => {
+            previewImage(event, "profile-picture-card", "banner-card", "profileBannerInput");
+        });
     const profileBannerInput = document.getElementById("profileBannerInput");
-    profileBannerInput.addEventListener("change", (event) => {
-        previewImage(event, "banner-card", "profile-picture-card", "profileImageInput");
-    });
+    if (profileBannerInput)
+        profileBannerInput.addEventListener("change", (event) => {
+            previewImage(event, "banner-card", "profile-picture-card", "profileImageInput");
+        });
 });
 //# sourceMappingURL=Login.js.map

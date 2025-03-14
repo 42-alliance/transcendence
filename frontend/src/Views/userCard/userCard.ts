@@ -14,7 +14,6 @@ export function injectUserCard(targetId: string): void {
     const targetElement = document.getElementById(targetId);
     
     if (!targetElement) {
-        console.error(`Aucun élément trouvé avec l'ID "${targetId}"`);
         return;
     }
 
@@ -28,7 +27,7 @@ export function injectUserCard(targetId: string): void {
             </div>
             <div class="card-user-infos">
                 <h2 class="user-name">${NewuserData.name || userInfos.name || 'Nom inconnu'}</h2>
-                <p class="user-bio">${NewuserData.bio || 'Aucune biographie disponible.'}</p>
+                <p class="user-bio">${NewuserData.bio || userInfos.bio || 'Aucune biographie disponible.'}</p>
             </div>
         </div>
     `;

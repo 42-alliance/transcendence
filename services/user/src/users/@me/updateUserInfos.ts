@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "../../index.js";
-import { extractUserId, generateRandomString } from "../../utils.js";
-// import FormData from "form-data";
+import { extractUserId } from "../../utils.js";
 import { config } from "../../config.js";
+import { MultipartFile } from "@fastify/multipart";
 
 interface userBody {
     name?: string;
@@ -10,8 +10,6 @@ interface userBody {
     banner?: string;
     bio?: string;
 }
-
-import { MultipartFile } from "@fastify/multipart";
 
 async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
     const chunks: Buffer[] = [];
@@ -37,12 +35,10 @@ export async function saveFile(part: MultipartFile): Promise<string | undefined>
 		const headers = new Headers();
         formData.append("file", blob, part.filename);
 
-        console.log("Envoi du fichier vers :", `http://${config.media.host}:${config.media.port}/files`);
-
         const response = await fetch(`http://${config.media.host}:${config.media.port}/files`, {
             method: "POST",
-            headers: headers, // 📌 En-têtes pour multipart/form-data
-            body: formData as any, // 📌 Cast pour TypeScript
+            headers: headers,
+            body: formData as any,
         });
 
         if (!response.ok) {
@@ -50,7 +46,6 @@ export async function saveFile(part: MultipartFile): Promise<string | undefined>
         }
 
         const data = await response.json();
-        console.log("Fichier uploadé avec succès :", data);
         return data.url;
     } catch (error) {
         console.error("Erreur upload:", error);
@@ -68,9 +63,9 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
             if (part.type === "file") {
 				console.log("part.file: ", part.file);
                 if (part.fieldname === "picture") {
-                    updateUser.picture = await saveFile(part); // ✅ Upload et récupère l'URL
+                    updateUser.picture = await saveFile(part);
                 } else if (part.fieldname === "banner") {
-                    updateUser.banner = await saveFile(part); // ✅ Upload et récupère l'URL
+                    updateUser.banner = await saveFile(part);
                 }
             } else if (part.type === "field") {
                 updateUser[part.fieldname as keyof userBody] = part.value as string;

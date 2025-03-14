@@ -14,7 +14,6 @@ export async function fetchApi(url, options = {}) {
             Authorization: `Bearer ${token}`,
         };
     }
-    console.error("options: ", options);
     const response = await fetch(url, options);
     if (!response.ok) {
         console.error("Failed to fetch data from server: ", await response.json());
