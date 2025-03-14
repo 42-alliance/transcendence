@@ -25,6 +25,7 @@ export async function uploadFileCDN(request: FastifyRequest, reply: FastifyReply
 		let fileUploaded = false;
 
 		console.log("test1");
+		
 		// Traitement de chaque partie de la requête multipart
 		for await (const part of parts) {
 			if (part.type === 'file') {

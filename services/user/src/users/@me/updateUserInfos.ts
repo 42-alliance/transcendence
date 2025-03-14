@@ -1,9 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "../../index.js";
-import { extractUserId } from "../../utils.js";
-import { pipeline } from "stream";
-import util from "util";
-import FormData from "form-data";
+import { extractUserId, generateRandomString } from "../../utils.js";
+// import FormData from "form-data";
 import { config } from "../../config.js";
 
 interface userBody {
@@ -13,17 +11,38 @@ interface userBody {
     bio?: string;
 }
 
-export async function saveFile(part: any): Promise<string | undefined> {
-    const formData = new FormData();
-	console.log("part.file: ", part.file);
-    formData.append("file", part.file, { filename: part.filename }); // ✅ Envoie directement le stream
+import { MultipartFile } from "@fastify/multipart";
 
+async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+    const chunks: Buffer[] = [];
+    return new Promise((resolve, reject) => {
+        stream.on("data", (chunk) => chunks.push(chunk));
+        stream.on("end", () => resolve(Buffer.concat(chunks)));
+        stream.on("error", reject);
+    });
+}
+
+export async function saveFile(part: MultipartFile): Promise<string | undefined> {
     try {
-        console.log("url == ", `http://${config.media.host}:${config.media.port}/files`);
+        const buffer = await streamToBuffer(part.file);
+        console.log("Taille du fichier (buffer):", buffer.length);
+
+        if (buffer.length === 0) {
+            throw new Error("Le fichier est vide.");
+        }
+
+        // ✅ Utiliser un Blob pour éviter les problèmes avec FormData
+        const blob = new Blob([buffer], { type: part.mimetype });
+        const formData = new FormData();
+		const headers = new Headers();
+        formData.append("file", blob, part.filename);
+
+        console.log("Envoi du fichier vers :", `http://${config.media.host}:${config.media.port}/files`);
+
         const response = await fetch(`http://${config.media.host}:${config.media.port}/files`, {
             method: "POST",
-			headers: formData.getHeaders(),
-            body: formData as any, // ✅ Pas besoin de définir "Content-Type"
+            headers: headers, // 📌 En-têtes pour multipart/form-data
+            body: formData as any, // 📌 Cast pour TypeScript
         });
 
         if (!response.ok) {
@@ -31,12 +50,12 @@ export async function saveFile(part: any): Promise<string | undefined> {
         }
 
         const data = await response.json();
+        console.log("Fichier uploadé avec succès :", data);
         return data.url;
     } catch (error) {
         console.error("Erreur upload:", error);
     }
 }
-
 
 export async function updateUserInfos(request: FastifyRequest, reply: FastifyReply) {
     const userId = extractUserId(request);
@@ -47,6 +66,7 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
     try {
         for await (const part of parts) {
             if (part.type === "file") {
+				console.log("part.file: ", part.file);
                 if (part.fieldname === "picture") {
                     updateUser.picture = await saveFile(part); // ✅ Upload et récupère l'URL
                 } else if (part.fieldname === "banner") {
