@@ -13,7 +13,7 @@ services:
     container_name: media
     build: services/media/docker
     ports:
-      - "6000:6000"
+      - "9000:9000"
     volumes:
       - ./services/media/:/app
     env_file:

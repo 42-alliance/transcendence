@@ -10,6 +10,6 @@ COPY . .
 
 RUN chmod 777 ./script.sh
 
-EXPOSE 6000
+EXPOSE 9000
 
 CMD ["sh", "/app/docker/script.sh"]
