@@ -21,6 +21,10 @@ export async function fetchApi(url, options = {}) {
     }
     return response;
 }
+export function getAccessToken() {
+    const token = localStorage.getItem("access_token");
+    return token;
+}
 export function getHeader() {
     const headers = new Headers();
     const token = localStorage.getItem("access_token");

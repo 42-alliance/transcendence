@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import proxy from "@fastify/http-proxy";
 import { config } from "./config.js";
-import { verifyJWT } from "./verify.js";
+import { verifyJWT, verifyJWT_WebSocket } from "./verify.js";
 import jwt from "@fastify/jwt";
 import cors from "@fastify/cors";
 
@@ -54,13 +54,13 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-    upstream: `http://${config.chat.host}:${config.chat.port}`,
+    upstream: `ws://${config.chat.host}:${config.chat.port}`,
     websocket: true,
     prefix: "/ws/chat",
     rewritePrefix: "/ws/chat",
     http2: false,
     preHandler: async (request, reply) => {    
-        await verifyJWT(server, request, reply);
+        await verifyJWT_WebSocket(server, request, reply);
 
         const userId = request.headers["x-user-id"];  // JWT extrait ici
         const url = new URL(request.url, `http://${request.headers.host}`);

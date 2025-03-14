@@ -1,3 +1,4 @@
+import { setupChatWebSocket } from "../Chat/setupWebSocket.js";
 import { WebSockets } from "../types.js";
 import { setUserInfo } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
@@ -29,7 +30,6 @@ let previousPage: string | undefined;
 const router = async (): Promise<void> => {
 	const routes = [
 		{ path: "/", view: Dashboard },
-		// { path: "/login", view: Login },
 		// { path: "/game", view: Game },
 		// { path: "/friends", view: Friends },
 		{ path: "/auth-success", view: AuthSuccess },
@@ -38,7 +38,7 @@ const router = async (): Promise<void> => {
 	];
 
 	let match;
-	// await setUserInfo();
+	await setUserInfo();
 
 	match = routes.find(route => location.pathname === route.path) || routes[0];
 
@@ -46,10 +46,10 @@ const router = async (): Promise<void> => {
 		navigateTo("/auth");
 		return;
 	}
-  
-//   if (await userIsLogin() && webSockets.chat === null) {
-//     setupChatWebSocket();
-//   }
+
+	if (await userIsLogin() && webSockets.chat === null) {
+		setupChatWebSocket();
+	}
 
 	if (previousPage && previousPage === match.path) return;
 
