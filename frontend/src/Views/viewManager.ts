@@ -38,6 +38,7 @@ const router = async (): Promise<void> => {
 	];
 
 	let match;
+	
 	await setUserInfo();
 
 	match = routes.find(route => location.pathname === route.path) || routes[0];
