@@ -142,10 +142,10 @@ class Game {
       };
 
       if (this.p1.ws) {
-        this.p1.ws.send(JSON.stringify(gameState));
+        this.p1.ws.send(JSON.stringify({ type: 'update', data : gameState}));
       }
       if (this.p2.ws) {
-        this.p2.ws.send(JSON.stringify(gameState));
+        this.p2.ws.send(JSON.stringify({ type: 'update', data : gameState}));
       }
     }
 }

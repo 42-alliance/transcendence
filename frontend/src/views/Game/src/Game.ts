@@ -1,3 +1,5 @@
+import { BallAndSocketConstraint } from "babylonjs";
+
 export { };
 
 declare global {
@@ -14,14 +16,45 @@ if (canvas == null) {
     console.error("Impossible de récupérer le canvas");
 }
 
-const ctx = canvas ? canvas.getContext("2d") : null;
+const loadingCanvas = document.getElementById("loading-canvas") as HTMLCanvasElement | null;
+const gameCanvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
+const ctx = loadingCanvas ? loadingCanvas.getContext("2d") : null;
 
 let stat = "loading";
 let video: HTMLVideoElement | null = null; // Declare video outside of the drawing function
 
+// Global variables for game objects
+let ball: any;
+let paddle1: any;
+let paddle2: any;
+let gameSocket: WebSocket; // Single WebSocket instance
+
+// Add a score display element
+let scoreElement: HTMLDivElement | null;
+
+function setupGameScoreDisplay() {
+    // Create a div for score display if it doesn't exist
+    if (!document.getElementById('game-score')) {
+        scoreElement = document.createElement('div');
+        scoreElement.id = 'game-score';
+        scoreElement.style.position = 'absolute';
+        scoreElement.style.top = '10px';
+        scoreElement.style.left = '50%';
+        scoreElement.style.transform = 'translateX(-50%)';
+        scoreElement.style.color = 'white';
+        scoreElement.style.fontSize = '24px';
+        scoreElement.style.fontWeight = 'bold';
+        scoreElement.style.textShadow = '2px 2px 4px #000000';
+        scoreElement.innerText = '0 - 0';
+        document.body.appendChild(scoreElement);
+    } else {
+        scoreElement = document.getElementById('game-score') as HTMLDivElement;
+    }
+}
+
 function drawingLoadingPage() {
     if (!ctx) return;
-    if (canvas == null) return;
+    if (loadingCanvas == null) return;  // Use loadingCanvas instead of canvas
 
     // Create video element only once
     if (!video) {
@@ -35,8 +68,8 @@ function drawingLoadingPage() {
     }
 
     // Set canvas size
-    canvas.width = 1200;
-    canvas.height = 700;
+    loadingCanvas.width = 1200;  // Use loadingCanvas instead of canvas
+    loadingCanvas.height = 700;
 
     let textX = -300; // Start position of text
     let textSpeed = 2; // Speed of text movement
@@ -55,15 +88,15 @@ function drawingLoadingPage() {
     }, 500);
 
     function animate() {
-        if (canvas == null) return;
+        if (loadingCanvas == null) return;  // Use loadingCanvas instead of canvas
         if (ctx == null) return;
         if (video == null) return;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height); // Draw the video on canvas
+        ctx.clearRect(0, 0, loadingCanvas.width, loadingCanvas.height); // Clear canvas
+        ctx.drawImage(video, 0, 0, loadingCanvas.width, loadingCanvas.height); // Draw the video on canvas
 
         ctx.font = "bold 72px Arial, Helvetica, sans-serif";
-        const gradient = ctx.createLinearGradient(0, canvas.height - 150, 0, canvas.height - 50);
+        const gradient = ctx.createLinearGradient(0, loadingCanvas.height - 150, 0, loadingCanvas.height - 50);
         gradient.addColorStop(0, '#E93240');
         gradient.addColorStop(1, '#EE4B2B');
 
@@ -74,8 +107,8 @@ function drawingLoadingPage() {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = gradient;
-        ctx.fillText(text, textX, canvas.height - 100);
-        textX = canvas.width / 2; // Update text position
+        ctx.fillText(text, textX, loadingCanvas.height - 100);
+        textX = loadingCanvas.width / 2; // Update text position
         requestAnimationFrame(animate); // Loop animation
     }
 
@@ -86,11 +119,16 @@ function drawingLoadingPage() {
 }
 
 function render() {
-    connectWebSocket();
+    connectWebSocket(); // Set up WebSocket with proper message handlers
     drawingLoadingPage();
+    // Start animation loop separately
+    requestAnimationFrame(animate);
 }
 
 function renderGame() {
+    if (loadingCanvas) loadingCanvas.style.display = "none";
+    if (gameCanvas) gameCanvas.style.display = "block";
+    
     // Check if WebGL is supported
     if (!window.BABYLON || !window.BABYLON.Engine.isSupported()) {
         console.error("WebGL not supported");
@@ -99,56 +137,241 @@ function renderGame() {
     }
 
     // Create the engine and scene when the game starts
-    if (canvas == null) return;
+    if (gameCanvas == null) return;
 
-    const engine = new window.BABYLON.Engine(canvas, true);
+    const engine = new window.BABYLON.Engine(gameCanvas, true);
     const scene = new window.BABYLON.Scene(engine);
-
-    // Create the camera
-    const camera = new window.BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 4, 10, new window.BABYLON.Vector3.Zero(), scene);
-    camera.attachControl(canvas, true);
-
-    // Create a light
-    const light = new window.BABYLON.HemisphericLight("light1", new window.BABYLON.Vector3.Up(), scene);
-
-    // Create a sphere
-    const sphere = window.BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2 }, scene);
-
+    
+    // Setup camera
+    const camera = new window.BABYLON.ArcRotateCamera("camera", 
+        Math.PI / 2, Math.PI / 3, 10, 
+        new window.BABYLON.Vector3(0, 0, 0), scene);
+    
+    // Disable keyboard controls for the camera, but keep mouse controls
+    camera.attachControl(gameCanvas, true, false, false); // The third parameter disables keyboard controls
+    
+    // Alternative approach if the above doesn't work with your Babylon.js version:
+    camera.inputs.attached.keyboard.detachControl();
+    
+    // Add lighting
+    const light = new window.BABYLON.HemisphericLight("light", 
+        new window.BABYLON.Vector3(0, 1, 0), scene);
+    
+    // Create the game table (ping pong table)
+    const table = window.BABYLON.MeshBuilder.CreateBox("table", {
+        width: 8, 
+        height: 0.2, 
+        depth: 4
+    }, scene);
+    table.position.y = -0.1;
+    
+    const tableMaterial = new window.BABYLON.StandardMaterial("tableMaterial", scene);
+    tableMaterial.diffuseColor = new window.BABYLON.Color3(0, 0.3, 0);
+    table.material = tableMaterial;
+    
+    // Create the net
+    const net = window.BABYLON.MeshBuilder.CreateBox("net", {
+        width: 0.05, 
+        height: 0.3, 
+        depth: 4
+    }, scene);
+    net.position.y = 0.15;
+    
+    const netMaterial = new window.BABYLON.StandardMaterial("netMaterial", scene);
+    netMaterial.diffuseColor = new window.BABYLON.Color3(1, 1, 1);
+    net.material = netMaterial;
+    
+    // Create the ball
+    ball = window.BABYLON.MeshBuilder.CreateSphere("ball", {
+        diameter: 0.2
+    }, scene);
+    ball.position.y = 0.5;
+    
+    const ballMaterial = new window.BABYLON.StandardMaterial("ballMaterial", scene);
+    ballMaterial.diffuseColor = new window.BABYLON.Color3(1, 0.8, 0.2);
+    ball.material = ballMaterial;
+    
+    // Create paddles
+    paddle1 = window.BABYLON.MeshBuilder.CreateBox("paddle1", {
+        width: 0.2, 
+        height: 0.5, 
+        depth: 1
+    }, scene);
+    paddle1.position.x = -3.5;
+    paddle1.position.y = 0.25;
+    
+    paddle2 = window.BABYLON.MeshBuilder.CreateBox("paddle2", {
+        width: 0.2, 
+        height: 0.5, 
+        depth: 1
+    }, scene);
+    paddle2.position.x = 3.5;
+    paddle2.position.y = 0.25;
+    
+    const paddleMaterial = new window.BABYLON.StandardMaterial("paddleMaterial", scene);
+    paddleMaterial.diffuseColor = new window.BABYLON.Color3(0.8, 0.2, 0.2);
+    paddle1.material = paddleMaterial;
+    paddle2.material = paddleMaterial;
+    
+    // Run the render loop
     engine.runRenderLoop(() => {
         scene.render();
     });
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        engine.resize();
+    });
+
+    // Setup game communication once objects are created
+    // At the end, make sure to remove the unnecessary animate() call
+    // since we'll start it separately
 }
 
+const socket = new WebSocket("ws://localhost:8790");
 function connectWebSocket() {
-    const socket = new WebSocket("ws://localhost:8790");
 
     socket.onopen = () => {
+        console.log("WebSocket connection established");
         socket.send(JSON.stringify({ type: 'online', username: username }));
     };
 
     socket.onerror = (error) => {
-        console.error('Erreur WebSocket:', error);
+        console.error('WebSocket error:', error);
     };
 
+    socket.onclose = () => {
+        console.log("WebSocket connection closed");
+    };
+    
+    // Set up the message handler to process game updates
     socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'match_found') {
-            stat = "game";
-            console.log('Match trouvé, affichage du jeu');
-
-            // Stop the video and clear the canvas
-            if (video) {
-                video.pause();  // Pause the video
-                video.currentTime = 0;  // Reset video to the beginning
+        try {
+            const message = JSON.parse(event.data);
+            
+            switch(message.type) {
+                case 'match_found':
+                    stat = "game";
+                    console.log('Match found, starting game');
+                    
+                    // Clean up loading screen
+                    if (video) {
+                        video.pause();
+                        video.currentTime = 0;
+                    }
+                    
+                    if (ctx && loadingCanvas) {
+                        ctx.clearRect(0, 0, loadingCanvas.width, loadingCanvas.height);
+                        renderGame();
+                        setupGameScoreDisplay();
+                        setupKeyboardControls(); // Add this line to set up keyboard controls
+                    }
+                    break;
+                    
+                case 'update':
+                    // Handle game object updates using the correct data structure
+                    if (!message.data) {
+                        console.error("Missing data in update message:", message);
+                        return;
+                    }
+                    
+                    const gameState = message.data;
+                    
+                    // Map 2D coordinates to 3D world space
+                    if (ball && gameState.ball) {
+                        // Map ball position
+                        // Assuming backend coordinates are: x (0 to width), y (0 to height)
+                        // Convert to 3D where: x (-4 to 4), z (-2 to 2), y fixed above table
+                        const normalizedX = (gameState.ball.x / 600) - 0.5; // Assuming width=600, normalize to -0.5 to 0.5
+                        const normalizedZ = (gameState.ball.y / 400) - 0.5; // Assuming height=400, normalize to -0.5 to 0.5
+                        
+                        // Scale to table dimensions
+                        ball.position.x = normalizedX * 8; // Table is 8 units wide
+                        ball.position.z = normalizedZ * 4; // Table is 4 units deep
+                        ball.position.y = 0.5; // Fixed height above table
+                    }
+                    
+                    // Update paddle positions
+                    if (paddle1 && gameState.paddle1) {
+                        // Convert 2D y-position to 3D z-position
+                        const normalizedZ = (gameState.paddle1.y / 400) - 0.5; // Normalize to -0.5 to 0.5
+                        
+                        // Fixed x position at left side of table, variable z position
+                        paddle1.position.x = -3.5; // Fixed at left edge
+                        paddle1.position.z = normalizedZ * 4; // Map to table depth
+                        paddle1.position.y = 0.25; // Fixed height
+                    }
+                    
+                    if (paddle2 && gameState.paddle2) {
+                        // Convert 2D y-position to 3D z-position
+                        const normalizedZ = (gameState.paddle2.y / 400) - 0.5; // Normalize to -0.5 to 0.5
+                        
+                        // Fixed x position at right side of table, variable z position
+                        paddle2.position.x = 3.5; // Fixed at right edge
+                        paddle2.position.z = normalizedZ * 4; // Map to table depth
+                        paddle2.position.y = 0.25; // Fixed height
+                    }
+                    
+                    // Update score display
+                    if (gameState.score && scoreElement) {
+                        scoreElement.innerText = `${gameState.score.p1} - ${gameState.score.p2}`;
+                    }
+                    
+                    break;
+                    
+                default:
+                    console.log("Unhandled message type:", message.type);
             }
-
-            if (ctx && canvas) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
-                renderGame();  // Show the game display
-            }
+        } catch (error) {
+            console.error("Error processing WebSocket message:", error);
         }
     };
 }
 
+// Add this function to handle keyboard controls
+function setupKeyboardControls() {
+    // Remove any existing event listeners first to prevent duplicates
+    document.removeEventListener('keydown', handleKeyDown);
+    
+    // Add the event listener for keydown events with useCapture=true to intercept before camera
+    document.addEventListener('keydown', handleKeyDown, true);
+    
+    // For debugging purposes, let's add a visual indicator that a key was pressed
+    console.log("Keyboard controls set up");
+}
+
+// Function to handle key presses and send commands to the server
+function handleKeyDown(event: KeyboardEvent) {
+    // Only react to arrow keys
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        // Prevent default behavior and stop propagation
+        event.preventDefault();
+        event.stopPropagation(); // This prevents the event from reaching the camera
+        
+        console.log(`Key pressed: ${event.key}`); // Debug output
+        
+        // Send the command to the WebSocket server
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: 'key_command',
+                    username: username,
+                    key: event.key
+                }));
+            } else {
+                console.error('WebSocket is not open. ReadyState:', socket.readyState);
+            }
+            
+            console.log('Key command sent to server'); // Debug output
+        }
+    }
+}
+
+function animate() {
+    // No need to reassign socket.onmessage here - it's already set in connectWebSocket
+    // Just set up a frame loop to keep the game rendering
+    requestAnimationFrame(animate);
+}
+//animate loop
 render();
 

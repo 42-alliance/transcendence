@@ -2,8 +2,8 @@ import { compileFunction } from "vm";
 import { match, session, wss } from "../matchmaking/Matchmaking.js";
 import { Game, Paddle, Ball } from "./class.js";
 
-let width = 800;
-let height = 600;
+let width = 600;
+let height = 400;
 
 let sessions: { game: Game }[] = [];
 
@@ -81,12 +81,12 @@ async function UpdateGame() {
         if (session.game.ball.y - session.game.ball.radius < 0 || session.game.ball.y + session.game.ball.radius > height) {
             session.game.ball.dy = -session.game.ball.dy;
         }
-        if (session.game.score_p1 === 5) {
+        if (session.game.score_p1 === 500) {
             session.game.p1.ws.send(JSON.stringify({ type: 'game_over', winner: session.game.p1.username }));
             session.game.p2.ws.send(JSON.stringify({ type: 'game_over', winner: session.game.p1.username }));
            // sessions.splice(sessions.indexOf(session), 1);
         }
-        if (session.game.score_p2 === 5) {
+        if (session.game.score_p2 === 500) {
             session.game.p1.ws.send(JSON.stringify({ type: 'game_over', winner: session.game.p2.username }));
             session.game.p2.ws.send(JSON.stringify({ type: 'game_over', winner: session.game.p2.username }));
            // sessions.splice(sessions.indexOf(session), 1);
@@ -95,36 +95,46 @@ async function UpdateGame() {
     });
 }
 
-async function handleKeyCommand()
-{
-    wss.on('message', (message: string) => {
-        let data = JSON.parse(message);
-        sessions.forEach((session) => {
-            if (data.type === 'key_command' && data.username === session.game.p1.username) {
-                if (data.key === 'ArrowUp') {
-                    session.game.paddle_1.moveUp();
-                }
-                if (data.key === 'ArrowDown') {
-                    session.game.paddle_1.moveDown();
-                }
+wss.on('connection', (ws) => {
+    ws.on('message', (message: string) => {
+        try {
+            let data = JSON.parse(message);
+            console.log("Message received:", data);
+            if (data.type === 'key_command') {
+                console.log("Key command received:", data.key, "from", data.username);
+                
+                // Find the session with the matching player
+                sessions.forEach((session) => {
+                    if (data.username) {
+                        if (data.key === 'ArrowUp') {
+                            session.game.paddle_1.moveUp();
+                            console.log("Paddle 1 moved up");
+                        }
+                        if (data.key === 'ArrowDown') {
+                            session.game.paddle_1.moveDown();
+                        }
+                    } if (data.username) {
+                        if (data.key === 'ArrowUp') {
+                            session.game.paddle_2.moveUp();
+                            console.log("Paddle 2 moved up");
+                        }
+                        if (data.key === 'ArrowDown') {
+                            session.game.paddle_2.moveDown();
+                        }
+                    }
+                });
             }
-            if (data.type === 'key_command' && data.username === session.game.p2.username) {
-                if (data.key === 'ArrowUp') {
-                    session.game.paddle_2.moveUp();
-                }
-                if (data.key === 'ArrowDown') {
-                    session.game.paddle_2.moveDown();
-                }
-            }
-        });
+        } catch (error) {
+            console.error("Error processing message:", error);
+        }
     });
-}
+});
 
+// Then remove handleKeyCommand from your GameLoop
 export async function GameLoop() {
+    // await handleKeyCommand(); <- Remove this line
     await HandleMatch();
     await UpdateGame();
-    await handleKeyCommand();
     setTimeout(GameLoop, 1000 / 60);
-}   
-
+}
 
