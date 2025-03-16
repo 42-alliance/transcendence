@@ -1,3 +1,4 @@
+import { deleteUser } from "./deleteUser.js";
 import { getUserInfos } from "./me.js";
 
 
@@ -17,6 +18,10 @@ export async function setUserProfile() {
 
 	const userSpan = document.createElement('span');
 	userSpan.innerText = user.name;
+
+	profileButton.onclick = async () => {
+		await deleteUser();
+	}
 
 	profileButton.appendChild(userImg);
 	profileButton.appendChild(userSpan);

@@ -2,6 +2,7 @@ import fastify from 'fastify';
 import { setupRoutes } from './router.js';
 import { PrismaClient } from '@prisma/client';
 import multipart from "@fastify/multipart";
+import cookie from "@fastify/cookie";
 
 export const prisma = new PrismaClient(); // client prisma
 
@@ -12,6 +13,10 @@ export const server = fastify({
             options: { colorize: true },
         },
     },
+});
+
+server.register(cookie, {
+	parseOptions: {}, // Options de parsing
 });
 
 await server.register(multipart, {

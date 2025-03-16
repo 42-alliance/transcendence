@@ -3,7 +3,6 @@ import jwt from "@fastify/jwt";
 import { setAuthRoutes } from './router.js';
 import cookie from "@fastify/cookie";
 import { config } from './config.js';
-import cors from '@fastify/cors';
 
 export const server = Fastify({
     logger: {

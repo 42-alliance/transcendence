@@ -116,28 +116,3 @@
 		font-size: 35px;
 	}
 }
-
-
-/* @media (max-width: 425px) {
-	.auth-logo {
-		width: 100%;
-	}
-
-	.auth-login-button {
-		width: 80%;
-	}
-}
-
-@media (min-width: 1441px) {
-	.auth-body {
-		gap: 10%
-	}
-
-	.auth-logo {
-		scale: 1.25;
-	}
-
-	.auth-login-button {
-		scale: 1.25;
-	}
-} */

@@ -1,4 +1,4 @@
-import { fetchApi } from "../utils.js";
+import { fetchApi, getHeader } from "../utils.js";
 import { navigateTo } from "../Views/viewManager.js";
 
 /**
@@ -6,13 +6,11 @@ import { navigateTo } from "../Views/viewManager.js";
  */
 export async function deleteUser(): Promise<void> {
 	try {
-		const headers = new Headers();
-		headers.append('Content-Type', 'application/json');
+		const headers = getHeader();
 		
-		await fetchApi('http://localhost:8000/api/users/', {
+		await fetchApi('http://localhost:8000/users', {
 			method: 'DELETE',
 			headers: headers,
-			credentials: 'include', // send cookies
 		});
 		console.log("User  succesfuly!");
 		navigateTo("/auth");
@@ -20,5 +18,3 @@ export async function deleteUser(): Promise<void> {
 		console.error('Erreur :', e)
 	}
 }
-
-(window as any).deleteUser = deleteUser;
