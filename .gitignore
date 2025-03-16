@@ -9,7 +9,7 @@ gateway/.objs/
 backend/auth/node_modules/
 backend/user/.objs/
 frontend/node_modules/
-frontend/.objs/
+frontend/.objs
 tests/node_modules/
 tests/.objs/
 services/media/upload/*

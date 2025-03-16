@@ -29,7 +29,7 @@ export async function openFriendSearch() {
 			const userImg = document.createElement("img");
 			userImg.classList.add("w-10", "h-10", "rounded-full", "mr-3");
 			userImg.src = user.picture;
-			userImg.alt = user.name;
+			userImg.alt = `${user.name} picture`;
 	
 			const userSpan = document.createElement("span");
 			userSpan.innerText = user.name;
