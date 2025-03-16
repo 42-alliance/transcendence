@@ -125,6 +125,6 @@ export async function deleteUserDatabase(server: FastifyInstance, request: Fasti
 		reply.status(200).send({ message: "User successfully deleted" });
 	} catch (error) {
 		console.error("Erreur lors de la suppression de l'utilisateur :", error);
-		reply.status(500).send({ message: "Internal server error" });
+		return reply.status(404).send({message: "User not found"});
 	}
 }
