@@ -1,5 +1,4 @@
 import { fetchApi, getHeader } from "../utils.js";
-import { navigateTo } from "../Views/viewManager.js";
 
 /**
  * Adds a new user with the given username and profile picture.
@@ -33,7 +32,6 @@ export async function updateUserInfos(name?: string, picture?: File, banner?: Fi
 		}
 		console.log("User successfully updated");
 
-		navigateTo("/");
 	} catch (e) {
 		console.error('Erreur :', e);
 	}

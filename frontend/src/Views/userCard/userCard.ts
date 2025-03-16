@@ -17,20 +17,21 @@ export function injectUserCard(targetId: string): void {
         return;
     }
 
-    targetElement.innerHTML = `
-        <div class="card-container">
-            <div class="banner-and-picture">
-                <div class="banner-container">
-                    <img id="banner-card" class="banner-card" src="${NewuserData.banner || userInfos.banner ||'assets/default_banner.jpeg'}" alt="Bannière utilisateur">
-                </div>
-                <img class="profile-picture-card" id="profile-picture-card" src="${NewuserData.profilePicture || userInfos.picture || 'assets/default.jpeg'}" alt="Photo de profil">
-            </div>
-            <div class="card-user-infos">
-                <h2 class="user-name">${NewuserData.name || userInfos.name || 'Nom inconnu'}</h2>
-                <p class="user-bio">${NewuserData.bio || userInfos.bio || 'Aucune biographie disponible.'}</p>
-            </div>
-        </div>
-    `;
+	targetElement.innerHTML = `
+		<div class="flex flex-col">
+			<div class="h-[220px] relative">
+				<div class="w-[410px] h-[150px] overflow-hidden">
+					<img id="banner-card" class="w-[450px] object-cover" src="${NewuserData.banner || userInfos.banner || 'assets/default_banner.jpeg'}" alt="Bannière utilisateur">
+				</div>
+				<img class="w-[130px] h-[130px] rounded-full absolute top-[80px] left-[5%] border-8 border-[#1a1826]" id="profile-picture-card"
+					src="${NewuserData.profilePicture || userInfos.picture || 'assets/default.jpeg'}" alt="Photo de profil">
+			</div>
+			<div class="ml-8 mt-4">
+				<h2 class="text-xl font-bold">${NewuserData.name || userInfos.name || 'Nom inconnu'}</h2>
+				<p class="text-gray-500">${NewuserData.bio || userInfos.bio || 'Aucune biographie disponible.'}</p>
+			</div>
+		</div>
+	`;
 }
 
 // 📌 Met à jour les données utilisateur et réinjecte la carte

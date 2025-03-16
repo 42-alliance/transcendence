@@ -1,11 +1,3 @@
-.card-login-container {
-    height: 500px;
-    width: 400px;
-    border-radius: 15px;
-    overflow: hidden;
-    background: #1a1826;
-}
-
 .card-container {
     display: flex;
     flex-direction: column;

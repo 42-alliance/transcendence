@@ -1,8 +1,7 @@
 import AView from "../AView.js";
-import { userIsLogin } from "../../User/userIsLogin.js";
-import { navigateTo } from "../viewManager.js";
 import { updateUserInfos } from "../../User/updateUser.js";
 import { injectUserCard, previewImage, updateUserCardFromForm } from "../userCard/userCard.js";
+import { navigateTo } from "../viewManager.js";
 
 export default class extends AView {
     constructor() {
@@ -61,52 +60,38 @@ async function validUsername(username: string, errorMessage: HTMLSpanElement) {
 		return false;
 	}
 
-	// if (await verifyIfUsernameInDatabase(username) === true) {
-	// 	return false;
-	// }
 	return true;
 }
 
-export async function formSubmit() {
-    const form = document.querySelector('.login-form');
-    if (form === null) return;
+export async function formSubmit(event: Event) {
+	event.preventDefault();
 
-    const pseudoInput = document.querySelector('#pseudo') as HTMLInputElement;
+    const pseudoInput = document.getElementById('pseudo') as HTMLInputElement;
     if (pseudoInput === null)
         return;
 
-    // Create an error message element
-    const errorMessage = document.createElement("span");
-    errorMessage.style.color = "red";
-    errorMessage.style.display = "none";
-    errorMessage.textContent = "Only letters, numbers, and underscores allowed!";
-    if (pseudoInput && pseudoInput.parentNode)
-        pseudoInput.parentNode.appendChild(errorMessage);
+	const errorMessage = document.getElementById('input-error') as HTMLSpanElement;
+	if (errorMessage === null)
+		return;
 
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
+	const username = pseudoInput.value.trim();
+	if (await validUsername(username, errorMessage) === false)
+		return;
 
-        // Get the value of the input field
-        const username = pseudoInput.value.trim();
+	errorMessage.style.display = "none"; // Hide error message if valid
 
-        if (await validUsername(username, errorMessage) === false)
-            return;
+	const profileImage = document.getElementById('profileImageInput') as HTMLInputElement;
+	if (profileImage.files === null)
+		return
 
-        errorMessage.style.display = "none"; // Hide error message if valid
-
-        const profileImage = document.getElementById('profileImageInput') as HTMLInputElement;
-		if (profileImage.files === null)
-			return
-        const profilePicture = profileImage.files[0];
-        const maxSize = 2 * 1024 * 1024;
-        if (profilePicture && profilePicture.size > maxSize) { 
-          alert('File size exceeds 2 MB. Please select a smaller profile picture.');
-          return;
-        }
-        if (profilePicture)
-            console.log("profilePicture name : " + profilePicture.name);
-		updateUserInfos(username, profilePicture);
-    });
+	const profilePicture = profileImage.files[0];
+	const maxSize = 2 * 1024 * 1024;
+	if (profilePicture && profilePicture.size > maxSize) { 
+		alert('File size exceeds 2 MB. Please select a smaller profile picture.');
+		return;
+	}
+	updateUserInfos(username, profilePicture);
+	navigateTo("/");
 }
 
 // Gestion des événements après le chargement du DOM
@@ -116,10 +101,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 	injectUserCard("card-login-container-id");
   
 	const userForm = document.getElementById("user-form") as HTMLFormElement;
-	if (userForm)
+	if (userForm) {
+
 		userForm.addEventListener("input", () => {
 			updateUserCardFromForm("user-form", "card-login-container-id");
 		});
+		userForm.addEventListener("submit", formSubmit);
+	}
   
 	const profileImageInput = document.getElementById("profileImageInput") as HTMLInputElement;
 	if (profileImageInput)
@@ -132,5 +120,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 		profileBannerInput.addEventListener("change", (event) => {
 			previewImage(event, "banner-card", "profile-picture-card", "profileImageInput");
 		});
-  });
+});
   

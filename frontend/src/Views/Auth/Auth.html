@@ -1,14 +1,14 @@
-<div class="auth-body">
-	<section class="auth-presentation">
-		<div class="hero-div">
-			<p class="hero-text">Pong game, Dragon Ball, and more</p>
-			<h2>Play anytime, anywhere</h2>
+<div class="w-full flex flex-col items-center min-h-screen justify-center py-10">
+	<section class="w-4/5 h-full flex flex-col gap-12 justify-center items-center text-center">
+		<div class="flex flex-col items-center">
+			<p class="text-[50px] lg:text-[60px] font-bold sm:text-[35px]">Pong game, Dragon Ball, and more</p>
+			<h2 class="text-2xl lg:text-3xl sm:text-lg">Play anytime, anywhere</h2>
 		</div>
-		<div class="call-to-action-div">
-			<h4>Ready to play? Click here to enter the arena</h4>
-			<div onclick="getAuthUrl()" class="auth-login-button">
-				<img src="assets/42_logo.png" alt="42 Logo">
-				<strong class="auth-login-text">Login with 42</strong>
+		<div class="flex flex-col items-center gap-6">
+			<h4 class="text-xl lg:text-2xl sm:text-base">Ready to play? Click here to enter the arena</h4>
+			<div onclick="getAuthUrl()" class="max-w-fit flex justify-center items-center gap-6 rounded-[20px] bg-orange-500 shadow-lg shadow-black/30 px-10 py-5 cursor-pointer transition-transform duration-200 hover:scale-110 sm:scale-90 sm:hover:scale-100">
+				<img src="assets/42_logo.png" alt="42 Logo" class="w-16 h-16">
+				<strong class="text-3xl lg:text-4xl text-black">Login with 42</strong>
 			</div>
 		</div>
 	</section>
