@@ -4,6 +4,7 @@ import { FastifySchema } from 'fastify';
 export const addUserDatabaseSchema: FastifySchema = {
 	body: Type.Object({
 		name: Type.String({maxLength: 100, pattern: "^[a-zA-Z0-9_]+$"}),
+		email: Type.String(),
 		picture: Type.String(),
 	}),
 };

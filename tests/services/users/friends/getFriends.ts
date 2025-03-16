@@ -9,10 +9,10 @@ export function getFriends_tests(baseURL: string) {
   beforeAll(async () => {
     // Création de 100 utilisateurs
     for (let i = 0; i < USERS; i++) {
-      users[i] = { name: generateRandomString(10), picture: generateRandomString(10), id: 0 };
+      users[i] = { name: generateRandomString(10), picture: generateRandomString(10), email: generateRandomString(10), id: 0};
       const res = await request(baseURL)
         .post("/users")
-        .send({ name: users[i].name, picture: users[i].picture });
+        .send({ name: users[i].name, picture: users[i].picture, email: users[i].email });
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty("id");
       users[i].id = res.body.id;
@@ -82,10 +82,10 @@ export function getFriends_tests(baseURL: string) {
   
 
   test("GET /friends/list - Should return an empty list if the user has no friends", async () => {
-    const lonelyUser = { name: generateRandomString(10), picture: generateRandomString(10), id: 0 };
+    const lonelyUser = { name: generateRandomString(10), picture: generateRandomString(10), email: generateRandomString(10), id: 0 };
     const resCreate = await request(baseURL)
       .post("/users")
-      .send({ name: lonelyUser.name, picture: lonelyUser.picture });
+      .send({ name: lonelyUser.name, picture: lonelyUser.picture, email: lonelyUser.email });
     expect(resCreate.status).toBe(201);
     lonelyUser.id = resCreate.body.id;
 

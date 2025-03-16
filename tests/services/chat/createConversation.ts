@@ -8,10 +8,10 @@ const USERS = 3;
 export function createConversation_tests(userURL: string, chatURL_HTTP: string) {
 	beforeAll(async () => {
 		for (let i = 0; i < USERS; i++) {
-			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), id: 0 };
+			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), email: generateRandomString(10), id: 0};
 			const res = await request(userURL)
 				.post("/users")
-				.send({ name: users[i].name, picture: users[i].picture });
+				.send({ name: users[i].name, picture: users[i].picture, email: users[i].email });
 			expect(res.status).toBe(201);
 			expect(res.body).toHaveProperty("id");
 			users[i].id = res.body.id;

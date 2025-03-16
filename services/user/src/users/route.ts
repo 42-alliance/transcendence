@@ -3,6 +3,7 @@ import { prisma } from "../index.js";
 
 interface userBody {
     name: string;
+    email: string;
     picture: string;
 }
 
@@ -19,7 +20,7 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
     try {
 		const user = await prisma.users.findUnique({
 			where: {
-			  name: body.name 
+			  email: body.email 
 			}
 		});
 
@@ -30,6 +31,7 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 		const result = await prisma.users.create({
 			data: {
 				name: body.name,
+				email: body.email,
 				picture: body.picture,
 			}
 		});
@@ -55,7 +57,16 @@ export async function addUserDatabase(server: FastifyInstance, request: FastifyR
 */
 export async function getAllUsers(server: FastifyInstance, reply: FastifyReply): Promise<object[]> {
 	try {
-		const users = await prisma.users.findMany();
+		const users = await prisma.users.findMany({
+			select: {
+				id: true,
+				name: true,
+				picture: true,
+				banner: true,
+				bio: true,
+				created_at: true,
+			}
+		});
 
 		return users;
 	} catch (error) {
@@ -70,6 +81,14 @@ export async function getUserByName(server: FastifyInstance, request: FastifyReq
 	try {
 		const user = await prisma.users.findUnique({
 			where: { name: name },
+			select: {
+				id: true,
+				name: true,
+				picture: true,
+				banner: true,
+				bio: true,
+				created_at: true,
+			}
 		});
   
 		if (!user) {

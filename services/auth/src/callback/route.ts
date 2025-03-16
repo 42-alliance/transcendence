@@ -52,6 +52,8 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
     try {
         const userInfo = await getUserGoogleInfo(code);
 
+		console.error("userInfo: ", userInfo);
+
 		const response = await fetch('http://user:4000/users', {
             method: 'POST',
             headers: {
@@ -59,6 +61,7 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
             },
             body: JSON.stringify({
                 picture: userInfo.picture,
+                email: userInfo.email,
                 name: userInfo.given_name,
             }),
         });

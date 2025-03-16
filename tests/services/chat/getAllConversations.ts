@@ -8,10 +8,10 @@ const USERS = 3;
 export async function getAllConversations_tests(userURL: string, chatURL: string) {
 	beforeAll(async () => {
 		for (let i = 0; i < USERS; i++) {
-			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), id: 0 };
+			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), email: generateRandomString(10), id: 0};
 			const res = await request(userURL)
 				.post("/users")
-				.send({ name: users[i].name, picture: users[i].picture });
+				.send({ name: users[i].name, picture: users[i].picture, email: users[i].email });
 			expect(res.status).toBe(201);
 			expect(res.body).toHaveProperty("id");
 			users[i].id = res.body.id;
@@ -41,7 +41,7 @@ export async function getAllConversations_tests(userURL: string, chatURL: string
 	  test("GET /chat/conversations - Should return empty array if user has no conversations", async () => {
 		const newUser = await request(userURL)
 		  .post("/users")
-		  .send({ name: generateRandomString(10), picture: generateRandomString(10) });
+		  .send({ name: generateRandomString(10), picture: generateRandomString(10), email: generateRandomString(10) });
 		
 		const res = await request(chatURL)
 		  .get("/chat/conversations")

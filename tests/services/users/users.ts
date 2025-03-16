@@ -4,6 +4,7 @@ import { generateRandomString } from "../utils/utils.ts";
 interface User {
 	name: string;
 	picture: string;
+	email: string;
 	id: number;
 }
 
@@ -13,20 +14,28 @@ const USERS = 100;
 export function test_users_routes(baseURL: string) {
 	test("POST /users - Should create a new user", async () => {
 		for (let i = 0; i < USERS; i++) {
-			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), id: 0};
+			users[i] = { name: generateRandomString(10), picture: generateRandomString(10), email: generateRandomString(10), id: 0};
 			const res = await request(baseURL)
 				.post("/users")
-				.send({ name: users[i].name, picture: users[i].picture });
+				.send({ name: users[i].name, picture: users[i].picture, email: users[i].email });
 			expect(res.status).toBe(201);
 			expect(res.body).toHaveProperty("id");
 			users[i].id = res.body.id;
 		}
 	});
 
+	test("POST /users - Should return an error if the email is missing", async () => {
+		const res = await request(baseURL)
+			.post("/users")
+			.send({ picture: generateRandomString(10), name: generateRandomString(10) });
+		expect(res.status).toBe(400);
+		expect(res.body.message).toEqual("body must have required property 'email'" );
+	});
+
 	test("POST /users - Should return an error if the name is missing", async () => {
 		const res = await request(baseURL)
 			.post("/users")
-			.send({ picture: generateRandomString(10) });
+			.send({ picture: generateRandomString(10), email: generateRandomString(10) });
 		expect(res.status).toBe(400);
 		expect(res.body.message).toEqual("body must have required property 'name'" );
 	});
@@ -34,7 +43,7 @@ export function test_users_routes(baseURL: string) {
 	test("POST /users - Should return an error if the picture is missing", async () => {
 		const res = await request(baseURL)
 			.post("/users")
-			.send({ name: generateRandomString(10) });
+			.send({ name: generateRandomString(10), email: generateRandomString(10) });
 		expect(res.status).toBe(400);
 		expect(res.body.message).toEqual("body must have required property 'picture'");
 	});
@@ -42,7 +51,7 @@ export function test_users_routes(baseURL: string) {
 	test("POST /users - Should return an error if the name is too long", async () => {
 		const res = await request(baseURL)
 			.post("/users")
-			.send({ name: generateRandomString(1000), picture: generateRandomString(10) });
+			.send({ name: generateRandomString(1000), picture: generateRandomString(10), email: generateRandomString(10) });
 		expect(res.status).toBe(400);
 		expect(res.body.message).toEqual("body/name must NOT have more than 100 characters");
 	});
@@ -91,7 +100,7 @@ export function test_users_routes(baseURL: string) {
 			const res = await request(baseURL)
 				.post("/users")
 				.set("x-user-id", user.id.toString())
-				.send({ name: user.name, picture: user.picture });
+				.send({ name: user.name, picture: user.picture, email: user.email });
 			expect(res.status).toBe(200);
 			expect(res.body).toHaveProperty("id");
 			user.id = res.body.id;
