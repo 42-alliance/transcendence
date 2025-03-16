@@ -7,7 +7,7 @@ export let userInfos: IUser = {};
  * Vérifie si les informations de l'utilisateur sont complètes,
  * sinon fait un appel à `me()` pour les récupérer.
  */
-export async function setUserInfo(): Promise<IUser | null> {
+export async function getUserInfos(): Promise<IUser | null> {
     if (userInfos.id && userInfos.name && userInfos.picture && userInfos.banner && userInfos.bio) {
         return userInfos; // 🔹 Déjà complet, pas besoin d'un nouvel appel
     }

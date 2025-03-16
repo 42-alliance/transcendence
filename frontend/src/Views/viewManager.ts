@@ -1,10 +1,11 @@
 import { setupChatWebSocket } from "../Chat/setupWebSocket.js";
 import { WebSockets } from "../types.js";
-import { setUserInfo } from "../User/me.js";
+import { getUserInfos } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
 import Auth from "./Auth/Auth.js";
 import AuthSuccess from "./Auth/AuthSuccess.js";
 import Dashboard from "./Dashboard/Dashboard.js";
+import { dynamicDisplay } from "./dynamicDisplay.js";
 // Initialisation du WebSocket
 export const webSockets: WebSockets = {
   chat: null,
@@ -39,7 +40,7 @@ const router = async (): Promise<void> => {
 
 	let match;
 	
-	await setUserInfo();
+	await getUserInfos();
 
 	match = routes.find(route => location.pathname === route.path) || routes[0];
 
@@ -60,7 +61,7 @@ const router = async (): Promise<void> => {
 	if (appId) {
 		appId.innerHTML = await view.getHtml();
 	}
-
+	await dynamicDisplay();
 	previousPage = match.path;
 };
 

@@ -1,4 +1,4 @@
-import { setUserInfo } from "../../User/me.js";
+import { getUserInfos } from "../../User/me.js";
 import AView from "../AView.js";
 import Login from "../Login/Login.js";
 import { navigateTo } from "../viewManager.js";
@@ -20,7 +20,7 @@ export default class extends AView {
 			localStorage.setItem("access_token", token);
 		}
 		
-		await setUserInfo();
+		await getUserInfos();
 		if (register && register === "true") {
 			const view = new Login();
 			return await view.getHtml();
