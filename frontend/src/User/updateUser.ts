@@ -36,3 +36,22 @@ export async function updateUserInfos(name?: string, picture?: File, banner?: Fi
 		console.error('Erreur :', e);
 	}
 }
+
+
+export function openChangeImage() {
+	const modal = document.getElementById('change-image');
+	if (!modal)
+		return;
+
+	modal.classList.remove("hidden");
+	setTimeout(() => modal.classList.add("opacity-100"), 10);
+}
+
+export function closeChangeImage() {
+	const modal = document.getElementById('change-image');
+	if (!modal)
+		return;
+
+	modal.classList.add("opacity-100");
+	setTimeout(() => modal.classList.add("hidden"), 300);
+}

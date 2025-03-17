@@ -19,13 +19,26 @@ export function injectUserCard(targetId: string): void {
 
 	targetElement.innerHTML = `
 		<div class="flex flex-col">
+			<!-- Bannière et image de profil -->
 			<div class="h-[220px] relative">
+				<!-- Conteneur de la bannière -->
 				<div class="w-[410px] h-[150px] overflow-hidden">
-					<img id="banner-card" class="w-[450px] object-cover" src="${NewuserData.banner || userInfos.banner || 'assets/default_banner.jpeg'}" alt="Bannière utilisateur">
+					<img id="banner-card" class="bg-[#1a1826] w-[450px] object-cover" 
+						src="${NewuserData.banner || userInfos.banner || 'assets/default_banner.jpeg'}" 
+						alt="Bannière utilisateur">
 				</div>
-				<img class="w-[130px] h-[130px] rounded-full absolute top-[80px] left-[5%] border-8 border-[#1a1826]" id="profile-picture-card"
-					src="${NewuserData.profilePicture || userInfos.picture || 'assets/default.jpeg'}" alt="Photo de profil">
+
+				<!-- Conteneur de l'image de profil avec fond -->
+				<div class="absolute top-[80px] left-[5%] w-[130px] h-[130px]">
+					<div class="absolute inset-0 bg-[#1a1826] rounded-full"></div> <!-- Fond -->
+					<img class="w-full h-full rounded-full border-8 border-[#1a1826] relative z-10" 
+						id="profile-picture-card"
+						src="${NewuserData.profilePicture || userInfos.picture || 'assets/default.jpeg'}" 
+						alt="Photo de profil">
+				</div>
 			</div>
+
+			<!-- Infos utilisateur -->
 			<div class="ml-8 mt-4">
 				<h2 class="text-xl font-bold">${NewuserData.name || userInfos.name || 'Nom inconnu'}</h2>
 				<p class="text-gray-500">${NewuserData.bio || userInfos.bio || 'Aucune biographie disponible.'}</p>
