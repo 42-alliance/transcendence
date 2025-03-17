@@ -1,5 +1,6 @@
 import { platform } from 'os';
 import { WebSocketServer, WebSocket } from 'ws';
+import {v4 as uuidv4} from 'uuid';
 
 
 
@@ -67,7 +68,7 @@ function matchPlayers(queue: Player[]) {
         const player1 = queue.shift();
         if (player1 && player1.type === 'local') {
             console.log(`Match trouvé : ${player1.username}`);
-            const matchMessage1 = JSON.stringify({ type: 'match_found', opponent: player1.username });
+            const matchMessage1 = JSON.stringify({ type: 'match_found', opponent: player1.username});
             if (player1.socket.readyState === WebSocket.OPEN) {
                 player1.socket.send(matchMessage1);
             }
@@ -87,16 +88,18 @@ function matchPlayers(queue: Player[]) {
         }
         else if (player1 && player2) {
             console.log(`Match trouvé : ${player1.username} vs ${player2.username}`);
+            let uuid = uuidv4();
+            console.log("The uuid is : " + uuid);
             
             const matchMessage1 = JSON.stringify({ type: 'match_found', opponent: player2.username });
             const matchMessage2 = JSON.stringify({ type: 'match_found', opponent: player1.username });
             player1.socket.send(matchMessage1);
             player2.socket.send(matchMessage2);
             console.log('sending match message');
-            }
-            if (player1 && player2)
-                session.push({ match: { players: [player1, player2] } });
         }
+        if (player1 && player2)
+            session.push({ match: { players: [player1, player2] } });
+    }
     }
 
 

@@ -142,50 +142,49 @@ function renderGame() {
     const engine = new window.BABYLON.Engine(gameCanvas, true);
     const scene = new window.BABYLON.Scene(engine);
     
-    // Setup camera
+    // Add post-processing for visual quality
+    const pipeline = new window.BABYLON.DefaultRenderingPipeline("pipeline", true, scene);
+    pipeline.bloomEnabled = true;
+    pipeline.bloomThreshold = 0.8;
+    pipeline.bloomWeight = 0.3;
+    pipeline.bloomKernel = 64;
+    
+    // Setup camera with better angle for gameplay
     const camera = new window.BABYLON.ArcRotateCamera("camera", 
-        Math.PI / 2, Math.PI / 3, 10, 
+        Math.PI / 2, Math.PI / 4, 15, 
         new window.BABYLON.Vector3(0, 0, 0), scene);
+    camera.lowerRadiusLimit = 10;
+    camera.upperRadiusLimit = 20;
+    camera.attachControl(gameCanvas, true, false, false);
     
-    // Disable keyboard controls for the camera, but keep mouse controls
-    camera.attachControl(gameCanvas, true, false, false); // The third parameter disables keyboard controls
-    
-    // Alternative approach if the above doesn't work with your Babylon.js version:
-    camera.inputs.attached.keyboard.detachControl();
-    
-    // Add lighting
-    const light = new window.BABYLON.HemisphericLight("light", 
+    // Add ambient lighting
+    const hemisphericLight = new window.BABYLON.HemisphericLight("light", 
         new window.BABYLON.Vector3(0, 1, 0), scene);
+    hemisphericLight.intensity = 0.7;
     
-    // Create the game table (ping pong table)
-    const table = window.BABYLON.MeshBuilder.CreateBox("table", {
-        width: 8, 
-        height: 0.2, 
-        depth: 4
-    }, scene);
-    table.position.y = -0.1;
+    // Add point lights for dramatic effect
     
-    const tableMaterial = new window.BABYLON.StandardMaterial("tableMaterial", scene);
-    tableMaterial.diffuseColor = new window.BABYLON.Color3(0, 0.3, 0);
-    table.material = tableMaterial;
+    // const tableMaterial = new window.BABYLON.StandardMaterial("tableMaterial", scene);
+    // tableMaterial.diffuseColor = new window.BABYLON.Color3(0, 0.3, 0);
+    // table.material = tableMaterial;
     
     // Create the net
-    const net = window.BABYLON.MeshBuilder.CreateBox("net", {
-        width: 0.05, 
-        height: 0.3, 
-        depth: 4
-    }, scene);
-    net.position.y = 0.15;
+    // const net = window.BABYLON.MeshBuilder.CreateBox("net", {
+    //     width: 0.05, 
+    //     height: 0.3, 
+    //     depth: 4
+    // }, scene);
+    // net.position.y = 0.15;
     
-    const netMaterial = new window.BABYLON.StandardMaterial("netMaterial", scene);
-    netMaterial.diffuseColor = new window.BABYLON.Color3(1, 1, 1);
-    net.material = netMaterial;
+    // const netMaterial = new window.BABYLON.StandardMaterial("netMaterial", scene);
+    // netMaterial.diffuseColor = new window.BABYLON.Color3(1, 1, 1);
+    // net.material = netMaterial;
     
     // Create the ball
     ball = window.BABYLON.MeshBuilder.CreateSphere("ball", {
-        diameter: 0.2
+        diameter: 0.1
     }, scene);
-    ball.position.y = 0.5;
+    ball.position.y = 0.2;
     
     const ballMaterial = new window.BABYLON.StandardMaterial("ballMaterial", scene);
     ballMaterial.diffuseColor = new window.BABYLON.Color3(1, 0.8, 0.2);
@@ -193,19 +192,19 @@ function renderGame() {
     
     // Create paddles
     paddle1 = window.BABYLON.MeshBuilder.CreateBox("paddle1", {
-        width: 0.2, 
-        height: 0.5, 
+        width: 0.05, 
+        height: 0.2, 
         depth: 1
     }, scene);
-    paddle1.position.x = -3.5;
+    paddle1.position.x = -7.5;
     paddle1.position.y = 0.25;
     
     paddle2 = window.BABYLON.MeshBuilder.CreateBox("paddle2", {
-        width: 0.2, 
-        height: 0.5, 
+        width: 0.05, 
+        height: 0.2, 
         depth: 1
     }, scene);
-    paddle2.position.x = 3.5;
+    paddle2.position.x = 7.5;
     paddle2.position.y = 0.25;
     
     const paddleMaterial = new window.BABYLON.StandardMaterial("paddleMaterial", scene);
@@ -253,6 +252,8 @@ function connectWebSocket() {
                 case 'match_found':
                     stat = "game";
                     console.log('Match found, starting game');
+                    console.log('Opponent:', message.opponent);
+                    console.log('Game UUID:', message.uuid);
                     
                     // Clean up loading screen
                     if (video) {
@@ -276,46 +277,17 @@ function connectWebSocket() {
                     }
                     
                     const gameState = message.data;
+                    const scaleFactor = 0.01; // Define a scale factor for the coordinates
                     
-                    // Map 2D coordinates to 3D world space
-                    if (ball && gameState.ball) {
-                        // Map ball position
-                        // Assuming backend coordinates are: x (0 to width), y (0 to height)
-                        // Convert to 3D where: x (-4 to 4), z (-2 to 2), y fixed above table
-                        const normalizedX = (gameState.ball.x / 600) - 0.5; // Assuming width=600, normalize to -0.5 to 0.5
-                        const normalizedZ = (gameState.ball.y / 400) - 0.5; // Assuming height=400, normalize to -0.5 to 0.5
-                        
-                        // Scale to table dimensions
-                        ball.position.x = normalizedX * 8; // Table is 8 units wide
-                        ball.position.z = normalizedZ * 4; // Table is 4 units deep
-                        ball.position.y = 0.5; // Fixed height above table
-                    }
+                    // Map 2D coordinates to 3D world space with scaling
+                    ball.position.x = (gameState.ball.x - 255) * scaleFactor;
+                    ball.position.z = (gameState.ball.y - 255 )* scaleFactor;
+                    paddle1.position.z = (gameState.paddle1.y - 235) * scaleFactor;
+                    paddle2.position.z = (gameState.paddle2.y - 235) * scaleFactor;
+                    paddle1.position.x = -2.4;
+                    paddle2.position.x = 5;
                     
-                    // Update paddle positions
-                    if (paddle1 && gameState.paddle1) {
-                        // Convert 2D y-position to 3D z-position
-                        const normalizedZ = (gameState.paddle1.y / 400) - 0.5; // Normalize to -0.5 to 0.5
-                        
-                        // Fixed x position at left side of table, variable z position
-                        paddle1.position.x = -3.5; // Fixed at left edge
-                        paddle1.position.z = normalizedZ * 4; // Map to table depth
-                        paddle1.position.y = 0.25; // Fixed height
-                    }
-                    
-                    if (paddle2 && gameState.paddle2) {
-                        // Convert 2D y-position to 3D z-position
-                        const normalizedZ = (gameState.paddle2.y / 400) - 0.5; // Normalize to -0.5 to 0.5
-                        
-                        // Fixed x position at right side of table, variable z position
-                        paddle2.position.x = 3.5; // Fixed at right edge
-                        paddle2.position.z = normalizedZ * 4; // Map to table depth
-                        paddle2.position.y = 0.25; // Fixed height
-                    }
-                    
-                    // Update score display
-                    if (gameState.score && scoreElement) {
-                        scoreElement.innerText = `${gameState.score.p1} - ${gameState.score.p2}`;
-                    }
+                    console.log("Game state updated:", gameState);
                     
                     break;
                     
