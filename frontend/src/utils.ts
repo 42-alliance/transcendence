@@ -1,3 +1,6 @@
+import { toEditorSettings } from "typescript";
+import { logOutUser } from "./User/logoutUser";
+
 /**
  * Fetches data from the given API URL with the specified options.
  * 
@@ -37,4 +40,27 @@ export function getHeader(): Headers {
 		headers.append("Authorization", `Bearer ${token}`);
 	}
 	return headers;
+}
+
+export async function refreshToken(callback: Promise<any>) {
+	const token = getAccessToken();
+
+	if (!token)
+		await logOutUser();
+
+    const response = await fetch("http://localhost:8000/auth/token/refresh", {
+        method: "POST",
+        credentials: "include",
+		body: JSON.stringify({
+			token: token,
+		})
+    });
+
+    const data = await response.json();
+    if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+		await callback;
+    } else {
+		await logOutUser();
+    }
 }

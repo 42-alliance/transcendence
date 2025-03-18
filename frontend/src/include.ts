@@ -1,6 +1,7 @@
 import { getAuthUrl } from "./Auth/getAuthUrl.js"
 import { closeFriendSearch, openFriendSearch } from "./Friends/searchFriends.js";
 import { deleteUser } from "./User/deleteUser.js";
+import { logOutUser } from "./User/logoutUser.js";
 import { closeChangeImage, openChangeImage } from "./User/updateUser.js";
 import { formSubmit } from "./Views/Login/Login.js";
 
@@ -12,3 +13,4 @@ import { formSubmit } from "./Views/Login/Login.js";
 (window as any).deleteUser = deleteUser;
 (window as any).openChangeImage = openChangeImage;
 (window as any).closeChangeImage = closeChangeImage;
+(window as any).logOutUser = logOutUser;
