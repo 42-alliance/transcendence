@@ -1,13 +1,15 @@
 
+import { Type } from '@sinclair/typebox';
 import { FastifySchema } from 'fastify';
 
 export const refreshJWTSchema: FastifySchema = {
-  body: {
-    type: 'object',
-    properties: {
-      token: { type: 'string' }
-    },
-    required: ['token'],
-  }
+	body: Type.Object({
+		token: Type.String(),
+	})
 };
 
+export const deleteUserSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	})
+}
