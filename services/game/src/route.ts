@@ -5,6 +5,7 @@ export async function ConnectWSonline(username: string) {
         console.error('Aucun nom d\'utilisateur fourni');
         return;
     }
+    console.log('Tentative de connexion au serveur WebSocket');
     const socket = new WebSocket('ws://localhost:8790');
     if (!socket) {
         console.error('Impossible de se connecter au serveur WebSocket');
