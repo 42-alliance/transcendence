@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { ConnectWSonline } from './route.js';
-import { ConnectWSlocal } from './route.js';
 import fastify from 'fastify';
+
 import { setupMatchmaking } from './matchmaking/Matchmaking.js';
 import { GameLoop } from './gameplay/gameplay.js';
 import { connect } from 'http2';
@@ -11,23 +10,27 @@ import { connect } from 'http2';
  * @param {FastifyInstance} server - Instance du serveur Fastify.
  */
 
-export async function setupModeRoute(serverGame: FastifyInstance) {
-    console.log("Setting up game routes");
-    serverGame.get('/ws/game/matchmaking', async function handler(request, reply) {
+
+export async function setupModeRoute(server: FastifyInstance) {
+    console.log("Setting upp game routes");
+    
+    server.get('/ws/game/matchmaking', async function handler(request, reply) {
         let token = request.headers['authorization'];
+        console.log(token);
+        console.log("----------------------------------");
         if (!token) {
             reply.code(401).send({error: 'Unauthorized'});
             return;
         }
-    
         try {
-            const response = await fetch('http://localhost:3000/auth/verify', {
+            const response = await fetch('http://localhost:8000/auth/verify', {
                 method: 'GET',
                 headers: { 'Authorization': token }
             });
     
             if (response.status !== 200) {
                 reply.code(401).send({error: 'Unauthorized'});
+                console.log("Autentification failed\n\r")
                 return;
             }
     

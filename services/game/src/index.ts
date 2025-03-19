@@ -1,4 +1,5 @@
 import fastify from 'fastify';
+import cors from '@fastify/cors'
 import { setUpRoutesGame } from './router.js';
 
 export const server = fastify({
@@ -8,6 +9,12 @@ export const server = fastify({
             options: { colorize: true },
         },
     },
+});
+
+
+await server.register(cors, {
+    origin: "*", // Permet toutes les origines (à restreindre en prod)
+    methods: ["GET"], // Méthodes HTTP autorisées
 });
 
 
