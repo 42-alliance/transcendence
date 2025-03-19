@@ -38,7 +38,6 @@ export async function me(): Promise<IUser | null> {
 		const response = await fetchApi('http://localhost:8000/users/@me', {
 			method: 'GET',
 			headers: headers,
-			credentials: 'include'
 		});
 		const data: IUser = await response.json();
 		console.log("data: ", data);

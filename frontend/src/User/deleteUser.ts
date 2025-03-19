@@ -11,7 +11,6 @@ export async function deleteUser(): Promise<void> {
 		await fetchApi('http://localhost:8000/auth/@me/delete', {
 			method: 'DELETE',
 			headers: headers,
-			credentials: "include"
 		});
 		console.log("User  succesfuly!");
 		navigateTo("/auth");

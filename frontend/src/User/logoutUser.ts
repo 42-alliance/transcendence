@@ -11,7 +11,6 @@ export async function logOutUser(): Promise<void> {
 		await fetchApi('http://localhost:8000/auth/@me/logout', {
 			method: 'POST',
 			headers: headers,
-			credentials: "include"
 		});
 		console.log("User diconected succesfuly!");
 		localStorage.removeItem("access_token");

@@ -2,6 +2,7 @@ import AView from "../AView.js";
 import { updateUserInfos } from "../../User/updateUser.js";
 import { injectUserCard, previewImage, updateUserCardFromForm } from "../userCard/userCard.js";
 import { navigateTo } from "../viewManager.js";
+import { fetchApi } from "../../utils.js";
 
 export default class extends AView {
     constructor() {
@@ -32,7 +33,7 @@ export async function verifyIfUsernameInDatabase(username: string) {
 		const headers = new Headers();
 		headers.append('Content-Type', 'application/json');
 		
-		const response = await fetch('http://localhost:8000/api/is-user-in-database/', {
+		const response = await fetchApi('http://localhost:8000/api/is-user-in-database/', {
 			method: 'POST',
 			headers: headers,
 			body: JSON.stringify({

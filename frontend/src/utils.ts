@@ -1,5 +1,10 @@
-import { toEditorSettings } from "typescript";
-import { logOutUser } from "./User/logoutUser";
+import { logOutUser } from "./User/logoutUser.js";
+
+interface optionRequest {
+	method: string,
+	headers?: HeadersInit | undefined,
+	body?: BodyInit | null | undefined,
+};
 
 /**
  * Fetches data from the given API URL with the specified options.
@@ -9,16 +14,22 @@ import { logOutUser } from "./User/logoutUser";
  * @returns The response from the fetch request.
  * @throws Will throw an error if the fetch request fails.
  */
-export async function fetchApi(url: string, options: RequestInit = {}): Promise<Response> {
+export async function fetchApi(url: string, options: optionRequest): Promise<Response> {
     const token = localStorage.getItem("access_token");
-	if (token) {
-		options.headers = {
-			...options.headers,
-			Authorization: `Bearer ${token}`,
-		};
-	}
+    let newOptions: RequestInit = {
+        ...options,
+        method: options.method || 'GET', // Default method to GET if not provided
+    };
 
-    const response = await fetch(url, options);
+    if (token) {
+        newOptions.headers = {
+            ...options.headers,
+            Authorization: `Bearer ${token}`,
+        };
+    }
+    newOptions.credentials = "include";
+    newOptions.body = options.body;
+    const response = await fetch(url, newOptions);
 
     if (!response.ok) {
         console.error("Failed to fetch data from server: ", await response.json());
@@ -50,7 +61,6 @@ export async function refreshToken(callback: Promise<any>) {
 
     const response = await fetch("http://localhost:8000/auth/token/refresh", {
         method: "POST",
-        credentials: "include",
 		body: JSON.stringify({
 			token: token,
 		})

@@ -1,11 +1,11 @@
+import { fetchApi } from "../utils";
 
 export async function GetUserInfos(username: string) {
 	try {
 		console.log("Try to fetch ", username, " infos");
 		const headers = new Headers();
-		const response = await fetch(`http://localhost:8000/users/${username}/`, {
+		const response = await fetchApi(`http://localhost:8000/users/${username}/`, {
 			method: "GET",
-			credentials: "include",
 			headers: headers,
 		});
 

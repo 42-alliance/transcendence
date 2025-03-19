@@ -1,4 +1,4 @@
-import { getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../utils.js";
 
 interface Friends {
 	id: number;
@@ -12,7 +12,7 @@ export async function getAllFriends(): Promise< Friends[] | null> {
 	try {
 		const header = getHeader();
 
-		const response = await fetch("http://localhost:8000/friends/list", {
+		const response = await fetchApi("http://localhost:8000/friends/list", {
 			method: "GET",
 			headers: header,
 		});

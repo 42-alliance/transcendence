@@ -1,4 +1,4 @@
-import { getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../utils.js";
 
 
 export async function addFriend(username: string) {
@@ -6,7 +6,7 @@ export async function addFriend(username: string) {
 		const header = getHeader();
 		header.append('Content-Type', 'application/json');
 
-		const response = await fetch("http://localhost:8000/friends/requests", {
+		const response = await fetchApi("http://localhost:8000/friends/requests", {
 			method: "POST",
 			headers: header,
 			body: JSON.stringify({
