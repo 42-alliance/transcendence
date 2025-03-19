@@ -11,5 +11,5 @@ export const refreshJWTSchema: FastifySchema = {
 export const deleteUserSchema: FastifySchema = {
 	headers: Type.Object({
 		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
-	})
+	}),
 }

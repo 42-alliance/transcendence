@@ -76,7 +76,7 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         // Génération des tokens
         const accessToken = server.jwt.sign(
             { id: user.id, type: "access_token" },
-            { expiresIn: "1d" }
+            { expiresIn: "1m" }
         );
         const refreshToken = server.jwt.sign(
             { id: user.id, type: "refresh_token" },

@@ -6,19 +6,11 @@ interface optionRequest {
 	body?: BodyInit | null | undefined,
 };
 
-/**
- * Fetches data from the given API URL with the specified options.
- * 
- * @param url - The URL to fetch data from.
- * @param options - The options to use for the fetch request.
- * @returns The response from the fetch request.
- * @throws Will throw an error if the fetch request fails.
- */
-export async function fetchApi(url: string, options: optionRequest): Promise<Response> {
+export async function fetchApi(url: string, options: optionRequest, retry: boolean = true): Promise<Response> {
     const token = localStorage.getItem("access_token");
     let newOptions: RequestInit = {
         ...options,
-        method: options.method || 'GET', // Default method to GET if not provided
+        method: options.method
     };
 
     if (token) {
@@ -29,7 +21,13 @@ export async function fetchApi(url: string, options: optionRequest): Promise<Res
     }
     newOptions.credentials = "include";
     newOptions.body = options.body;
+
     const response = await fetch(url, newOptions);
+
+    if (response.status === 401 && retry) {
+        await refreshToken();
+        return await fetchApi(url, options, false); // Ne réessaie qu'une seule fois
+    }
 
     if (!response.ok) {
         console.error("Failed to fetch data from server: ", await response.json());
@@ -53,24 +51,28 @@ export function getHeader(): Headers {
 	return headers;
 }
 
-export async function refreshToken(callback: Promise<any>) {
-	const token = getAccessToken();
+async function refreshToken() {
+    const token = getAccessToken();
 
 	if (!token)
-		await logOutUser();
+		throw new Error("No token found");
 
-    const response = await fetch("http://localhost:8000/auth/token/refresh", {
-        method: "POST",
+	const headers = getHeader();
+    headers.append('Content-Type', 'application/json');
+
+	const response = await fetch("http://localhost:8000/auth/token/refresh", {
+		method: "POST",
+		headers: headers,
+		credentials: "include",
 		body: JSON.stringify({
-			token: token,
+            token: token,
 		})
-    });
+	});
 
-    const data = await response.json();
-    if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-		await callback;
-    } else {
-		await logOutUser();
-    }
+	if (!response.ok)
+		throw new Error("Fail to refresh token");
+
+	const data = await response.json();
+	if (data.access_token)
+		localStorage.setItem("access_token", data.access_token);
 }
