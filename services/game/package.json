@@ -1,0 +1,32 @@
+{
+  "name": "game",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npm run build && npm run start",
+    "build": "tsc -p tsconfig.json",
+    "start": "tsc -w & node .objs/index.js",
+    "server": "nodemon",
+    "clean": "rm -rf .objs/*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/cors": "^11.0.0",
+    "@types/cors": "^2.8.17",
+    "fastify": "^5.2.1",
+    "pino-pretty": "^13.0.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "@types/ws": "^8.5.14",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.7.3"
+  },
+  "type": "module"
+}

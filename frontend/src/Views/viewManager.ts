@@ -3,6 +3,8 @@ import { WebSockets } from "../types.js";
 import { getUserInfos } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
 import Auth from "./Auth/Auth.js";
+import Game from "./Game/Game.js"
+
 import AuthSuccess from "./Auth/AuthSuccess.js";
 import Dashboard from "./Dashboard/Dashboard.js";
 import { dynamicDisplay } from "./dynamicDisplay.js";
@@ -31,7 +33,7 @@ let previousPage: string | undefined;
 const router = async (): Promise<void> => {
 	const routes = [
 		{ path: "/", view: Dashboard },
-		// { path: "/game", view: Game },
+		{ path: "/game", view: Game },
 		// { path: "/friends", view: Friends },
 		{ path: "/auth-success", view: AuthSuccess },
 		{ path: "/auth", view: Auth },
@@ -61,6 +63,11 @@ const router = async (): Promise<void> => {
 	if (appId) {
 		appId.innerHTML = await view.getHtml();
 	}
+
+	if (view instanceof Game) {
+        await view.executeViewScript();
+    }
+	
 	await dynamicDisplay();
 	previousPage = match.path;
 };
@@ -77,5 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
       navigateTo(link.closest("[data-link]")!.getAttribute("href")!);
     }
   });
+
+
   router();
 });
