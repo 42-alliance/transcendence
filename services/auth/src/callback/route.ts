@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { config } from "../config.js";
 
 async function getUserGoogleInfo(code: string) {
     const tokenUrl = "https://oauth2.googleapis.com/token";
@@ -41,6 +42,26 @@ async function getUserGoogleInfo(code: string) {
     }
 }
 
+
+async function uploadUserPicture(picture_url: string) {
+	const response = await fetch(`http://${config.media.host}:${config.media.port}/files/url`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			file_url: picture_url,
+		}),
+	});
+
+	if (!response.ok) {
+		throw new Error("Fail to upload the user picture");
+	}
+
+	const result = await response.json();
+	return result.url;
+}
+
 export async function authCallback(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
     const { code } = request.query as { code: string };
 
@@ -53,7 +74,8 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         const userInfo = await getUserGoogleInfo(code);
 
 		console.error("userInfo: ", userInfo);
-
+		
+		userInfo.picture = await uploadUserPicture(userInfo.picture);
 		const response = await fetch('http://user:4000/users', {
             method: 'POST',
             headers: {
@@ -76,7 +98,7 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
         // Génération des tokens
         const accessToken = server.jwt.sign(
             { id: user.id, type: "access_token" },
-            { expiresIn: "1m" }
+            { expiresIn: "15m" }
         );
         const refreshToken = server.jwt.sign(
             { id: user.id, type: "refresh_token" },

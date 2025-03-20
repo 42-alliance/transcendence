@@ -103,28 +103,5 @@ export async function getUserByName(server: FastifyInstance, request: FastifyReq
 	}
 }
 
-/**
- * Route DELETE `/users` - Supprime un utilisateur de la base de données.
- *
- * @param {FastifyRequest} request - Requête HTTP.
- * @param {FastifyReply} reply - Réponse HTTP.
- * @returns {Promise<void>}
- */
-export async function deleteUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<void> {
-	try {
-		const userId = extractUserId(request);
-		if (!userId) {
-			return reply.status(400).send({ message: "Invalid user ID" });
-		}
 
-		await prisma.users.delete({
-			where: { id: userId }
-		});
 
-		reply.clearCookie("refresh_token", { path: "/" });
-		reply.status(200).send({ message: "User successfully deleted" });
-	} catch (error) {
-		console.error("Erreur lors de la suppression de l'utilisateur :", error);
-		return reply.status(404).send({message: "User not found"});
-	}
-}

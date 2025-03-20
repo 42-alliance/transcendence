@@ -1,6 +1,13 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { extractUserId } from "../utils.js";
 import { config } from "../config.js";
+import { Type } from "@sinclair/typebox";
+
+export const deleteUserSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+}
 
 export async function deleteUser(request: FastifyRequest, reply: FastifyReply) {
 	try {

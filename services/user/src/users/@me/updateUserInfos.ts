@@ -3,6 +3,7 @@ import { prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
 import { config } from "../../config.js";
 import { MultipartFile } from "@fastify/multipart";
+import { deleteMediaFile } from "../delete.user.js";
 
 interface userBody {
     name?: string;
@@ -55,14 +56,21 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
     const userId = extractUserId(request);
 
     const parts = request.parts();
+
+	const user = await prisma.users.findUniqueOrThrow({
+		where: {id: userId}
+	});
     let updateUser: userBody = {};
 
     try {
         for await (const part of parts) {
             if (part.type === "file") {
                 if (part.fieldname === "picture") {
+					await deleteMediaFile(user.picture);
                     updateUser.picture = await saveFile(part);
                 } else if (part.fieldname === "banner") {
+					if (user.banner)
+						await deleteMediaFile(user.banner);
                     updateUser.banner = await saveFile(part);
                 }
             } else if (part.type === "field") {

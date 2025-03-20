@@ -3,10 +3,11 @@ import { addFriend, getFriends, removeFriend } from "./friends/route.js";
 import { getFriendStatus, updateFriendStatus } from "./friends/status/route.js";
 import { getPendingFriendRequest } from "./friends/pending/route.js";
 import { addFriendSchema, getFriendStatusSchema, getFriendsSchema, getPendingFriendRequestSchema, pendingRequestsSchema, removeFriendSchema, updateFriendStatusSchema } from "./friends/schemas.js";
-import { deleteUserDatabase, getAllUsers, addUserDatabase, getUserByName } from "./users/route.js";
+import { getAllUsers, addUserDatabase, getUserByName } from "./users/route.js";
 import { addUserDatabaseSchema, nameParamsSchema, updatedUserInfosSchema, userIdHeader } from "./users/schema.js";
 import { me } from "./users/@me/route.js";
 import { updateUserInfos } from "./users/@me/updateUserInfos.js";
+import { deleteUserDatabase } from "./users/delete.user.js";
 
 /**
  * Configure les routes pour les utilisateurs.

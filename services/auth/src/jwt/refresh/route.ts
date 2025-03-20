@@ -1,4 +1,11 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { Type } from "@sinclair/typebox";
+import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
+
+export const refreshJWTSchema: FastifySchema = {
+	body: Type.Object({
+		token: Type.String(),
+	})
+};
 
 function isExpired(exp: number): boolean {
 	const now = Math.floor(Date.now() / 1000); // Timestamp actuel en secondes
