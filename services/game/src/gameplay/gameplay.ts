@@ -75,18 +75,7 @@ async function HandleMatch() {
 async function UpdateGame() {
     sessions.forEach((session) => {
         session.update();
-        session.checkBounds();
-        
-        // Check for game over
-        if (session.score_p1 === 5) {
-            session.p1.ws.send(JSON.stringify({ type: 'game_over', winner: session.p1.username }));
-            session.p2.ws.send(JSON.stringify({ type: 'game_over', winner: session.p1.username }));
-        }
-        if (session.score_p2 === 5) {
-            session.p1.ws.send(JSON.stringify({ type: 'game_over', winner: session.p2.username }));
-            session.p2.ws.send(JSON.stringify({ type: 'game_over', winner: session.p2.username }));
-        }
-        
+        session.checkBounds();    
         session.sendData();
     });
 }

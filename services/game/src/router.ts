@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import fastify from 'fastify';
+import { GameLoop } from './gameplay/gameplay.js';
 
 import { setupMatchmaking } from './matchmaking/Matchmaking.js';
 //import { GameLoop } from './gameplay/gameplay.js';
@@ -37,5 +38,5 @@ export async function setupModeRoute(server: FastifyInstance) {
 export async function setUpRoutesGame(serverGame: FastifyInstance) {
     await setupModeRoute(serverGame);
     await setupMatchmaking();
-   // await GameLoop();
+    await GameLoop();
 }

@@ -32,68 +32,72 @@ const localMode: Player[] = [];
 const iaMode: Player[] = [];
 
 async function Matchmaking() {
-    if (queue.length >= 1) {
-       const player = queue.shift();
-       if (player?.type === 'random_adversaire') {
-            onlineMode.push(player);
-       } else if (player?.type === 'local') {
-            localMode.push(player);
-       }
-    }
+    setInterval(() => {
+        if (queue.length >= 1) {
+            console.log("New player in queue");
+            const player = queue.shift();
+            if (player?.type === 'random_adversaire') {
+                onlineMode.push(player);
+            } else if (player?.type === 'local') {
+                localMode.push(player);
+            }
+        }
+    }, 1000); // Runs every second
 }
 
 async function HandleMatch() {
-    if (onlineMode.length == 2) {
-        console.log("Creating game");
-        const uuid_room = uuidv4();
-        const match: Match = {
-            players: [onlineMode.shift() as Player, onlineMode.shift() as Player],
-            type: 'online',
-            uuid_room: uuid_room
-        };
-        all_sessions.push({ match: match });
-        onlineMode.forEach((player) => {
-            player.socket.send(JSON.stringify({
-                uuid_room: uuid_room,
-                status: 'start'
-            }
-        ));
-        });
-    }
-    else if (localMode.length == 1) {
-        console.log("Creating game");
-        const uuid_room = uuidv4();
-        const match: Match = {
-            players: [localMode.shift() as Player],
-            type: 'local',
-            uuid_room: uuid_room
-        };
-        all_sessions.push({ match: match });
-        localMode.forEach((player) => {
-            player.socket.send(JSON.stringify({
-                uuid_room: uuid_room,
-                status: 'start'
-            }
-        ));
-        });
-    }
-    else if (iaMode.length == 1) {
-        console.log("Creating game");
-        const uuid_room = uuidv4();
-        const match: Match = {
-            players: [iaMode.shift() as Player],
-            type: 'ia',
-            uuid_room: uuid_room
-        };
-        all_sessions.push({ match: match });
-        iaMode.forEach((player) => {
-            player.socket.send(JSON.stringify({
-                uuid_room: uuid_room,
-                status: 'start'
-            }
-        ));
-        });
-    }
+    setInterval(() => {
+        if (onlineMode.length == 2) {
+            console.log("Creating game");
+            const uuid_room = uuidv4();
+            const match: Match = {
+                players: [onlineMode.shift() as Player, onlineMode.shift() as Player],
+                type: 'online',
+                uuid_room: uuid_room
+            };
+            all_sessions.push({ match: match });
+            match.players.forEach((player) => {
+                player.socket.send(JSON.stringify({
+                    uuid_room: uuid_room,
+                    status: 'start'
+                }));
+            });
+        }    
+        else if (localMode.length == 1) {
+            console.log("Creating game");
+            const uuid_room = uuidv4();
+            const match: Match = {
+                players: [localMode.shift() as Player],
+                type: 'local',
+                uuid_room: uuid_room
+            };
+            all_sessions.push({ match: match });
+            localMode.forEach((player) => {
+                player.socket.send(JSON.stringify({
+                    uuid_room: uuid_room,
+                    status: 'start'
+                }
+            ));
+            });
+        }
+        else if (iaMode.length == 1) {
+            console.log("Creating game");
+            const uuid_room = uuidv4();
+            const match: Match = {
+                players: [iaMode.shift() as Player],
+                type: 'ia',
+                uuid_room: uuid_room
+            };
+            all_sessions.push({ match: match });
+            iaMode.forEach((player) => {
+                player.socket.send(JSON.stringify({
+                    uuid_room: uuid_room,
+                    status: 'start'
+                }
+            ));
+            });
+        }
+    }, 1000); // Runs every second
 }
 
         
@@ -137,6 +141,7 @@ export async function setupMatchmaking()
                     uuid_room: player.uuid_room,
                     type: 'start'
                 }));
+                queue.push(player);
                 console.log("player info: ", player);
                 break;
 
@@ -155,4 +160,6 @@ export async function setupMatchmaking()
         });
     }
     );
+    await Matchmaking();
+    await HandleMatch();
 }
