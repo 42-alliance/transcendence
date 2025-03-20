@@ -62,7 +62,7 @@ export function updateFriendStatus_tests(baseURL: string) {
       .send({ status: "invalid_status" })
       .expect(400);
 
-    expect(res.body.error).toBe("Error: invalid status");
+    expect(res.body.error).toBe("Bad Request");
   });
 
   test("POST /friends/requests/:friendId/status - Should return an error if the friend relation does not exist", async () => {
