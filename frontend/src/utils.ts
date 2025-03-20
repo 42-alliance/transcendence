@@ -13,12 +13,15 @@ export async function fetchApi(url: string, options: optionRequest, retry: boole
         method: options.method
     };
 
-    if (token) {
-        newOptions.headers = {
-            ...options.headers,
-            Authorization: `Bearer ${token}`,
-        };
-    }
+	if (!(options.headers instanceof Headers)) {
+		options.headers = new Headers(options.headers); // Convertit en Headers si ce n'est pas déjà le cas
+	}
+	
+	if (token) {
+		options.headers.set("Authorization", `Bearer ${token}`); // Ajoute l'Authorization correctement
+	}
+	
+	newOptions.headers = options.headers; // ✅ Garde les headers sans perte
     newOptions.credentials = "include";
     newOptions.body = options.body;
 
