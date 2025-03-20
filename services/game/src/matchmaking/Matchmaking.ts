@@ -24,7 +24,7 @@ export interface Match {
 export interface Session {
     match: Match;
 }
-const sessions: Session[] = [];
+export const all_sessions: Session[] = [];
 const queue: Player[] = [];
 
 const onlineMode: Player[] = [];
@@ -51,7 +51,7 @@ async function HandleMatch() {
             type: 'online',
             uuid_room: uuid_room
         };
-        sessions.push({ match: match });
+        all_sessions.push({ match: match });
         onlineMode.forEach((player) => {
             player.socket.send(JSON.stringify({
                 uuid_room: uuid_room,
@@ -68,7 +68,7 @@ async function HandleMatch() {
             type: 'local',
             uuid_room: uuid_room
         };
-        sessions.push({ match: match });
+        all_sessions.push({ match: match });
         localMode.forEach((player) => {
             player.socket.send(JSON.stringify({
                 uuid_room: uuid_room,
@@ -85,7 +85,7 @@ async function HandleMatch() {
             type: 'ia',
             uuid_room: uuid_room
         };
-        sessions.push({ match: match });
+        all_sessions.push({ match: match });
         iaMode.forEach((player) => {
             player.socket.send(JSON.stringify({
                 uuid_room: uuid_room,
@@ -99,9 +99,9 @@ async function HandleMatch() {
         
         
 
+export const wss = new WebSocketServer({ port: 8790 });
 export async function setupMatchmaking()
 {
-    const wss = new WebSocketServer({ port: 8790 });
     wss.on('connection', function connection(ws) {
         ws.on('message', function incoming(message) {
             console.log('received: %s', message);
