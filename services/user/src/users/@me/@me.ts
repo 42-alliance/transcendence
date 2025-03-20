@@ -1,8 +1,15 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js"
+import { Type } from "@sinclair/typebox";
 
-export async function me(server:FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<object[]> {
+export const meSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	})
+};
+
+export async function me(request: FastifyRequest, reply: FastifyReply): Promise<object[]> {
     const id = extractUserId(request);
 
     try {

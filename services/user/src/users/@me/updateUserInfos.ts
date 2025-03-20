@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
 import { config } from "../../config.js";
@@ -21,10 +21,9 @@ async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
     });
 }
 
-export async function saveFile(part: MultipartFile): Promise<string | undefined> {
+async function saveFile(part: MultipartFile): Promise<string | undefined> {
     try {
         const buffer = await streamToBuffer(part.file);
-        console.log("Taille du fichier (buffer):", buffer.length);
 
         if (buffer.length === 0) {
             throw new Error("Le fichier est vide.");
@@ -93,3 +92,4 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
         return reply.status(500).send({ message: "Erreur interne du serveur." });
     }
 }
+

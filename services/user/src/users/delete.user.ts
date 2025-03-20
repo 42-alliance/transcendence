@@ -1,7 +1,14 @@
 import { config } from "../config.js";
 import { extractUserId } from "../utils.js";
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../index.js";
+import { Type } from "@sinclair/typebox";
+
+export const deleteUserDatabaseSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	})
+};
 
 export async function deleteMediaFile(file_url: string) {
 	try {
@@ -29,7 +36,7 @@ export async function deleteMediaFile(file_url: string) {
  * @param {FastifyReply} reply - Réponse HTTP.
  * @returns {Promise<void>}
  */
-export async function deleteUserDatabase(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function deleteUserDatabase(request: FastifyRequest, reply: FastifyReply): Promise<void> {
 	try {
 		const userId = extractUserId(request);
 		if (!userId) {

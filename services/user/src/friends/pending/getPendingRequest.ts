@@ -1,8 +1,15 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
+import { Type } from '@sinclair/typebox'
 
-export async function getPendingFriendRequest(server: FastifyInstance, request: FastifyRequest,reply: FastifyReply) {
+export const getPendingFriendRequestSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+};
+
+export async function getPendingFriendRequest(request: FastifyRequest,reply: FastifyReply) {
 
 	const userId = extractUserId(request);
 
