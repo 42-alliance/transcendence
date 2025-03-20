@@ -1,6 +1,9 @@
 import { platform } from 'os';
 import { WebSocketServer, WebSocket } from 'ws';
 import {v4 as uuidv4} from 'uuid';
+import { stat } from 'fs';
+import { on } from 'events';
+import { types } from 'util';
 
 
 
@@ -12,6 +15,89 @@ export interface Player {
     uuid_room?: string;
 }
 
+export interface Match {
+    players: Player[];
+    type: string;
+    uuid_room: string;
+}
+
+export interface Session {
+    match: Match;
+}
+const sessions: Session[] = [];
+const queue: Player[] = [];
+
+const onlineMode: Player[] = [];
+const localMode: Player[] = [];
+const iaMode: Player[] = [];
+
+async function Matchmaking() {
+    if (queue.length >= 1) {
+       const player = queue.shift();
+       if (player?.type === 'random_adversaire') {
+            onlineMode.push(player);
+       } else if (player?.type === 'local') {
+            localMode.push(player);
+       }
+    }
+}
+
+async function HandleMatch() {
+    if (onlineMode.length == 2) {
+        console.log("Creating game");
+        const uuid_room = uuidv4();
+        const match: Match = {
+            players: [onlineMode.shift() as Player, onlineMode.shift() as Player],
+            type: 'online',
+            uuid_room: uuid_room
+        };
+        sessions.push({ match: match });
+        onlineMode.forEach((player) => {
+            player.socket.send(JSON.stringify({
+                uuid_room: uuid_room,
+                status: 'start'
+            }
+        ));
+        });
+    }
+    else if (localMode.length == 1) {
+        console.log("Creating game");
+        const uuid_room = uuidv4();
+        const match: Match = {
+            players: [localMode.shift() as Player],
+            type: 'local',
+            uuid_room: uuid_room
+        };
+        sessions.push({ match: match });
+        localMode.forEach((player) => {
+            player.socket.send(JSON.stringify({
+                uuid_room: uuid_room,
+                status: 'start'
+            }
+        ));
+        });
+    }
+    else if (iaMode.length == 1) {
+        console.log("Creating game");
+        const uuid_room = uuidv4();
+        const match: Match = {
+            players: [iaMode.shift() as Player],
+            type: 'ia',
+            uuid_room: uuid_room
+        };
+        sessions.push({ match: match });
+        iaMode.forEach((player) => {
+            player.socket.send(JSON.stringify({
+                uuid_room: uuid_room,
+                status: 'start'
+            }
+        ));
+        });
+    }
+}
+
+        
+        
 
 export async function setupMatchmaking()
 {
@@ -35,6 +121,11 @@ export async function setupMatchmaking()
                 player.type = data.type;
                 console.log("player info: ", player);
                 console.log("Player added to matchmaking");
+                ws.send(JSON.stringify({
+                    uuid_room: '',
+                    type: 'waiting'
+                }));
+                
                 break;
 
             case 'local':
@@ -42,6 +133,10 @@ export async function setupMatchmaking()
                 player.type = data.type;
                 player.username = data.user.name;  
                 player.uuid_room = uuidv4();
+                ws.send(JSON.stringify({
+                    uuid_room: player.uuid_room,
+                    type: 'start'
+                }));
                 console.log("player info: ", player);
                 break;
 

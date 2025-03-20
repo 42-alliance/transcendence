@@ -13,9 +13,9 @@ export default class Game {
     private async initializeUserInfo() {
         this.user_info = await getUserInfos();
     }
-    
-    
-    private  handleRandomAdversaireButton = () => {
+
+
+    private handleRandomAdversaireButton = () => {
         console.log("Random adversaire button clicked");
         this.socket?.send(JSON.stringify({
             type: 'random_adversaire',
@@ -30,31 +30,34 @@ export default class Game {
     }
     private animate = () => {
         if (!this.isRunning) return;
-        
+
         // game logic here
         // render here
-        
+
         requestAnimationFrame(this.animate);
     }
-    
+
     async executeViewScript() {
         console.log("Executing view script...");
+        this.initializeWebSocket();
         this.connectToMatchmaking();
     }
-    
+
     async connectToMatchmaking() {
         console.log("Connecting to matchmaking...");
         if (this.user_info === null) {
             console.error("User info not found");
             return;
         }
+        const user_info = await getUserInfos();
+    
         console.log("User info: --------", this.user_info);
         fetch('http://127.0.0.1:8765/ws/game/matchmaking', {
             method: 'GET',
             headers: {
                 'Authorization': localStorage.getItem('access_token') || '',
-                'x-user-id': String(this.user_info.id) || '',
-                'x-user-name': this.user_info.name || '' // Include user name in the headers
+                'x-user-id': String(user_info?.id) || '',
+                'x-user-name': user_info?.name || '' // Include user name in the headers
             }
         })
             .then(response => {
@@ -73,6 +76,61 @@ export default class Game {
             .catch(error => console.error('Error:', error));
     }
 
+    private handleRoomCodeButton = () => {
+        console.log("Room code button clicked");
+        const roomCode = prompt("Enter room code:");
+        if (roomCode) {
+            this.socket?.send(JSON.stringify({
+                type: 'room_code',
+                room_code: roomCode
+            }));
+        }
+    }
+
+    private displayWaiting = () => {
+        console.log("Displaying waiting video...");
+        const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+        if (gameCanvas) {
+            //gameCanvas.style.display = 'none';
+            document.getElementById('randomAdversaireButton')?.setAttribute('disabled', 'true');
+            document.getElementById('localButton')?.setAttribute('disabled', 'true');
+            document.getElementById('roomCodeButton')?.setAttribute('disabled', 'true');
+            document.getElementById('iaButton')?.setAttribute('disabled', 'true');
+            //hide buttons
+            const randomAdversaireButton = document.getElementById('randomAdversaireButton');
+            if (randomAdversaireButton) {
+                randomAdversaireButton.style.display = 'none';
+            }
+            const localButton = document.getElementById('localButton');
+            if (localButton) {
+                localButton.style.display = 'none';
+            }
+            const roomCodeButton = document.getElementById('roomCodeButton');
+            if (roomCodeButton) {
+                roomCodeButton.style.display = 'none';
+            }
+            const tournamentButton = document.getElementById('tournamentButton');
+            if (tournamentButton) {
+                tournamentButton.style.display = 'none';
+            }
+            const iaButton = document.getElementById('iaButton');
+            if (iaButton) {
+                iaButton.style.display = 'none';
+            }
+            const waitingMessage = document.createElement('div');
+            waitingMessage.style.position = 'absolute';
+            waitingMessage.style.top = '50%';
+            waitingMessage.style.left = '50%';
+            waitingMessage.style.transform = 'translate(-50%, -50%)';
+            waitingMessage.style.fontSize = '24px';
+            waitingMessage.style.color = 'white';
+            waitingMessage.textContent = 'Waiting for an adversaire...';
+            gameCanvas.parentElement?.appendChild(waitingMessage);
+        }
+        //write message
+        //disable buttons
+    }
+
     private initializeWebSocket() {
         try {
             this.socket = new WebSocket('ws://localhost:8790');
@@ -86,13 +144,38 @@ export default class Game {
 
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data);
-                if (message.type === 'auth_success') {
-                    console.log("Authentification réussie, jeu prêt.");
-                    this.isRunning = true;
-                    this.animate();
-                } else if (message.type === 'auth_failed') {
-                    console.error("Authentification échouée, déconnexion...");
-                    this.disconnect();
+                switch (message.type) {
+                    case 'auth_success':
+                        console.log("Authentification réussie, jeu prêt.");
+                        this.isRunning = true;
+                        this.animate();
+                        break;
+                    case 'auth_failed':
+                        console.error("Authentification échouée, déconnexion...");
+                        this.disconnect();
+                        break;
+                    case 'room_created':
+                        console.log("Room created:", message.uuid_room);
+                        break;
+                    case 'room_joined':
+                        console.log("Room joined:", message.uuid_room);
+                        break;
+                    case 'room_full':
+                        console.log("Room full:", message.uuid_room);
+                        break;
+                    case 'room_not_found':
+                        console.log("Room not found:", message.uuid_room);
+                        break;
+                    case 'room_closed':
+                        console.log("Room closed:", message.uuid_room);
+                        break;
+                    case 'waiting':
+                        console.log("Waiting for an adversaire...");
+                        this.displayWaiting();
+                        break;
+                    default:
+                        console.warn("Message type inconnu:", message.type);
+                        break;
                 }
             };
 
