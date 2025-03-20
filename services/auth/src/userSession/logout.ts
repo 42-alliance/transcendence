@@ -9,7 +9,6 @@ export const logoutUserSchema: FastifySchema = {
 
 export async function logoutUser(request: FastifyRequest, reply: FastifyReply) {
 	try {
-		
 		reply.clearCookie("refresh_token", {domain: "localhost", path: "/"});
 		reply.status(200).send({ message: "user successfuly logout"});
 	} catch (error) {

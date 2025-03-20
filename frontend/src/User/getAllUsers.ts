@@ -1,6 +1,6 @@
 import { fetchApi, getHeader } from "../utils.js";
 
-interface User {
+export interface User {
 	id: number;
 	name: string;
 	picture: string;

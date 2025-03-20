@@ -8,11 +8,13 @@ export async function logOutUser(): Promise<void> {
 	try {
 		const headers = getHeader();
 		
-		await fetchApi('http://localhost:8000/auth/@me/logout', {
+		const response = await fetchApi('http://localhost:8000/auth/@me/logout', {
 			method: 'POST',
 			headers: headers,
 		});
-		console.log("User diconected succesfuly!");
+
+		const result = await response.json();
+		console.log(result.message);
 		localStorage.removeItem("access_token");
 		navigateTo("/auth");
 	} catch (e) {

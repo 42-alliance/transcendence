@@ -48,7 +48,7 @@ export async function refreshJWT(server: FastifyInstance, request: FastifyReques
 				id: decoded.id,
 				type: "access_token"
 			},
-			{ expiresIn: "15m" }
+			{ expiresIn: "1j" }
 		);
 
 		// Réémettre le refresh token (optionnel, si on veut renouveler sa durée de vie)
