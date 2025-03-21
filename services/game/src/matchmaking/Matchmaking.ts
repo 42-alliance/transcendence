@@ -71,14 +71,11 @@ async function HandleMatch() {
                 type: 'local',
                 uuid_room: uuid_room
             };
+            match.players[0].socket.send(JSON.stringify({
+                uuid_room: uuid_room,
+                status: 'start'
+            }));
             all_sessions.push({ match: match });
-            localMode.forEach((player) => {
-                player.socket.send(JSON.stringify({
-                    uuid_room: uuid_room,
-                    status: 'start'
-                }
-            ));
-            });
         }
         else if (iaMode.length == 1) {
             console.log("Creating game");
@@ -136,11 +133,6 @@ export async function setupMatchmaking()
                 console.log("Local request received");
                 player.type = data.type;
                 player.username = data.user.name;  
-                player.uuid_room = uuidv4();
-                ws.send(JSON.stringify({
-                    uuid_room: player.uuid_room,
-                    type: 'start'
-                }));
                 queue.push(player);
                 console.log("player info: ", player);
                 break;
@@ -150,11 +142,6 @@ export async function setupMatchmaking()
                 player.type = data.type;
                 player.username = data.user.name;
                 console.log("player info: ", player);
-                player.uuid_room = uuidv4();
-                break;
-
-            default:
-                console.log("Unknown request type");
                 break;
             }
         });

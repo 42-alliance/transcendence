@@ -9,7 +9,8 @@ export default class Game {
     private frameId: number | null = null;
     private lastRender: number = 0;
     private FPS: number = 60; // Target frames per second
-    private frameInterval: number = 1000 / 60; // Milliseconds per frame
+    private frameInterval: number = 1000 / 120; // Milliseconds per frame
+    private uuid_room: string = '';
 
     constructor() {
         this.initializeUserInfo();
@@ -61,80 +62,89 @@ export default class Game {
     private renderGame() {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (!gameCanvas) return;
-        
+        console.log("Rendering game...");
         const ctx = gameCanvas.getContext('2d');
         if (!ctx || !this.gameState) return;
-        
+    
         // Clear the canvas
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-        
+    
         const game = this.gameState;
-        
+    
+        // Scaling factors to map backend coordinates to canvas dimensions
+      
         // Draw the net
         ctx.fillStyle = 'white';
         const netX = (gameCanvas.width - 2) / 2;
         for (let i = 0; i <= gameCanvas.height; i += 15) {
             ctx.fillRect(netX, i, 2, 10);
         }
-        
+    
         // Draw paddles and ball if we have their positions
-        if (game.user) {
+        if (game.paddle1) {
+            console.log("Drawing user paddle...");
             ctx.fillStyle = 'white';
-            ctx.fillRect(game.user.x, game.user.y, game.user.width, game.user.height);
+            ctx.fillRect(
+                game.paddle1.x , 
+                game.paddle1.y , 
+                game.paddle1.width , 
+                game.paddle1.height 
+            );
         }
-        
-        if (game.opponent) {
+    
+        if (game.paddle2) {
+            console.log("Drawing opponent paddle...");
             ctx.fillStyle = 'white';
-            ctx.fillRect(game.opponent.x, game.opponent.y, game.opponent.width, game.opponent.height);
+            ctx.fillRect(
+                game.paddle2.x ,
+                game.paddle2.y, 
+                game.paddle2.width ,
+                game.paddle2.height 
+            );
+            console.log(`Frontend Paddle 2 position: x=${game.paddle2.x}, y=${game.paddle2.y}`);
         }
-        
+    
         if (game.ball) {
             ctx.fillStyle = 'white';
+            console.log("Drawing ball...");
+            console.log(`Frontend Ball position: x=${game.ball.x}, y=${game.ball.y}`);
+            console.log(`Frontend Ball size: ${game.ball.size}`);
             ctx.beginPath();
-            ctx.arc(game.ball.x, game.ball.y, game.ball.size, 0, Math.PI * 2);
+            ctx.arc(
+                game.ball.x , 
+                game.ball.y ,
+                game.ball.radius , 
+                0,
+                Math.PI * 2
+            );
             ctx.closePath();
             ctx.fill();
         }
-        
+    
         // Draw scores
         ctx.fillStyle = 'white';
         ctx.font = '35px Arial';
         ctx.textAlign = 'center';
-        
+    
         // Left player score
-        if (game.user && game.user.score !== undefined) {
-            ctx.fillText(game.user.score.toString(), gameCanvas.width / 4, 50);
+        if (game.score) {
+            // p1 score
+            ctx.fillText( game.score.p1_name + " :" + game.score.p1.toString(), gameCanvas.width / 4, 50);
+            ctx.fillText( game.score.p2.toString() + ": " + game.score.p2_name, (3 * gameCanvas.width) / 4, 50);
         }
-        
+    
         // Right player score
         if (game.opponent && game.opponent.score !== undefined) {
-            ctx.fillText(game.opponent.score.toString(), 3 * gameCanvas.width / 4, 50);
+            ctx.fillText(game.opponent.score.toString(), (3 * gameCanvas.width) / 4, 50);
         }
+
     }
 
     private setupKeyboardControls() {
         document.addEventListener('keydown', (event) => {
             if (!this.isRunning || !this.socket) return;
-            
-            let movement = null;
-            
-            switch (event.key) {
-                case 'ArrowUp':
-                    movement = 'up';
-                    break;
-                case 'ArrowDown':
-                    movement = 'down';
-                    break;
-            }
-            
-            if (movement) {
-                this.socket.send(JSON.stringify({
-                    type: 'paddle_move',
-                    direction: movement,
-                    user_id: this.user_info?.id
-                }));
-            }
+                this.socket.send(JSON.stringify({ type: 'key_command', key: event.key, uid: this.user_info?.id, uuid_room: this.uuid_room }));
         });
     }
 
@@ -371,7 +381,7 @@ export default class Game {
             this.socket.onmessage = (event) => {
                 try {
                     const message = JSON.parse(event.data);
-                    console.log("Received WebSocket message:", message);
+                    //console.log("Received WebSocket message:", message);
                     
                     switch (message.type) {
                         case 'auth_success':
@@ -387,6 +397,7 @@ export default class Game {
                             break;
                         case 'start':
                             console.log("Game started:", message.uuid_room);
+                            this.uuid_room = message.uuid_room;
                             this.initializeGame().then(game => {
                                 console.log("Game initialized:", game);
                                 this.isRunning = true;
