@@ -12,7 +12,6 @@ export default class extends AView {
 	// Charge le contenu HTML du formulaire
 	async getHtml(): Promise<string> {
 		const params = new URLSearchParams(window.location.search);
-		console.log("params: ", params);
 		const token = params.get("token");
 		const register = params.get("register");
 
