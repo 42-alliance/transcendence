@@ -24,7 +24,7 @@ async function fetchLanguageData(lang: string) {
     return response.json();
 }
 
-async function changeLanguage(lang: string) {
+export async function changeLanguage(lang: string) {
 
 	setLanguagePreference(lang);
 
@@ -42,5 +42,3 @@ window.addEventListener('DOMContentLoaded', async () => {
     const langData = await fetchLanguageData(userPreferredLanguage);
     updateContent(langData, userPreferredLanguage);
 });
-
-window.changeLanguage = changeLanguage;

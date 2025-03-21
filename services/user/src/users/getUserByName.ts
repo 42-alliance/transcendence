@@ -16,7 +16,7 @@ export async function getUserByName(request: FastifyRequest<{ Params: { name: st
 	const { name } = request.params;
   
 	try {
-		const user = await prisma.users.findUnique({
+		const user = await prisma.users.findUniqueOrThrow({
 			where: { name: name },
 			select: {
 				id: true,
@@ -28,13 +28,12 @@ export async function getUserByName(request: FastifyRequest<{ Params: { name: st
 			}
 		});
   
-		if (!user) {
+	  	return user;
+	} catch (error: any) {
+		if (error.code == "P2025") {
+			console.error("User not found");
 			return reply.status(404).send({ error: "User not found" });
 		}
-  
-	  	return user;
-	} catch (error) {
-		console.error("Error when trying to search user: ", error);
 		return reply.status(500).send({ error: "Internal server error" });
 	}
 }

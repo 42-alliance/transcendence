@@ -58,9 +58,9 @@ export function getFriendStatus_tests(baseURL: string) {
     const res = await request(baseURL)
       .get(`/friends/status/${nonExistentFriendId}`)
       .set("x-user-id", userId.toString())
-      .expect(400);
+      .expect(404);
 	  
-	  expect(res.body.error).toBe("Bad request");
+	  expect(res.body.error).toBe("no relationship found");
 	});
 
   test("GET /friends/status - Should return an error if the friend ID is missing", async () => {

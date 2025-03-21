@@ -15,16 +15,8 @@ export const removeFriendSchema: FastifySchema = {
 export async function removeFriend(request: FastifyRequest<{ Params: { friendId: string } }>, reply: FastifyReply) {
 	const { friendId } = request.params;
 	const userId = extractUserId(request);
-
-	// Vérifiez si friendId est manquant
-	if (!friendId) {
-		return reply.status(400).send({ message: "Friend ID is required" });
-	}
 	
 	const fID = Number(friendId);
-	if (isNaN(fID)) {
-	  return reply.status(400).send({ message: "Invalid friend ID" });
-	}
   
 	try {
 	  const query = await prisma.friends.deleteMany({

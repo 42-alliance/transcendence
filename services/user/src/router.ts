@@ -11,6 +11,7 @@ import { getAllUsers, getAllUsersSchema } from "./users/getAllUsers.js";
 import { getUserByName, getUserByNameSchema } from "./users/getUserByName.js";
 import { addUserDatabase, addUserDatabaseSchema } from "./users/addUser.js";
 import { me, meSchema } from "./users/@me/@me.js";
+import { getSendFriendRequest, getSendFriendRequestSchema } from "./friends/pending/getSendFriendRequest.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -78,6 +79,11 @@ async function setupFriendsRoute(server: FastifyInstance) {
 	// Obtenir les demandes d'amis en attente
 	server.get('/friends/requests/pending', { schema: getPendingFriendRequestSchema}, async function handler(request, reply) {
 	  return await getPendingFriendRequest(request, reply);
+	});
+	
+	// Obtenir les demandes d'amis envoye
+	server.get('/friends/requests/send', { schema: getSendFriendRequestSchema}, async function handler(request, reply) {
+	  return await getSendFriendRequest(request, reply);
 	});
 }
 

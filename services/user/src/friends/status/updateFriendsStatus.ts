@@ -4,7 +4,7 @@ import { extractUserId } from "../../utils.js";
 import { FastifyReply, FastifyRequest, FastifyInstance, FastifySchema } from "fastify";
 
 const StatusEnum = {
-	pending: 'pending',
+	// pending: 'pending',
 	accepted: 'accepted',
 	rejected: 'rejected',
 	blocked: 'blocked',

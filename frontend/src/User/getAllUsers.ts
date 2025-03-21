@@ -6,7 +6,7 @@ export interface User {
 	picture: string;
 	banner: string;
 	bio: string;
-	created_at: string;
+	created_at: Date;
 }
 
 export async function getAllUsers(): Promise< User[] | null> {

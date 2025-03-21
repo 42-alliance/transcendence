@@ -27,9 +27,15 @@ export async function getPendingFriendRequest(request: FastifyRequest,reply: Fas
 		});
 		  
 		const requestSenders = incomingPendingRequests.map(request => ({
-			id: request.sender.id,
-			name: request.sender.name,
-			picture: request.sender.picture
+			sender: {
+				id: request.sender.id,
+				name: request.sender.name,
+				picture: request.sender.picture,
+				banner: request.sender.banner,
+				bio: request.sender.bio,
+				created_at: request.sender.created_at,
+			},
+			request_sinced: request.created_at
 		}));
 
         return reply.status(200).send(requestSenders);
