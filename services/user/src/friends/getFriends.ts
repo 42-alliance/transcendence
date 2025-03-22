@@ -13,68 +13,60 @@ export async function getFriends(request: FastifyRequest, reply: FastifyReply) {
     try {
         const userId = extractUserId(request);
 
-        const acceptedFriends = await prisma.$transaction([
-            // L'utilisateur a envoyé la demande d'amitié
-            prisma.friends.findMany({
-                where: {
-                    senderId: userId,
-                    status: 'accepted'
+        const me = await prisma.users.findUnique({
+            where: {
+                id: userId,
+            },
+            include: {
+                sentRequests: {
+                    include: {
+                        receiver: true
+                    }
                 },
-                include: {
-                    receiver: {
-                        select: {
-                            id: true,
-                            name: true,
-                            picture: true
-                        }
+                receivedRequests: {
+                    include: {
+                        sender: true
                     }
                 }
-            }),
-        
-            // L'utilisateur a reçu la demande d'amitié
-            prisma.friends.findMany({
-                where: {
-                    receiverId: userId,
-                    status: 'accepted'
-                },
-                include: {
-                    sender: {
-                        select: {
-                            id: true,
-                            name: true,
-                            picture: true
-                        }
-                    }
-                }
-            })
-        ]);
+            }
+        });
 
-        // Uniformisation de la sortie
+        if (!me) {
+            return reply.status(404).send({ message: "User not found" });
+        }
+
         const friendsList = [
-            ...acceptedFriends[0].map(friend => ({
-                friend: {
-                    id: Number(friend.receiver.id),
+            ...me.sentRequests
+                .filter(friend => friend.receiver.id !== userId)
+                .map(friend => ({
+                    id: friend.receiver.id,
                     name: friend.receiver.name,
-                    picture: friend.receiver.picture
-                },
-                relation_id: friend.id,
-                created_at: friend.created_at
-            })),
-            ...acceptedFriends[1].map(friend => ({
-                friend: {
-                    id: Number(friend.sender.id),
+                    date: friend.created_at,
+                    receiver_id: friend.receiver.id,
+                    receiver_name: friend.receiver.name,
+                    received_at: friend.created_at,
+                    picture: friend.receiver.picture,
+                    relation_id: friend.id,
+                    status: friend.status,
+                    type: "sent"
+                })),
+            ...me.receivedRequests
+                .filter(friend => friend.sender.id !== userId)
+                .map(friend => ({
+                    id: friend.sender.id,
                     name: friend.sender.name,
-                    picture: friend.sender.picture
-                },
-                relation_id: friend.id,
-                created_at: friend.created_at
-            }))
+                    date: friend.created_at,
+                    sender_id: friend.sender.id,
+                    sender_name: friend.sender.name,
+                    sent_at: friend.created_at,
+                    picture: friend.sender.picture,
+                    relation_id: friend.id,
+                    status: friend.status,
+                    type: "received"
+                }))
         ];
 
-        // Tri par `friend.name`
-        const sortedFriendsList = friendsList.sort((a, b) => a.friend.name.localeCompare(b.friend.name));
-
-        return reply.status(200).send(sortedFriendsList);
+        return reply.status(200).send(friendsList);
     } catch (error) {
         console.error("Error server:", error);
         return reply.status(500).send({ error: "Erreur serveur." });

@@ -2,7 +2,7 @@ import { getAuthUrl } from "./Auth/getAuthUrl.js"
 import { getFriendStatus } from "./Friends/getFriendStatus.js";
 import { getPendingFriendRequest } from "./Friends/getPendingFriendRequest.js";
 import { getSendFriendRequest } from "./Friends/getSendFriendRequest.js";
-import { closeFriendSearch, openFriendSearch } from "./Friends/searchFriends.js";
+import { closeFriendList, closeFriendSearch, openFriendList, openFriendSearch } from "./Friends/searchFriends.js";
 import { updateFriendStatus } from "./Friends/updateFriendStatus.js";
 import { changeLanguage } from "./lang/langManager.js";
 import { deleteUser } from "./User/deleteUser.js";
@@ -17,6 +17,8 @@ import { formSubmit } from "./Views/Login/Login.js";
 
 (window as any).formSubmit = formSubmit;
 (window as any).openFriendSearch = openFriendSearch;
+(window as any).openFriendList = openFriendList;
+(window as any).closeFriendList = closeFriendList;
 (window as any).closeFriendSearch = closeFriendSearch;
 (window as any).deleteUser = deleteUser;
 (window as any).openChangeImage = openChangeImage;
