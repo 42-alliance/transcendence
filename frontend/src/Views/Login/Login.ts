@@ -117,7 +117,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const pseudo = target.value;
 			const userCardPseudo = document.getElementById('userCardName');
 			if (!userCardPseudo) return;
-			userCardPseudo.innerText = pseudo || userInfos.name || "Error pseudo";
+			const previousName = userInfos.name || "Error pseudo";
+			userCardPseudo.innerText = pseudo || previousName;
 		});
 	}
 
