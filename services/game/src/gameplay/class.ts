@@ -122,10 +122,10 @@ class Game {
         // Initialize paddle and ball dimensions
         this.paddleWidth = 15; // Fixed paddle width
         this.paddleHeight = 100; // Fixed paddle height
-        this.ballRadius = 20; // Fixed ball radius
+        this.ballRadius = 10; // Fixed ball radius
 
-        const paddleSpeed = 5; // Fixed paddle speed
-        const ballSpeed = 2; // Fixed ball speed
+        const paddleSpeed = 8; // Fixed paddle speed
+        const ballSpeed = 4; // Fixed ball speed
 
         // Create paddles and ball with scaling
         this.paddle_1 = new Paddle(10, (height - this.paddleHeight) / 2, this.paddleWidth, this.paddleHeight, paddleSpeed);
@@ -148,6 +148,7 @@ class Game {
     resetBall() {
         this.ball.x = this.width / 2;
         this.ball.y = this.height / 2;
+        this.ball.speed = 4; // Reset ball speed
         const angle = (Math.random() * Math.PI/4) - Math.PI/8; // Small random angle variation
         // Alternate ball direction based on who scored
         const direction = this.ball.dx > 0 ? -1 : 1;
@@ -210,6 +211,14 @@ class Game {
     checkBounds() {
         // This method is now split into checkWallCollisions
         this.checkWallCollisions();
+        this.checkPaddleCollision(this.paddle_1);
+        this.checkPaddleCollision(this.paddle_2);
+    }
+
+    handlePaddleCollision(paddle: Paddle) {
+        //just inverse ball dirextion
+        this.ball.dx = -this.ball.dx;
+        // Increase ball speed by 10% on each paddle collision
     }
     
     checkPaddleCollision(paddle: Paddle) {
@@ -217,131 +226,18 @@ class Game {
         // This tracks the ball's path between frames to prevent tunneling
         
         // Get the ball's current and next positions
-        const ballCurrX = this.ball.x;
-        const ballCurrY = this.ball.y;
-        const ballNextX = this.ball.x + this.ball.dx;
-        const ballNextY = this.ball.y + this.ball.dy;
-        
-        const paddleLeft = paddle.x;
-        const paddleRight = paddle.x + paddle.width;
-        const paddleTop = paddle.y;
-        const paddleBottom = paddle.y + paddle.height;
-        
-        // Check if the ball is moving toward the paddle
-        const movingTowardPaddle = 
-            (paddle === this.paddle_1 && this.ball.dx < 0) || 
-            (paddle === this.paddle_2 && this.ball.dx > 0);
-            
-        // Only check collision if ball is moving toward paddle
-        if (!movingTowardPaddle) return;
-        
-        // Calculate the closest point on the line segment between current and next positions
-        // to the paddle rectangle
-        const closestX = Math.max(paddleLeft, Math.min(ballCurrX, paddleRight));
-        const closestY = Math.max(paddleTop, Math.min(ballCurrY, paddleBottom));
-        
-        // Calculate distance from ball center to closest point
-        const distX = ballCurrX - closestX;
-        const distY = ballCurrY - closestY;
-        
-        // Check if any part of the trajectory intersects the paddle
-        const startInPaddle = 
-            ballCurrX + this.ball.radius > paddleLeft && 
-            ballCurrX - this.ball.radius < paddleRight &&
-            ballCurrY + this.ball.radius > paddleTop &&
-            ballCurrY - this.ball.radius < paddleBottom;
-        
-        const endInPaddle = 
-            ballNextX + this.ball.radius > paddleLeft && 
-            ballNextX - this.ball.radius < paddleRight &&
-            ballNextY + this.ball.radius > paddleTop &&
-            ballNextY - this.ball.radius < paddleBottom;
-        
-        // Then check if the trajectory crosses the paddle
-        let collision = startInPaddle || endInPaddle;
-        
-        // If no collision yet, check if the line segment crosses paddle boundaries
-        if (!collision) {
-            // Line representation: p + t*v where p is starting point, v is velocity, t is parameter
-            const vx = this.ball.dx;
-            const vy = this.ball.dy;
-            
-            // Check each edge of the paddle rectangle
-            // Check each edge of the paddle rectangle
-            // Left edge
-            if (vx !== 0) {
-                const t = (paddleLeft - this.ball.radius - ballCurrX) / vx;
-                if (t >= 0 && t <= 1) {
-                    const y = ballCurrY + t * vy;
-                    if (y + this.ball.radius >= paddleTop && y - this.ball.radius <= paddleBottom) {
-                        collision = true;
-                    }
-                }
-            }
-            
-            // Right edge
-            if (vx !== 0 && !collision) {
-                const t = (paddleRight + this.ball.radius - ballCurrX) / vx;
-                if (t >= 0 && t <= 1) {
-                    const y = ballCurrY + t * vy;
-                    if (y + this.ball.radius >= paddleTop && y - this.ball.radius <= paddleBottom) {
-                        collision = true;
-                    }
-                }
-            }
-            
-            // Top edge
-            if (vy !== 0 && !collision) {
-                const t = (paddleTop - this.ball.radius - ballCurrY) / vy;
-                if (t >= 0 && t <= 1) {
-                    const x = ballCurrX + t * vx;
-                    if (x + this.ball.radius >= paddleLeft && x - this.ball.radius <= paddleRight) {
-                        collision = true;
-                    }
-                }
-            }
-            
-            // Bottom edge
-            if (vy !== 0 && !collision) {
-                const t = (paddleBottom + this.ball.radius - ballCurrY) / vy;
-                if (t >= 0 && t <= 1) {
-                    const x = ballCurrX + t * vx;
-                    if (x + this.ball.radius >= paddleLeft && x - this.ball.radius <= paddleRight) {
-                        collision = true;
-                    }
-                }
-            }
-        
-        if (collision) {
-            // Log collision for debugging
-            console.log(`Collision detected with paddle at x=${paddle.x}, y=${paddle.y}`);
-            
-            // Calculate bounce angle based on where ball hits paddle
-            const hitPosition = (this.ball.y - (paddle.y + paddle.height/2)) / (paddle.height/2);
-            const bounceAngle = hitPosition * (Math.PI/3); // Max 60-degree angle
-            
-            // Determine direction based on which paddle was hit
-            const direction = (paddle === this.paddle_1) ? 1 : -1;
-            
-            // Calculate speed, preserving current magnitude
-            const speed = Math.sqrt(this.ball.dx * this.ball.dx + this.ball.dy * this.ball.dy);
-            
-            // Cap the speed to prevent tunneling
-            const maxSpeed = Math.max(this.width, this.height) * 0.02; // 2% of game size per frame max
-            const cappedSpeed = Math.min(speed, maxSpeed);
-            
-            // Set new velocity components
-            this.ball.dx = direction * cappedSpeed * Math.cos(bounceAngle);
-            this.ball.dy = cappedSpeed * Math.sin(bounceAngle);
-            
-            // Ensure ball doesn't get stuck in paddle by moving it outside paddle bounds
-            if (paddle === this.paddle_1) {
-                this.ball.x = paddleRight + this.ball.radius + 1;
-            } else {
-                this.ball.x = paddleLeft - this.ball.radius - 1;
-            }
+        const nextX = this.ball.x + this.ball.dx;
+        const nextY = this.ball.y + this.ball.dy;
+        if (this.ball.dx > 0 && nextX + this.ball.radius > paddle.x && this.ball.x - this.ball.radius < paddle.x + paddle.width && nextY > paddle.y && this.ball.y < paddle.y + paddle.height) {
+            // Ball is moving right and collides with left paddle edge
+            this.handlePaddleCollision(paddle);
         }
-    }}
+        else if (this.ball.dx < 0 && nextX - this.ball.radius < paddle.x + paddle.width && this.ball.x + this.ball.radius > paddle.x && nextY > paddle.y && this.ball.y < paddle.y + paddle.height) {
+            // Ball is moving left and collides with right paddle edge
+            this.handlePaddleCollision(paddle);
+        }
+    }  
+    
 
     sendData() {
         const gameState = {
