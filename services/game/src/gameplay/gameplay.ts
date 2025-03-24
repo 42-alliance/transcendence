@@ -97,55 +97,31 @@ wss.on('connection', (ws) => {
     ws.on('message', (message: string) => {
         try {
             let data = JSON.parse(message);
-            //console.log("Message received:", data);
-            console.log (data.uuid_room);
-            if (data.type === 'key_command') {
-                if (data.uuid_room && sessions.has(data.uuid_room))
-                {
-                    console.log("rooooom exist !!!!");
-                    console.log("Key command received for room:", data.uuid_room);
-                    const session = sessions.get(data.uuid_room);
-                    if (session && session.mode === 'local') {
-                        if (data.key === 'ArrowUp') {
-                            session.p1.paddle.moveUp();
-                        }
-                        if (data.key === 'ArrowDown') {
-                            session.p1.paddle.moveDown();
-                        }
-                        if (data.key === 'z') {
-                            session.p2.paddle.moveUp();
-                        }
-                        if (data.key === 's') {
-                            session.p2.paddle.moveDown();
-                        }
-                    }
-                    else if (session && session.mode === 'random_adversaire') {
-                        console.log("debug 1");
-                        if (data.key === 'ArrowUp') {
-                           const player = session.mapPlayers.get(data.user_id);
-                           console.log (player);
-                           console.log (session.mapPlayers);
-                           console.log (data.user_id);
-                           if (player) {
-                                console.log("debug 2");
-                               player.paddle.moveUp();
-                           }
-                        }
-                        if (data.key === 'ArrowDown') {
-                            const player = session.mapPlayers.get(data.user_id);
-                            if (player) {
-                                player.paddle.moveDown();
-                            }
-                        }
+            console.log("Touches reçues:", data.keys);
+    
+            if (data.type === 'key_command' && data.uuid_room && sessions.has(data.uuid_room)) {
+                const session = sessions.get(data.uuid_room);
+                if (!session) return;
+    
+                if (session.mode === 'local') {
+                    if (data.keys.includes('ArrowUp')) session.p1.paddle.moveUp();
+                    if (data.keys.includes('ArrowDown')) session.p1.paddle.moveDown();
+                    if (data.keys.includes('z')) session.p2.paddle.moveUp();
+                    if (data.keys.includes('s')) session.p2.paddle.moveDown();
+                } 
+                else if (session.mode === 'random_adversaire') {
+                    const player = session.mapPlayers.get(data.user_id);
+                    if (player) {
+                        if (data.keys.includes('ArrowUp')) player.paddle.moveUp();
+                        if (data.keys.includes('ArrowDown')) player.paddle.moveDown();
                     }
                 }
             }
+        } catch (error) {
+            console.error("Erreur de traitement du message:", error);
         }
-        catch (error) {
-            console.error("Error processing message:", error);
-        }}
-)});
-;
+    });
+});
 
 // Then remove handleKeyCommand from your GameLoop
 export async function GameLoop() {

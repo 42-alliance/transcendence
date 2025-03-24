@@ -136,9 +136,30 @@ export default class Game {
     }
 
     private setupKeyboardControls() {
+        const pressedKeys = new Set<string>();
+
         document.addEventListener('keydown', (event) => {
             if (!this.isRunning || !this.socket) return;
-                this.socket.send(JSON.stringify({ type: 'key_command', key: event.key, user_id: this.user_info?.id, uuid_room: this.uuid_room }));
+            pressedKeys.add(event.key);
+
+            this.socket.send(JSON.stringify({
+                type: 'key_command',
+                keys: Array.from(pressedKeys),
+                user_id: this.user_info?.id,
+                uuid_room: this.uuid_room
+            }));
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (!this.isRunning || !this.socket) return;
+            pressedKeys.delete(event.key);
+
+            this.socket.send(JSON.stringify({
+                type: 'key_command',
+                keys: Array.from(pressedKeys),
+                user_id: this.user_info?.id,
+                uuid_room: this.uuid_room
+            }));
         });
     }
 
