@@ -7,6 +7,14 @@ let height = 800; // Default height for game
 
 let sessions = new Map<string, Game>();
 
+import WebSocket from 'ws';
+
+function secure_send(ws: WebSocket, message: string) {
+    if (ws.readyState !== WebSocket.CLOSED) {
+        ws.send(message);
+    }
+}
+
 async function HandleMatch() {
     if (all_sessions.length > 0) {
         console.log("Creating game");
@@ -19,28 +27,31 @@ async function HandleMatch() {
                 game.match = all_sessions[0].match.players[0].username + " vs " + all_sessions[0].match.players[1].username;
                 game.p1.ws = all_sessions[0].match.players[0].socket;
                 game.p2.ws = all_sessions[0].match.players[1].socket;
-                game.mode = 'random_adversaire';
+                game.mapPlayers.set(all_sessions[0].match.players[0].user_id, game.p1);
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {
+                    console.log("Game start message sent to both players uuid_room: ", all_sessions[0].match.uuid_room);
                     game.p1.ws.send(JSON.stringify({ 
-                        type: 'game_start', 
+                        type: 'start', 
                         player: game.p1.username,
-                        uuid : all_sessions[0].match.uuid_room,
+                        uuid_room : all_sessions[0].match.uuid_room,
                         dimensions: { width, height }
                     }));
                     game.p2.ws.send(JSON.stringify({ 
                         type: 'start', 
                         player: game.p2.username,
-                        uuid : all_sessions[0].match.uuid_room,
+                        uuid_room : all_sessions[0].match.uuid_room,
                         dimensions: { width, height }
-                    }));
-                    console.log("Game start message sent to both players");}
+                    }))
+                    all_sessions.shift();
+                }
                 else {
                     console.error("Error sending game start message");
                     sessions.delete(all_sessions[0].match.uuid_room);
+                    secure_send(all_sessions[0].match.players[0].socket, JSON.stringify({ type: 'error', message: 'Error starting game' }));
+                    secure_send(all_sessions[0].match.players[1].socket, JSON.stringify({ type: 'error', message: 'Error starting game' }));
                     all_sessions.shift();
                 }
-                all_sessions.shift();
                 break;
             case 'local':
                 game.p1.username = "player_1";
@@ -57,13 +68,13 @@ async function HandleMatch() {
                         uuid_room: all_sessions[0].match.uuid_room,
                         dimensions: { width, height }
                     }));
+                    all_sessions.shift();
                     console.log("Game start message sent to player 1");
                 } else {
                     console.error("Error sending game start message");
                     sessions.delete(all_sessions[0].match.uuid_room);
                     all_sessions.shift();
                 }
-                all_sessions.shift();
                 break;
         
             case 'default':
@@ -96,7 +107,6 @@ wss.on('connection', (ws) => {
                     const session = sessions.get(data.uuid_room);
                     if (session && session.mode === 'local') {
                         if (data.key === 'ArrowUp') {
-                            console.log("ArrowUp nrgro");
                             session.p1.paddle.moveUp();
                         }
                         if (data.key === 'ArrowDown') {
@@ -107,6 +117,25 @@ wss.on('connection', (ws) => {
                         }
                         if (data.key === 's') {
                             session.p2.paddle.moveDown();
+                        }
+                    }
+                    else if (session && session.mode === 'random_adversaire') {
+                        console.log("debug 1");
+                        if (data.key === 'ArrowUp') {
+                           const player = session.mapPlayers.get(data.user_id);
+                           console.log (player);
+                           console.log (session.mapPlayers);
+                           console.log (data.user_id);
+                           if (player) {
+                                console.log("debug 2");
+                               player.paddle.moveUp();
+                           }
+                        }
+                        if (data.key === 'ArrowDown') {
+                            const player = session.mapPlayers.get(data.user_id);
+                            if (player) {
+                                player.paddle.moveDown();
+                            }
                         }
                     }
                 }

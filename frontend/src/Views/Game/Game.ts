@@ -62,7 +62,6 @@ export default class Game {
     private renderGame() {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (!gameCanvas) return;
-        console.log("Rendering game...");
         const ctx = gameCanvas.getContext('2d');
         if (!ctx || !this.gameState) return;
     
@@ -94,7 +93,6 @@ export default class Game {
         }
     
         if (game.paddle2) {
-            console.log("Drawing opponent paddle...");
             ctx.fillStyle = 'white';
             ctx.fillRect(
                 game.paddle2.x ,
@@ -102,14 +100,10 @@ export default class Game {
                 game.paddle2.width ,
                 game.paddle2.height 
             );
-            console.log(`Frontend Paddle 2 position: x=${game.paddle2.x}, y=${game.paddle2.y}`);
         }
     
         if (game.ball) {
             ctx.fillStyle = 'white';
-            console.log("Drawing ball...");
-            console.log(`Frontend Ball position: x=${game.ball.x}, y=${game.ball.y}`);
-            console.log(`Frontend Ball size: ${game.ball.size}`);
             ctx.beginPath();
             ctx.arc(
                 game.ball.x , 
@@ -144,7 +138,7 @@ export default class Game {
     private setupKeyboardControls() {
         document.addEventListener('keydown', (event) => {
             if (!this.isRunning || !this.socket) return;
-                this.socket.send(JSON.stringify({ type: 'key_command', key: event.key, uid: this.user_info?.id, uuid_room: this.uuid_room }));
+                this.socket.send(JSON.stringify({ type: 'key_command', key: event.key, user_id: this.user_info?.id, uuid_room: this.uuid_room }));
         });
     }
 
@@ -398,6 +392,7 @@ export default class Game {
                         case 'start':
                             console.log("Game started:", message.uuid_room);
                             this.uuid_room = message.uuid_room;
+                            console.log("Game started with uuid_room:", this.uuid_room);
                             this.initializeGame().then(game => {
                                 console.log("Game initialized:", game);
                                 this.isRunning = true;
@@ -406,7 +401,6 @@ export default class Game {
                             });
                             break;
                         case 'game_state':
-                            // Handle game state update from server
                             this.updateGameState(message.data);
                             break;
                         case 'game_over':

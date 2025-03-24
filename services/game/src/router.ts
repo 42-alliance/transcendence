@@ -1,14 +1,12 @@
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import fastify from 'fastify';
 import { GameLoop } from './gameplay/gameplay.js';
-
 import { setupMatchmaking } from './matchmaking/Matchmaking.js';
-//import { GameLoop } from './gameplay/gameplay.js';
 import { connect } from 'http2';
 /**
  * Configure les routes pour les utilisateurs.
  *
- * @param {FastifyInstance} server - Instance du serveur Fastify.
+@param {FastifyInstance} server - Instance du serveur Fastify.
  */
 
 export function extractUserId(request: FastifyRequest) {
@@ -21,15 +19,17 @@ export function extractUserName(request: FastifyRequest) {
 
 export async function setupModeRoute(server: FastifyInstance) {
     console.log("Setting upp game routes");
-    
     server.get('/ws/game/matchmaking', async function handler(request, reply) {
-        const userId = extractUserId(request);
-        const userName = extractUserName(request);
-       // const matchmaking = setupMatchmaking({ userId, reply });
-        // console.log("user id == ", userId);
-        // console.log("user name == ", userName);
-        console.log("Matchmaking setup");
-        reply.send({ success: true });
+        try {
+            const userId = extractUserId(request);
+            const userName = extractUserName(request);
+            console.log("Matchmaking setup");
+            reply.status(200).send({ success: true });
+        }
+        catch (e) {
+            console.error(e);
+            reply.status(500).send({ success: false });
+        }
     });
 }; 
 

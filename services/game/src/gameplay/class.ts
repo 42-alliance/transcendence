@@ -111,6 +111,7 @@ class Game {
     paddleWidth: number;
     paddleHeight: number;
     ballRadius: number;
+    mapPlayers: Map<string, player> = new Map();
 
 
     constructor(width: number, height: number) {

@@ -10,9 +10,9 @@ import { types } from 'util';
 export interface Player {
     socket: WebSocket;
     username: string;
-    user_id?: number;
+    user_id: string;
     type: string;
-    uuid_room?: string;
+    uuid_room: string;
 }
 
 export interface Match {
@@ -47,21 +47,15 @@ async function Matchmaking() {
 
 async function HandleMatch() {
     setInterval(() => {
-        if (onlineMode.length == 2) {
+        if (onlineMode.length >= 2) {
             console.log("Creating game");
             const uuid_room = uuidv4();
             const match: Match = {
                 players: [onlineMode.shift() as Player, onlineMode.shift() as Player],
-                type: 'online',
+                type: 'random_adversaire',
                 uuid_room: uuid_room
             };
             all_sessions.push({ match: match });
-            match.players.forEach((player) => {
-                player.socket.send(JSON.stringify({
-                    uuid_room: uuid_room,
-                    status: 'start'
-                }));
-            });
         }    
         else if (localMode.length == 1) {
             console.log("Creating game");
@@ -71,10 +65,6 @@ async function HandleMatch() {
                 type: 'local',
                 uuid_room: uuid_room
             };
-            match.players[0].socket.send(JSON.stringify({
-                uuid_room: uuid_room,
-                status: 'start'
-            }));
             all_sessions.push({ match: match });
         }
         else if (iaMode.length == 1) {
@@ -99,7 +89,6 @@ async function HandleMatch() {
 
         
         
-
 export const wss = new WebSocketServer({ port: 8790 });
 export async function setupMatchmaking()
 {
@@ -111,6 +100,7 @@ export async function setupMatchmaking()
             socket: ws,
             username: '',
             type: '',
+            user_id: '',
             uuid_room: ''
             };
 
@@ -120,13 +110,12 @@ export async function setupMatchmaking()
                 player.username = data.user.name;
                 player.user_id = data.user.id;
                 player.type = data.type;
-                console.log("player info: ", player);
                 console.log("Player added to matchmaking");
+                queue.push(player);
                 ws.send(JSON.stringify({
                     uuid_room: '',
                     type: 'waiting'
                 }));
-                
                 break;
 
             case 'local':
