@@ -208,6 +208,7 @@ export default class Game {
                     document.getElementById('localButton')?.addEventListener('click', this.handleLocalButton);
                     document.getElementById('iaButton')?.addEventListener('click', this.handleIAButton);
                     document.getElementById('tournamentButton')?.addEventListener('click', this.handleTournamentButton);
+                    document.getElementById('roomCodeButton')?.addEventListener('click', this.handleRoomCodeButton);
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -223,13 +224,34 @@ export default class Game {
 
     private handleRoomCodeButton = () => {
         console.log("Room code button clicked");
-        const roomCode = prompt("Enter room code:");
-        if (roomCode) {
-            this.socket?.send(JSON.stringify({
-                type: 'room_code',
-                room_code: roomCode
-            }));
-        }
+        // Open a modal to enter the room code
+        const modal = document.createElement('div');
+        modal.id = 'room-code-modal';
+        modal.className = 'modal';
+        modal.style.position = 'fixed';
+        modal.style.top = '50%';
+        modal.style.left = '50%';
+        modal.style.transform = 'translate(-50%, -50%)';
+        modal.style.zIndex = '1000';
+        modal.style.backgroundColor = 'white';
+        modal.style.padding = '20px';
+        modal.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        modal.style.borderRadius = '8px';
+
+        modal.innerHTML = `
+            <div class="modal-content height-1000">
+                <button id="join-room-button" style="color: red;">Join Room</button>
+                <br>
+                <button id="create-room-button" style="color: red;">Create Room</button>
+            </div>
+        `;
+
+        const closeButton = modal.querySelector('.close');
+        closeButton?.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        document.body.appendChild(modal);
     }
 
     private displaySpinner() {
