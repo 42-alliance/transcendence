@@ -126,7 +126,7 @@ class Game {
         this.ballRadius = 10; // Fixed ball radius
 
         const paddleSpeed = 8; // Fixed paddle speed
-        const ballSpeed = 4; // Fixed ball speed
+        const ballSpeed = 7; // Fixed ball speed
 
         // Create paddles and ball with scaling
         this.paddle_1 = new Paddle(10, (height - this.paddleHeight) / 2, this.paddleWidth, this.paddleHeight, paddleSpeed);

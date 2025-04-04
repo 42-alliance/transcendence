@@ -34,6 +34,13 @@ export default class Game {
             user: this.user_info
         }));
     }
+    private handleIAButton = () => {
+        console.log("IA button clicked");
+        this.socket?.send(JSON.stringify({
+            type: 'ia',
+            user: this.user_info
+        }));
+    }
 
     private updateGameState(state: any) {
         if (!state) return;
@@ -197,6 +204,7 @@ export default class Game {
                     this.initializeWebSocket();
                     document.getElementById('randomAdversaireButton')?.addEventListener('click', this.handleRandomAdversaireButton);
                     document.getElementById('localButton')?.addEventListener('click', this.handleLocalButton);
+                    document.getElementById('iaButton')?.addEventListener('click', this.handleIAButton);
                 }
             })
             .catch(error => console.error('Error:', error));

@@ -41,6 +41,10 @@ async function Matchmaking() {
             } else if (player?.type === 'local') {
                 localMode.push(player);
             }
+            else if (player?.type === 'ia') {
+                iaMode.push(player);
+            }
+            console.log("Player added to matchmaking");
         }
     }, 1000); // Runs every second
 }
@@ -48,7 +52,7 @@ async function Matchmaking() {
 async function HandleMatch() {
     setInterval(() => {
         if (onlineMode.length >= 2) {
-            console.log("Creating game");
+            console.log("Creating  ggg game");
             const uuid_room = uuidv4();
             const match: Match = {
                 players: [onlineMode.shift() as Player, onlineMode.shift() as Player],
@@ -58,7 +62,7 @@ async function HandleMatch() {
             all_sessions.push({ match: match });
         }    
         else if (localMode.length == 1) {
-            console.log("Creating game");
+            console.log("Creating tjee game");
             const uuid_room = uuidv4();
             const match: Match = {
                 players: [localMode.shift() as Player],
@@ -68,7 +72,7 @@ async function HandleMatch() {
             all_sessions.push({ match: match });
         }
         else if (iaMode.length == 1) {
-            console.log("Creating game");
+            console.log("Creating the game");
             const uuid_room = uuidv4();
             const match: Match = {
                 players: [iaMode.shift() as Player],
@@ -76,13 +80,6 @@ async function HandleMatch() {
                 uuid_room: uuid_room
             };
             all_sessions.push({ match: match });
-            iaMode.forEach((player) => {
-                player.socket.send(JSON.stringify({
-                    uuid_room: uuid_room,
-                    status: 'start'
-                }
-            ));
-            });
         }
     }, 1000); // Runs every second
 }
@@ -131,6 +128,7 @@ export async function setupMatchmaking()
                 player.type = data.type;
                 player.username = data.user.name;
                 console.log("player info: ", player);
+                queue.push(player);
                 break;
             }
         });

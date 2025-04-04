@@ -1,3 +1,4 @@
+import e from "cors";
 import { all_sessions, wss } from "../matchmaking/Matchmaking.js";
 import { Game, Paddle, Ball } from "./class.js";
 
@@ -17,7 +18,7 @@ function secure_send(ws: WebSocket, message: string) {
 
 async function HandleMatch() {
     if (all_sessions.length > 0) {
-        console.log("Creating game");
+        console.log("Creating le  game");
         const game = new Game(1600, 800); // Example: game logic dimensions are 800x400
         game.mode = all_sessions[0].match.players[0].type;
         switch (game.mode) {
@@ -76,7 +77,28 @@ async function HandleMatch() {
                     all_sessions.shift();
                 }
                 break;
-        
+            case 'ia':
+                game.p1.username = all_sessions[0].match.players[0].username;
+                game.p2.username = "IA";
+                game.match = "IA game";
+                game.mode = 'ia';
+                game.p1.ws = all_sessions[0].match.players[0].socket;
+                sessions.set(all_sessions[0].match.uuid_room, game);
+                if (game.p1.ws.readyState !== wss.close) {
+                    game.p1.ws.send(JSON.stringify({
+                        type: 'start',
+                        player: game.p1.username,
+                        uuid_room: all_sessions[0].match.uuid_room,
+                        dimensions: { width, height }
+                    }));
+                    all_sessions.shift();
+                    console.log("Game start message sent to player 1");
+                } else {
+                    console.error("Error sending game start message");
+                    sessions.delete(all_sessions[0].match.uuid_room);
+                    all_sessions.shift();
+                }
+                break;
             case 'default':
                 console.error("Error: no game mode selected");
                 all_sessions.shift();
@@ -98,6 +120,12 @@ wss.on('connection', (ws) => {
         try {
             let data = JSON.parse(message);
             console.log("Touches reçues:", data.keys);
+            console.log("UUID de la room:", data.uuid_room);
+            console.log("ID de l'utilisateur:", data.user_id);
+            console.log("Type de la commande:", data.type);
+            console.log("Sessions:", sessions);
+            console.log("Sessions UUID:", sessions.keys());
+            console.log("mode de la session:", sessions.get(data.uuid_room)?.mode);
     
             if (data.type === 'key_command' && data.uuid_room && sessions.has(data.uuid_room)) {
                 const session = sessions.get(data.uuid_room);
@@ -116,6 +144,16 @@ wss.on('connection', (ws) => {
                         if (data.keys.includes('ArrowDown')) player.paddle.moveDown();
                     }
                 }
+                else if (session.mode === 'ia') {
+            
+                    if (data) {
+                        if (data.keys.includes('ArrowUp')) session.p1.paddle.moveUp();
+                        if (data.keys.includes('ArrowDown')) session.p1.paddle.moveDown();
+                    }
+                }
+                else {
+                    console.error("Unknown game mode:", session.mode);
+                }
             }
         } catch (error) {
             console.error("Erreur de traitement du message:", error);
@@ -123,11 +161,41 @@ wss.on('connection', (ws) => {
     });
 });
 
+async function foreachIaGame() {
+    sessions.forEach((session) => {
+        if (session.mode === 'ia') {
+            const ia = session.p2;
+            const ball = session.ball;
+
+            // Launch a separate thread (or asynchronous loop) for each IA
+            setImmediate(() => {
+                setTimeout(() => {
+                    if (ball.x > session.width / 2) {
+                        if (ia.paddle.y < ball.y) {
+                            ia.paddle.moveDown();
+                        } else if (ia.paddle.y > ball.y) {
+                            ia.paddle.moveUp();
+                        }
+                    } else {
+                        if (ia.paddle.y < session.height / 2) {
+                            ia.paddle.moveDown();
+                        } else if (ia.paddle.y > session.height / 2) {
+                            ia.paddle.moveUp();
+                        }
+                    }
+                }, 600); // Simulate a 200ms delay for IA decision-making
+        });
+        }
+    });
+}
+//     }, 1000); // Runs every second
+
 // Then remove handleKeyCommand from your GameLoop
 export async function GameLoop() {
     // await handleKeyCommand(); <- Remove this line
     await HandleMatch();
     await UpdateGame();
+    await foreachIaGame();
     setTimeout(GameLoop, 1000 / 120);
 }
 
