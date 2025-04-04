@@ -21,6 +21,7 @@ async function HandleMatch() {
         console.log("Creating le  game");
         const game = new Game(1600, 800); // Example: game logic dimensions are 800x400
         game.mode = all_sessions[0].match.players[0].type;
+        console.log("Game mode: ", game.mode);
         switch (game.mode) {
             case 'random_adversaire':
                 game.p1.username = all_sessions[0].match.players[0].username;
@@ -99,6 +100,39 @@ async function HandleMatch() {
                     all_sessions.shift();
                 }
                 break;
+            case 'tournament':
+                game.p1.username = all_sessions[0].match.players[0].username;
+                game.p2.username = all_sessions[0].match.players[1].username;
+                game.match = all_sessions[0].match.players[0].username + " vs " + all_sessions[0].match.players[1].username;
+                game.p1.ws = all_sessions[0].match.players[0].socket;
+                game.p2.ws = all_sessions[0].match.players[1].socket;
+                game.mapPlayers.set(all_sessions[0].match.players[0].user_id, game.p1);
+                game.mapPlayers.set(all_sessions[0].match.players[1].user_id, game.p2);
+                sessions.set(all_sessions[0].match.uuid_room, game);
+                console.log("A game is setting up");
+                if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {
+                    game.p1.ws.send(JSON.stringify({
+                        type: 'start',
+                        player: game.p1.username,
+                        uuid_room: all_sessions[0].match.uuid_room,
+                        global_uuid: all_sessions[0].match.global_uuid,
+                        dimensions: { width, height }
+                    }));
+                    game.p2.ws.send(JSON.stringify({
+                        type: 'start',
+                        player: game.p2.username,
+                        uuid_room: all_sessions[0].match.uuid_room,
+                        dimensions: { width, height }
+                    }));
+                    all_sessions.shift();
+                } else {
+                    console.error("Error sending game start message");
+                    sessions.delete(all_sessions[0].match.uuid_room);
+                    secure_send(all_sessions[0].match.players[0].socket, JSON.stringify({ type: 'error', message: 'Error starting game' }));
+                    secure_send(all_sessions[0].match.players[1].socket, JSON.stringify({ type: 'error', message: 'Error starting game' }));
+                    all_sessions.shift();
+                }
+                break;
             case 'default':
                 console.error("Error: no game mode selected");
                 all_sessions.shift();
@@ -119,14 +153,7 @@ wss.on('connection', (ws) => {
     ws.on('message', (message: string) => {
         try {
             let data = JSON.parse(message);
-            console.log("Touches reçues:", data.keys);
-            console.log("UUID de la room:", data.uuid_room);
-            console.log("ID de l'utilisateur:", data.user_id);
-            console.log("Type de la commande:", data.type);
-            console.log("Sessions:", sessions);
-            console.log("Sessions UUID:", sessions.keys());
-            console.log("mode de la session:", sessions.get(data.uuid_room)?.mode);
-    
+           
             if (data.type === 'key_command' && data.uuid_room && sessions.has(data.uuid_room)) {
                 const session = sessions.get(data.uuid_room);
                 if (!session) return;
@@ -137,7 +164,7 @@ wss.on('connection', (ws) => {
                     if (data.keys.includes('z')) session.p2.paddle.moveUp();
                     if (data.keys.includes('s')) session.p2.paddle.moveDown();
                 } 
-                else if (session.mode === 'random_adversaire') {
+                else if (session.mode === 'random_adversaire' || session.mode === 'tournament') {
                     const player = session.mapPlayers.get(data.user_id);
                     if (player) {
                         if (data.keys.includes('ArrowUp')) player.paddle.moveUp();

@@ -4,6 +4,7 @@ import {v4 as uuidv4} from 'uuid';
 import { stat } from 'fs';
 import { on } from 'events';
 import { types } from 'util';
+import e from 'cors';
 
 
 
@@ -19,6 +20,7 @@ export interface Match {
     players: Player[];
     type: string;
     uuid_room: string;
+    global_uuid?: string;
 }
 
 export interface Session {
@@ -30,6 +32,7 @@ const queue: Player[] = [];
 const onlineMode: Player[] = [];
 const localMode: Player[] = [];
 const iaMode: Player[] = [];
+const tournamentMode: Player[] = [];
 
 async function Matchmaking() {
     setInterval(() => {
@@ -43,6 +46,9 @@ async function Matchmaking() {
             }
             else if (player?.type === 'ia') {
                 iaMode.push(player);
+            }
+            else if (player?.type === 'tournament') {
+                tournamentMode.push(player);
             }
             console.log("Player added to matchmaking");
         }
@@ -80,6 +86,27 @@ async function HandleMatch() {
                 uuid_room: uuid_room
             };
             all_sessions.push({ match: match });
+        }
+        else if (tournamentMode.length == 4)
+        {
+            console.log("Creating the tournament");
+            const uuid_room1 = uuidv4();
+            const uuid_room2 = uuidv4();
+            const global_uuid = uuidv4();
+            const match1: Match = {
+                players: [tournamentMode.shift() as Player, tournamentMode.shift() as Player],
+                type: 'tournament',
+                uuid_room: uuid_room1,
+                global_uuid: global_uuid
+            };
+            const match2: Match = {
+                players: [tournamentMode.shift() as Player, tournamentMode.shift() as Player],
+                type: 'tournament',
+                uuid_room: uuid_room2,
+                global_uuid: global_uuid
+            };
+            all_sessions.push({ match: match1 });
+            all_sessions.push({ match: match2 });
         }
     }, 1000); // Runs every second
 }
@@ -129,6 +156,18 @@ export async function setupMatchmaking()
                 player.username = data.user.name;
                 console.log("player info: ", player);
                 queue.push(player);
+                break;
+            case 'tournament':
+                console.log("Tournament request received");
+                player.type = data.type;
+                player.username = data.user.name;
+                player.user_id = data.user.id;
+                console.log("Player added to Tournament matchmaking");
+                queue.push(player);
+                ws.send(JSON.stringify({
+                    uuid_room: '',
+                    type: 'waiting'
+                }));
                 break;
             }
         });

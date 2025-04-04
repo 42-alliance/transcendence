@@ -11,6 +11,7 @@ export default class Game {
     private FPS: number = 60; // Target frames per second
     private frameInterval: number = 1000 / 120; // Milliseconds per frame
     private uuid_room: string = '';
+    private global_uuid: string = '';
 
     constructor() {
         this.initializeUserInfo();
@@ -153,7 +154,8 @@ export default class Game {
                 type: 'key_command',
                 keys: Array.from(pressedKeys),
                 user_id: this.user_info?.id,
-                uuid_room: this.uuid_room
+                uuid_room: this.uuid_room,
+                global_uuid : this.global_uuid
             }));
         });
 
@@ -205,9 +207,18 @@ export default class Game {
                     document.getElementById('randomAdversaireButton')?.addEventListener('click', this.handleRandomAdversaireButton);
                     document.getElementById('localButton')?.addEventListener('click', this.handleLocalButton);
                     document.getElementById('iaButton')?.addEventListener('click', this.handleIAButton);
+                    document.getElementById('tournamentButton')?.addEventListener('click', this.handleTournamentButton);
                 }
             })
             .catch(error => console.error('Error:', error));
+    }
+
+    private handleTournamentButton = () => {
+        console.log("Tournament button clicked");
+        this.socket?.send(JSON.stringify({
+            type: 'tournament',
+            user: this.user_info
+        }));
     }
 
     private handleRoomCodeButton = () => {
@@ -221,52 +232,76 @@ export default class Game {
         }
     }
 
+    private displaySpinner() {
+        // Check if spinner already exists
+        let spinner = document.getElementById('spinner-container');
+        
+        // If spinner doesn't exist, create it
+        if (!spinner) {
+            // Create container
+            const spinnerContainer = document.createElement('div');
+            spinnerContainer.id = 'spinner-container';
+            spinnerContainer.className = 'spinner-container';
+            
+            // Create spinner element
+            const spinnerElement = document.createElement('div');
+            spinnerElement.className = 'spinner';
+            
+            // Create text element
+            const spinnerText = document.createElement('div');
+            spinnerText.className = 'spinner-text';
+            spinnerText.textContent = 'Finding opponent...';
+            
+            // Append elements
+            spinnerContainer.appendChild(spinnerElement);
+            spinnerContainer.appendChild(spinnerText);
+            
+            // Add to the game area
+            const gameCanvas = document.getElementById('gameCanvas');
+            gameCanvas?.parentElement?.appendChild(spinnerContainer);
+        } else {
+            spinner.style.display = 'flex';
+        }
+    }
+
+    private hideSpinner() {
+        const spinner = document.getElementById('spinner-container');
+        if (spinner) {
+            spinner.style.display = 'none';
+        }
+    }
+
+    private HandleSpinnerRender(boolean: boolean) {
+        const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+        if (boolean) {
+            this.displaySpinner();
+        } else {
+            this.hideSpinner();
+        }
+    }
     private displayWaiting = () => {
-        console.log("Displaying waiting video...");
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (gameCanvas) {
-            //gameCanvas.style.display = 'none';
-            document.getElementById('randomAdversaireButton')?.setAttribute('disabled', 'true');
-            document.getElementById('localButton')?.setAttribute('disabled', 'true');
-            document.getElementById('roomCodeButton')?.setAttribute('disabled', 'true');
-            document.getElementById('iaButton')?.setAttribute('disabled', 'true');
-            //hide buttons
-            const randomAdversaireButton = document.getElementById('randomAdversaireButton');
-            if (randomAdversaireButton) {
-                randomAdversaireButton.style.display = 'none';
-            }
-            const localButton = document.getElementById('localButton');
-            if (localButton) {
-                localButton.style.display = 'none';
-            }
-            const roomCodeButton = document.getElementById('roomCodeButton');
-            if (roomCodeButton) {
-                roomCodeButton.style.display = 'none';
-            }
-            const tournamentButton = document.getElementById('tournamentButton');
-            if (tournamentButton) {
-                tournamentButton.style.display = 'none';
-            }
-            const iaButton = document.getElementById('iaButton');
-            if (iaButton) {
-                iaButton.style.display = 'none';
-            }
-            const waitingMessage = document.createElement('div');
-            waitingMessage.style.position = 'absolute';
-            waitingMessage.style.top = '50%';
-            waitingMessage.style.left = '50%';
-            waitingMessage.style.transform = 'translate(-50%, -50%)';
-            waitingMessage.style.fontSize = '24px';
-            waitingMessage.style.color = 'white';
-            waitingMessage.textContent = 'Waiting for an adversaire...';
-            gameCanvas.parentElement?.appendChild(waitingMessage);
+            // Hide all buttons
+            const buttons = ['randomAdversaireButton', 'localButton', 'roomCodeButton', 
+                            'tournamentButton', 'iaButton'];
+            
+            buttons.forEach(id => {
+                const button = document.getElementById(id);
+                if (button) {
+                    button.style.display = 'none';
+                    button.setAttribute('disabled', 'true');
+                }
+            });
+            
+            // Show spinner
+            this.displaySpinner();
         }
-        //write message
-        //disable buttons
     }
 
     async initializeGame() {
         console.log("Initializing game...");
+        this.hideSpinner();
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (gameCanvas) {
             const ctx = gameCanvas.getContext('2d');
@@ -421,6 +456,9 @@ export default class Game {
                         case 'start':
                             console.log("Game started:", message.uuid_room);
                             this.uuid_room = message.uuid_room;
+                            if (message.global_uuid) {
+                                this.global_uuid = message.global_uuid;
+                            }
                             console.log("Game started with uuid_room:", this.uuid_room);
                             this.initializeGame().then(game => {
                                 console.log("Game initialized:", game);
@@ -518,21 +556,15 @@ export default class Game {
         //return the content of the view
         console.log("Game view loaded -----------------------------------");
         //return red canvas with text "Game"
-        return `
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; position: relative;">
-            <div style="position: relative; width: 1600px; height: 800px;">
-                <canvas id="gameCanvas" width="1600" height="800" style="background-color: grey; position: absolute; top: 0; left: 0;">
-                Your browser does not support the HTML5 canvas tag.
-                </canvas>
-                <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 1;">
-                <button id="randomAdversaireButton" style="padding: 10px 20px; font-size: 16px;">Random Adversaire</button>
-                <button id="localButton" style="padding: 10px 20px; font-size: 16px;">Local</button>
-                <button id="roomCodeButton" style="padding: 10px 20px; font-size: 16px;">Room Code</button>
-                <button id="tournamentButton" style="padding: 10px 20px; font-size: 16px;">Tournament</button>
-                <button id="iaButton" style="padding: 10px 20px; font-size: 16px;">IA</button>
-                </div>
-            </div>
-            </div>
-        `;
+        try {
+			const response = await fetch("src/Views/Game/Game.html");
+			if (!response.ok) {
+				throw new Error(`Failed to load HTML file: ${response.statusText}`);
+			}
+			return await response.text();
+		} catch (error) {
+			console.error(error);
+			return `<p>Erreur lors du chargement du formulaire</p>`;
+		}
     }
 }
