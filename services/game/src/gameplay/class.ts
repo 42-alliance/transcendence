@@ -215,6 +215,14 @@ class Game {
         this.checkPaddleCollision(this.paddle_1);
         this.checkPaddleCollision(this.paddle_2);
     }
+    checkWinner() {
+        if (this.score_p2 >= 5) {
+            this.p1.ws.send(JSON.stringify({ type: 'game_over', winner: this.p1.username }));
+        } else if (this.score_p2 >= 5) {
+            this.p2.ws.send(JSON.stringify({ type: 'game_over', winner: this.p2.username }));
+        }
+        return null; // No winner yet
+    }
 
     handlePaddleCollision(paddle: Paddle) {
         //just inverse ball dirextion

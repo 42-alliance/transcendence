@@ -146,6 +146,7 @@ async function UpdateGame() {
         session.update();
         session.checkBounds();    
         session.sendData();
+        session.checkWinner();
     });
 }
 
