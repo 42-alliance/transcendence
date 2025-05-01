@@ -5,6 +5,7 @@ import { getFilesCDN, getFilesCDNSchema } from "./files/get.file.js";
 import { publicPath } from "./index.js";
 import { deleteFileCDN } from "./files/delete.file.js";
 import { uploadFileCDN } from "./files/upload.file.js";
+import { uploadFileLink, uploadFileLinkSchema } from "./files/upload.link.js";
 
 export async function setupMediaRoutes(server: FastifyInstance) {
   
@@ -23,6 +24,10 @@ export async function setupMediaRoutes(server: FastifyInstance) {
 	// Route pour uploader un fichier
 	server.post("/files", async function handler(request, reply) {
 		await uploadFileCDN(request, reply);	
+	});
+
+	server.post("/files/url", { schema: uploadFileLinkSchema }, async function handler(request, reply) {
+		await uploadFileLink(request, reply);	
 	});
 
 	// Route pour supprimer un fichier

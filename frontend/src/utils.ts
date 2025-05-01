@@ -1,21 +1,36 @@
-/**
- * Fetches data from the given API URL with the specified options.
- * 
- * @param url - The URL to fetch data from.
- * @param options - The options to use for the fetch request.
- * @returns The response from the fetch request.
- * @throws Will throw an error if the fetch request fails.
- */
-export async function fetchApi(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = localStorage.getItem("access_token");
-	if (token) {
-		options.headers = {
-			...options.headers,
-			Authorization: `Bearer ${token}`,
-		};
-	}
+import { logOutUser } from "./User/logoutUser.js";
 
-    const response = await fetch(url, options);
+interface optionRequest {
+	method: string,
+	headers?: HeadersInit | undefined,
+	body?: BodyInit | null | undefined,
+};
+
+export async function fetchApi(url: string, options: optionRequest, retry: boolean = true): Promise<Response> {
+    const token = localStorage.getItem("access_token");
+    let newOptions: RequestInit = {
+        ...options,
+        method: options.method
+    };
+
+	if (!(options.headers instanceof Headers)) {
+		options.headers = new Headers(options.headers); // Convertit en Headers si ce n'est pas déjà le cas
+	}
+	
+	if (token) {
+		options.headers.set("Authorization", `Bearer ${token}`); // Ajoute l'Authorization correctement
+	}
+	
+	newOptions.headers = options.headers; // ✅ Garde les headers sans perte
+    newOptions.credentials = "include";
+    newOptions.body = options.body;
+
+    const response = await fetch(url, newOptions);
+
+    if (response.status === 401 && retry) {
+        await refreshToken();
+        return await fetchApi(url, options, false); // Ne réessaie qu'une seule fois
+    }
 
     if (!response.ok) {
         console.error("Failed to fetch data from server: ", await response.json());
@@ -37,4 +52,30 @@ export function getHeader(): Headers {
 		headers.append("Authorization", `Bearer ${token}`);
 	}
 	return headers;
+}
+
+async function refreshToken() {
+    const token = getAccessToken();
+
+	if (!token)
+		throw new Error("No token found");
+
+	const headers = getHeader();
+    headers.append('Content-Type', 'application/json');
+
+	const response = await fetch("http://localhost:8000/auth/token/refresh", {
+		method: "POST",
+		headers: headers,
+		credentials: "include",
+		body: JSON.stringify({
+            token: token,
+		})
+	});
+
+	if (!response.ok)
+		throw new Error("Fail to refresh token");
+
+	const data = await response.json();
+	if (data.access_token)
+		localStorage.setItem("access_token", data.access_token);
 }

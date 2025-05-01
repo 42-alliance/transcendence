@@ -59,13 +59,12 @@ export function getPendingFriendRequest_tests(baseURL: string) {
     // Vérifiez que les demandes sont correctement formatées
     const requestSenders = res.body;
     requestSenders.forEach((sender: any) => {
-      expect(sender).toHaveProperty("id");
-      expect(sender).toHaveProperty("name");
-      expect(sender).toHaveProperty("picture");
+      expect(sender).toHaveProperty("request_sinced");
+      expect(sender).toHaveProperty("sender");
     });
 
     // Vérifiez que les demandes proviennent des bons utilisateurs
-    const senderIds = requestSenders.map((sender: any) => sender.id);
+    const senderIds = requestSenders.map((sender: any) => sender.sender.id);
     expect(senderIds).toContain(users[0].id);
     expect(senderIds).toContain(users[2].id);
   });

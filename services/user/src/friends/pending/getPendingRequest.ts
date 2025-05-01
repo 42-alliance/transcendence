@@ -1,8 +1,15 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
+import { Type } from '@sinclair/typebox'
 
-export async function getPendingFriendRequest(server: FastifyInstance, request: FastifyRequest,reply: FastifyReply) {
+export const getPendingFriendRequestSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+};
+
+export async function getPendingFriendRequest(request: FastifyRequest,reply: FastifyReply) {
 
 	const userId = extractUserId(request);
 
@@ -20,9 +27,15 @@ export async function getPendingFriendRequest(server: FastifyInstance, request: 
 		});
 		  
 		const requestSenders = incomingPendingRequests.map(request => ({
-			id: request.sender.id,
-			name: request.sender.name,
-			picture: request.sender.picture
+			sender: {
+				id: request.sender.id,
+				name: request.sender.name,
+				picture: request.sender.picture,
+				banner: request.sender.banner,
+				bio: request.sender.bio,
+				created_at: request.sender.created_at,
+			},
+			request_sinced: request.created_at
 		}));
 
         return reply.status(200).send(requestSenders);

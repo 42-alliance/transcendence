@@ -24,12 +24,9 @@ export async function uploadFileCDN(request: FastifyRequest, reply: FastifyReply
 		
 		let fileUploaded = false;
 
-		console.log("test1");
-		
 		// Traitement de chaque partie de la requête multipart
 		for await (const part of parts) {
 			if (part.type === 'file') {
-				console.log("test2");
 				// Vérifier qu'on n'a pas déjà traité un fichier
 				if (fileUploaded) {
 					return reply.code(400).send({ error: "Un seul fichier par requête est autorisé" });
@@ -51,12 +48,10 @@ export async function uploadFileCDN(request: FastifyRequest, reply: FastifyReply
 				
 			}
 		}
-		console.log("test3");
 		
 		if (!fileUploaded) {
 			return reply.code(400).send({ error: "Aucun fichier n'a été envoyé" });
 		}
-		console.log("test4");
 		
 		return reply.code(201).send({ 
 			message: "Fichier uploadé avec succès",

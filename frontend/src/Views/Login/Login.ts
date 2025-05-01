@@ -1,7 +1,9 @@
 import AView from "../AView.js";
 import { updateUserInfos } from "../../User/updateUser.js";
-import { injectUserCard, previewImage, updateUserCardFromForm } from "../userCard/userCard.js";
+import { injectUserCard, previewImage } from "../userCard/userCard.js";
 import { navigateTo } from "../viewManager.js";
+import { fetchApi } from "../../utils.js";
+import { userInfos } from "../../User/me.js";
 
 export default class extends AView {
     constructor() {
@@ -32,7 +34,7 @@ export async function verifyIfUsernameInDatabase(username: string) {
 		const headers = new Headers();
 		headers.append('Content-Type', 'application/json');
 		
-		const response = await fetch('http://localhost:8000/api/is-user-in-database/', {
+		const response = await fetchApi('http://localhost:8000/api/is-user-in-database/', {
 			method: 'POST',
 			headers: headers,
 			body: JSON.stringify({
@@ -66,24 +68,24 @@ async function validUsername(username: string, errorMessage: HTMLSpanElement) {
 export async function formSubmit(event: Event) {
 	event.preventDefault();
 
-    const pseudoInput = document.getElementById('pseudo') as HTMLInputElement;
+    const pseudoInput = document.getElementById('pseudo-input') as HTMLInputElement;
     if (pseudoInput === null)
         return;
-
+	
 	const errorMessage = document.getElementById('input-error') as HTMLSpanElement;
 	if (errorMessage === null)
 		return;
-
+	
 	const username = pseudoInput.value.trim();
 	if (await validUsername(username, errorMessage) === false)
 		return;
-
+	
 	errorMessage.style.display = "none"; // Hide error message if valid
-
+	
 	const profileImage = document.getElementById('profileImageInput') as HTMLInputElement;
 	if (profileImage.files === null)
 		return
-
+	
 	const profilePicture = profileImage.files[0];
 	const maxSize = 2 * 1024 * 1024;
 	if (profilePicture && profilePicture.size > maxSize) { 
@@ -98,17 +100,28 @@ export async function formSubmit(event: Event) {
 document.addEventListener("DOMContentLoaded", async () => {
 	await new Promise<void>((r) => setTimeout(r, 400));
   
-	injectUserCard("card-login-container-id");
+	await injectUserCard("card-login-container-id");
   
 	const userForm = document.getElementById("user-form") as HTMLFormElement;
 	if (userForm) {
-
-		userForm.addEventListener("input", () => {
-			updateUserCardFromForm("user-form", "card-login-container-id");
+		userForm.addEventListener("submit", async (event: Event) => {
+			await formSubmit(event);
 		});
-		userForm.addEventListener("submit", formSubmit);
 	}
   
+	const pseudoInput = document.getElementById("pseudo-input") as HTMLInputElement;
+	if (pseudoInput) {
+		pseudoInput.addEventListener('input', (event: Event) => {
+			const target = event.target as HTMLInputElement | null;
+			if (!target) return;
+			const pseudo = target.value;
+			const userCardPseudo = document.getElementById('userCardName');
+			if (!userCardPseudo) return;
+			const previousName = userInfos.name || "Error pseudo";
+			userCardPseudo.innerText = pseudo || previousName;
+		});
+	}
+
 	const profileImageInput = document.getElementById("profileImageInput") as HTMLInputElement;
 	if (profileImageInput)
 		profileImageInput.addEventListener("change", (event) => {

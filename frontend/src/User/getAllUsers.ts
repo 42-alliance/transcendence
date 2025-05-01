@@ -1,19 +1,19 @@
-import { getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../utils.js";
 
-interface User {
+export interface User {
 	id: number;
 	name: string;
 	picture: string;
 	banner: string;
 	bio: string;
-	created_at: string;
+	created_at: Date;
 }
 
 export async function getAllUsers(): Promise< User[] | null> {
 	try {
 		const header = getHeader();
 
-		const response = await fetch("http://localhost:8000/users", {
+		const response = await fetchApi("http://localhost:8000/users", {
 			method: "GET",
 			headers: header,
 		});

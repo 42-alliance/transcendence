@@ -1,25 +1,23 @@
-import { fetchApi } from "../utils.js";
+import { fetchApi, getHeader } from "../utils.js";
 import { navigateTo } from "../Views/viewManager.js";
-
 
 /**
  * Logs out the current user and clears the session storage.
  */
 export async function logOutUser(): Promise<void> {
 	try {
-		const headers = new Headers();
-		headers.append('Content-Type', 'application/json');
+		const headers = getHeader();
 		
-		await fetchApi('http://localhost:8000/api/logout/', {
-			method: 'GET',
+		const response = await fetchApi('http://localhost:8000/auth/@me/logout', {
+			method: 'POST',
 			headers: headers,
-			credentials: 'include',
 		});
-		console.log("User diconected succesfuly!");
+
+		const result = await response.json();
+		console.log(result.message);
+		localStorage.removeItem("access_token");
 		navigateTo("/auth");
 	} catch (e) {
 		console.error('Erreur :', e)
 	}
 }
-
-(window as any).logOutUser = logOutUser;

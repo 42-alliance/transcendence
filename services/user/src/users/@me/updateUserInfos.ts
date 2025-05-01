@@ -1,8 +1,9 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
 import { config } from "../../config.js";
 import { MultipartFile } from "@fastify/multipart";
+import { deleteMediaFile } from "../delete.user.js";
 
 interface userBody {
     name?: string;
@@ -20,10 +21,9 @@ async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
     });
 }
 
-export async function saveFile(part: MultipartFile): Promise<string | undefined> {
+async function saveFile(part: MultipartFile): Promise<string | undefined> {
     try {
         const buffer = await streamToBuffer(part.file);
-        console.log("Taille du fichier (buffer):", buffer.length);
 
         if (buffer.length === 0) {
             throw new Error("Le fichier est vide.");
@@ -55,14 +55,21 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
     const userId = extractUserId(request);
 
     const parts = request.parts();
+
+	const user = await prisma.users.findUniqueOrThrow({
+		where: {id: userId}
+	});
     let updateUser: userBody = {};
 
     try {
         for await (const part of parts) {
             if (part.type === "file") {
                 if (part.fieldname === "picture") {
+					await deleteMediaFile(user.picture);
                     updateUser.picture = await saveFile(part);
                 } else if (part.fieldname === "banner") {
+					if (user.banner)
+						await deleteMediaFile(user.banner);
                     updateUser.banner = await saveFile(part);
                 }
             } else if (part.type === "field") {
@@ -85,3 +92,4 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
         return reply.status(500).send({ message: "Erreur interne du serveur." });
     }
 }
+

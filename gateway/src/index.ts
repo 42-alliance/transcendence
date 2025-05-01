@@ -48,10 +48,20 @@ server.register(proxy, {
 
 server.register(proxy, {
 	upstream: `http://${config.auth.host}:${config.auth.port}`,
+	prefix: '/auth/@me',
+	rewritePrefix: '/auth/@me',
+	http2: false,
+	preHandler: async (request, reply) => {	
+        await verifyJWT(server, request, reply);
+    }
+});
+server.register(proxy, {
+	upstream: `http://${config.auth.host}:${config.auth.port}`,
     prefix: '/auth',
 	rewritePrefix: '/auth',
     http2: false,
 });
+
 
 server.register(proxy, {
     upstream: `ws://${config.chat.host}:${config.chat.port}`,

@@ -8,7 +8,7 @@ export async function deleteUser(): Promise<void> {
 	try {
 		const headers = getHeader();
 		
-		await fetchApi('http://localhost:8000/users', {
+		await fetchApi('http://localhost:8000/auth/@me/delete', {
 			method: 'DELETE',
 			headers: headers,
 		});

@@ -20,10 +20,9 @@ export async function updateUserInfos(name?: string, picture?: File, banner?: Fi
 		if (name)
 			formData.append('name', name);
 
-		const response = await fetch('http://localhost:8000/users/@me', {
+		const response = await fetchApi('http://localhost:8000/users/@me', {
 			method: 'PUT',
 			headers: headers,
-			credentials: 'include',
 			body: formData,
 		});
 
