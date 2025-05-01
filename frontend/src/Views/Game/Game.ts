@@ -1,4 +1,3 @@
-import { get } from "http";
 import { getUserInfos } from "../../User/me.js";
 
 export default class Game {
