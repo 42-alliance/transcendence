@@ -551,12 +551,15 @@ export default class Game {
         returnButton.textContent = 'Return to Lobby';
         returnButton.style.position = 'absolute';
         returnButton.style.left = '50%';
-        returnButton.style.top = `${gameCanvas.height / 2 + 100}px`;
+        returnButton.style.top = `${gameCanvas.height / 2}px`;
         returnButton.style.transform = 'translateX(-50%)';
         returnButton.style.padding = '10px 20px';
         returnButton.style.fontSize = '18px';
         returnButton.onclick = () => {
             window.location.reload();
+            this.disconnect();
+            // Optionally, you can redirect to a specific URL
+            
         };
         
         gameCanvas.parentElement?.appendChild(returnButton);

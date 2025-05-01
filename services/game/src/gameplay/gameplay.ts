@@ -211,7 +211,7 @@ async function foreachIaGame() {
                             ia.paddle.moveUp();
                         }
                     }
-                }, 600); // Simulate a 200ms delay for IA decision-making
+                }, 2000); // Simulate a 200ms delay for IA decision-making
         });
         }
     });

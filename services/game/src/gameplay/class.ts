@@ -217,9 +217,9 @@ class Game {
     }
     checkWinner() {
         if (this.score_p2 >= 5) {
-            this.p1.ws.send(JSON.stringify({ type: 'game_over', winner: this.p1.username }));
+            this.p1.ws.send(JSON.stringify({ type: 'game_over', winner: this.p2.username }));
         } else if (this.score_p2 >= 5) {
-            this.p2.ws.send(JSON.stringify({ type: 'game_over', winner: this.p2.username }));
+            this.p2.ws.send(JSON.stringify({ type: 'game_over', winner: this.p1.username }));
         }
         return null; // No winner yet
     }

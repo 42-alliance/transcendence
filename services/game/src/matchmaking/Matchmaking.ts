@@ -37,7 +37,7 @@ const tournamentMode: Player[] = [];
 async function Matchmaking() {
     setInterval(() => {
         if (queue.length >= 1) {
-            console.log("New player in queue");
+            // console.log("New player in queue");
             const player = queue.shift();
             if (player?.type === 'random_adversaire') {
                 onlineMode.push(player);
@@ -50,7 +50,7 @@ async function Matchmaking() {
             else if (player?.type === 'tournament') {
                 tournamentMode.push(player);
             }
-            console.log("Player added to matchmaking");
+            // console.log("Player added to matchmaking");
         }
     }, 1000); // Runs every second
 }
@@ -58,7 +58,7 @@ async function Matchmaking() {
 async function HandleMatch() {
     setInterval(() => {
         if (onlineMode.length >= 2) {
-            console.log("Creating  ggg game");
+            // console.log("Creating  ggg game");
             const uuid_room = uuidv4();
             const match: Match = {
                 players: [onlineMode.shift() as Player, onlineMode.shift() as Player],
@@ -68,7 +68,7 @@ async function HandleMatch() {
             all_sessions.push({ match: match });
         }    
         else if (localMode.length == 1) {
-            console.log("Creating tjee game");
+            // console.log("Creating tjee game");
             const uuid_room = uuidv4();
             const match: Match = {
                 players: [localMode.shift() as Player],
@@ -89,7 +89,7 @@ async function HandleMatch() {
         }
         else if (tournamentMode.length == 4)
         {
-            console.log("Creating the tournament");
+            // console.log("Creating the tournament");
             const uuid_room1 = uuidv4();
             const uuid_room2 = uuidv4();
             const global_uuid = uuidv4();
@@ -118,7 +118,7 @@ export async function setupMatchmaking()
 {
     wss.on('connection', function connection(ws) {
         ws.on('message', function incoming(message) {
-            console.log('received: %s', message);
+            // console.log('received: %s', message);
             const data = JSON.parse(message.toString());
             const player: Player = {
             socket: ws,
@@ -130,11 +130,11 @@ export async function setupMatchmaking()
 
             switch (data.type) {
             case 'random_adversaire':
-                console.log("Random adversaire request received");
+                // console.log("Random adversaire request received");
                 player.username = data.user.name;
                 player.user_id = data.user.id;
                 player.type = data.type;
-                console.log("Player added to matchmaking");
+                // console.log("Player added to matchmaking");
                 queue.push(player);
                 ws.send(JSON.stringify({
                     uuid_room: '',
@@ -143,26 +143,26 @@ export async function setupMatchmaking()
                 break;
 
             case 'local':
-                console.log("Local request received");
+                // console.log("Local request received");
                 player.type = data.type;
                 player.username = data.user.name;  
                 queue.push(player);
-                console.log("player info: ", player);
+                // console.log("player info: ", player);
                 break;
 
             case 'ia':
-                console.log("IA request received");
+                // console.log("IA request received");
                 player.type = data.type;
                 player.username = data.user.name;
-                console.log("player info: ", player);
+                // console.log("player info: ", player);
                 queue.push(player);
                 break;
             case 'tournament':
-                console.log("Tournament request received");
+                // console.log("Tournament request received");
                 player.type = data.type;
                 player.username = data.user.name;
                 player.user_id = data.user.id;
-                console.log("Player added to Tournament matchmaking");
+                // console.log("Player added to Tournament matchmaking");
                 queue.push(player);
                 ws.send(JSON.stringify({
                     uuid_room: '',
