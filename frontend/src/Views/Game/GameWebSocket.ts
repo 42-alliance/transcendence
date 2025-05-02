@@ -100,15 +100,16 @@ export class GameWebSocket {
                 case 'game_state':
                     this.updateGameState(message.data);
                     break;
-                case 'game_over':
-                    console.log("Game over:", message.winner);
+                case 'game_finished':
+                    console.log("Game finished:", message.data);
                     this.isRunning = false;
                     if (this.frameId) {
                         cancelAnimationFrame(this.frameId);
                         this.frameId = null;
                     }
-                    GameRenderer.showGameOver(message.winner);
+                    GameRenderer.showGameFinished(message.data);
                     break;
+                   
                 default:
                     console.warn("Unknown message type:", message.type);
                     break;

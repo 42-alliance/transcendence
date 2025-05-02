@@ -1,3 +1,5 @@
+import { GameUI } from './GameUI.js'; // Adjust the path as necessary
+
 export class GameRenderer {
     static renderGame(gameState: any) {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -68,7 +70,8 @@ export class GameRenderer {
         }
     }
 
-    static showGameOver(winner: string) {
+
+    static showGameFinished(winner: string) {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (!gameCanvas) return;
         
@@ -83,22 +86,71 @@ export class GameRenderer {
         ctx.fillStyle = 'white';
         ctx.font = '48px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(`Game Over`, gameCanvas.width / 2, gameCanvas.height / 2 - 50);
-        ctx.fillText(`${winner} wins!`, gameCanvas.width / 2, gameCanvas.height / 2 + 20);
+        ctx.fillText(`${winner} wins!`, gameCanvas.width / 2, gameCanvas.height / 2 - 40);
+        
+        // Vérifier si un bouton existe déjà et le supprimer
+        const existingButton = document.getElementById('return-lobby-button');
+        if (existingButton) {
+            existingButton.remove();
+        }
         
         // Add return button
         const returnButton = document.createElement('button');
+        returnButton.id = 'return-lobby-button'; // Donner un ID au bouton pour le retrouver facilement
         returnButton.textContent = 'Return to Lobby';
         returnButton.style.position = 'absolute';
         returnButton.style.left = '50%';
-        returnButton.style.top = `${gameCanvas.height / 2}px`;
+        returnButton.style.top = `${gameCanvas.height / 2 + 40}px`;
         returnButton.style.transform = 'translateX(-50%)';
+        returnButton.style.backgroundColor = 'white';
+        returnButton.style.color = 'black';
+        returnButton.style.border = 'none';
+        returnButton.style.borderRadius = '5px';
+        returnButton.style.cursor = 'pointer';
+        returnButton.style.zIndex = '1000';
         returnButton.style.padding = '10px 20px';
         returnButton.style.fontSize = '18px';
-        returnButton.onclick = () => {
-            window.location.reload();
-            // Optionally, you can redirect to a specific URL
-        };
+        
+        // Améliorer la gestion des événements pour éviter les clics multiples
+        returnButton.addEventListener('click', function handleClick(e) {
+            // Désactiver le bouton immédiatement pour éviter les clics multiples
+            returnButton.disabled = true;
+            returnButton.style.opacity = '0.5';
+            returnButton.style.cursor = 'default';
+            
+            // Log pour debug
+            console.log("Return to lobby button clicked");
+            
+            // Clear the canvas completely
+            if (ctx) {
+                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                // Redessiner un arrière-plan noir propre
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            }
+            
+            // Logic to return to the lobby
+            const gameContainer = document.getElementById('gameContainer');
+            if (gameContainer) {
+                // Garder une référence au canvas avant de vider
+                const canvasToKeep = gameCanvas.cloneNode(true);
+                gameContainer.innerHTML = ''; // Clear the game area
+                gameContainer.appendChild(canvasToKeep); // Remettre un canvas propre
+            }
+            
+            // Supprimer le bouton
+            returnButton.removeEventListener('click', handleClick);
+            returnButton.remove();
+            
+            // Afficher les boutons du lobby
+            GameUI.showLobbyButtons();
+            GameUI.hideSpinner();
+            
+            // Forcer un rafraîchissement de l'interface
+            requestAnimationFrame(() => {
+                console.log("Lobby UI refreshed");
+            });
+        }, { once: true }); // L'option once:true garantit que l'écouteur ne s'exécute qu'une fois
         
         gameCanvas.parentElement?.appendChild(returnButton);
     }

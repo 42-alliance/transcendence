@@ -19,7 +19,6 @@ export class GameUI {
             spinnerText.className = 'spinner-text';
             spinnerText.textContent = 'Finding opponent...';
             
-            // Append elements
             spinnerContainer.appendChild(spinnerElement);
             spinnerContainer.appendChild(spinnerText);
             
@@ -28,6 +27,27 @@ export class GameUI {
             gameCanvas?.parentElement?.appendChild(spinnerContainer);
         } else {
             spinner.style.display = 'flex';
+        }
+    }
+    static showLobbyButtons() {
+        const buttons = ['randomAdversaireButton', 'localButton', 'roomCodeButton',
+                        'tournamentButton', 'iaButton'];
+        buttons.forEach(id => {
+            const button = document.getElementById(id);
+            if (button) {
+                button.style.display = 'block';
+                button.removeAttribute('disabled');
+            }
+        });
+        // Show spinner
+        const spinner = document.getElementById('spinner-container');
+        if (spinner) {
+            spinner.style.display = 'none';
+        }
+        // Remove spinner from DOM
+        const spinnerContainer = document.getElementById('spinner-container');
+        if (spinnerContainer) {
+            spinnerContainer.parentElement?.removeChild(spinnerContainer);
         }
     }
 
