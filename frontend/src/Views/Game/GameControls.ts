@@ -9,9 +9,10 @@ export class GameControls {
         const pressedKeys = new Set<string>();
 
         document.addEventListener('keydown', (event) => {
+            console.log('Key pressed:', event.key);
             if (!isRunning || !socket) return;
             pressedKeys.add(event.key);
-
+            console.log('Pressed keys:', Array.from(pressedKeys));
             socket.send(JSON.stringify({
                 type: 'key_command',
                 keys: Array.from(pressedKeys),
@@ -24,7 +25,7 @@ export class GameControls {
         document.addEventListener('keyup', (event) => {
             if (!isRunning || !socket) return;
             pressedKeys.delete(event.key);
-
+            console.log('Released keys:', Array.from(pressedKeys));
             socket.send(JSON.stringify({
                 type: 'key_command',
                 keys: Array.from(pressedKeys),

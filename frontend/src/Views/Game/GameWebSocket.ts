@@ -81,6 +81,15 @@ export class GameWebSocket {
                 case 'start':
                     console.log("Game started:", message.uuid_room);
                     this.uuid_room = message.uuid_room;
+                    this.isRunning = true;
+                    // Set up keyboard controls after game start
+                    GameControls.setupKeyboardControls(
+                        this.socket,
+                        this.isRunning,
+                        this.user_info,
+                        this.uuid_room,
+                        message.global_uuid
+                    );
                     if (message.global_uuid) {
                         this.global_uuid = message.global_uuid;
                     }
@@ -107,7 +116,7 @@ export class GameWebSocket {
                         cancelAnimationFrame(this.frameId);
                         this.frameId = null;
                     }
-                    GameRenderer.showGameFinished(message.data);
+                    GameRenderer.showGameFinished(message.data.winner);
                     break;
                    
                 default:

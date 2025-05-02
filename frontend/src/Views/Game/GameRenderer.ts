@@ -61,8 +61,8 @@ export class GameRenderer {
         ctx.textAlign = 'center';
     
         if (game.score) {
-            ctx.fillText(game.score.p1_name + " :" + game.score.p1.toString(), gameCanvas.width / 4, 50);
-            ctx.fillText(game.score.p2.toString() + ": " + game.score.p2_name, (3 * gameCanvas.width) / 4, 50);
+            ctx.fillText(game.score.p1_name + " | " + game.score.p1.toString(), gameCanvas.width / 4, 50);
+            ctx.fillText(game.score.p2.toString() + " | " + game.score.p2_name, (3 * gameCanvas.width) / 4, 50);
         }
     
         if (game.opponent && game.opponent.score !== undefined) {
@@ -71,22 +71,24 @@ export class GameRenderer {
     }
 
 
-    static showGameFinished(winner: string) {
+    static showGameFinished(data: string) {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (!gameCanvas) return;
         
         const ctx = gameCanvas.getContext('2d');
         if (!ctx) return;
         
+
         // Slightly darken the screen
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-        
+        //data is a object with the winner name
+    
         // Show winner
         ctx.fillStyle = 'white';
         ctx.font = '48px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(`${winner} wins!`, gameCanvas.width / 2, gameCanvas.height / 2 - 40);
+        ctx.fillText(`${data} wins!`, gameCanvas.width / 2, gameCanvas.height / 2 - 40);
         
         // Vérifier si un bouton existe déjà et le supprimer
         const existingButton = document.getElementById('return-lobby-button');
@@ -110,15 +112,13 @@ export class GameRenderer {
         returnButton.style.zIndex = '1000';
         returnButton.style.padding = '10px 20px';
         returnButton.style.fontSize = '18px';
-        
-        // Améliorer la gestion des événements pour éviter les clics multiples
+       
         returnButton.addEventListener('click', function handleClick(e) {
             // Désactiver le bouton immédiatement pour éviter les clics multiples
             returnButton.disabled = true;
             returnButton.style.opacity = '0.5';
             returnButton.style.cursor = 'default';
-            
-            // Log pour debug
+           
             console.log("Return to lobby button clicked");
             
             // Clear the canvas completely

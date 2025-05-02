@@ -1,3 +1,5 @@
+import e from "cors";
+
 class Paddle {
   x: number;
   y: number;
@@ -112,6 +114,7 @@ class Game {
     paddleHeight: number;
     ballRadius: number;
     mapPlayers: Map<string, player> = new Map();
+    uuid_room: string = "";
 
 
     constructor(width: number, height: number) {
@@ -217,31 +220,39 @@ class Game {
     }
     checkWinner() {
         // Vérifier d'abord que les WebSockets existent
-        if (!this.p1.ws || !this.p2.ws) {
-            console.warn('WebSocket connections not established for one or both players');
-            return null;
+        // AVANT VERIFIER SI LE JEU EST EN LOCAL OU EN IA
+        if ( !(this.mode === "local" || this.mode === "ia")) {
+            if (!this.p1.ws || !this.p2.ws) {
+                console.warn('WebSocket connections not  for one or both players');
+                return null;
+            }
+            if (this.score_p2 >= 5) {
+                try {
+                    this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username } }));
+                    this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username } }));
+                    return this.p2.username; // Retourner le nom du gagnant
+                } catch (error) {
+                    console.error('Error sending game_finished message:', error);
+                }
+            } else if (this.score_p1 >= 5) {
+                try {
+                    this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username } }));
+                    this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username } }));
+                    return this.p1.username; // Retourner le nom du gagnant
+                } catch (error) {
+                    console.error('Error sending game_finished message:', error);
+                }
+            }
         }
-    
-        if (this.score_p2 >= 5) {
-            // Bug corrigé: score_p2 est vérifié deux fois
-            try {
+        else {
+            if (this.score_p2 >= 5) {
                 this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username } }));
-                this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username } }));
-                return this.p2.username; // Retourner le nom du gagnant
-            } catch (error) {
-                console.error('Error sending game_finished message:', error);
-            }
-        } else if (this.score_p1 >= 5) {
-            // Bug corrigé: utilisation de score_p1 au lieu de score_p2
-            try {
+                return this.p2.username; // Player 2 wins
+            } else if (this.score_p1 >= 5) {
                 this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username } }));
-                this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username } }));
-                return this.p1.username; // Retourner le nom du gagnant
-            } catch (error) {
-                console.error('Error sending game_finished message:', error);
+                return this.p1.username; // Player 1 wins
             }
         }
-        
         return null; // No winner yet
     }
 

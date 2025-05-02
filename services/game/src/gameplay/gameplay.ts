@@ -21,6 +21,7 @@ async function HandleMatch() {
         console.log("Creating le  game");
         const game = new Game(1600, 800); // Example: game logic dimensions are 800x400
         game.mode = all_sessions[0].match.players[0].type;
+        game.uuid_room = all_sessions[0].match.uuid_room;
         console.log("Game mode: ", game.mode);
         switch (game.mode) {
             case 'random_adversaire':
@@ -56,10 +57,11 @@ async function HandleMatch() {
                 }
                 break;
             case 'local':
-                game.p1.username = "player_1";
-                game.p2.username = "player_2";
+                game.p1.username = "PLAYER_A";
+                game.p2.username = "PLAYER_B";
                 game.match = "Local game";
                 game.mode = 'local';
+                game.uuid_room = all_sessions[0].match.uuid_room;
                 game.p1.ws = all_sessions[0].match.players[0].socket;
                 console.log(`the uuid_room: ${all_sessions[0].match.uuid_room}`);
                 sessions.set(all_sessions[0].match.uuid_room, game);
@@ -146,17 +148,21 @@ async function UpdateGame() {
         session.update();
         session.checkBounds();    
         session.sendData();
-        session.checkWinner();
+        if (session.checkWinner()) {
+            sessions.delete(session.uuid_room);
+        }
     });
 }
 
 wss.on('connection', (ws) => {
     ws.on('message', (message: string) => {
+        console.log("Received message from client:", message);
         try {
             let data = JSON.parse(message);
-           
+            console.log("Received message:", data);
             if (data.type === 'key_command' && data.uuid_room && sessions.has(data.uuid_room)) {
                 const session = sessions.get(data.uuid_room);
+                console.log("Received key command:", data.keys);
                 if (!session) return;
     
                 if (session.mode === 'local') {
