@@ -228,17 +228,46 @@ class Game {
             }
             if (this.score_p2 >= 5) {
                 try {
-                    this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username } }));
-                    this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username } }));
+                    this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username,
+                        score:{
+                            p1: this.score_p1,
+                            p2: this.score_p2
+                        },
+                        name : this.p1.username,
+                        opponent_name: this.p2.username,
+                       
+                    } }));
+                    this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username,
+                        score: {
+                            p1: this.score_p2,
+                            p2: this.score_p1
+                        },
+                        name : this.p2.username,
+                        opponent_name: this.p1.username,
+                     } }));
                     return this.p2.username; // Retourner le nom du gagnant
                 } catch (error) {
                     console.error('Error sending game_finished message:', error);
                 }
             } else if (this.score_p1 >= 5) {
                 try {
-                    this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username } }));
-                    this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username } }));
-                    return this.p1.username; // Retourner le nom du gagnant
+                        this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username,
+                            score:{
+                                p1: this.score_p1,
+                                p2: this.score_p2
+                            },
+                            name : this.p1.username,
+                            opponent_name: this.p2.username,
+                        } }));
+                        this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username,
+                            score: {
+                                p1: this.score_p2,
+                                p2: this.score_p1
+                            },
+                            name : this.p2.username,
+                            opponent_name: this.p1.username,
+                        } }));
+                        return this.p1.username; // Retourner le nom du gagnant
                 } catch (error) {
                     console.error('Error sending game_finished message:', error);
                 }
@@ -246,10 +275,22 @@ class Game {
         }
         else {
             if (this.score_p2 >= 5) {
-                this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username } }));
+                this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username,
+                    score: {
+                        p1: this.score_p1,
+                        p2: this.score_p2
+                    },
+                    mode: this.mode,
+                 } }));
                 return this.p2.username; // Player 2 wins
             } else if (this.score_p1 >= 5) {
-                this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username } }));
+                this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username,
+                    score: {
+                        p1: this.score_p1,
+                        p2: this.score_p2
+                    },
+                    mode: this.mode,
+                 } }));
                 return this.p1.username; // Player 1 wins
             }
         }

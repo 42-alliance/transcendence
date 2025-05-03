@@ -116,7 +116,7 @@ export class GameWebSocket {
                         cancelAnimationFrame(this.frameId);
                         this.frameId = null;
                     }
-                    GameRenderer.showGameFinished(message.data.winner);
+                    GameRenderer.showGameFinished(message.data);
                     break;
                    
                 default:

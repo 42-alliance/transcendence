@@ -71,7 +71,7 @@ export class GameRenderer {
     }
 
 
-    static showGameFinished(data: string) {
+    static showGameFinished(data: any) {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (!gameCanvas) return;
         
@@ -88,7 +88,8 @@ export class GameRenderer {
         ctx.fillStyle = 'white';
         ctx.font = '48px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(`${data} wins!`, gameCanvas.width / 2, gameCanvas.height / 2 - 40);
+        ctx.fillText(`${data.winner} wins!`, gameCanvas.width / 2, gameCanvas.height / 2 - 40);
+        ctx.fillText(`Final Score: ${data.score.p1} - ${data.score.p2}`, gameCanvas.width / 2, gameCanvas.height / 2 + 40);
         
         // Vérifier si un bouton existe déjà et le supprimer
         const existingButton = document.getElementById('return-lobby-button');
