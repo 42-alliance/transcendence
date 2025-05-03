@@ -111,6 +111,18 @@ async function HandleMatch() {
     }, 1000); // Runs every second
 }
 
+function advanceTournament(global_uuid: string, winner: Player) {
+    const remainingMatches = all_sessions.filter(session => session.match.global_uuid === global_uuid);
+
+    if (remainingMatches.length === 1) {
+        console.log(`Tournament winner: ${winner.username}`);
+    } else {
+        const nextMatch = remainingMatches.find(match => match.match.players.length < 2);
+        if (nextMatch) {
+            nextMatch.match.players.push(winner);
+        }
+    }
+}
         
         
 export const wss = new WebSocketServer({ port: 8790 });
@@ -136,10 +148,10 @@ export async function setupMatchmaking()
                 player.type = data.type;
                 // console.log("Player added to matchmaking");
                 queue.push(player);
-                ws.send(JSON.stringify({
+                secureSend(ws, {
                     uuid_room: '',
                     type: 'waiting'
-                }));
+                });
                 break;
 
             case 'local':
@@ -164,10 +176,10 @@ export async function setupMatchmaking()
                 player.user_id = data.user.id;
                 // console.log("Player added to Tournament matchmaking");
                 queue.push(player);
-                ws.send(JSON.stringify({
+                secureSend(ws, {
                     uuid_room: '',
                     type: 'waiting'
-                }));
+                });
                 break;
             }
         });
@@ -175,4 +187,10 @@ export async function setupMatchmaking()
     );
     await Matchmaking();
     await HandleMatch();
+}
+
+function secureSend(ws: any, message: any) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(message));
+    }
 }

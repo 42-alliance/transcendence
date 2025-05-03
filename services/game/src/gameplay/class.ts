@@ -185,30 +185,14 @@ class Game {
     checkWallCollisions() {
         // Horizontal bounds - scoring
         if (this.ball.x - this.ball.radius < 0) {
-            this.score_p2++;
-            this.resetBall();
-        } else if (this.ball.x + this.ball.radius > this.width ) {
-            this.score_p1++;
-            this.resetBall();
+            this.updateScore('p2'); // Player 2 marque un point
+        } else if (this.ball.x + this.ball.radius > this.width) {
+            this.updateScore('p1'); // Player 1 marque un point
         }
-        
-        // Vertical bounds - bounce with more realistic physics
-        if (this.ball.y - this.ball.radius < 0) {
-            // Ceiling collision
-            this.ball.dy = -this.ball.dy * 0.9; // 10% energy loss on bounce
-            // Ensure the ball is positioned correctly
-            this.ball.y = this.ball.radius + 1;
-            
-            // Log for debugging
-            console.log("Ceiling bounce, new velocity:", this.ball.dy);
-        } else if (this.ball.y + this.ball.radius > this.height ) {
-            // Floor collision
-            this.ball.dy = -this.ball.dy * 0.9; // 10% energy loss on bounce
-            // Ensure the ball is positioned correctly
-            this.ball.y = this.height  - this.ball.radius - 1;
-            
-            // Log for debugging
-            console.log("Floor bounce, new velocity:", this.ball.dy);
+    
+        // Vertical bounds - bounce
+        if (this.ball.y - this.ball.radius < 0 || this.ball.y + this.ball.radius > this.height) {
+            this.ball.dy = -this.ball.dy * 0.9; // Réduction de la vitesse verticale
         }
     }
     
@@ -219,88 +203,66 @@ class Game {
         this.checkPaddleCollision(this.paddle_2);
     }
     checkWinner() {
-        // Vérifier d'abord que les WebSockets existent
-        // AVANT VERIFIER SI LE JEU EST EN LOCAL OU EN IA
-        if ( !(this.mode === "local" || this.mode === "ia")) {
-            if (!this.p1.ws || !this.p2.ws) {
-                console.warn('WebSocket connections not  for one or both players');
-                return null;
-            }
-            if (this.score_p2 >= 5) {
-                try {
-                    this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username,
-                        score:{
-                            p1: this.score_p1,
-                            p2: this.score_p2
-                        },
-                        name : this.p1.username,
-                        opponent_name: this.p2.username,
-                       
-                    } }));
-                    this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username,
+        if (this.score_p2 >= 5) {
+            if (this.mode === "ia") {
+                console.log(`Game finished. Winner: ${this.p2.username} (IA)`);
+                this.endGame(this.p2.username); // Terminer le jeu sans envoyer de message WebSocket pour l'IA
+            } else if (this.p2.ws) {
+                this.p2.ws.send(JSON.stringify({
+                    type: 'game_finished',
+                    data: {
+                        winner: this.p2.username,
                         score: {
-                            p1: this.score_p2,
-                            p2: this.score_p1
+                            p1: this.score_p1,
+                            p2: this.score_p2,
                         },
-                        name : this.p2.username,
-                        opponent_name: this.p1.username,
-                     } }));
-                    return this.p2.username; // Retourner le nom du gagnant
-                } catch (error) {
-                    console.error('Error sending game_finished message:', error);
-                }
-            } else if (this.score_p1 >= 5) {
-                try {
-                        this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username,
-                            score:{
-                                p1: this.score_p1,
-                                p2: this.score_p2
-                            },
-                            name : this.p1.username,
-                            opponent_name: this.p2.username,
-                        } }));
-                        this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username,
-                            score: {
-                                p1: this.score_p2,
-                                p2: this.score_p1
-                            },
-                            name : this.p2.username,
-                            opponent_name: this.p1.username,
-                        } }));
-                        return this.p1.username; // Retourner le nom du gagnant
-                } catch (error) {
-                    console.error('Error sending game_finished message:', error);
-                }
-            }
-        }
-        else {
-            if (this.score_p2 >= 5) {
-                this.p2.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p2.username,
-                    score: {
-                        p1: this.score_p1,
-                        p2: this.score_p2
+                        mode: this.mode,
                     },
-                    mode: this.mode,
-                 } }));
-                return this.p2.username; // Player 2 wins
-            } else if (this.score_p1 >= 5) {
-                this.p1.ws.send(JSON.stringify({ type: 'game_finished', data: { winner: this.p1.username,
-                    score: {
-                        p1: this.score_p1,
-                        p2: this.score_p2
-                    },
-                    mode: this.mode,
-                 } }));
-                return this.p1.username; // Player 1 wins
+                }));
             }
+            return this.p2.username; // Retourner le nom du gagnant
+        } else if (this.score_p1 >= 5) {
+            if (this.p1.ws) {
+                this.p1.ws.send(JSON.stringify({
+                    type: 'game_finished',
+                    data: {
+                        winner: this.p1.username,
+                        score: {
+                            p1: this.score_p1,
+                            p2: this.score_p2,
+                        },
+                        mode: this.mode,
+                    },
+                }));
+            }
+            if (this.mode !== "ia" && this.p2.ws) {
+                this.p2.ws.send(JSON.stringify({
+                    type: 'game_finished',
+                    data: {
+                        winner: this.p1.username,
+                        score: {
+                            p1: this.score_p1,
+                            p2: this.score_p2,
+                        },
+                        mode: this.mode,
+                    },
+                }));
+            }
+            return this.p1.username; // Retourner le nom du gagnant
         }
-        return null; // No winner yet
+        return null; // Pas encore de gagnant
     }
 
     handlePaddleCollision(paddle: Paddle) {
-        //just inverse ball dirextion
-        this.ball.dx = -this.ball.dx;
-        // Increase ball speed by 10% on each paddle collision
+        const relativeIntersectY = (this.ball.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
+        const bounceAngle = relativeIntersectY * (Math.PI / 4); // Limiter l'angle à 45 degrés
+        const direction = this.ball.dx > 0 ? -1 : 1;
+
+        this.ball.dx = direction * this.ball.speed * Math.cos(bounceAngle);
+        this.ball.dy = this.ball.speed * Math.sin(bounceAngle);
+
+        // Augmenter la vitesse de la balle après chaque collision
+        this.ball.speed *= 1.1;
     }
     
     checkPaddleCollision(paddle: Paddle) {
@@ -320,6 +282,51 @@ class Game {
         }
     }  
     
+    updateScore(player: 'p1' | 'p2') {
+        if (player === 'p1') {
+            this.score_p1++;
+        } else {
+            this.score_p2++;
+        }
+    
+        // Vérifier si un joueur a gagné
+        const winner = this.checkWinner();
+        if (winner) {
+            this.endGame(winner);
+        } else {
+            this.resetBall(); // Réinitialiser la balle si personne n'a encore gagné
+        }
+    }
+    
+    endGame(winner: string) {
+        const gameFinishedMessage = {
+            type: 'game_finished',
+            data: {
+                winner: winner,
+                score: {
+                    p1: this.score_p1,
+                    p2: this.score_p2,
+                },
+                mode: this.mode,
+            },
+        };
+    
+        try {
+            if (this.p1.ws) {
+                this.p1.ws.send(JSON.stringify(gameFinishedMessage));
+            }
+            if (this.p2.ws) {
+                this.p2.ws.send(JSON.stringify(gameFinishedMessage));
+            }
+        } catch (error) {
+            console.error('Error sending game_finished message:', error);
+        }
+    }
+
+    handleDisconnection(player: 'p1' | 'p2') {
+        const winner = player === 'p1' ? this.p2.username : this.p1.username;
+        this.endGame(winner);
+    }
 
     sendData() {
         const gameState = {
@@ -356,6 +363,30 @@ class Game {
         if (this.p2.ws) {
             this.p2.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
         }
+    }
+
+    synchronizeState() {
+        const gameState = {
+            paddle1: { x: this.paddle_1.x, y: this.paddle_1.y },
+            paddle2: { x: this.paddle_2.x, y: this.paddle_2.y },
+            ball: { x: this.ball.x, y: this.ball.y },
+            score: { p1: this.score_p1, p2: this.score_p2 },
+        };
+    
+        try {
+            if (this.p1.ws) {
+                this.p1.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+            }
+            if (this.p2.ws) {
+                this.p2.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+            }
+        } catch (error) {
+            console.error('Error sending game state:', error);
+        }
+    }
+
+    logEvent(event: string, data: any) {
+        console.log(`[Game Event] ${event}:`, data);
     }
 }
 
