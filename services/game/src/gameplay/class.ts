@@ -115,6 +115,7 @@ class Game {
     ballRadius: number;
     mapPlayers: Map<string, player> = new Map();
     uuid_room: string = "";
+    ia_difficulty: string = "";
 
 
     constructor(width: number, height: number) {

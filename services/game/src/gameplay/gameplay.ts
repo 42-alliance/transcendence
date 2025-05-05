@@ -28,6 +28,10 @@ function getAIDifficultyLevel(username: string): AILevel {
     } else if (username.toLowerCase().includes('hard')) {
         level = AILevel.HARD;
     } else if (username.toLowerCase().includes('impossible')) {
+        level = AILevel.MEDIUM;
+    }
+    else 
+    {
         level = AILevel.IMPOSSIBLE;
     }
     
@@ -39,6 +43,7 @@ async function HandleMatch() {
         console.log("Creating game");
         const game = new Game(1600, 800);
         game.mode = all_sessions[0].match.players[0].type;
+        game.ia_difficulty = all_sessions[0].match.players[0].difficulty;
         game.uuid_room = all_sessions[0].match.uuid_room;
         console.log("Game mode: ", game.mode);
         
@@ -103,8 +108,10 @@ async function HandleMatch() {
                 game.p1.username = all_sessions[0].match.players[0].username;
                 
                 // Vérifier si le nom d'utilisateur contient des indications sur la difficulté
-                const difficulty = getAIDifficultyLevel(game.p1.username);
-                
+                console.log("game difficulty: ", game.ia_difficulty);
+                const difficulty = getAIDifficultyLevel(game.ia_difficulty);
+                console.log("Selected difficulty level:", difficulty);
+                console.log("herererer\n");
                 // Ajuster le nom de l'IA en fonction du niveau de difficulté
                 let aiName = "IA";
                 switch(difficulty) {
@@ -112,7 +119,7 @@ async function HandleMatch() {
                         aiName = "IA (Facile)";
                         break;
                     case AILevel.MEDIUM:
-                        aiName = "IA (Moyen)";
+                        aiName = "IA (Medium)";
                         break;
                     case AILevel.HARD:
                         aiName = "IA (Difficile)";

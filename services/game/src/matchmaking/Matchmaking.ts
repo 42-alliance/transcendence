@@ -14,6 +14,7 @@ export interface Player {
     user_id: string;
     type: string;
     uuid_room: string;
+    difficulty: string;
 }
 
 export interface Match {
@@ -137,7 +138,8 @@ export async function setupMatchmaking()
             username: '',
             type: '',
             user_id: '',
-            uuid_room: ''
+            uuid_room: '',
+            difficulty: ''
             };
 
             switch (data.type) {
@@ -166,6 +168,7 @@ export async function setupMatchmaking()
                 // console.log("IA request received");
                 player.type = data.type;
                 player.username = data.user.name;
+                player.difficulty = data.difficulty;
                 // console.log("player info: ", player);
                 queue.push(player);
                 break;
