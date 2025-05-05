@@ -191,7 +191,13 @@ class Game {
         }
     
         // Vertical bounds - bounce
-        if (this.ball.y - this.ball.radius < 0 || this.ball.y + this.ball.radius > this.height) {
+        if (this.ball.y - this.ball.radius < 0) {
+            // Ajuster la position pour éviter que la balle ne sorte des limites
+            this.ball.y = this.ball.radius;
+            this.ball.dy = -this.ball.dy * 0.9; // Réduction de la vitesse verticale
+        } else if (this.ball.y + this.ball.radius > this.height) {
+            // Ajuster la position pour éviter que la balle ne sorte des limites
+            this.ball.y = this.height - this.ball.radius;
             this.ball.dy = -this.ball.dy * 0.9; // Réduction de la vitesse verticale
         }
     }

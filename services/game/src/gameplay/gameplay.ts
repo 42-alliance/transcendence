@@ -1,12 +1,13 @@
-import e from "cors";
 import { all_sessions, wss } from "../matchmaking/Matchmaking.js";
 import { Game, Paddle, Ball } from "./class.js";
+import { GameAI, AILevel } from "./ai.js";
 
 // Set default dimensions for server-side (no window object in Node.js)
 let width = 1600; // Default width for game
 let height = 800; // Default height for game 
 
 let sessions = new Map<string, Game>();
+let gameAIs = new Map<string, GameAI>();
 
 import WebSocket from 'ws';
 
@@ -16,13 +17,31 @@ function secure_send(ws: WebSocket, message: string) {
     }
 }
 
+// Fonction pour déterminer le niveau de difficulté de l'IA
+function getAIDifficultyLevel(username: string): AILevel {
+    // Par défaut, utiliser le niveau moyen
+    let level = AILevel.MEDIUM;
+    
+    // On peut personnaliser le niveau en fonction du nom d'utilisateur ou d'autres paramètres
+    if (username.toLowerCase().includes('easy')) {
+        level = AILevel.EASY;
+    } else if (username.toLowerCase().includes('hard')) {
+        level = AILevel.HARD;
+    } else if (username.toLowerCase().includes('impossible')) {
+        level = AILevel.IMPOSSIBLE;
+    }
+    
+    return level;
+}
+
 async function HandleMatch() {
     if (all_sessions.length > 0) {
-        console.log("Creating le  game");
-        const game = new Game(1600, 800); // Example: game logic dimensions are 800x400
+        console.log("Creating game");
+        const game = new Game(1600, 800);
         game.mode = all_sessions[0].match.players[0].type;
         game.uuid_room = all_sessions[0].match.uuid_room;
         console.log("Game mode: ", game.mode);
+        
         switch (game.mode) {
             case 'random_adversaire':
                 game.p1.username = all_sessions[0].match.players[0].username;
@@ -82,23 +101,53 @@ async function HandleMatch() {
                 break;
             case 'ia':
                 game.p1.username = all_sessions[0].match.players[0].username;
-                game.p2.username = "IA";
-                game.match = "IA game";
+                
+                // Vérifier si le nom d'utilisateur contient des indications sur la difficulté
+                const difficulty = getAIDifficultyLevel(game.p1.username);
+                
+                // Ajuster le nom de l'IA en fonction du niveau de difficulté
+                let aiName = "IA";
+                switch(difficulty) {
+                    case AILevel.EASY:
+                        aiName = "IA (Facile)";
+                        break;
+                    case AILevel.MEDIUM:
+                        aiName = "IA (Moyen)";
+                        break;
+                    case AILevel.HARD:
+                        aiName = "IA (Difficile)";
+                        break;
+                    case AILevel.IMPOSSIBLE:
+                        aiName = "IA (Impossible)";
+                        break;
+                }
+                
+                game.p2.username = aiName;
+                game.match = `${game.p1.username} vs ${aiName}`;
                 game.mode = 'ia';
                 game.p1.ws = all_sessions[0].match.players[0].socket;
+                
                 sessions.set(all_sessions[0].match.uuid_room, game);
+                
+                // Créer une nouvelle instance de GameAI
+                const ai = new GameAI(game, difficulty);
+                gameAIs.set(all_sessions[0].match.uuid_room, ai);
+                
                 if (game.p1.ws.readyState !== wss.close) {
                     game.p1.ws.send(JSON.stringify({
                         type: 'start',
                         player: game.p1.username,
+                        opponent: aiName,
+                        difficulty: difficulty.toString(),
                         uuid_room: all_sessions[0].match.uuid_room,
                         dimensions: { width, height }
                     }));
                     all_sessions.shift();
-                    console.log("Game start message sent to player 1");
+                    console.log(`Game start message sent to player 1 (vs ${aiName})`);
                 } else {
                     console.error("Error sending game start message");
                     sessions.delete(all_sessions[0].match.uuid_room);
+                    gameAIs.delete(all_sessions[0].match.uuid_room);
                     all_sessions.shift();
                 }
                 break;
@@ -195,41 +244,22 @@ wss.on('connection', (ws) => {
     });
 });
 
-async function foreachIaGame() {
-    sessions.forEach((session) => {
-        if (session.mode === 'ia') {
-            const ia = session.p2;
-            const ball = session.ball;
-
-            // Launch a separate thread (or asynchronous loop) for each IA
-            setImmediate(() => {
-                setTimeout(() => {
-                    if (ball.x > session.width / 2) {
-                        if (ia.paddle.y < ball.y) {
-                            ia.paddle.moveDown();
-                        } else if (ia.paddle.y > ball.y) {
-                            ia.paddle.moveUp();
-                        }
-                    } else {
-                        if (ia.paddle.y < session.height / 2) {
-                            ia.paddle.moveDown();
-                        } else if (ia.paddle.y > session.height / 2) {
-                            ia.paddle.moveUp();
-                        }
-                    }
-                }, 2000); // Simulate a 200ms delay for IA decision-making
-        });
+// Remplacer la fonction foreachIaGame par une version qui utilise notre nouvelle IA
+async function updateAI() {
+    gameAIs.forEach((ai, uuid_room) => {
+        if (sessions.has(uuid_room)) {
+            // Mettre à jour l'IA
+            ai.update();
+        } else {
+            // Supprimer l'IA si la session n'existe plus
+            gameAIs.delete(uuid_room);
         }
     });
 }
-//     }, 1000); // Runs every second
 
-// Then remove handleKeyCommand from your GameLoop
 export async function GameLoop() {
-    // await handleKeyCommand(); <- Remove this line
     await HandleMatch();
     await UpdateGame();
-    await foreachIaGame();
+    await updateAI();  // Remplacer foreachIaGame par updateAI
     setTimeout(GameLoop, 1000 / 120);
 }
-

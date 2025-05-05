@@ -1,3 +1,5 @@
+import { get } from "http";
+
 export class GameUI {
     static displaySpinner() {
         // Check if spinner already exists
@@ -138,5 +140,117 @@ export class GameUI {
                 button.style.display = 'none';
             }
         });
+    }
+    static displayDifficultyButtons(): Promise<string> {
+    return new Promise((resolve) => {
+        // Create a container for the difficulty buttons
+        const difficultyContainer = document.createElement('div');
+        difficultyContainer.id = 'difficulty-container';
+        difficultyContainer.className = 'difficulty-container';
+        difficultyContainer.style.position = 'fixed';
+        difficultyContainer.style.top = '50%';
+        difficultyContainer.style.left = '50%';
+        difficultyContainer.style.transform = 'translate(-50%, -50%)';
+        difficultyContainer.style.display = 'flex';
+        difficultyContainer.style.flexDirection = 'column';
+        difficultyContainer.style.alignItems = 'center';
+        difficultyContainer.style.gap = '15px';
+        difficultyContainer.style.zIndex = '1000';
+        difficultyContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+        difficultyContainer.style.padding = '30px';
+        difficultyContainer.style.borderRadius = '12px';
+        difficultyContainer.style.border = '2px solid #4a4a8f';
+        difficultyContainer.style.boxShadow = '0 0 20px rgba(93, 93, 170, 0.5)';
+
+        // Ajouter un titre
+        const title = document.createElement('h2');
+        title.textContent = 'SELECT DIFFICULTY';
+        title.style.color = 'white';
+        title.style.marginBottom = '20px';
+        title.style.fontFamily = "'Arial', sans-serif";
+        title.style.fontSize = '24px';
+        title.style.fontWeight = 'bold';
+        title.style.textTransform = 'uppercase';
+        title.style.letterSpacing = '2px';
+        title.style.textAlign = 'center';
+        difficultyContainer.appendChild(title);
+
+        // Define difficulty levels
+        const difficulties = [
+            { id: 'easyButton', text: 'Easy' },
+            { id: 'mediumButton', text: 'Medium' },
+            { id: 'hardButton', text: 'Hard' },
+            { id: 'impossibleButton', text: 'Impossible' }
+        ];
+
+        // Create buttons for each difficulty level
+        difficulties.forEach(difficulty => {
+            const button = document.createElement('button');
+            button.id = difficulty.id;
+            button.textContent = difficulty.text;
+            button.className = 'difficulty-button';
+            
+            // Style identique aux boutons de jeu
+            button.style.background = 'linear-gradient(to bottom, #4a4a8f, #2d2d64)';
+            button.style.color = 'white';
+            button.style.border = 'none';
+            button.style.borderRadius = '6px';
+            button.style.padding = '12px 24px';
+            button.style.fontSize = '16px';
+            button.style.fontWeight = 'bold';
+            button.style.cursor = 'pointer';
+            button.style.transition = 'all 0.3s ease';
+            button.style.minWidth = '160px';
+            button.style.textTransform = 'uppercase';
+            button.style.letterSpacing = '1px';
+            button.style.margin = '5px 0';
+            button.style.border = '1px solid #5d5daa';
+            button.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+            
+            // Hover effect
+            button.addEventListener('mouseover', () => {
+                button.style.background = 'linear-gradient(to bottom, #5d5daa, #4a4a8f)';
+                button.style.transform = 'translateY(-2px)';
+                button.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+            });
+            
+            button.addEventListener('mouseout', () => {
+                button.style.background = 'linear-gradient(to bottom, #4a4a8f, #2d2d64)';
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+            });
+            
+            // Add click effect
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'translateY(1px)';
+                button.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.4)';
+            });
+            
+            // Add click event
+            button.addEventListener('click', () => {
+                // Send the selected difficulty level to the server
+                const selectedDifficulty = difficulty.text.toLowerCase();
+                console.log(`Selected difficulty: ${selectedDifficulty}`);
+                
+                // Remove the container
+                document.body.removeChild(difficultyContainer);
+                
+                // Resolve the promise with the selected difficulty
+                resolve(selectedDifficulty);
+            });
+            
+            // Important: add the button to the container
+            difficultyContainer.appendChild(button);
+        });
+
+        // Append the container to the body
+        document.body.appendChild(difficultyContainer);
+    });
+}
+    static hideDifficultyButtons() {
+        const difficultyContainer = document.getElementById('difficulty-container');
+        if (difficultyContainer) {
+            difficultyContainer.parentElement?.removeChild(difficultyContainer);
+        }
     }
 }

@@ -67,9 +67,25 @@ export default class Game {
             this.webSocket?.sendMessage('local', { user: this.user_info });
         });
         
-        document.getElementById('iaButton')?.addEventListener('click', () => {
+        document.getElementById('iaButton')?.addEventListener('click', async () => {
             console.log("IA button clicked");
-            this.webSocket?.sendMessage('ia', { user: this.user_info });
+            
+            try {
+                // Attendre que l'utilisateur sélectionne une difficulté
+                const difficultyMode = await GameUI.displayDifficultyButtons();
+                console.log("Selected difficulty:", difficultyMode);
+                
+                // Afficher un spinner pendant la connexion
+                GameUI.displayWaiting();
+                
+                // Envoyer le message avec la difficulté sélectionnée
+                this.webSocket?.sendMessage('ia', { 
+                    user: this.user_info,
+                    difficulty: difficultyMode 
+                });
+            } catch (error) {
+                console.error("Error selecting difficulty:", error);
+            }
         });
         
         document.getElementById('tournamentButton')?.addEventListener('click', () => {
