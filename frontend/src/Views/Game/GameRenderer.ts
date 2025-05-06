@@ -103,7 +103,7 @@ export class GameRenderer {
         returnButton.textContent = 'Return to Lobby';
         returnButton.style.position = 'absolute';
         returnButton.style.left = '50%';
-        returnButton.style.top = `${gameCanvas.height / 2 + 40}px`;
+        returnButton.style.top = `${gameCanvas.height / 2 + 110}px`;
         returnButton.style.transform = 'translateX(-50%)';
         returnButton.style.backgroundColor = 'white';
         returnButton.style.color = 'black';

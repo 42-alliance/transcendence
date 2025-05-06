@@ -193,7 +193,7 @@ class Game {
     
         // Vertical bounds - bounce
         if (this.ball.y - this.ball.radius < 0) {
-            // Ajuster la position pour éviter que la balle ne sorte des limites
+            // Ajuster la posscore_p2ition pour éviter que la balle ne sorte des limites
             this.ball.y = this.ball.radius;
             this.ball.dy = -this.ball.dy * 0.9; // Réduction de la vitesse verticale
         } else if (this.ball.y + this.ball.radius > this.height) {
@@ -213,7 +213,7 @@ class Game {
         if (this.score_p2 == 5) {
             return this.p2.username; // Retourner le nom du gagnant
         } 
-        else if (this.score_p1 >= 5) {
+        else if (this.score_p1 == 5) {
             return this.p1.username; // Retourner le nom du gagnant
         }
         return null; // Pas encore de gagnant
