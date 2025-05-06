@@ -124,7 +124,8 @@ function advanceTournament(global_uuid: string, winner: Player) {
         }
     }
 }
-        
+
+let i =  0;
         
 export const wss = new WebSocketServer({ port: 8790 });
 export async function setupMatchmaking()
@@ -145,8 +146,9 @@ export async function setupMatchmaking()
             switch (data.type) {
             case 'random_adversaire':
                 // console.log("Random adversaire request received");
-                player.username = data.user.name;
-                player.user_id = data.user.id;
+                player.username = data.user.name + "_" + i;
+                i++;
+                player.user_id = data.user.id ;
                 player.type = data.type;
                 // console.log("Player added to matchmaking");
                 queue.push(player);

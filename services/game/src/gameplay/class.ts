@@ -129,7 +129,7 @@ class Game {
         this.paddleHeight = 100; // Fixed paddle height
         this.ballRadius = 10; // Fixed ball radius
 
-        const paddleSpeed = 8; // Fixed paddle speed
+        const paddleSpeed = 14; // Fixed paddle speed
         const ballSpeed = 7; // Fixed ball speed
 
         // Create paddles and ball with scaling
@@ -210,51 +210,10 @@ class Game {
         this.checkPaddleCollision(this.paddle_2);
     }
     checkWinner() {
-        if (this.score_p2 >= 5) {
-            if (this.mode === "ia") {
-                console.log(`Game finished. Winner: ${this.p2.username} (IA)`);
-                this.endGame(this.p2.username); // Terminer le jeu sans envoyer de message WebSocket pour l'IA
-            } else if (this.p2.ws) {
-                this.p2.ws.send(JSON.stringify({
-                    type: 'game_finished',
-                    data: {
-                        winner: this.p2.username,
-                        score: {
-                            p1: this.score_p1,
-                            p2: this.score_p2,
-                        },
-                        mode: this.mode,
-                    },
-                }));
-            }
+        if (this.score_p2 == 5) {
             return this.p2.username; // Retourner le nom du gagnant
-        } else if (this.score_p1 >= 5) {
-            if (this.p1.ws) {
-                this.p1.ws.send(JSON.stringify({
-                    type: 'game_finished',
-                    data: {
-                        winner: this.p1.username,
-                        score: {
-                            p1: this.score_p1,
-                            p2: this.score_p2,
-                        },
-                        mode: this.mode,
-                    },
-                }));
-            }
-            if (this.mode !== "ia" && this.p2.ws) {
-                this.p2.ws.send(JSON.stringify({
-                    type: 'game_finished',
-                    data: {
-                        winner: this.p1.username,
-                        score: {
-                            p1: this.score_p1,
-                            p2: this.score_p2,
-                        },
-                        mode: this.mode,
-                    },
-                }));
-            }
+        } 
+        else if (this.score_p1 >= 5) {
             return this.p1.username; // Retourner le nom du gagnant
         }
         return null; // Pas encore de gagnant
@@ -295,8 +254,6 @@ class Game {
         } else {
             this.score_p2++;
         }
-    
-        // Vérifier si un joueur a gagné
         const winner = this.checkWinner();
         if (winner) {
             this.endGame(winner);

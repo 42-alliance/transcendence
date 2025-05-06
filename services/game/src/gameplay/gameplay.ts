@@ -28,13 +28,8 @@ function getAIDifficultyLevel(username: string): AILevel {
     } else if (username.toLowerCase().includes('hard')) {
         level = AILevel.HARD;
     } else if (username.toLowerCase().includes('impossible')) {
-        level = AILevel.MEDIUM;
-    }
-    else 
-    {
         level = AILevel.IMPOSSIBLE;
     }
-    
     return level;
 }
 
@@ -55,6 +50,7 @@ async function HandleMatch() {
                 game.p1.ws = all_sessions[0].match.players[0].socket;
                 game.p2.ws = all_sessions[0].match.players[1].socket;
                 game.mapPlayers.set(all_sessions[0].match.players[0].user_id, game.p1);
+                game.mapPlayers.set(all_sessions[0].match.players[1].user_id, game.p2);
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {
                     console.log("Game start message sent to both players uuid_room: ", all_sessions[0].match.uuid_room);
@@ -230,6 +226,9 @@ wss.on('connection', (ws) => {
                 else if (session.mode === 'random_adversaire' || session.mode === 'tournament') {
                     const player = session.mapPlayers.get(data.user_id);
                     if (player) {
+                        if (data.keys.includes('z')) player.paddle.moveUp();
+                        if (data.keys.includes('s')) player.paddle.moveDown();
+                        console.log("Player paddle moved:", player.username);
                         if (data.keys.includes('ArrowUp')) player.paddle.moveUp();
                         if (data.keys.includes('ArrowDown')) player.paddle.moveDown();
                     }

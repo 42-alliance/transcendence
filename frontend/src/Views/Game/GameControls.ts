@@ -12,7 +12,6 @@ export class GameControls {
             console.log('Key pressed:', event.key);
             if (!isRunning || !socket) return;
             pressedKeys.add(event.key);
-            console.log('Pressed keys:', Array.from(pressedKeys));
             socket.send(JSON.stringify({
                 type: 'key_command',
                 keys: Array.from(pressedKeys),

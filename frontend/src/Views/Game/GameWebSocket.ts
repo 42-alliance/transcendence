@@ -10,7 +10,7 @@ export class GameWebSocket {
     private user_info: any;
     private gameState: any = null;
     private lastRender: number = 0;
-    private frameInterval: number = 1000 / 120; // Milliseconds per frame
+    private frameInterval: number = 1000 / 60; // Milliseconds per frame
     private uuid_room: string = '';
     private global_uuid: string = '';
     

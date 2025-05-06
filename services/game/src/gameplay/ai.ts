@@ -10,28 +10,28 @@ export enum AILevel {
 
 export class GameAI {
     private readonly REACTION_TIME = {
-        [AILevel.EASY]: 200,      // Temps de réaction plus lent (ms)
-        [AILevel.MEDIUM]: 120,
-        [AILevel.HARD]: 60,
-        [AILevel.IMPOSSIBLE]: 10  // Réaction quasi instantanée
+        [AILevel.EASY]: 800,      // Temps de réaction plus lent (ms)
+        [AILevel.MEDIUM]: 440,
+        [AILevel.HARD]: 220,
+        [AILevel.IMPOSSIBLE]: 40  // Réaction quasi instantanée
     };
     
     private readonly PREDICTION_ACCURACY = {
-        [AILevel.EASY]: 0.7,      // 70% de précision
-        [AILevel.MEDIUM]: 0.85,
-        [AILevel.HARD]: 0.95,
+        [AILevel.EASY]: 0.5,      // 70% de précision
+        [AILevel.MEDIUM]: 0.75,
+        [AILevel.HARD]: 0.85,
         [AILevel.IMPOSSIBLE]: 1.0 // 100% précis
     };
     
     private readonly ERROR_MARGIN = {
-        [AILevel.EASY]: 80,       // Marge d'erreur élevée
+        [AILevel.EASY]: 90,       // Marge d'erreur élevée
         [AILevel.MEDIUM]: 40,
         [AILevel.HARD]: 15,
         [AILevel.IMPOSSIBLE]: 0   // Pas d'erreur
     };
     
     private readonly AGGRESSION_FACTOR = {
-        [AILevel.EASY]: 0.3,      // Moins agressif
+        [AILevel.EASY]: 0.2,      // Moins agressif
         [AILevel.MEDIUM]: 0.5,
         [AILevel.HARD]: 0.7,
         [AILevel.IMPOSSIBLE]: 0.9 // Très agressif
@@ -51,16 +51,10 @@ export class GameAI {
         this.defensivePosition = game.height / 2;
     }
     
-    /**
-     * Définir le niveau de difficulté de l'IA
-     */
     setLevel(level: AILevel): void {
         this.level = level;
     }
     
-    /**
-     * Prédire où la balle va atterrir du côté de l'IA
-     */
     private predictBallLanding(): number | null {
         const ball = this.game.ball;
         const width = this.game.width;
