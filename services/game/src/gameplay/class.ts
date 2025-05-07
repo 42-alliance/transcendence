@@ -116,6 +116,7 @@ class Game {
     mapPlayers: Map<string, player> = new Map();
     uuid_room: string = "";
     ia_difficulty: string = "";
+    is_end: boolean = false;
 
 
     constructor(width: number, height: number) {
@@ -257,12 +258,15 @@ class Game {
         const winner = this.checkWinner();
         if (winner) {
             this.endGame(winner);
+            
         } else {
             this.resetBall(); // Réinitialiser la balle si personne n'a encore gagné
         }
     }
     
     endGame(winner: string) {
+        this.is_end = true;
+        this.resetBall(); // Reset ball position and speed
         const gameFinishedMessage = {
             type: 'game_finished',
             data: {
@@ -336,7 +340,9 @@ class Game {
             ball: { x: this.ball.x, y: this.ball.y },
             score: { p1: this.score_p1, p2: this.score_p2 },
         };
-    
+        if (this.is_end) {
+            return;
+        }
         try {
             if (this.p1.ws) {
                 this.p1.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
@@ -349,6 +355,9 @@ class Game {
         }
     }
 
+    check_end(): boolean {
+        return this.is_end;
+    }
     logEvent(event: string, data: any) {
         console.log(`[Game Event] ${event}:`, data);
     }

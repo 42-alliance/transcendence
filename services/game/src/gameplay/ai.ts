@@ -43,6 +43,7 @@ export class GameAI {
     private targetY: number | null = null;
     private defensivePosition: number;
     private isAttacking: boolean = false;
+  
     
     constructor(game: Game, level: AILevel = AILevel.MEDIUM) {
         this.game = game;
@@ -135,13 +136,16 @@ export class GameAI {
     /**
      * Mettre à jour la logique de l'IA
      */
-    update(): void {
+    async update(): Promise<void> {
         const now = Date.now();
         const paddle = this.game.p2.paddle;
         const ball = this.game.ball;
         const height = this.game.height;
         const width = this.game.width;
         
+        // Attendre 50 ms avant de continuer
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        await delay(50);
         // Mettre à jour les décisions selon le temps de réaction défini par le niveau
         if (now - this.lastDecisionTime >= this.REACTION_TIME[this.level]) {
             this.lastDecisionTime = now;
@@ -208,4 +212,8 @@ export class GameAI {
             }
         }
     }
+    check_end_game() {
+        return this.game.check_end();
+    }
+
 }

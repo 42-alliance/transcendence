@@ -8,6 +8,8 @@ let height = 800; // Default height for game
 
 let sessions = new Map<string, Game>();
 let gameAIs = new Map<string, GameAI>();
+let sessionsToDelete = new Map<string, Game>();
+let sessionsToDeleteAI = new Map<string, GameAI>();
 
 import WebSocket from 'ws';
 
@@ -41,7 +43,7 @@ async function HandleMatch() {
         game.ia_difficulty = all_sessions[0].match.players[0].difficulty;
         game.uuid_room = all_sessions[0].match.uuid_room;
         console.log("Game mode: ", game.mode);
-        
+        console.log(sessions);
         switch (game.mode) {
             case 'random_adversaire':
                 game.p1.username = all_sessions[0].match.players[0].username;
@@ -196,13 +198,38 @@ async function HandleMatch() {
 }
 
 async function UpdateGame() {
-    sessions.forEach((session) => {
+    // Vider les Maps de sessions à supprimer du cycle précédent
+    sessionsToDelete.clear();
+    sessionsToDeleteAI.clear();
+    
+    // Vérifier les sessions et marquer celles à supprimer
+    sessions.forEach((session, uuid) => {
         session.update();
         session.checkBounds();    
         session.sendData();
-        if (session.checkWinner()) {
-            sessions.delete(session.uuid_room);
+        
+        // Si la partie est terminée, ajouter à la liste des sessions à supprimer
+        if (session.check_end()) {
+            console.log(`Game ${uuid} finished, marking for deletion`);
+            sessionsToDelete.set(uuid, session);
+            
+            // Si c'est une partie contre l'IA, marquer l'IA pour suppression aussi
+            if (session.mode === 'ia' && gameAIs.has(uuid)) {
+                sessionsToDeleteAI.set(uuid, gameAIs.get(uuid)!);
+            }
         }
+    });
+    
+    // Supprimer les sessions marquées
+    sessionsToDelete.forEach((session, uuid) => {
+        sessions.delete(uuid);
+        console.log(`Game session ${uuid} has been removed`);
+    });
+    
+    // Supprimer les IA marquées
+    sessionsToDeleteAI.forEach((ai, uuid) => {
+        gameAIs.delete(uuid);
+        console.log(`AI instance for game ${uuid} has been removed`);
     });
 }
 
@@ -253,12 +280,17 @@ wss.on('connection', (ws) => {
 // Remplacer la fonction foreachIaGame par une version qui utilise notre nouvelle IA
 async function updateAI() {
     gameAIs.forEach((ai, uuid_room) => {
-        if (sessions.has(uuid_room)) {
+        // Ne pas mettre à jour l'IA si la session est marquée pour suppression
+        if (sessions.has(uuid_room) && !sessionsToDelete.has(uuid_room)) {
             // Mettre à jour l'IA
+            if (ai.check_end_game()) {
+                console.log(`Game ${uuid_room} is finished, not updating AI`);
+                sessionsToDeleteAI.set(uuid_room, ai);
+                sessions.delete(uuid_room);
+                gameAIs.delete(uuid_room);
+                return;
+            }
             ai.update();
-        } else {
-            // Supprimer l'IA si la session n'existe plus
-            gameAIs.delete(uuid_room);
         }
     });
 }

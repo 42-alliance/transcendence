@@ -32,7 +32,7 @@ export class GameUI {
         }
     }
     static showLobbyButtons() {
-        const buttons = ['randomAdversaireButton', 'localButton', 'roomCodeButton',
+        const buttons = ['randomAdversaireButton', 'localButton', 
                         'tournamentButton', 'iaButton'];
         buttons.forEach(id => {
             const button = document.getElementById(id);
@@ -64,7 +64,7 @@ export class GameUI {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (gameCanvas) {
             // Hide all buttons
-            const buttons = ['randomAdversaireButton', 'localButton', 'roomCodeButton', 
+            const buttons = ['randomAdversaireButton', 'localButton',  
                             'tournamentButton', 'iaButton'];
             
             buttons.forEach(id => {
@@ -80,58 +80,15 @@ export class GameUI {
         }
     }
 
-    static showRoomCodeModal(
-        sendMessageCallback: ((type: string, data?: any) => void) | undefined, 
-        user_info: any
-    ) {
-        console.log("Room code button clicked");
-        // Open a modal to enter the room code
-        const modal = document.createElement('div');
-        modal.id = 'room-code-modal';
-        modal.className = 'modal';
-        modal.style.position = 'fixed';
-        modal.style.top = '50%';
-        modal.style.left = '50%';
-        modal.style.transform = 'translate(-50%, -50%)';
-        modal.style.zIndex = '1000';
-        modal.style.backgroundColor = 'white';
-        modal.style.padding = '20px';
-        modal.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-        modal.style.borderRadius = '8px';
-
-        modal.innerHTML = `
-            <div class="modal-content height-1000">
-                <button id="join-room-button" style="color: red;">Join Room</button>
-                <br>
-                <button id="create-room-button" style="color: red;">Create Room</button>
-            </div>
-        `;
-
-        const closeButton = modal.querySelector('.close');
-        closeButton?.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-
-        document.body.appendChild(modal);
-        
-        // Utilisez sendMessageCallback au lieu de socket.send
-        document.getElementById('join-room-button')?.addEventListener('click', () => {
-            sendMessageCallback?.('join_room', { user: user_info });
-        });
-        
-        document.getElementById('create-room-button')?.addEventListener('click', () => {
-            sendMessageCallback?.('create_room', { user: user_info });
-        });
-    }
+    
 
     static hideGameButtons() {
         document.getElementById('randomAdversaireButton')?.setAttribute('disabled', 'true');
         document.getElementById('localButton')?.setAttribute('disabled', 'true');
-        document.getElementById('roomCodeButton')?.setAttribute('disabled', 'true');
         document.getElementById('tournamentButton')?.setAttribute('disabled', 'true');
         document.getElementById('iaButton')?.setAttribute('disabled', 'true');
         
-        const buttons = ['randomAdversaireButton', 'localButton', 'roomCodeButton', 
+        const buttons = ['randomAdversaireButton', 'localButton', 
                         'tournamentButton', 'iaButton'];
         
         buttons.forEach(id => {
@@ -143,7 +100,7 @@ export class GameUI {
     }
     static displayDifficultyButtons(): Promise<string> {
     return new Promise((resolve) => {
-        // Create a container for the difficulty buttons
+        this.hideAll();
         const difficultyContainer = document.createElement('div');
         difficultyContainer.id = 'difficulty-container';
         difficultyContainer.className = 'difficulty-container';
@@ -252,5 +209,282 @@ export class GameUI {
         if (difficultyContainer) {
             difficultyContainer.parentElement?.removeChild(difficultyContainer);
         }
+    }
+
+    static showTournamentButtons(): Promise<string> {
+        return new Promise((resolve) => {
+
+            this.hideAll();
+            const OptionContainer = document.createElement('div');
+            OptionContainer.id = 'Option-container';
+            OptionContainer.className = 'Option-container';
+            OptionContainer.style.position = 'fixed';
+            OptionContainer.style.top = '50%';
+            OptionContainer.style.left = '50%';
+            OptionContainer.style.transform = 'translate(-50%, -50%)';
+            OptionContainer.style.display = 'flex';
+            OptionContainer.style.flexDirection = 'column';
+            OptionContainer.style.alignItems = 'center';
+            OptionContainer.style.gap = '15px';
+            OptionContainer.style.zIndex = '1000';
+            OptionContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+            OptionContainer.style.padding = '30px';
+            OptionContainer.style.borderRadius = '12px';
+            OptionContainer.style.border = '2px solid #4a4a8f';
+            OptionContainer.style.boxShadow = '0 0 20px rgba(93, 93, 170, 0.5)';
+    
+            // Ajouter un titre
+            const title = document.createElement('h2');
+            title.textContent = 'SELECT Option';
+            title.style.color = 'white';
+            title.style.marginBottom = '20px';
+            title.style.fontFamily = "'Arial', sans-serif";
+            title.style.fontSize = '24px';
+            title.style.fontWeight = 'bold';
+            title.style.textTransform = 'uppercase';
+            title.style.letterSpacing = '2px';
+            title.style.textAlign = 'center';
+            OptionContainer.appendChild(title);
+    
+            // Define Option levels
+            const Options = [
+                { id: 'createTournament', text: 'Create a Tournament' },
+                { id: 'joinTournament', text: 'Join a Tournament' },
+                { id: 'cancel', text: 'Cancel' }
+            ];
+    
+            // Create buttons for each Option level
+           Options.forEach(Option => {
+                const button = document.createElement('button');
+                button.id = Option.id;
+                button.textContent = Option.text;
+                button.className = 'Option-button';
+                
+                // Style identique aux boutons de jeu
+                button.style.background = 'linear-gradient(to bottom, #4a4a8f, #2d2d64)';
+                button.style.color = 'white';
+                button.style.border = 'none';
+                button.style.borderRadius = '6px';
+                button.style.padding = '12px 24px';
+                button.style.fontSize = '16px';
+                button.style.fontWeight = 'bold';
+                button.style.cursor = 'pointer';
+                button.style.transition = 'all 0.3s ease';
+                button.style.minWidth = '160px';
+                button.style.textTransform = 'uppercase';
+                button.style.letterSpacing = '1px';
+                button.style.margin = '5px 0';
+                button.style.border = '1px solid #5d5daa';
+                button.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                
+                // Hover effect
+                button.addEventListener('mouseover', () => {
+                    button.style.background = 'linear-gradient(to bottom, #5d5daa, #4a4a8f)';
+                    button.style.transform = 'translateY(-2px)';
+                    button.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+                });
+                
+                button.addEventListener('mouseout', () => {
+                    button.style.background = 'linear-gradient(to bottom, #4a4a8f, #2d2d64)';
+                    button.style.transform = 'translateY(0)';
+                    button.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                });
+                
+                // Add click effect
+                button.addEventListener('mousedown', () => {
+                    button.style.transform = 'translateY(1px)';
+                    button.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.4)';
+                });
+                
+                // Add click event
+                button.addEventListener('click', () => {
+                    // Send the selected Option level to the server
+                    const selectedOption = Option.text.toLowerCase();
+                    console.log(`Selected Option: ${selectedOption}`);
+                    if (selectedOption === 'cancel') {
+                        // Remove the container
+                        this.hideAll();
+                        return;
+                    }
+                    else if (selectedOption === 'create a tournament') {
+                        // Call the function to create a tournament
+                        console.log("Creating a tournament...");
+                        const InputContainer = document.createElement('div');
+                        InputContainer.id = 'Input-container';
+                        InputContainer.className = 'Input-container';
+                        InputContainer.style.position = 'fixed';
+                        InputContainer.style.top = '50%';
+                        InputContainer.style.left = '50%';
+                        InputContainer.style.transform = 'translate(-50%, -50%)';
+                        InputContainer.style.display = 'flex';
+                        InputContainer.style.flexDirection = 'column';
+                        InputContainer.style.alignItems = 'center';
+                        InputContainer.style.gap = '15px';
+                        InputContainer.style.zIndex = '1000';
+                        InputContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+                        InputContainer.style.padding = '30px';
+                        InputContainer.style.borderRadius = '12px';
+                        InputContainer.style.border = '2px solid #4a4a8f';
+                        InputContainer.style.boxShadow = '0 0 20px rgba(93, 93, 170, 0.5)';
+                        InputContainer.style.width = '300px';
+                        InputContainer.style.height = '200px';
+                        InputContainer.style.overflow = 'hidden';
+                        InputContainer.style.textAlign = 'center';
+                        InputContainer.style.color = 'white';
+                        InputContainer.style.fontFamily = "'Arial', sans-serif";
+                        InputContainer.style.fontSize = '16px';
+                        const text = document.createElement('p');
+                        text.textContent = 'Create your own tournament and play with your friends!';
+                        text.style.color = 'white';
+                        text.style.marginBottom = '20px';
+                        text.style.fontFamily = "'Arial', sans-serif";
+                        text.style.fontSize = '16px';
+                        text.style.fontWeight = 'bold';
+                        text.style.textTransform = 'uppercase';
+                        text.style.letterSpacing = '2px';
+                        text.style.textAlign = 'center';
+                        InputContainer.appendChild(text);
+                        // Create input field 
+                        const Input = document.createElement('input');
+                        Input.id = 'tournamentName';
+                        Input.type = 'text';
+                        Input.placeholder = 'Enter tournament name';
+                        Input.style.width = '100%';
+                        Input.style.padding = '10px';
+                        Input.style.borderRadius = '6px';
+                        document.body.appendChild(InputContainer);
+                        InputContainer.appendChild(Input);
+                    }
+                    else if (selectedOption === 'join a tournament') {
+                        // Call the function to join a tournament
+                        console.log("Joining a tournament...");
+                        const InputContainer = document.createElement('div');
+                        InputContainer.id = 'Input-container';
+                        InputContainer.className = 'Input-container';
+                        InputContainer.style.position = 'fixed';
+                        InputContainer.style.top = '50%';
+                        InputContainer.style.left = '50%';
+                        InputContainer.style.transform = 'translate(-50%, -50%)';
+                        InputContainer.style.display = 'flex';
+                        InputContainer.style.flexDirection = 'column';
+                        InputContainer.style.alignItems = 'center';
+                        InputContainer.style.gap = '15px';
+                        InputContainer.style.zIndex = '1000';
+                        InputContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+                        InputContainer.style.padding = '30px';
+                        InputContainer.style.borderRadius = '12px';
+                        InputContainer.style.border = '2px solid #4a4a8f';
+                        InputContainer.style.boxShadow = '0 0 20px rgba(93, 93, 170, 0.5)';
+                        InputContainer.style.width = '300px';
+                        InputContainer.style.height = '200px';
+                        InputContainer.style.overflow = 'hidden';
+                        InputContainer.style.textAlign = 'center';
+                        InputContainer.style.color = 'white';
+                        InputContainer.style.fontFamily = "'Arial', sans-serif";
+                        InputContainer.style.fontSize = '16px';
+                        const text = document.createElement('p');
+                        text.textContent = 'Join a tournament and play with your friends!';
+                        text.style.color = 'white';
+                        text.style.marginBottom = '20px';
+                        text.style.fontFamily = "'Arial', sans-serif";
+                        text.style.fontSize = '16px';
+                        text.style.fontWeight = 'bold';
+                        text.style.textTransform = 'uppercase';
+                        text.style.letterSpacing = '2px';
+                        text.style.textAlign = 'center';
+                        InputContainer.appendChild(text);
+                        // Create select field
+                        const select = document.createElement('select');
+                        select.id = 'tournamentSelect';
+                        select.style.width = '100%';
+                        select.style.padding = '10px';
+                        select.style.borderRadius = '6px';
+                        select.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                        select.style.color = 'white';
+                        select.style.border = '1px solid #5d5daa';
+                        select.style.fontSize = '16px';
+                        select.style.fontFamily = "'Arial', sans-serif";
+                        select.style.fontWeight = 'bold';
+                        select.style.cursor = 'pointer';
+                        select.style.marginBottom = '10px';
+                        // Add options to the select field
+                        const option1 = document.createElement('option');
+                        option1.value = 'tournament1';
+                        option1.textContent = 'Tournament 1';
+                        const option2 = document.createElement('option');
+                        option2.value = 'tournament2';
+                        option2.textContent = 'Tournament 2';
+                        InputContainer.appendChild(select);
+                        select.appendChild(option1);
+                        select.appendChild(option2);
+                        // Create join button
+                        const joinButton = document.createElement('button');
+                        joinButton.id = 'joinButton';
+                        joinButton.textContent = 'Join';
+                        joinButton.className = 'join-button';
+                        joinButton.style.background = 'linear-gradient(to bottom, #4a4a8f, #2d2d64)';
+                        joinButton.style.color = 'white';
+                        joinButton.style.border = 'none';
+                        joinButton.style.borderRadius = '6px';
+                        joinButton.style.padding = '12px 24px';
+                        joinButton.style.fontSize = '16px';
+                        joinButton.style.fontWeight = 'bold';
+                        joinButton.style.cursor = 'pointer';
+                        joinButton.style.transition = 'all 0.3s ease';
+                        joinButton.style.minWidth = '160px';
+                        joinButton.style.textTransform = 'uppercase';
+                        joinButton.style.letterSpacing = '1px';
+                        joinButton.style.margin = '5px 0';
+                        joinButton.style.border = '1px solid #5d5daa';
+                        joinButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                        // Hover effect
+                        joinButton.addEventListener('mouseover', () => {
+                            joinButton.style.background = 'linear-gradient(to bottom, #5d5daa, #4a4a8f)';
+                            joinButton.style.transform = 'translateY(-2px)';
+                            joinButton.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+                        });
+                        joinButton.addEventListener('mouseout', () => {
+                            joinButton.style.background = 'linear-gradient(to bottom, #4a4a8f, #2d2d64)';
+                            joinButton.style.transform = 'translateY(0)';
+                            joinButton.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                        });
+                        // Add click effect
+                        joinButton.addEventListener('mousedown', () => {
+                            joinButton.style.transform = 'translateY(1px)';
+                            joinButton.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.4)';
+                        });
+                        // Add click event
+                        joinButton.addEventListener('click', () => {
+                            // Send the selected tournament to the server
+                            const selectedTournament = (document.getElementById('tournamentSelect') as HTMLSelectElement).value;
+                            console.log(`Selected tournament: ${selectedTournament}`);
+                            // Remove the container
+                            document.body.removeChild(InputContainer);
+                            // Resolve the promise with the selected tournament
+                            resolve(selectedTournament);
+                        });
+                        InputContainer.appendChild(joinButton);
+                        document.body.appendChild(InputContainer);
+
+                    }
+                    // Append the input container to the body
+                    document.body.removeChild(OptionContainer);
+                    resolve(selectedOption);
+                });
+                OptionContainer.appendChild(button);
+            });
+    
+            // Append the container to the body
+            document.body.appendChild(OptionContainer);
+        });
+    }
+    static hideAll() {
+        const containers = ['Option-container', 'difficulty-container', 'Input-container', 'spinner-container'];
+        containers.forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                container.parentElement?.removeChild(container);
+            }
+        });
     }
 }

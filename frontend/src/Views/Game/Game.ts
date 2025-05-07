@@ -89,14 +89,11 @@ export default class Game {
             }
         });
         
-        document.getElementById('tournamentButton')?.addEventListener('click', () => {
+        document.getElementById('tournamentButton')?.addEventListener('click', async () => {
             console.log("Tournament button clicked");
-            this.webSocket?.sendMessage('tournament', { user: this.user_info });
+            const OptionSelect = await GameUI.showTournamentButtons();
         });
         
-        document.getElementById('roomCodeButton')?.addEventListener('click', () => {
-            GameUI.showRoomCodeModal(this.webSocket?.sendMessage.bind(this.webSocket), this.user_info);
-        });
     }
 
     disconnect() {

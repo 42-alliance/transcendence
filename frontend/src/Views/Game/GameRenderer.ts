@@ -1,8 +1,32 @@
 import { GameUI } from './GameUI.js'; // Adjust the path as necessary
 
+
+
+function DrawCircleScore(ctx: CanvasRenderingContext2D, x: number, y: number, score: number) {
+    for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, Math.PI * 2);
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        if (i < score) {
+            ctx.fill();
+        }
+        x += 50;
+    }
+    ctx.closePath();
+}
+
+
 export class GameRenderer {
+
     static renderGame(gameState: any) {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+        GameUI.hideSpinner();
+        GameUI.hideGameButtons();
+        GameUI.hideDifficultyButtons();
+        GameUI.hideOptionButtons();
         if (!gameCanvas) return;
         const ctx = gameCanvas.getContext('2d');
         if (!ctx || !gameState) return;
@@ -61,8 +85,10 @@ export class GameRenderer {
         ctx.textAlign = 'center';
     
         if (game.score) {
-            ctx.fillText(game.score.p1_name + " | " + game.score.p1.toString(), gameCanvas.width / 4, 50);
-            ctx.fillText(game.score.p2.toString() + " | " + game.score.p2_name, (3 * gameCanvas.width) / 4, 50);
+            ctx.fillText(game.score.p1_name /*+ " | " + game.score.p1.toString()*/, gameCanvas.width / 4, 50);
+            DrawCircleScore(ctx, (gameCanvas.width / 4) - 100, 90, game.score.p1);
+            ctx.fillText(game.score.p2_name.toString() /*+ " | " + game.score.p2_name*/, (3 * gameCanvas.width) / 4, 50);
+            DrawCircleScore(ctx, ((3 * gameCanvas.width)  / 4) - 100 , 90, game.score.p2);
         }
     
         if (game.opponent && game.opponent.score !== undefined) {
@@ -103,7 +129,7 @@ export class GameRenderer {
         returnButton.textContent = 'Return to Lobby';
         returnButton.style.position = 'absolute';
         returnButton.style.left = '50%';
-        returnButton.style.top = `${gameCanvas.height / 2 + 110}px`;
+        returnButton.style.top = `${gameCanvas.height / 2 + 400}px`;
         returnButton.style.transform = 'translateX(-50%)';
         returnButton.style.backgroundColor = 'white';
         returnButton.style.color = 'black';
