@@ -26,7 +26,7 @@ export class GameRenderer {
         GameUI.hideSpinner();
         GameUI.hideGameButtons();
         GameUI.hideDifficultyButtons();
-        GameUI.hideOptionButtons();
+       /// GameUI.hideOptionButtons();
         if (!gameCanvas) return;
         const ctx = gameCanvas.getContext('2d');
         if (!ctx || !gameState) return;
@@ -43,7 +43,6 @@ export class GameRenderer {
         for (let i = 0; i <= gameCanvas.height; i += 15) {
             ctx.fillRect(netX, i, 2, 10);
         }
-    
         // Draw paddles and ball if we have their positions
         if (game.paddle1) {
             ctx.fillStyle = 'white';

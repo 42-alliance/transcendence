@@ -16,6 +16,25 @@ export class GameWebSocket {
     
     constructor(user_info: any) {
         this.user_info = user_info;
+        
+        // Écouter les événements de requête WebSocket
+        document.addEventListener('websocket_request', (event: Event) => {
+            const customEvent = event as CustomEvent;
+            if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                console.log("Sending WebSocket request:", customEvent.detail);
+                this.sendMessage(customEvent.detail.type, customEvent.detail);
+            }
+        });
+
+        // Écouter les événements de requête WebSocket
+        document.addEventListener('websocket_request', (event: any) => {
+            if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                console.log("Sending WebSocket request:", event.detail);
+                this.sendMessage(event.detail.type, event.detail);
+            } else {
+                console.error("WebSocket not ready");
+            }
+        });
     }
     
     initializeWebSocket() {
@@ -65,6 +84,7 @@ export class GameWebSocket {
     private handleMessage(event: MessageEvent) {
         try {
             const message = JSON.parse(event.data);
+            console.log("WebSocket message received:", message);
             
             switch (message.type) {
                 case 'auth_success':
@@ -118,13 +138,55 @@ export class GameWebSocket {
                     }
                     GameRenderer.showGameFinished(message.data);
                     break;
+                case 'tournament_created':
+                    console.log("Tournament created:", message.tournament);
+                    GameUI.hideSpinner();
+                    
+                    // Afficher l'écran d'attente du tournoi
+                    const tournamentScreen = GameUI.getScreen('tournament');
                    
+                        (tournamentScreen as any).showTournamentWaiting(
+                            message.id || message.tournament.id,
+                            message.name || message.tournament.name,
+                            message.players || message.tournament.players || []
+                        );
+                
+                    break;
+                case 'tournament_players_update':
+                    console.log("Tournament players updated:", message.players);
+                    const tourScreen = GameUI.getScreen('tournament');
+                    if (tourScreen && 'updateTournamentPlayers' in tourScreen) {
+                        (tourScreen as any).updateTournamentPlayers(
+                            message.tournament_id,
+                            message.players
+                        );
+                    }
+                    break;
+                    
+                case 'all_tournaments':
+                    console.log("Received tournaments list:", message.tournaments);
+                    // Émettre un événement personnalisé avec l'ID de requête
+                    const tournamentEvent = new CustomEvent('websocket_response', {
+                        detail: {
+                            type: 'all_tournaments',
+                            request_id: message.request_id, // Peut être undefined dans votre cas actuel
+                            tournaments: message.tournaments
+                        }
+                    });
+                    document.dispatchEvent(tournamentEvent);
+
+                    // Émettre un événement personnalisé pour informer le TournamentScreen
+                    const tournamentEventResponse = new CustomEvent('websocket_response', {
+                        detail: message
+                    });
+                    document.dispatchEvent(tournamentEventResponse);
+                    break;
                 default:
                     console.warn("Unknown message type:", message.type);
                     break;
             }
         } catch (error) {
-            console.error("Error processing message:", error);
+            console.error("Error processing WebSocket message:", error);
         }
     }
     
@@ -157,10 +219,13 @@ export class GameWebSocket {
     
     sendMessage(type: string, data?: any) {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            this.socket.send(JSON.stringify({
-                type: type,
-                ...data
-            }));
+            if (data) {
+                this.socket.send(JSON.stringify(data));
+            } else {
+                this.socket.send(JSON.stringify({ type }));
+            }
+        } else {
+            console.error('WebSocket not connected');
         }
     }
 }

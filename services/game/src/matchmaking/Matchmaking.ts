@@ -1,10 +1,12 @@
 import { platform } from 'os';
 import { WebSocketServer, WebSocket } from 'ws';
+import {CreateTournament, GetAllTournaments, AddPlayerToTournament} from './TournamentHandling.js';
 import {v4 as uuidv4} from 'uuid';
 import { stat } from 'fs';
 import { on } from 'events';
 import { types } from 'util';
 import e from 'cors';
+import { G } from 'react-native-svg';
 
 
 
@@ -38,11 +40,12 @@ const tournamentMode: Player[] = [];
 async function Matchmaking() {
     setInterval(() => {
         if (queue.length >= 1) {
-            // console.log("New player in queue");
+            console.log("Player added to queue");
             const player = queue.shift();
             if (player?.type === 'random_adversaire') {
                 onlineMode.push(player);
             } else if (player?.type === 'local') {
+                console.log("Player added to local mode");
                 localMode.push(player);
             }
             else if (player?.type === 'ia') {
@@ -51,7 +54,6 @@ async function Matchmaking() {
             else if (player?.type === 'tournament') {
                 tournamentMode.push(player);
             }
-            // console.log("Player added to matchmaking");
         }
     }, 1000); // Runs every second
 }
@@ -88,42 +90,10 @@ async function HandleMatch() {
             };
             all_sessions.push({ match: match });
         }
-        else if (tournamentMode.length == 4)
-        {
-            // console.log("Creating the tournament");
-            const uuid_room1 = uuidv4();
-            const uuid_room2 = uuidv4();
-            const global_uuid = uuidv4();
-            const match1: Match = {
-                players: [tournamentMode.shift() as Player, tournamentMode.shift() as Player],
-                type: 'tournament',
-                uuid_room: uuid_room1,
-                global_uuid: global_uuid
-            };
-            const match2: Match = {
-                players: [tournamentMode.shift() as Player, tournamentMode.shift() as Player],
-                type: 'tournament',
-                uuid_room: uuid_room2,
-                global_uuid: global_uuid
-            };
-            all_sessions.push({ match: match1 });
-            all_sessions.push({ match: match2 });
-        }
     }, 1000); // Runs every second
 }
 
-function advanceTournament(global_uuid: string, winner: Player) {
-    const remainingMatches = all_sessions.filter(session => session.match.global_uuid === global_uuid);
 
-    if (remainingMatches.length === 1) {
-        console.log(`Tournament winner: ${winner.username}`);
-    } else {
-        const nextMatch = remainingMatches.find(match => match.match.players.length < 2);
-        if (nextMatch) {
-            nextMatch.match.players.push(winner);
-        }
-    }
-}
 
 let i =  0;
         
@@ -133,6 +103,7 @@ export async function setupMatchmaking()
     wss.on('connection', function connection(ws) {
         ws.on('message', function incoming(message) {
             // console.log('received: %s', message);
+            console.log("on s'interesse enfin a moi ");
             const data = JSON.parse(message.toString());
             const player: Player = {
             socket: ws,
@@ -142,49 +113,58 @@ export async function setupMatchmaking()
             uuid_room: '',
             difficulty: ''
             };
-
+            console.log(data.type);
             switch (data.type) {
             case 'random_adversaire':
-                // console.log("Random adversaire request received");
                 player.username = data.user.name + "_" + i;
                 i++;
                 player.user_id = data.user.id ;
                 player.type = data.type;
-                // console.log("Player added to matchmaking");
                 queue.push(player);
                 secureSend(ws, {
                     uuid_room: '',
                     type: 'waiting'
                 });
                 break;
-
             case 'local':
-                // console.log("Local request received");
                 player.type = data.type;
                 player.username = data.user.name;  
                 queue.push(player);
-                // console.log("player info: ", player);
                 break;
-
             case 'ia':
-                // console.log("IA request received");
                 player.type = data.type;
                 player.username = data.user.name;
                 player.difficulty = data.difficulty;
-                // console.log("player info: ", player);
                 queue.push(player);
                 break;
-            case 'tournament':
-                // console.log("Tournament request received");
-                player.type = data.type;
+            case 'create_tournament':
                 player.username = data.user.name;
                 player.user_id = data.user.id;
-                // console.log("Player added to Tournament matchmaking");
-                queue.push(player);
+                const tournament =  CreateTournament(player, data.tournament_name);
+                if (tournament) {
+                    player.type = 'tournament';
+                    player.uuid_room = tournament.id;
+                    player.socket = ws;
+                    AddPlayerToTournament(tournament.id, player);
+                    secureSend(ws, {
+                        type: 'tournament_created',
+                        tournament: tournament,
+                        name : tournament.name,
+                        id : tournament.id,
+                        players: tournament.players,
+
+                    });
+                    console.log("Tournament created:", tournament);
+                }   
+                break;
+            case 'get_all_tournaments':
+                console.log("Get all tournaments request received");
+                console.log("All tournaments:", GetAllTournaments());
                 secureSend(ws, {
-                    uuid_room: '',
-                    type: 'waiting'
+                    type: 'all_tournaments',
+                    tournaments: GetAllTournaments()
                 });
+                console.log("All tournaments sent:", GetAllTournaments());
                 break;
             }
         });

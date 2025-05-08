@@ -50,6 +50,9 @@ export default class Game {
                 this.webSocket = new GameWebSocket(this.user_info);
                 this.webSocket.initializeWebSocket();
                 
+                // S'assurer que GameUI est initialisé pour charger les écrans
+                GameUI.initialize();
+                
                 // Set up event listeners for buttons
                 this.setupButtonEventListeners();
             }
@@ -60,12 +63,18 @@ export default class Game {
     private setupButtonEventListeners() {
         document.getElementById('randomAdversaireButton')?.addEventListener('click', () => {
             console.log("Random adversaire button clicked");
-            this.webSocket?.sendMessage('random_adversaire', { user: this.user_info });
+            GameUI.displayWaiting();
+            this.webSocket?.sendMessage('random_adversaire', { user: this.user_info
+                , type: 'random_adversaire'
+             });
         });
         
         document.getElementById('localButton')?.addEventListener('click', () => {
             console.log("Local button clicked");
-            this.webSocket?.sendMessage('local', { user: this.user_info });
+            GameUI.displayWaiting();
+            this.webSocket?.sendMessage('local', { user: this.user_info,
+                type: 'local'
+             });
         });
         
         document.getElementById('iaButton')?.addEventListener('click', async () => {
@@ -76,24 +85,105 @@ export default class Game {
                 const difficultyMode = await GameUI.displayDifficultyButtons();
                 console.log("Selected difficulty:", difficultyMode);
                 
-                // Afficher un spinner pendant la connexion
-                GameUI.displayWaiting();
-                
-                // Envoyer le message avec la difficulté sélectionnée
-                this.webSocket?.sendMessage('ia', { 
-                    user: this.user_info,
-                    difficulty: difficultyMode 
-                });
+                if (difficultyMode) {
+                    // Afficher un spinner pendant la connexion
+                    GameUI.displayWaiting();
+                    
+                    // Envoyer le message avec la difficulté sélectionnée
+                    this.webSocket?.sendMessage('ia', { 
+                        user: this.user_info,
+                        difficulty: difficultyMode,
+                        type: 'ia',
+                    });
+                } else {
+                    // L'utilisateur a annulé, rétablir les boutons du lobby
+                    GameUI.showLobbyButtons();
+                }
             } catch (error) {
                 console.error("Error selecting difficulty:", error);
+                // En cas d'erreur, rétablir les boutons du lobby
+                GameUI.showLobbyButtons();
             }
         });
         
         document.getElementById('tournamentButton')?.addEventListener('click', async () => {
             console.log("Tournament button clicked");
-            const OptionSelect = await GameUI.showTournamentButtons();
+            try {
+                // Vérifier d'abord si l'écran de tournoi existe
+                if (!GameUI.hasScreen('tournament')) {
+                    console.error("Tournament screen not found");
+                    return;
+                }
+                
+                // Afficher les options de tournoi
+                const optionSelect = await GameUI.showScreen('tournament');
+                
+                if (optionSelect) {
+                    console.log("Tournament option selected:", optionSelect);
+                    
+                    if (optionSelect === 'create') {
+                        try {
+                            // Utiliser la méthode du TournamentScreen pour afficher le modal de création
+                            const tournamentScreen = GameUI.getScreen('tournament');
+                            if (tournamentScreen && 'showCreateTournament' in tournamentScreen) {
+                                const tournamentName = await (tournamentScreen as { showCreateTournament: () => Promise<string | null> }).showCreateTournament();
+                                
+                                if (tournamentName) {
+                                    console.log("Tournament name:", tournamentName);
+                                    GameUI.displayWaiting();
+                                    
+                                    this.webSocket?.sendMessage('create_tournament', { 
+                                        user: this.user_info,
+                                        tournament_name: tournamentName ,
+                                        type: 'create_tournament'
+                                    });
+                                    // Note: Ne pas revenir au lobby ici, l'affichage sera géré par la
+                                    // réponse 'tournament_created' du serveur
+                                } else {
+                                    // Annulation, revenir aux options du tournoi
+                                    GameUI.showScreen('tournament');
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error creating tournament:", error);
+                            GameUI.showLobbyButtons();
+                        }
+                    } 
+                    else if (optionSelect === 'join') {
+                        // Utiliser la méthode du TournamentScreen pour afficher le modal de rejoindre
+                        const tournamentScreen = GameUI.getScreen('tournament');
+                        if (tournamentScreen && 'showJoinTournament' in tournamentScreen) {
+                            const tournamentId = await (tournamentScreen as { showJoinTournament: () => Promise<string | null> }).showJoinTournament();
+                            
+                            if (tournamentId) {
+                                console.log("Tournament ID:", tournamentId);
+                                GameUI.displayWaiting();
+                                
+                                this.webSocket?.sendMessage('join_tournament', { 
+                                    user: this.user_info,
+                                    tournament_id: tournamentId ,
+                                    type: 'join_tournament'
+                                });
+                            } else {
+                                // Annulation, revenir aux options du tournoi
+                                GameUI.showScreen('tournament');
+                            }
+                        }
+                    }
+                    else if (optionSelect === 'cancel') {
+                        // L'utilisateur a annulé, rétablir les boutons du lobby
+                        GameUI.showLobbyButtons();
+                    }
+                } else {
+                    // Si pas de sélection, rétablir les boutons du lobby
+                    GameUI.showLobbyButtons();
+                }
+            } catch (error) {
+                console.error("Error with tournament selection:", error);
+                // En cas d'erreur, rétablir les boutons du lobby
+                GameUI.showLobbyButtons();
+            }
         });
-        
     }
 
     disconnect() {
@@ -104,7 +194,6 @@ export default class Game {
     }
 
     async getHtml() {
-        console.log("Game view loaded -----------------------------------");
         try {
             const response = await fetch("src/Views/Game/Game.html");
             if (!response.ok) {

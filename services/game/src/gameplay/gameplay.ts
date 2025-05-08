@@ -235,10 +235,10 @@ async function UpdateGame() {
 
 wss.on('connection', (ws) => {
     ws.on('message', (message: string) => {
-        console.log("Received message from client:", message);
+       // console.log("Received message from client:", message);
         try {
             let data = JSON.parse(message);
-            console.log("Received message:", data);
+            console.log(data.type);
             if (data.type === 'key_command' && data.uuid_room && sessions.has(data.uuid_room)) {
                 const session = sessions.get(data.uuid_room);
                 console.log("Received key command:", data.keys);
