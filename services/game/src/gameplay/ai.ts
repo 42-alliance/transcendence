@@ -145,7 +145,7 @@ export class GameAI {
         
         // Attendre 50 ms avant de continuer
         const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        await delay(50);
+        await delay(200);
         // Mettre à jour les décisions selon le temps de réaction défini par le niveau
         if (now - this.lastDecisionTime >= this.REACTION_TIME[this.level]) {
             this.lastDecisionTime = now;

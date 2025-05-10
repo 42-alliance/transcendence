@@ -1,12 +1,13 @@
 import { all_sessions, wss } from "../matchmaking/Matchmaking.js";
 import { Game, Paddle, Ball } from "./class.js";
 import { GameAI, AILevel } from "./ai.js";
-
+// Ajouter ces importations
+import { handleTournamentMatchEnd } from '../matchmaking/Matchmaking.js';
 // Set default dimensions for server-side (no window object in Node.js)
 let width = 1600; // Default width for game
 let height = 800; // Default height for game 
 
-let sessions = new Map<string, Game>();
+export let sessions = new Map<string, Game>();
 let gameAIs = new Map<string, GameAI>();
 let sessionsToDelete = new Map<string, Game>();
 let sessionsToDeleteAI = new Map<string, GameAI>();
@@ -40,17 +41,20 @@ async function HandleMatch() {
         console.log("Creating game");
         const game = new Game(1600, 800);
         game.mode = all_sessions[0].match.players[0].type;
-        game.ia_difficulty = all_sessions[0].match.players[0].difficulty;
+        game.ia_difficulty = all_sessions[0].match.players[0].difficulty || 'medium'; // Valeur par défaut si undefined
         game.uuid_room = all_sessions[0].match.uuid_room;
         console.log("Game mode: ", game.mode);
         console.log(sessions);
         switch (game.mode) {
             case 'random_adversaire':
+                game.p1.user_id = all_sessions[0].match.players[0].user_id; // Ajouter l'ID utilisateur
+                game.p2.user_id = all_sessions[0].match.players[1].user_id; // Ajouter l'ID utilisateur
                 game.p1.username = all_sessions[0].match.players[0].username;
                 game.p2.username = all_sessions[0].match.players[1].username;
                 game.match = all_sessions[0].match.players[0].username + " vs " + all_sessions[0].match.players[1].username;
                 game.p1.ws = all_sessions[0].match.players[0].socket;
                 game.p2.ws = all_sessions[0].match.players[1].socket;
+
                 game.mapPlayers.set(all_sessions[0].match.players[0].user_id, game.p1);
                 game.mapPlayers.set(all_sessions[0].match.players[1].user_id, game.p2);
                 sessions.set(all_sessions[0].match.uuid_room, game);
@@ -71,7 +75,6 @@ async function HandleMatch() {
                     all_sessions.shift();
                 }
                 else {
-                    console.error("Error sending game start message");
                     sessions.delete(all_sessions[0].match.uuid_room);
                     secure_send(all_sessions[0].match.players[0].socket, JSON.stringify({ type: 'error', message: 'Error starting game' }));
                     secure_send(all_sessions[0].match.players[1].socket, JSON.stringify({ type: 'error', message: 'Error starting game' }));
@@ -85,6 +88,7 @@ async function HandleMatch() {
                 game.mode = 'local';
                 game.uuid_room = all_sessions[0].match.uuid_room;
                 game.p1.ws = all_sessions[0].match.players[0].socket;
+                game.p1.user_id = all_sessions[0].match.players[0].user_id; // Ajouter l'ID utilisateur
                 console.log(`the uuid_room: ${all_sessions[0].match.uuid_room}`);
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 if (game.p1.ws.readyState !== wss.close) {
@@ -104,13 +108,7 @@ async function HandleMatch() {
                 break;
             case 'ia':
                 game.p1.username = all_sessions[0].match.players[0].username;
-                
-                // Vérifier si le nom d'utilisateur contient des indications sur la difficulté
-                console.log("game difficulty: ", game.ia_difficulty);
                 const difficulty = getAIDifficultyLevel(game.ia_difficulty);
-                console.log("Selected difficulty level:", difficulty);
-                console.log("herererer\n");
-                // Ajuster le nom de l'IA en fonction du niveau de difficulté
                 let aiName = "IA";
                 switch(difficulty) {
                     case AILevel.EASY:
@@ -159,11 +157,17 @@ async function HandleMatch() {
             case 'tournament':
                 game.p1.username = all_sessions[0].match.players[0].username;
                 game.p2.username = all_sessions[0].match.players[1].username;
+                game.p1.user_id = all_sessions[0].match.players[0].user_id; // Ajouter l'ID utilisateur
+                game.p2.user_id = all_sessions[0].match.players[1].user_id; // Ajouter l'ID utilisateur
+                console.log(game.p1.user_id);
+                console.log(game.p2.user_id);
                 game.match = all_sessions[0].match.players[0].username + " vs " + all_sessions[0].match.players[1].username;
                 game.p1.ws = all_sessions[0].match.players[0].socket;
                 game.p2.ws = all_sessions[0].match.players[1].socket;
                 game.mapPlayers.set(all_sessions[0].match.players[0].user_id, game.p1);
                 game.mapPlayers.set(all_sessions[0].match.players[1].user_id, game.p2);
+                game.uuid_room = all_sessions[0].match.uuid_room;
+                game.global_uuid = all_sessions[0].match.global_uuid; // Ajouter l'ID global du tournoi
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 console.log("A game is setting up");
                 if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {

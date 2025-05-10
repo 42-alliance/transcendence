@@ -285,6 +285,8 @@ export class TournamentScreen extends BaseScreen {
         // Créer un bouton pour chaque tournoi
         tournaments.forEach(tournament => {
             // Déterminer le nombre de joueurs
+            console.log(tournament);
+            console.log(tournament.players);
             const playerCount = Array.isArray(tournament.players) ? tournament.players.length : 0;
             const maxPlayers = tournament.max_players || 4;
             
@@ -384,19 +386,13 @@ export class TournamentScreen extends BaseScreen {
 
     public showTournamentWaiting(tournamentId: string, tournamentName: string, initialPlayers: any[]): void {
         this.activeTournamentId = tournamentId;
-        
-        // Créer le modal
+    
         const modal = this.createModalElement();
         this.activeTournamentModal = modal;
         
         // Titre du tournoi
         const title = this.createTitleElement(`Tournoi: ${tournamentName}`);
         
-        // Sous-titre - attente de joueurs
-        const subtitle = document.createElement('h4');
-        subtitle.textContent = 'En attente de joueurs...';
-        subtitle.style.color = '#e0e0e0';
-        subtitle.style.margin = '5px 0 20px 0';
         
         // Informations sur les joueurs
         const playersInfo = document.createElement('div');
@@ -425,12 +421,7 @@ export class TournamentScreen extends BaseScreen {
         loadingIndicator.style.borderRadius = '4px';
         loadingIndicator.style.overflow = 'hidden';
         
-        const progressBar = document.createElement('div');
-        progressBar.style.height = '100%';
-        progressBar.style.width = `${(initialPlayers.length / 4) * 100}%`;
-        progressBar.style.backgroundColor = '#4caf50';
-        progressBar.style.transition = 'width 0.5s ease-in-out';
-        loadingIndicator.appendChild(progressBar);
+
         
         // Message d'information
         const infoMessage = document.createElement('div');
@@ -445,7 +436,6 @@ export class TournamentScreen extends BaseScreen {
             this.leaveTournament(tournamentId);
             this.closeModal(modal);
             // Show lobby buttons
-
            GameUI.showLobbyButtons();
         }, true);
         cancelButton.style.margin = '15px auto';
@@ -453,7 +443,6 @@ export class TournamentScreen extends BaseScreen {
         
         // Assembler les éléments
         modal.appendChild(title);
-        modal.appendChild(subtitle);
         modal.appendChild(playersInfo);
         modal.appendChild(playersContainer);
         modal.appendChild(loadingIndicator);
@@ -471,14 +460,7 @@ export class TournamentScreen extends BaseScreen {
         // Mettre à jour la liste des joueurs
         this.updateTournamentPlayers(tournamentId, initialPlayers);
         
-        // Créer une animation pour le spinner d'attente
-        const loadingAnimation = setInterval(() => {
-            const dots = subtitle.textContent?.match(/\./g)?.length || 0;
-            subtitle.textContent = 'En attente de joueurs' + '.'.repeat((dots + 1) % 4);
-        }, 500);
-        
-        // Stocker l'ID de l'animation pour pouvoir l'arrêter plus tard
-        (modal as any).loadingAnimation = loadingAnimation;
+      
     }
 
     // Méthode pour mettre à jour la liste des joueurs
@@ -493,13 +475,7 @@ export class TournamentScreen extends BaseScreen {
         if (playersInfo) {
             playersInfo.textContent = `Joueurs: ${players.length}/4`;
         }
-        
-        // Mettre à jour la barre de progression
-        const progressBar = this.activeTournamentModal.querySelector('div > div') as HTMLDivElement;
-        if (progressBar) {
-            progressBar.style.width = `${(players.length / 4) * 100}%`;
-        }
-        
+
         // Vider le container
         this.playersContainer.innerHTML = '';
         
@@ -526,11 +502,9 @@ export class TournamentScreen extends BaseScreen {
                 hostBadge.style.fontWeight = 'bold';
                 playerElement.appendChild(hostBadge);
             }
-            
             const playerName = document.createElement('span');
             playerName.textContent = player.username || 'Unknown Player';
             playerElement.appendChild(playerName);
-            
             this.playersContainer?.appendChild(playerElement);
         });
         
@@ -538,6 +512,7 @@ export class TournamentScreen extends BaseScreen {
         if (players.length >= 4) {
             this.prepareStartTournament();
         }
+        
     }
 
     // Méthode pour quitter un tournoi
@@ -579,16 +554,7 @@ export class TournamentScreen extends BaseScreen {
         }
         
         // Faire pulser la barre de progression
-        const progressBar = this.activeTournamentModal.querySelector('div > div') as HTMLDivElement;
-        if (progressBar) {
-            progressBar.style.backgroundColor = '#ffcc00';
-            const pulseAnimation = setInterval(() => {
-                progressBar.style.opacity = progressBar.style.opacity === '0.6' ? '1' : '0.6';
-            }, 500);
-            (this.activeTournamentModal as any).pulseAnimation = pulseAnimation;
-            
-            // Le tournoi commencera automatiquement côté serveur
-        }
+     
     }
 
     // Méthode pour demander les tournois au serveur WebSocket

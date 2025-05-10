@@ -1,3 +1,5 @@
+import { userInfo } from 'os';
+import Game from './Game.js';
 import { GameUI } from './GameUI.js'; // Adjust the path as necessary
 
 
@@ -17,7 +19,6 @@ function DrawCircleScore(ctx: CanvasRenderingContext2D, x: number, y: number, sc
     }
     ctx.closePath();
 }
-
 
 export class GameRenderer {
 
@@ -97,87 +98,100 @@ export class GameRenderer {
 
 
     static showGameFinished(data: any) {
+        // Cacher le canvas de jeu
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-        if (!gameCanvas) return;
-        
-        const ctx = gameCanvas.getContext('2d');
-        if (!ctx) return;
-        
-
-        // Slightly darken the screen
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-        //data is a object with the winner name
+        if (gameCanvas) gameCanvas.style.display = 'none';
     
-        // Show winner
-        ctx.fillStyle = 'white';
-        ctx.font = '48px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${data.winner} wins!`, gameCanvas.width / 2, gameCanvas.height / 2 - 40);
-        ctx.fillText(`Final Score: ${data.score.p1} - ${data.score.p2}`, gameCanvas.width / 2, gameCanvas.height / 2 + 40);
-        
-        // Vérifier si un bouton existe déjà et le supprimer
-        const existingButton = document.getElementById('return-lobby-button');
-        if (existingButton) {
-            existingButton.remove();
+        // Créer l'élément de résultat
+        const resultContainer = document.createElement('div');
+        resultContainer.id = 'game-result';
+        resultContainer.style.position = 'fixed';
+        resultContainer.style.top = '50%';
+        resultContainer.style.left = '50%';
+        resultContainer.style.transform = 'translate(-50%, -50%)';
+        resultContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        resultContainer.style.padding = '20px';
+        resultContainer.style.borderRadius = '10px';
+        resultContainer.style.textAlign = 'center';
+        resultContainer.style.color = 'white';
+        resultContainer.style.zIndex = '1000'; // S'assurer qu'il est au-dessus de tout
+    
+        const gameInstance = (window as any).gameInstance;
+    
+        let currentUser;
+        if (gameInstance && typeof gameInstance.getUser === 'function') {
+            currentUser = gameInstance.getUser();
+            console.log("Retrieved user from Game instance:", currentUser);
+        } else {
+            // Fallback si l'instance n'est pas disponible
+            console.warn("Game instance not found, using default user");
+            currentUser = { id: "player1", name: "Player 1" };
         }
+    
+        // Convertir l'ID en string pour la comparaison (car data.winner pourrait être une string)
+        const userId = String(currentUser.id);
+        console.log("Current user ID:", userId);
+        console.log("winner user_ID", data.winner);
+
+        if (data.mode === 'local')
+        {
+            const title = document.createElement('h2');
+            title.textContent = data.winner_name + ' a gagné !';
+            title.style.color = '#4CAF50';
+            resultContainer.appendChild(title);
+
+        }
+        else
+        {
+            const isWinner = data.winner.toString() === userId.toString();
+            
+            // Titre du résultat
+            const title = document.createElement('h2');
+            title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
+            title.style.color = isWinner ? '#4CAF50' : '#F44336';
         
-        // Add return button
-        const returnButton = document.createElement('button');
-        returnButton.id = 'return-lobby-button'; // Donner un ID au bouton pour le retrouver facilement
-        returnButton.textContent = 'Return to Lobby';
-        returnButton.style.position = 'absolute';
-        returnButton.style.left = '50%';
-        returnButton.style.top = `${gameCanvas.height / 2 + 400}px`;
-        returnButton.style.transform = 'translateX(-50%)';
-        returnButton.style.backgroundColor = 'white';
-        returnButton.style.color = 'black';
-        returnButton.style.border = 'none';
-        returnButton.style.borderRadius = '5px';
-        returnButton.style.cursor = 'pointer';
-        returnButton.style.zIndex = '1000';
-        returnButton.style.padding = '10px 20px';
-        returnButton.style.fontSize = '18px';
-       
-        returnButton.addEventListener('click', function handleClick(e) {
-            // Désactiver le bouton immédiatement pour éviter les clics multiples
-            returnButton.disabled = true;
-            returnButton.style.opacity = '0.5';
-            returnButton.style.cursor = 'default';
-           
-            console.log("Return to lobby button clicked");
-            
-            // Clear the canvas completely
-            if (ctx) {
-                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                // Redessiner un arrière-plan noir propre
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            // Message spécial pour la déconnexion
+            let message = document.createElement('p');
+            if (data.disconnection) {
+                message.textContent = `Votre adversaire (${data.disconnected_player}) s'est déconnecté !`;
+                message.style.color = '#FFC107';
+            } else {
+                message.textContent = `Score final: ${data.score.p1} - ${data.score.p2}`;
+                if (data.winner_name) {
+                    message.textContent += ` | Gagnant: ${data.winner_name}`;
+                }
             }
-            
-            // Logic to return to the lobby
-            const gameContainer = document.getElementById('gameContainer');
-            if (gameContainer) {
-                // Garder une référence au canvas avant de vider
-                const canvasToKeep = gameCanvas.cloneNode(true);
-                gameContainer.innerHTML = ''; // Clear the game area
-                gameContainer.appendChild(canvasToKeep); // Remettre un canvas propre
+            message.style.marginBottom = '20px';
+            resultContainer.appendChild(title);
+
+        }
+
+        // Bouton pour retourner au lobby
+        const button = document.createElement('button');
+        button.textContent = 'Retourner au lobby';
+        button.style.padding = '10px 20px';
+        button.style.backgroundColor = '#4a4a8f';
+        button.style.border = 'none';
+        button.style.borderRadius = '5px';
+        button.style.color = 'white';
+        button.style.cursor = 'pointer';
+        button.onclick = () => {
+            //clear the game
+            const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+            const gameContext = gameCanvas.getContext('2d');
+            if (gameContext) {
+                gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
             }
-            
-            // Supprimer le bouton
-            returnButton.removeEventListener('click', handleClick);
-            returnButton.remove();
-            
-            // Afficher les boutons du lobby
+            resultContainer.remove();
+            if (gameCanvas) gameCanvas.style.display = 'block';
             GameUI.showLobbyButtons();
-            GameUI.hideSpinner();
-            
-            // Forcer un rafraîchissement de l'interface
-            requestAnimationFrame(() => {
-                console.log("Lobby UI refreshed");
-            });
-        }, { once: true }); // L'option once:true garantit que l'écouteur ne s'exécute qu'une fois
         
-        gameCanvas.parentElement?.appendChild(returnButton);
+        };
+    
+        // Assembler les éléments
+        //resultContainer.appendChild(message);
+        resultContainer.appendChild(button);
+        document.body.appendChild(resultContainer);
     }
 }
+

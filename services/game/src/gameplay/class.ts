@@ -5,6 +5,7 @@ class Paddle {
   y: number;
   width: number;
   height: number;
+  
   speed: number;
   dx: number;
 
@@ -96,6 +97,7 @@ class player {
         this.score = score;
         this.paddle = paddle;
     }
+    user_id: string = "";
 }
 
 class Game {
@@ -115,6 +117,7 @@ class Game {
     ballRadius: number;
     mapPlayers: Map<string, player> = new Map();
     uuid_room: string = "";
+    global_uuid?: string; // Ajouter cette propriété pour les tournois
     ia_difficulty: string = "";
     is_end: boolean = false;
 
@@ -211,11 +214,19 @@ class Game {
         this.checkPaddleCollision(this.paddle_2);
     }
     checkWinner() {
+        console.log("user_id p1:", this.p1.user_id + " | user_id p2:", this.p2.user_id);
+        console.log("Score Player 1:", this.score_p1 + " | Score Player 2:", this.score_p2);
         if (this.score_p2 == 5) {
-            return this.p2.username; // Retourner le nom du gagnant
+            console.log(this.p2.user_id);
+            if (this.mode === 'local')
+                return 'PLAYER_B';
+            return this.p2.user_id; // Retourner l'ID du gagnant
         } 
         else if (this.score_p1 == 5) {
-            return this.p1.username; // Retourner le nom du gagnant
+            console.log(this.p1.user_id);
+            if (this.mode === 'local')
+                return 'PLAYER_A';
+            return this.p1.user_id; // Retourner l'ID du gagnant
         }
         return null; // Pas encore de gagnant
     }
@@ -264,13 +275,18 @@ class Game {
         }
     }
     
-    endGame(winner: string) {
+    endGame(winnerUserId: string) {
         this.is_end = true;
         this.resetBall(); // Reset ball position and speed
+        
+        // Déterminer le nom du gagnant à partir de l'ID
+        const winnerName = this.p1.user_id === winnerUserId ? this.p1.username : this.p2.username;
+
         const gameFinishedMessage = {
             type: 'game_finished',
             data: {
-                winner: winner,
+                winner: winnerUserId,
+                winner_name: winnerName, // Ajouter le nom du gagnant pour l'affichage
                 score: {
                     p1: this.score_p1,
                     p2: this.score_p2,
@@ -278,6 +294,21 @@ class Game {
                 mode: this.mode,
             },
         };
+
+        if (this.mode === 'local') {
+            gameFinishedMessage.data.winner_name = winnerUserId;
+        }
+    
+        // Ajouter un traitement pour les tournois
+        if (this.mode === 'tournament' && this.global_uuid) {
+            // Notifier le système de tournoi que ce match est terminé
+            try {
+                const { handleTournamentMatchEnd } = require('../matchmaking/Matchmaking.js');
+                handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
+            } catch (error) {
+                console.error('Error handling tournament match end:', error);
+            }
+        }
     
         try {
             if (this.p1.ws) {
@@ -292,8 +323,64 @@ class Game {
     }
 
     handleDisconnection(player: 'p1' | 'p2') {
-        const winner = player === 'p1' ? this.p2.username : this.p1.username;
-        this.endGame(winner);
+        const winnerUserId = player === 'p1' ? this.p2.user_id : this.p1.user_id;
+        
+        // Set the score to ensure a decisive victory
+        if (player === 'p1') {
+            this.score_p2 = 5;
+            this.score_p1 = Math.min(this.score_p1, 4);
+        } else {
+            this.score_p1 = 5;
+            this.score_p2 = Math.min(this.score_p2, 4);
+        }
+        
+        // End the game with a forfeit message
+        this.endGameWithDisconnection(winnerUserId, player);
+    }
+    
+    endGameWithDisconnection(winnerUserId: string, disconnectedPlayer: 'p1' | 'p2') {
+        this.is_end = true;
+        this.resetBall(); // Reset ball position and speed
+        
+        // Déterminer le nom du gagnant à partir de l'ID
+        const winnerName = this.p1.user_id === winnerUserId ? this.p1.username : this.p2.username;
+        
+        const gameFinishedMessage = {
+            type: 'game_finished',
+            data: {
+                winner: winnerUserId,
+                winner_name: winnerName,
+                score: {
+                    p1: this.score_p1,
+                    p2: this.score_p2,
+                },
+                mode: this.mode,
+                disconnection: true,
+                disconnected_player: disconnectedPlayer === 'p1' ? this.p1.username : this.p2.username
+            },
+        };
+    
+        // Ajouter un traitement pour les tournois
+        if (this.mode === 'tournament' && this.global_uuid) {
+            // Notifier le système de tournoi que ce match est terminé avec le forfait
+            try {
+                const { handleTournamentMatchEnd } = require('../matchmaking/Matchmaking.js');
+                handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
+            } catch (error) {
+                console.error('Error handling tournament match end:', error);
+            }
+        }
+    
+        try {
+            // Send the message only to the remaining player
+            if (disconnectedPlayer === 'p2' && this.p1.ws) {
+                this.p1.ws.send(JSON.stringify(gameFinishedMessage));
+            } else if (disconnectedPlayer === 'p1' && this.p2.ws) {
+                this.p2.ws.send(JSON.stringify(gameFinishedMessage));
+            }
+        } catch (error) {
+            console.error('Error sending game_finished message:', error);
+        }
     }
 
     sendData() {
@@ -325,6 +412,13 @@ class Game {
             height: this.height // Logical game height
         };
     
+        // check if both ws is connected for online game
+        if (this.mode === 'random_adversaire' && (!this.p1.ws || !this.p2.ws)) {
+            if (this.p1.ws) {
+                this.p1.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+            }
+            return;
+        }
         if (this.p1.ws) {
             this.p1.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
         }

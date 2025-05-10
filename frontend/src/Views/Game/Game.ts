@@ -1,3 +1,6 @@
+// Ajouter ceci au début du fichier
+let instance: Game | null = null;
+
 import { getUserInfos } from "../../User/me.js";
 import { GameWebSocket } from "./GameWebSocket.js";
 import { GameUI } from "./GameUI.js";
@@ -7,7 +10,15 @@ export default class Game {
     private user_info: any;
     
     constructor() {
+        // Conserver l'instance dans la variable globale
+        instance = this;
+        (window as any).gameInstance = this;
         this.initializeUserInfo();
+    }
+
+    // Ajouter une méthode statique pour obtenir l'instance
+    static getInstance(): Game | null {
+        return instance;
     }
 
     private async initializeUserInfo() {
@@ -20,6 +31,15 @@ export default class Game {
         await this.connectToMatchmaking();
     }
 
+   
+    getUser(): { id: string,
+                 name: string;
+     } {
+        // Replace with actual logic to retrieve the current user's ID
+        return { id: this.user_info.id,
+                 name: this.user_info.name
+                };
+    }
     async connectToMatchmaking() {
         console.log("Connecting to matchmaking...");
         if (this.user_info === null) {
