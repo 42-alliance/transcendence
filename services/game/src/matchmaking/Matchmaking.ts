@@ -10,7 +10,8 @@ import {
     UpdateMatchStatus,
     RecordMatchWinner,
     Tournament,
-    TournamentMatch
+    TournamentMatch,
+    createFinalMatch
 } from './TournamentHandling.js';
 import { sessions } from '../gameplay/gameplay.js';
 
@@ -281,6 +282,7 @@ class WebSocketMessageHandler {
     private handleLocalGame(data: any): void {
         this.player.username = data.user.name;
         this.player.type = 'local';
+        this.player.user_id = data.user.id;
         
         const queueManager = QueueManager.getInstance();
         queueManager.addPlayerToPendingQueue(this.player);
@@ -290,6 +292,7 @@ class WebSocketMessageHandler {
         this.player.username = data.user.name;
         this.player.type = 'ia';
         this.player.difficulty = data.difficulty;
+        this.player.user_id = data.user.id;
         
         const queueManager = QueueManager.getInstance();
         queueManager.addPlayerToPendingQueue(this.player);
@@ -642,7 +645,7 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
             type: 'tournament_match_result',
             tournament_id: tournamentId,
             match_id: match.id,
-            winner: winner.username
+            winner_id: winner.user_id,
         });
         
         // Si une finale vient de se terminer, notifier que le tournoi est terminé
@@ -659,12 +662,53 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
     // Si tous les matchs du premier tour sont terminés, notifier que la finale va commencer
     const roundOneMatches = tournament.matches.slice(0, 2);
     if (roundOneMatches.every(m => m.status === 'completed') && tournament.status === 'round1') {
-        tournament.players.forEach(player => {
-            secureSend(player.socket, {
-                type: 'tournament_final_round',
-                tournament_id: tournamentId,
-                finalists: tournament.winners.map(w => w.username)
+        // Changer le statut du tournoi
+        tournament.status = 'final';
+        
+        // Créer le match final
+        const finalMatch = createFinalMatch(tournament);
+        
+        if (finalMatch) {
+            // Envoyer un signal spécial aux finalistes pour qu'ils sachent qu'ils sont en finale
+            tournament.winners.forEach(player => {
+                if (player.socket) {
+                    secureSend(player.socket, {
+                        type: 'tournament_final_match',
+                        tournament_id: tournamentId,
+                        match_id: finalMatch.id,
+                        opponent: tournament.winners.find(w => w.user_id !== player.user_id)?.username || 'Opponent'
+                    });
+                }
             });
-        });
+
+            // Informer tous les autres joueurs de la finale
+            tournament.players.forEach(player => {
+                if (!tournament.winners.some(w => w.user_id === player.user_id) && player.socket) {
+                    secureSend(player.socket, {
+                        type: 'tournament_final_round',
+                        tournament_id: tournamentId,
+                        finalists: tournament.winners.map(w => w.username)
+                    });
+                }
+            });
+            
+            // Démarrer immédiatement la finale (au lieu d'attendre le prochain cycle de processAllTournaments)
+            console.log(`Starting final match: ${tournament.winners[0].username} vs ${tournament.winners[1].username}`);
+            
+            // Créer une session de match pour ce match de tournoi
+            const matchManager = MatchManager.getInstance();
+            const session = matchManager.createTournamentMatch(
+                tournament.winners,
+                'tournament',
+                finalMatch.uuid_room,
+                tournamentId
+            );
+            
+            // Ajouter la session à la liste des sessions
+            all_sessions.push(session);
+            
+            // Marquer le match comme actif
+            UpdateMatchStatus(tournamentId, finalMatch.id, 'active');
+        }
     }
 }

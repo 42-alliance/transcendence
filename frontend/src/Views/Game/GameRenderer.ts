@@ -100,12 +100,14 @@ export class GameRenderer {
     static showGameFinished(data: any) {
         // Cacher le canvas de jeu
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-        if (gameCanvas) gameCanvas.style.display = 'none';
+        // if (gameCanvas) gameCanvas.style.display = 'none';
     
         // Créer l'élément de résultat
         const resultContainer = document.createElement('div');
         resultContainer.id = 'game-result';
         resultContainer.style.position = 'fixed';
+        resultContainer.style.width = '500px';
+        resultContainer.style.height = '600px';
         resultContainer.style.top = '50%';
         resultContainer.style.left = '50%';
         resultContainer.style.transform = 'translate(-50%, -50%)';
@@ -133,16 +135,12 @@ export class GameRenderer {
         console.log("Current user ID:", userId);
         console.log("winner user_ID", data.winner);
 
-        if (data.mode === 'local')
-        {
+        if (data.mode === 'local' || data.mode === 'ai') {
             const title = document.createElement('h2');
-            title.textContent = data.winner_name + ' a gagné !';
+            title.textContent = data.winner_name + ' wins !';
             title.style.color = '#4CAF50';
             resultContainer.appendChild(title);
-
-        }
-        else
-        {
+        } else {
             const isWinner = data.winner.toString() === userId.toString();
             
             // Titre du résultat
@@ -190,8 +188,62 @@ export class GameRenderer {
     
         // Assembler les éléments
         //resultContainer.appendChild(message);
-        resultContainer.appendChild(button);
-        document.body.appendChild(resultContainer);
+        // Dans GameRenderer.ts, modifions la partie tournoi de showGameFinished
+        if (data.mode !== 'tournament') {
+            resultContainer.appendChild(button);
+        } else {
+            // En mode tournoi, le comportement dépend si on est gagnant ou perdant
+            const isWinner = data.winner.toString() === userId.toString();
+            
+            if (isWinner) {
+                // Pour le gagnant - afficher un message d'attente
+                const waitingMessage = document.createElement('div');
+                waitingMessage.innerHTML = `
+                    <h3>Vous passez au tour suivant!</h3>
+                    <p>Veuillez patienter pendant que les autres matchs se terminent...</p>
+                    <div class="loading-spinner" style="margin: 20px auto; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 2s linear infinite;"></div>
+                `;
+                
+                // Ajouter le style de l'animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                resultContainer.appendChild(waitingMessage);
+                
+                // Pour les gagnants de tournoi: le résultat sera automatiquement nettoyé après 5 secondes
+                // afin qu'ils soient prêts pour la finale
+                setTimeout(() => {
+                    if (resultContainer && resultContainer.parentNode) {
+                        resultContainer.remove();
+                        
+                        // S'assurer que le canvas est réinitialisé pour la prochaine partie
+                        const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+                        if (gameCanvas) {
+                            const ctx = gameCanvas.getContext('2d');
+                            if (ctx) {
+                                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                            }
+                            gameCanvas.style.display = 'block';
+                        }
+                    }
+                }, 5000);
+            } else {
+                // Pour le perdant - afficher le bouton de retour au lobby
+                const defeatMessage = document.createElement('p');
+                defeatMessage.textContent = "Vous êtes éliminé du tournoi.";
+                defeatMessage.style.color = '#F44336';
+                defeatMessage.style.marginBottom = '20px';
+                
+                resultContainer.appendChild(defeatMessage);
+                resultContainer.appendChild(button);
+            }
+        }
     }
 }
 

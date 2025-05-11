@@ -147,7 +147,7 @@ export function RecordMatchWinner(tournamentId: string, matchId: string, winner:
 }
 
 // Créer le match final
-function createFinalMatch(tournament: Tournament): TournamentMatch | null {
+export function createFinalMatch(tournament: Tournament): TournamentMatch | null {
     // Vérifier que nous avons bien 2 vainqueurs pour la finale
     if (tournament.winners.length < 2) return null;
     

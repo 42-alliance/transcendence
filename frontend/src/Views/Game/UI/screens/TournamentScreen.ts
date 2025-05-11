@@ -2,6 +2,7 @@ import { BaseScreen } from '../components/Screen.js';
 import { createButton } from '../utils/ElementFactory.js';
 import { ModalStyles } from '../styles/ModalStyles.js';
 import { GameUI } from '../../GameUI.js';
+import { getUserInfo } from '../../UserStore.js';
 
 export class TournamentScreen extends BaseScreen {
     constructor() {
@@ -384,6 +385,130 @@ export class TournamentScreen extends BaseScreen {
     private activeTournamentModal: HTMLDivElement | null = null;
     private playersContainer: HTMLDivElement | null = null;
 
+    public updateTournamentEndMatch(tournamentId: string, matchId: string, winner_id: string): void {
+        console.log('Tournament match end:', { tournamentId, matchId, winner_id });
+        
+        // Vérifier si le tournoi est actif
+        if (this.activeTournamentId !== tournamentId || !this.activeTournamentModal) {
+            console.error("Tournament display not active");
+            return;
+        }
+    
+        // Supprimer tout contenu existant pour éviter les doublons
+        while (this.activeTournamentModal.childNodes.length > 1) {
+            this.activeTournamentModal.removeChild(this.activeTournamentModal.lastChild!);
+        }
+        
+        // Garder seulement le titre
+        const title = this.activeTournamentModal.firstChild as HTMLElement;
+        
+        // Récupérer les informations de l'utilisateur actuel
+        const currentUser = getUserInfo();
+        const isWinner = winner_id === currentUser.id.toString();
+        
+        if (isWinner) {
+            // Pour le gagnant - message de progression au prochain tour
+            const winnerContainer = document.createElement('div');
+            winnerContainer.style.display = 'flex';
+            winnerContainer.style.flexDirection = 'column';
+            winnerContainer.style.alignItems = 'center';
+            winnerContainer.style.justifyContent = 'center';
+            winnerContainer.style.padding = '20px';
+            
+            const winnerMessage = document.createElement('div');
+            winnerMessage.textContent = 'Vous avez gagné le match!';
+            winnerMessage.style.color = '#00ff00';
+            winnerMessage.style.fontSize = '22px';
+            winnerMessage.style.fontWeight = 'bold';
+            winnerMessage.style.marginBottom = '15px';
+            
+            const waitingMessage = document.createElement('div');
+            waitingMessage.textContent = 'En attente du prochain match...';
+            waitingMessage.style.fontSize = '18px';
+            waitingMessage.style.color = '#aaaaaa';
+            waitingMessage.style.marginBottom = '20px';
+            
+            // Créer une animation de chargement
+            const spinnerContainer = document.createElement('div');
+            spinnerContainer.style.width = '50px';
+            spinnerContainer.style.height = '50px';
+            spinnerContainer.style.margin = '20px auto';
+            spinnerContainer.style.border = '5px solid rgba(255, 255, 255, 0.2)';
+            spinnerContainer.style.borderTop = '5px solid #3498db';
+            spinnerContainer.style.borderRadius = '50%';
+            
+            // Ajouter une animation au spinner
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                .tournament-spinner {
+                    animation: spin 1.5s linear infinite;
+                }
+            `;
+            document.head.appendChild(style);
+            spinnerContainer.classList.add('tournament-spinner');
+            
+            // Ajouter les éléments au conteneur
+            winnerContainer.appendChild(winnerMessage);
+            winnerContainer.appendChild(waitingMessage);
+            winnerContainer.appendChild(spinnerContainer);
+            
+            this.activeTournamentModal.appendChild(winnerContainer);
+            
+            // Le modal se fermera automatiquement quand le match final commencera
+        } else {
+            // Pour le perdant - message d'élimination et bouton de retour
+            const loserContainer = document.createElement('div');
+            loserContainer.style.display = 'flex';
+            loserContainer.style.flexDirection = 'column';
+            loserContainer.style.alignItems = 'center';
+            loserContainer.style.justifyContent = 'center';
+            loserContainer.style.padding = '20px';
+            
+            const eliminatedMessage = document.createElement('div');
+            eliminatedMessage.textContent = 'Vous avez été éliminé du tournoi';
+            eliminatedMessage.style.color = '#ff4444';
+            eliminatedMessage.style.fontSize = '22px';
+            eliminatedMessage.style.fontWeight = 'bold';
+            eliminatedMessage.style.marginBottom = '15px';
+            
+            const scoreMessage = document.createElement('div');
+            scoreMessage.textContent = 'Vous pouvez retourner au lobby ou regarder la finale';
+            scoreMessage.style.fontSize = '16px';
+            scoreMessage.style.color = '#aaaaaa';
+            scoreMessage.style.marginBottom = '25px';
+            
+            // Bouton pour retourner au lobby
+            const returnButton = this.createActionButton('Retourner au Lobby', () => {
+                this.leaveTournament(tournamentId);
+                this.closeModal(this.activeTournamentModal!);
+                GameUI.showLobbyButtons();
+            });
+            returnButton.style.margin = '10px auto';
+            returnButton.style.display = 'block';
+            
+            // Bouton pour regarder la finale
+            const watchButton = this.createActionButton('Regarder la Finale', () => {
+                // Juste fermer le modal et attendre
+                this.closeActiveTournamentModal();
+            }, false);
+            watchButton.style.margin = '10px auto';
+            watchButton.style.display = 'block';
+            watchButton.style.backgroundColor = '#4a4a8f';
+            
+            // Assembler les éléments
+            loserContainer.appendChild(eliminatedMessage);
+            loserContainer.appendChild(scoreMessage);
+            loserContainer.appendChild(returnButton);
+            loserContainer.appendChild(watchButton);
+            
+            this.activeTournamentModal.appendChild(loserContainer);
+        }
+    }
+
     public showTournamentWaiting(tournamentId: string, tournamentName: string, initialPlayers: any[]): void {
         this.activeTournamentId = tournamentId;
     
@@ -537,24 +662,27 @@ export class TournamentScreen extends BaseScreen {
     }
 
     // Méthode pour préparer le démarrage du tournoi
+    
+    // Modifier la méthode prepareStartTournament pour qu'elle se ferme plus rapidement
     private prepareStartTournament(): void {
-        if (!this.activeTournamentModal) return;
-        
-        // Changer le message
-        const subtitle = this.activeTournamentModal.querySelector('h4') as HTMLHeadingElement;
-        if (subtitle) {
-            clearInterval((this.activeTournamentModal as any).loadingAnimation);
-            subtitle.textContent = 'Le tournoi va commencer...';
-            subtitle.style.color = '#4caf50';
+        if (this.activeTournamentModal) {
+            this.activeTournamentModal.innerHTML = '';
+            const startingMessage = document.createElement('div');
+            startingMessage.textContent = 'Le tournoi commence...';
+            startingMessage.style.color = '#00ff00';
+            startingMessage.style.fontSize = '18px';
+            startingMessage.style.textAlign = 'center';
+            startingMessage.style.marginTop = '20px';
+            this.activeTournamentModal.appendChild(startingMessage);
+
+            // Fermer le modal plus rapidement (1 seconde au lieu de 3)
+            setTimeout(() => {
+                this.closeModal(this.activeTournamentModal!);
+                this.activeTournamentModal = null;
+                this.activeTournamentId = null;
+                this.playersContainer = null;
+            }, 1000);
         }
-        
-        const infoMessage = this.activeTournamentModal.querySelector('div:nth-last-child(2)') as HTMLDivElement;
-        if (infoMessage) {
-            infoMessage.textContent = 'Tous les joueurs sont présents, préparation du tournoi en cours';
-        }
-        
-        // Faire pulser la barre de progression
-     
     }
 
     // Méthode pour demander les tournois au serveur WebSocket
@@ -608,4 +736,22 @@ export class TournamentScreen extends BaseScreen {
             }, 10000);
         });
     }
+        // Ajouter cette méthode à la classe TournamentScreen
+    public closeActiveTournamentModal(): void {
+        if (this.activeTournamentModal) {
+            // Arrêter toute animation en cours
+            if ((this.activeTournamentModal as any).loadingAnimation) {
+                clearInterval((this.activeTournamentModal as any).loadingAnimation);
+            }
+            
+            // Fermer le modal
+            this.closeModal(this.activeTournamentModal);
+            
+            // Réinitialiser les variables
+            this.activeTournamentModal = null;
+            this.activeTournamentId = null;
+            this.playersContainer = null;
+        }
+    }
+
 }

@@ -2,6 +2,7 @@ import { GameUI } from "./GameUI.js";
 import { GameRenderer } from "./GameRenderer.js";
 import { GameControls } from "./GameControls.js";
 import { GameState } from "./GameState.js";
+import { getUserInfo } from "./UserStore.js";
 
 export class GameWebSocket {
     private socket: WebSocket | null = null;
@@ -83,7 +84,7 @@ export class GameWebSocket {
     private handleMessage(event: MessageEvent) {
         try {
             const message = JSON.parse(event.data);
-            console.log("WebSocket message received:", message);
+            //console.log("WebSocket message received:", message);
             
             switch (message.type) {
                 case 'auth_success':
@@ -196,6 +197,98 @@ export class GameWebSocket {
                         console.error("Tournament waiting screen not available");
                         GameUI.showLobbyButtons();
                     }
+                    break;
+                case  'tournament_match_update':
+                    console.log("Tournament match update:", message);
+                    const tournamentScreenUpdate = GameUI.getScreen('tournament');
+                    if (tournamentScreenUpdate && 'updateTournamentMatch' in tournamentScreenUpdate) {
+                        (tournamentScreenUpdate as any).updateTournamentMatch(
+                            message.tournament_id,
+                            message.match
+                        );
+                    }
+                    break;
+                case 'tournament_match_result':
+                    console.log("Tournament match result:", message);
+                    const tournamentScreenResult = GameUI.getScreen('tournament');
+                        (tournamentScreenResult as any).updateTournamentEndMatch(
+                            message.tournament_id,
+                            message.match,
+                            message.winner
+                        );
+                    break;
+                case 'tournament_final_match':
+                    console.log("Tournament final match starting:", message);
+                    
+                    // Fermer tout modal actif du tournoi
+                    const finaltournamentScreen = GameUI.getScreen('tournament');
+                    if (finaltournamentScreen && 'closeActiveTournamentModal' in finaltournamentScreen) {
+                        (finaltournamentScreen as any).closeActiveTournamentModal();
+                    }
+                
+                    // Supprimer l'écran de résultat s'il existe
+                    GameUI.clearGameResults();
+                    
+                    // Créer une transition visuelle pour la finale
+                    const finalOverlay = document.createElement('div');
+                    finalOverlay.style.position = 'fixed';
+                    finalOverlay.style.top = '0';
+                    finalOverlay.style.left = '0';
+                    finalOverlay.style.width = '100%';
+                    finalOverlay.style.height = '100%';
+                    finalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+                    finalOverlay.style.display = 'flex';
+                    finalOverlay.style.flexDirection = 'column';
+                    finalOverlay.style.alignItems = 'center';
+                    finalOverlay.style.justifyContent = 'center';
+                    finalOverlay.style.zIndex = '1000';
+                    finalOverlay.style.transition = 'opacity 2s';
+                    
+                    const finalTitle = document.createElement('h1');
+                    finalTitle.textContent = 'FINALE DU TOURNOI';
+                    finalTitle.style.color = '#ffcc00';
+                    finalTitle.style.fontSize = '36px';
+                    finalTitle.style.marginBottom = '20px';
+                    
+                    const vsContainer = document.createElement('div');
+                    vsContainer.style.display = 'flex';
+                    vsContainer.style.alignItems = 'center';
+                    vsContainer.style.justifyContent = 'center';
+                    vsContainer.style.marginBottom = '30px';
+                    
+                    const player1 = document.createElement('div');
+                    player1.textContent = getUserInfo().name || 'You';
+                    player1.style.fontSize = '24px';
+                    player1.style.color = '#4CAF50';
+                    player1.style.padding = '10px 20px';
+                    
+                    const vsText = document.createElement('div');
+                    vsText.textContent = 'VS';
+                    vsText.style.margin = '0 15px';
+                    vsText.style.fontSize = '28px';
+                    vsText.style.color = 'white';
+                    
+                    const player2 = document.createElement('div');
+                    player2.textContent = message.opponent;
+                    player2.style.fontSize = '24px';
+                    player2.style.color = '#F44336';
+                    player2.style.padding = '10px 20px';
+                    
+                    vsContainer.appendChild(player1);
+                    vsContainer.appendChild(vsText);
+                    vsContainer.appendChild(player2);
+                    
+                    finalOverlay.appendChild(finalTitle);
+                    finalOverlay.appendChild(vsContainer);
+                    
+                    document.body.appendChild(finalOverlay);
+                    
+                    // Animation de l'écran de finale et suppression après 3 secondes
+                    setTimeout(() => {
+                        finalOverlay.style.opacity = '0';
+                        setTimeout(() => finalOverlay.remove(), 2000);
+                    }, 3000);
+                    
                     break;
                 default:
                     console.warn("Unknown message type:", message.type);

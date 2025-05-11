@@ -72,6 +72,28 @@ export class GameUI {
         }
     }
     
+                       // Ajouter cette méthode à GameUI
+    static clearGameResults(): void {
+     // Supprimer tous les résultats de jeu existants
+     const existingResultModal = document.getElementById('game-result');
+     if (existingResultModal) {
+         existingResultModal.remove();
+     }
+     
+     // Réinitialiser le canvas de jeu
+     const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+     if (gameCanvas) {
+         const ctx = gameCanvas.getContext('2d');
+         if (ctx) {
+             ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+         }
+         gameCanvas.style.display = 'block'; // S'assurer que le canvas est visible
+     }
+     
+     // Supprimer aussi les notifications qui pourraient rester
+     const notifications = document.querySelectorAll('.tournament-notification');
+     notifications.forEach(notification => notification.remove());
+    }
     // Maintient la compatibilité avec l'API existante
     static displayDifficultyButtons(): Promise<string> {
         return this.showScreen('difficulty');

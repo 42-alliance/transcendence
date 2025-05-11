@@ -1,4 +1,4 @@
-import e from "cors";
+import { handleTournamentMatchEnd } from '../matchmaking/Matchmaking.js';
 
 class Paddle {
   x: number;
@@ -220,12 +220,16 @@ class Game {
             console.log(this.p2.user_id);
             if (this.mode === 'local')
                 return 'PLAYER_B';
+            if (this.mode === 'ia')
+                return 'Computer';
             return this.p2.user_id; // Retourner l'ID du gagnant
         } 
         else if (this.score_p1 == 5) {
             console.log(this.p1.user_id);
             if (this.mode === 'local')
                 return 'PLAYER_A';
+            if (this.mode === 'ia')
+                return 'You';
             return this.p1.user_id; // Retourner l'ID du gagnant
         }
         return null; // Pas encore de gagnant
@@ -295,7 +299,7 @@ class Game {
             },
         };
 
-        if (this.mode === 'local') {
+        if (this.mode === 'local' || this.mode === 'ia') {
             gameFinishedMessage.data.winner_name = winnerUserId;
         }
     
@@ -303,7 +307,6 @@ class Game {
         if (this.mode === 'tournament' && this.global_uuid) {
             // Notifier le système de tournoi que ce match est terminé
             try {
-                const { handleTournamentMatchEnd } = require('../matchmaking/Matchmaking.js');
                 handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
             } catch (error) {
                 console.error('Error handling tournament match end:', error);
@@ -328,10 +331,10 @@ class Game {
         // Set the score to ensure a decisive victory
         if (player === 'p1') {
             this.score_p2 = 5;
-            this.score_p1 = Math.min(this.score_p1, 4);
+            this.score_p1 = 0;
         } else {
             this.score_p1 = 5;
-            this.score_p2 = Math.min(this.score_p2, 4);
+            this.score_p2 = 0;
         }
         
         // End the game with a forfeit message
@@ -364,7 +367,6 @@ class Game {
         if (this.mode === 'tournament' && this.global_uuid) {
             // Notifier le système de tournoi que ce match est terminé avec le forfait
             try {
-                const { handleTournamentMatchEnd } = require('../matchmaking/Matchmaking.js');
                 handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
             } catch (error) {
                 console.error('Error handling tournament match end:', error);

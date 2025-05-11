@@ -108,6 +108,7 @@ async function HandleMatch() {
                 break;
             case 'ia':
                 game.p1.username = all_sessions[0].match.players[0].username;
+                game.p1.user_id = all_sessions[0].match.players[0].user_id; // Ajouter l'ID utilisateur
                 const difficulty = getAIDifficultyLevel(game.ia_difficulty);
                 let aiName = "IA";
                 switch(difficulty) {
