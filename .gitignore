@@ -13,3 +13,4 @@ frontend/.objs
 tests/node_modules/
 tests/.objs/
 services/media/upload/*
+services/user/prisma/node_modules/
