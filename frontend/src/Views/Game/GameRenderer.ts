@@ -106,12 +106,12 @@ export class GameRenderer {
         const resultContainer = document.createElement('div');
         resultContainer.id = 'game-result';
         resultContainer.style.position = 'fixed';
-        resultContainer.style.width = '500px';
-        resultContainer.style.height = '600px';
+        resultContainer.style.width = '300px';
+        resultContainer.style.height = '300px';
         resultContainer.style.top = '50%';
         resultContainer.style.left = '50%';
         resultContainer.style.transform = 'translate(-50%, -50%)';
-        resultContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        resultContainer.style.backgroundColor = '';
         resultContainer.style.padding = '20px';
         resultContainer.style.borderRadius = '10px';
         resultContainer.style.textAlign = 'center';
@@ -134,12 +134,40 @@ export class GameRenderer {
         const userId = String(currentUser.id);
         console.log("Current user ID:", userId);
         console.log("winner user_ID", data.winner);
+        console.log("game_mode", data.mode);
 
-        if (data.mode === 'local' || data.mode === 'ai') {
+        if (data.mode === 'local' || data.mode === 'ia') {
+            console.log("Local or AI mode detected");
             const title = document.createElement('h2');
-            title.textContent = data.winner_name + ' wins !';
+            title.textContent = `${data.winner_name} wins!`;
             title.style.color = '#4CAF50';
             resultContainer.appendChild(title);
+
+            const button = document.createElement('button');
+            button.textContent = 'Retourner au lobby';
+            button.style.padding = '50px 40px';
+            button.style.backgroundColor = '#4a4a8f';
+            button.style.border = 'none';
+            button.style.borderRadius = '5px';
+            button.style.color = 'white';
+            button.style.cursor = 'pointer';
+            button.onclick = () => {
+                // Clear the game
+                const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+                if (gameCanvas) {
+                    const gameContext = gameCanvas.getContext('2d');
+                    if (gameContext) {
+                        gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                    }
+                    gameCanvas.style.display = 'block';
+                }
+                resultContainer.remove();
+                GameUI.showLobbyButtons();
+            };
+
+            resultContainer.appendChild(button);
+            document.body.appendChild(resultContainer);
+            return;
         } else {
             const isWinner = data.winner.toString() === userId.toString();
             
@@ -186,9 +214,6 @@ export class GameRenderer {
         
         };
     
-        // Assembler les éléments
-        //resultContainer.appendChild(message);
-        // Dans GameRenderer.ts, modifions la partie tournoi de showGameFinished
         if (data.mode !== 'tournament') {
             resultContainer.appendChild(button);
         } else {

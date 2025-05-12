@@ -84,27 +84,18 @@ export class GameWebSocket {
     private handleMessage(event: MessageEvent) {
         try {
             const message = JSON.parse(event.data);
-            //console.log("WebSocket message received:", message);
-            
             switch (message.type) {
                 case 'auth_success':
-                    console.log("Authentication succeeded, game ready.");
                     break;
                 case 'auth_failed':
-                    console.error("Authentication failed, disconnecting...");
                     this.disconnect();
                     break;
                 case 'waiting':
-                    console.log("Waiting for an opponent...");
                     GameUI.displayWaiting();
                     break;
                 case 'start':
-                    console.log("Game started:", message.uuid_room);
-                    // Réinitialiser et mettre à jour l'UUID avec la nouvelle valeur
-                    this.uuid_room = message.uuid_room;
-                    console.log("UUID_ROOM updated:", this.uuid_room);
+                    this.uuid_room = message.uuid_room;;
                     this.isRunning = true;
-                    // Set up keyboard controls after game start
                     GameControls.setupKeyboardControls(
                         this.socket,
                         this.isRunning,
@@ -115,16 +106,11 @@ export class GameWebSocket {
                     if (message.global_uuid) {
                         this.global_uuid = message.global_uuid;
                     }
-                    console.log("Game started with uuid_room:", this.uuid_room);
-                    
                     const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-                    // Version corrigée: utiliser directement le résultat sans then()
-                    const game = GameState.initializeGame(gameCanvas);
-                    console.log("Game initialized:", game);
+                    GameState.initializeGame(gameCanvas);
                     this.isRunning = true;
                     this.lastRender = performance.now();
                     this.animate();
-                    
                     GameUI.hideGameButtons();
                     GameUI.hideSpinner();
                     break;
@@ -132,7 +118,6 @@ export class GameWebSocket {
                     this.updateGameState(message.data);
                     break;
                 case 'game_finished':
-                    console.log("Game finished:", message.data);
                     this.isRunning = false;
                     if (this.frameId) {
                         cancelAnimationFrame(this.frameId);
@@ -141,18 +126,13 @@ export class GameWebSocket {
                     GameRenderer.showGameFinished(message.data);
                     break;
                 case 'tournament_created':
-                    console.log("Tournament created:", message.tournament);
                     GameUI.hideSpinner();
-                    
-                    // Afficher l'écran d'attente du tournoi
                     const tournamentScreen = GameUI.getScreen('tournament');
-                   
                         (tournamentScreen as any).showTournamentWaiting(
                             message.id || message.tournament.id,
                             message.name || message.tournament.name,
                             message.players || message.tournament.players || []
                         );
-                
                     break;
                 case 'tournament_players_update':
                     console.log("Tournament players updated:", message.players);
@@ -165,27 +145,21 @@ export class GameWebSocket {
                     }
                     break;
                 case 'all_tournaments':
-                    console.log("Received tournaments list:", message.tournaments);
-                    // Émettre un événement personnalisé avec l'ID de requête
                     const tournamentEvent = new CustomEvent('websocket_response', {
                         detail: {
                             type: 'all_tournaments',
-                            request_id: message.request_id, // Peut être undefined dans votre cas actuel
+                            request_id: message.request_id, 
                             tournaments: message.tournaments
                         }
                     });
                     document.dispatchEvent(tournamentEvent);
-
-                    // Émettre un événement personnalisé pour informer le TournamentScreen
                     const tournamentEventResponse = new CustomEvent('websocket_response', {
                         detail: message
                     });
                     document.dispatchEvent(tournamentEventResponse);
                     break;
                 case 'tournament_joined':
-                    console.log("Joined tournament:", message.tournament);
                     GameUI.hideSpinner();
-                    // Afficher l'écran d'attente du tournoi après avoir rejoint
                     const joinedTournamentScreen = GameUI.getScreen('tournament');
                     if (joinedTournamentScreen && 'showTournamentWaiting' in joinedTournamentScreen) {
                         (joinedTournamentScreen as any).showTournamentWaiting(
@@ -199,7 +173,6 @@ export class GameWebSocket {
                     }
                     break;
                 case  'tournament_match_update':
-                    console.log("Tournament match update:", message);
                     const tournamentScreenUpdate = GameUI.getScreen('tournament');
                     if (tournamentScreenUpdate && 'updateTournamentMatch' in tournamentScreenUpdate) {
                         (tournamentScreenUpdate as any).updateTournamentMatch(

@@ -388,13 +388,11 @@ export class TournamentScreen extends BaseScreen {
     public updateTournamentEndMatch(tournamentId: string, matchId: string, winner_id: string): void {
         console.log('Tournament match end:', { tournamentId, matchId, winner_id });
         
-        // Vérifier si le tournoi est actif
         if (this.activeTournamentId !== tournamentId || !this.activeTournamentModal) {
             console.error("Tournament display not active");
             return;
         }
     
-        // Supprimer tout contenu existant pour éviter les doublons
         while (this.activeTournamentModal.childNodes.length > 1) {
             this.activeTournamentModal.removeChild(this.activeTournamentModal.lastChild!);
         }
@@ -514,19 +512,14 @@ export class TournamentScreen extends BaseScreen {
     
         const modal = this.createModalElement();
         this.activeTournamentModal = modal;
-        
-        // Titre du tournoi
         const title = this.createTitleElement(`Tournoi: ${tournamentName}`);
         
-        
-        // Informations sur les joueurs
         const playersInfo = document.createElement('div');
         playersInfo.textContent = 'Joueurs: 1/4';
         playersInfo.style.color = '#ffcc00';
         playersInfo.style.fontSize = '18px';
         playersInfo.style.marginBottom = '15px';
         
-        // Container pour la liste des joueurs
         const playersContainer = document.createElement('div');
         this.playersContainer = playersContainer;
         playersContainer.style.width = '90%';
@@ -537,18 +530,7 @@ export class TournamentScreen extends BaseScreen {
         playersContainer.style.border = '1px solid rgba(255, 255, 255, 0.2)';
         playersContainer.style.borderRadius = '5px';
         
-        // Indicateur de chargement/progression
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.style.margin = '20px auto';
-        loadingIndicator.style.width = '80%';
-        loadingIndicator.style.height = '8px';
-        loadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-        loadingIndicator.style.borderRadius = '4px';
-        loadingIndicator.style.overflow = 'hidden';
-        
-
-        
-        // Message d'information
+       
         const infoMessage = document.createElement('div');
         infoMessage.textContent = 'Le tournoi commencera automatiquement lorsque 4 joueurs auront rejoint';
         infoMessage.style.color = '#aaaaaa';
@@ -560,32 +542,24 @@ export class TournamentScreen extends BaseScreen {
         const cancelButton = this.createActionButton('Quitter le tournoi', () => {
             this.leaveTournament(tournamentId);
             this.closeModal(modal);
-            // Show lobby buttons
            GameUI.showLobbyButtons();
         }, true);
         cancelButton.style.margin = '15px auto';
         cancelButton.style.display = 'block';
-        
-        // Assembler les éléments
+
         modal.appendChild(title);
         modal.appendChild(playersInfo);
         modal.appendChild(playersContainer);
-        modal.appendChild(loadingIndicator);
         modal.appendChild(infoMessage);
         modal.appendChild(cancelButton);
         
-        // Ajouter le modal au DOM et l'animer
         document.body.appendChild(modal);
         
-        // Animer l'apparition
         setTimeout(() => {
             modal.style.opacity = '1';
         }, 50);
         
-        // Mettre à jour la liste des joueurs
         this.updateTournamentPlayers(tournamentId, initialPlayers);
-        
-      
     }
 
     // Méthode pour mettre à jour la liste des joueurs
@@ -594,17 +568,13 @@ export class TournamentScreen extends BaseScreen {
             console.error("Tournament display not active");
             return;
         }
-        
-        // Mettre à jour le nombre de joueurs
         const playersInfo = this.activeTournamentModal.querySelector('div') as HTMLDivElement;
         if (playersInfo) {
             playersInfo.textContent = `Joueurs: ${players.length}/4`;
         }
 
-        // Vider le container
         this.playersContainer.innerHTML = '';
         
-        // Ajouter chaque joueur à la liste
         players.forEach((player, index) => {
             const playerElement = document.createElement('div');
             playerElement.style.padding = '8px';
@@ -614,7 +584,6 @@ export class TournamentScreen extends BaseScreen {
             playerElement.style.display = 'flex';
             playerElement.style.alignItems = 'center';
             
-            // Indicateur d'hôte pour le premier joueur (index 0)
             if (index === 0) {
                 const hostBadge = document.createElement('div');
                 hostBadge.textContent = 'HOST';
@@ -632,12 +601,10 @@ export class TournamentScreen extends BaseScreen {
             playerElement.appendChild(playerName);
             this.playersContainer?.appendChild(playerElement);
         });
-        
-        // Si 4 joueurs ont rejoint, préparer le démarrage du tournoi
+
         if (players.length >= 4) {
             this.prepareStartTournament();
         }
-        
     }
 
     // Méthode pour quitter un tournoi
@@ -674,52 +641,38 @@ export class TournamentScreen extends BaseScreen {
             startingMessage.style.textAlign = 'center';
             startingMessage.style.marginTop = '20px';
             this.activeTournamentModal.appendChild(startingMessage);
-
-            // Fermer le modal plus rapidement (1 seconde au lieu de 3)
             setTimeout(() => {
                 this.closeModal(this.activeTournamentModal!);
                 this.activeTournamentModal = null;
                 this.activeTournamentId = null;
                 this.playersContainer = null;
-            }, 1000);
+            }, 600);
         }
     }
 
-    // Méthode pour demander les tournois au serveur WebSocket
+
     private requestTournaments(): Promise<Array<{id: string, name: string, players: any[], host: any}>> {
         return new Promise((resolve, reject) => {
-            // Créer un identifiant unique pour cette requête
             const requestId = `tournament_request_${Date.now()}`;
-            
-            // Fonction pour gérer la réponse du serveur
             const handleResponse = (event: Event) => {
                 const customEvent = event as CustomEvent;
                 const data = customEvent.detail;
-                
-                console.log("WebSocket response received:", data);
-                
                 if (data.type === 'all_tournaments') {
-                    // Désinscription de l'écouteur d'événements
                     document.removeEventListener('websocket_response', handleResponse);
-                    
-                    // Transformer les données pour correspondre à notre format attendu
                     const formattedTournaments = data.tournaments.map((tournament: any) => ({
                         id: tournament.id,
                         name: tournament.name,
                         players: tournament.players || [],
                         host: tournament.host,
-                        max_players: 4  // Définir une valeur par défaut
+                        max_players: 4  
                     }));
                     
-                    // Résoudre avec les tournois formatés
                     resolve(formattedTournaments);
                 }
             };
             
-            // Écouter les réponses du WebSocket
             document.addEventListener('websocket_response', handleResponse);
             
-            // Envoyer la demande de tournois au serveur
             const customEvent = new CustomEvent('websocket_request', {
                 detail: {
                     type: 'get_all_tournaments',
@@ -728,26 +681,23 @@ export class TournamentScreen extends BaseScreen {
                 bubbles: true
             });
             document.dispatchEvent(customEvent);
-            
-            // Définir un délai d'expiration plus long (10 secondes)
             setTimeout(() => {
                 document.removeEventListener('websocket_response', handleResponse);
                 reject(new Error('Request timed out'));
             }, 10000);
         });
     }
-        // Ajouter cette méthode à la classe TournamentScreen
+
     public closeActiveTournamentModal(): void {
         if (this.activeTournamentModal) {
-            // Arrêter toute animation en cours
+           
             if ((this.activeTournamentModal as any).loadingAnimation) {
                 clearInterval((this.activeTournamentModal as any).loadingAnimation);
             }
             
-            // Fermer le modal
+         
             this.closeModal(this.activeTournamentModal);
             
-            // Réinitialiser les variables
             this.activeTournamentModal = null;
             this.activeTournamentId = null;
             this.playersContainer = null;

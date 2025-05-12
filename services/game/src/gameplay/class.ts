@@ -270,8 +270,11 @@ class Game {
         } else {
             this.score_p2++;
         }
+        this.sendData(); // Send the updated score to both players
         const winner = this.checkWinner();
         if (winner) {
+            this.sendData(); // Send the final game state before ending the game
+            
             this.endGame(winner);
             
         } else {
