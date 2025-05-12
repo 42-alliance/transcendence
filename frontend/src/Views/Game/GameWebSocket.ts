@@ -1,33 +1,35 @@
 import { GameUI } from "./GameUI.js";
-import { GameRenderer } from "./GameRenderer.js";
 import { GameControls } from "./GameControls.js";
-import { GameState } from "./GameState.js";
-import { getUserInfo } from "./UserStore.js";
+import { WebSocketState } from "./WebSocketState.js";
+import { GameMessageHandler } from "./GameMessageHandler.js";
+import { TournamentMessageHandler } from "./TournamentMessageHandler.js";
+import { MessageSender } from "./MessageSender.js";
 
 export class GameWebSocket {
-    private socket: WebSocket | null = null;
-    private isRunning: boolean = false;
-    private frameId: number | null = null;
-    private user_info: any;
-    private gameState: any = null;
-    private lastRender: number = 0;
-    private frameInterval: number = 1000 / 60; // Milliseconds per frame
-    private uuid_room: string = '';
-    private global_uuid: string = '';
+    private state: WebSocketState;
+    private gameMessageHandler: GameMessageHandler;
+    private tournamentMessageHandler: TournamentMessageHandler;
+    private messageSender: MessageSender;
     
     constructor(user_info: any) {
-        this.user_info = user_info;
+        this.state = new WebSocketState(user_info);
+        this.gameMessageHandler = new GameMessageHandler(this.state);
+        this.tournamentMessageHandler = new TournamentMessageHandler();
+        this.messageSender = new MessageSender(this.state);
         
-        // Ne garder qu'un seul écouteur d'événements
+        this.setupEventListeners();
+    }
+    
+    private setupEventListeners(): void {
         document.addEventListener('websocket_request', (event: Event) => {
             const customEvent = event as CustomEvent;
-            if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            if (this.state.isSocketOpen()) {
                 console.log("Sending WebSocket request:", customEvent.detail);
                 
-                // Utiliser l'UUID de la salle depuis l'événement s'il existe
-                const uuid_room = customEvent.detail.uuid_room || this.uuid_room;
+                // Use UUID from the event if it exists
+                const uuid_room = customEvent.detail.uuid_room || this.state.getRoomUUID();
                 
-                this.sendMessage(customEvent.detail.type, {
+                this.messageSender.sendMessage(customEvent.detail.type, {
                     ...customEvent.detail,
                     uuid_room: uuid_room
                 });
@@ -37,43 +39,42 @@ export class GameWebSocket {
         });
     }
     
-    initializeWebSocket() {
+    initializeWebSocket(): void {
         try {
-            this.socket = new WebSocket('ws://localhost:8790');
+            const socket = new WebSocket('ws://localhost:8790');
+            this.state.setSocket(socket);
 
-            this.socket.onopen = () => {
+            socket.onopen = () => {
                 console.log("WebSocket connection established");
-                // Set up keyboard controls after connection
+                // Setup keyboard controls after connection
                 GameControls.setupKeyboardControls(
-                    this.socket,
-                    this.isRunning,
-                    this.user_info,
-                    this.uuid_room,
-                    this.global_uuid
+                    socket,
+                    this.state.getRunningState(),
+                    this.state.getUserInfo(),
+                    this.state.getRoomUUID(),
+                    this.state.getGlobalUUID()
                 );
                 
                 // Send authentication
-                this.socket?.send(JSON.stringify({
-                    type: 'auth',
-                    token: localStorage.getItem('access_token')
-                }));
+                this.messageSender.sendAuthMessage();
             };
 
-            this.socket.onmessage = (event) => {
+            socket.onmessage = (event) => {
                 this.handleMessage(event);
             };
 
-            this.socket.onerror = (error) => {
+            socket.onerror = (error) => {
                 console.error('WebSocket Error:', error);
                 this.disconnect();
             };
             
-            this.socket.onclose = () => {
+            socket.onclose = () => {
                 console.log("WebSocket connection closed");
-                this.isRunning = false;
-                if (this.frameId) {
-                    cancelAnimationFrame(this.frameId);
-                    this.frameId = null;
+                this.state.setRunningState(false);
+                const frameId = this.state.getFrameId();
+                if (frameId) {
+                    cancelAnimationFrame(frameId);
+                    this.state.setFrameId(null);
                 }
             };
         } catch (error) {
@@ -81,255 +82,28 @@ export class GameWebSocket {
         }
     }
     
-    private handleMessage(event: MessageEvent) {
+    private handleMessage(event: MessageEvent): void {
         try {
             const message = JSON.parse(event.data);
-            switch (message.type) {
-                case 'auth_success':
-                    break;
-                case 'auth_failed':
-                    this.disconnect();
-                    break;
-                case 'waiting':
-                    GameUI.displayWaiting();
-                    break;
-                case 'start':
-                    this.uuid_room = message.uuid_room;;
-                    this.isRunning = true;
-                    GameControls.setupKeyboardControls(
-                        this.socket,
-                        this.isRunning,
-                        this.user_info,
-                        this.uuid_room,
-                        message.global_uuid
-                    );
-                    if (message.global_uuid) {
-                        this.global_uuid = message.global_uuid;
-                    }
-                    const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-                    GameState.initializeGame(gameCanvas);
-                    this.isRunning = true;
-                    this.lastRender = performance.now();
-                    this.animate();
-                    GameUI.hideGameButtons();
-                    GameUI.hideSpinner();
-                    break;
-                case 'game_state':
-                    this.updateGameState(message.data);
-                    break;
-                case 'game_finished':
-                    this.isRunning = false;
-                    if (this.frameId) {
-                        cancelAnimationFrame(this.frameId);
-                        this.frameId = null;
-                    }
-                    GameRenderer.showGameFinished(message.data);
-                    break;
-                case 'tournament_created':
-                    GameUI.hideSpinner();
-                    const tournamentScreen = GameUI.getScreen('tournament');
-                        (tournamentScreen as any).showTournamentWaiting(
-                            message.id || message.tournament.id,
-                            message.name || message.tournament.name,
-                            message.players || message.tournament.players || []
-                        );
-                    break;
-                case 'tournament_players_update':
-                    console.log("Tournament players updated:", message.players);
-                    const tourScreen = GameUI.getScreen('tournament');
-                    if (tourScreen && 'updateTournamentPlayers' in tourScreen) {
-                        (tourScreen as any).updateTournamentPlayers(
-                            message.tournament_id,
-                            message.players
-                        );
-                    }
-                    break;
-                case 'all_tournaments':
-                    const tournamentEvent = new CustomEvent('websocket_response', {
-                        detail: {
-                            type: 'all_tournaments',
-                            request_id: message.request_id, 
-                            tournaments: message.tournaments
-                        }
-                    });
-                    document.dispatchEvent(tournamentEvent);
-                    const tournamentEventResponse = new CustomEvent('websocket_response', {
-                        detail: message
-                    });
-                    document.dispatchEvent(tournamentEventResponse);
-                    break;
-                case 'tournament_joined':
-                    GameUI.hideSpinner();
-                    const joinedTournamentScreen = GameUI.getScreen('tournament');
-                    if (joinedTournamentScreen && 'showTournamentWaiting' in joinedTournamentScreen) {
-                        (joinedTournamentScreen as any).showTournamentWaiting(
-                            message.tournament.id,
-                            message.tournament.name,
-                            message.tournament.players || []
-                        );
-                    } else {
-                        console.error("Tournament waiting screen not available");
-                        GameUI.showLobbyButtons();
-                    }
-                    break;
-                case  'tournament_match_update':
-                    const tournamentScreenUpdate = GameUI.getScreen('tournament');
-                    if (tournamentScreenUpdate && 'updateTournamentMatch' in tournamentScreenUpdate) {
-                        (tournamentScreenUpdate as any).updateTournamentMatch(
-                            message.tournament_id,
-                            message.match
-                        );
-                    }
-                    break;
-                case 'tournament_match_result':
-                    console.log("Tournament match result:", message);
-                    const tournamentScreenResult = GameUI.getScreen('tournament');
-                        (tournamentScreenResult as any).updateTournamentEndMatch(
-                            message.tournament_id,
-                            message.match,
-                            message.winner
-                        );
-                    break;
-                case 'tournament_final_match':
-                    console.log("Tournament final match starting:", message);
-                    
-                    // Fermer tout modal actif du tournoi
-                    const finaltournamentScreen = GameUI.getScreen('tournament');
-                    if (finaltournamentScreen && 'closeActiveTournamentModal' in finaltournamentScreen) {
-                        (finaltournamentScreen as any).closeActiveTournamentModal();
-                    }
-                
-                    // Supprimer l'écran de résultat s'il existe
-                    GameUI.clearGameResults();
-                    
-                    // Créer une transition visuelle pour la finale
-                    const finalOverlay = document.createElement('div');
-                    finalOverlay.style.position = 'fixed';
-                    finalOverlay.style.top = '0';
-                    finalOverlay.style.left = '0';
-                    finalOverlay.style.width = '100%';
-                    finalOverlay.style.height = '100%';
-                    finalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-                    finalOverlay.style.display = 'flex';
-                    finalOverlay.style.flexDirection = 'column';
-                    finalOverlay.style.alignItems = 'center';
-                    finalOverlay.style.justifyContent = 'center';
-                    finalOverlay.style.zIndex = '1000';
-                    finalOverlay.style.transition = 'opacity 2s';
-                    
-                    const finalTitle = document.createElement('h1');
-                    finalTitle.textContent = 'FINALE DU TOURNOI';
-                    finalTitle.style.color = '#ffcc00';
-                    finalTitle.style.fontSize = '36px';
-                    finalTitle.style.marginBottom = '20px';
-                    
-                    const vsContainer = document.createElement('div');
-                    vsContainer.style.display = 'flex';
-                    vsContainer.style.alignItems = 'center';
-                    vsContainer.style.justifyContent = 'center';
-                    vsContainer.style.marginBottom = '30px';
-                    
-                    const player1 = document.createElement('div');
-                    player1.textContent = getUserInfo().name || 'You';
-                    player1.style.fontSize = '24px';
-                    player1.style.color = '#4CAF50';
-                    player1.style.padding = '10px 20px';
-                    
-                    const vsText = document.createElement('div');
-                    vsText.textContent = 'VS';
-                    vsText.style.margin = '0 15px';
-                    vsText.style.fontSize = '28px';
-                    vsText.style.color = 'white';
-                    
-                    const player2 = document.createElement('div');
-                    player2.textContent = message.opponent;
-                    player2.style.fontSize = '24px';
-                    player2.style.color = '#F44336';
-                    player2.style.padding = '10px 20px';
-                    
-                    vsContainer.appendChild(player1);
-                    vsContainer.appendChild(vsText);
-                    vsContainer.appendChild(player2);
-                    
-                    finalOverlay.appendChild(finalTitle);
-                    finalOverlay.appendChild(vsContainer);
-                    
-                    document.body.appendChild(finalOverlay);
-                    
-                    // Animation de l'écran de finale et suppression après 3 secondes
-                    setTimeout(() => {
-                        finalOverlay.style.opacity = '0';
-                        setTimeout(() => finalOverlay.remove(), 2000);
-                    }, 3000);
-                    
-                    break;
-                default:
-                    console.warn("Unknown message type:", message.type);
-                    break;
+            
+            // First check if it's a tournament message
+            if (this.tournamentMessageHandler.handleTournamentMessage(message)) {
+                return; // Message was handled by tournament handler
             }
+            
+            // Otherwise, let the game message handler try to process it
+            this.gameMessageHandler.handleGameMessage(message);
+            
         } catch (error) {
             console.error("Error processing WebSocket message:", error);
         }
     }
     
-    private updateGameState(state: any) {
-        if (!state) return;
-        this.gameState = state;
-    }
-
-    private animate = (timestamp: number = 0) => {
-        if (!this.isRunning) return;
-        const elapsed = timestamp - this.lastRender;
-        if (elapsed > this.frameInterval) {
-            this.lastRender = timestamp - (elapsed % this.frameInterval);
-            GameRenderer.renderGame(this.gameState);
-        }
-        this.frameId = requestAnimationFrame(this.animate);
+    disconnect(): void {
+        this.gameMessageHandler.disconnect();
     }
     
-    disconnect() {
-        this.isRunning = false;
-        if (this.frameId) {
-            cancelAnimationFrame(this.frameId);
-            this.frameId = null;
-        }
-        if (this.socket) {
-            this.socket.close();
-            this.socket = null;
-        }
-    }
-    
-    sendMessage(type: string, data?: any) {
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            // Réinitialiser l'UUID pour les nouvelles demandes de jeu
-            if (type === 'random_adversaire' || type === 'local' || 
-                type === 'ia' || type === 'tournament') {
-                console.log(`Starting new game of type ${type}, resetting room UUID`);
-                this.uuid_room = '';
-            }
-            
-            // Créer une copie pour ne pas modifier l'objet original
-            const messageData = { ...data };
-            
-            // Si l'UUID de salle n'est pas défini dans les données mais que nous en avons un localement
-            if (!messageData.uuid_room && this.uuid_room) {
-                messageData.uuid_room = this.uuid_room;
-            }
-            
-            // Si aucun UUID n'est disponible et que c'est un message qui devrait en avoir un
-            if (!messageData.uuid_room && ['game_state', 'move', 'disconnect'].includes(type)) {
-                console.warn('Sending message without room UUID:', type);
-            }
-            
-            const message = {
-                type,
-                ...messageData
-            };
-            
-            console.log(`Sending message with UUID ${message.uuid_room || 'none'}:`, type);
-            this.socket.send(JSON.stringify(message));
-        } else {
-            console.error('WebSocket not connected');
-        }
+    sendMessage(type: string, data?: any): void {
+        this.messageSender.sendMessage(type, data);
     }
 }

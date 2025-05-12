@@ -1,24 +1,14 @@
-import { userInfo } from 'os';
-import Game from './Game.js';
-import { GameUI } from './GameUI.js'; // Adjust the path as necessary
+import { GameUI } from './GameUI.js';
+import { FontHelper } from './FontHelper.js';
+
+// Précharger la police
+FontHelper.loadFonts().then(() => {
+    console.log('Police Mighty Souly chargée avec succès');
+}).catch(err => {
+    console.warn('Échec du chargement de la police Mighty Souly:', err);
+});
 
 
-
-function DrawCircleScore(ctx: CanvasRenderingContext2D, x: number, y: number, score: number) {
-    for (let i = 0; i < 5; i++) {
-        ctx.beginPath();
-        ctx.arc(x, y, 10, 0, Math.PI * 2);
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.fillStyle = 'white';
-        if (i < score) {
-            ctx.fill();
-        }
-        x += 50;
-    }
-    ctx.closePath();
-}
 
 export class GameRenderer {
 
@@ -33,20 +23,20 @@ export class GameRenderer {
         if (!ctx || !gameState) return;
     
         // Clear the canvas
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = '#091053';
         ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     
         const game = gameState;
     
         // Draw the net
         ctx.fillStyle = 'white';
+        ctx.imageSmoothingQuality = 'high';
         const netX = (gameCanvas.width - 2) / 2;
         for (let i = 0; i <= gameCanvas.height; i += 15) {
-            ctx.fillRect(netX, i, 2, 10);
+            ctx.fillRect(netX, i, 4, 20);
         }
-        // Draw paddles and ball if we have their positions
         if (game.paddle1) {
-            ctx.fillStyle = 'white';
+            ctx.fillStyle = '#b9d6f2';
             ctx.fillRect(
                 game.paddle1.x , 
                 game.paddle1.y , 
@@ -56,7 +46,7 @@ export class GameRenderer {
         }
     
         if (game.paddle2) {
-            ctx.fillStyle = 'white';
+            ctx.fillStyle = '#b9d6f2';
             ctx.fillRect(
                 game.paddle2.x ,
                 game.paddle2.y, 
@@ -66,29 +56,35 @@ export class GameRenderer {
         }
     
         if (game.ball) {
-            ctx.fillStyle = 'white';
+            // Save the current canvas state
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = '#CAFE48';
             ctx.beginPath();
             ctx.arc(
-                game.ball.x , 
-                game.ball.y ,
-                game.ball.radius , 
-                0,
-                Math.PI * 2
+            game.ball.x, 
+            game.ball.y,
+            game.ball.radius, 
+            0,
+            Math.PI * 2
             );
             ctx.closePath();
             ctx.fill();
+            ctx.restore();
         }
     
         // Draw scores
         ctx.fillStyle = 'white';
-        ctx.font = '35px Arial';
+        ctx.font = FontHelper.getScoreFont();
         ctx.textAlign = 'center';
     
         if (game.score) {
-            ctx.fillText(game.score.p1_name /*+ " | " + game.score.p1.toString()*/, gameCanvas.width / 4, 50);
-            DrawCircleScore(ctx, (gameCanvas.width / 4) - 100, 90, game.score.p1);
-            ctx.fillText(game.score.p2_name.toString() /*+ " | " + game.score.p2_name*/, (3 * gameCanvas.width) / 4, 50);
-            DrawCircleScore(ctx, ((3 * gameCanvas.width)  / 4) - 100 , 90, game.score.p2);
+            ctx.fillText(game.score.p1_name, gameCanvas.width / 4, 50);
+            ctx.fillText(game.score.p2_name.toString() , (3 * gameCanvas.width) / 4, 50);
+            
+            ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
+            ctx.fillText(game.score.p1.toString(), gameCanvas.width / 4, 300, 200);
+            ctx.fillText(game.score.p2.toString(), (3 * gameCanvas.width) / 4, 300, 200);
         }
     
         if (game.opponent && game.opponent.score !== undefined) {
@@ -98,11 +94,28 @@ export class GameRenderer {
 
 
     static showGameFinished(data: any) {
-        // Cacher le canvas de jeu
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-        // if (gameCanvas) gameCanvas.style.display = 'none';
-    
-        // Créer l'élément de résultat
+        gameCanvas.innerHTML = '';
+        const resultContainer = GameRenderer.createResultContainer();
+
+        const gameInstance = (window as any).gameInstance;
+        const currentUser = GameRenderer.getCurrentUser(gameInstance);
+
+        const userId = String(currentUser.id);
+        console.log("Current user ID:", userId);
+        console.log("Winner user ID:", data.winner);
+        console.log("Game mode:", data.mode);
+
+        if (data.mode === 'local' || data.mode === 'ia') {
+            GameRenderer.handleLocalOrAIMode(resultContainer, data);
+        } else {
+            GameRenderer.handleOnlineMode(resultContainer, data, userId);
+        }
+
+        document.body.appendChild(resultContainer);
+    }
+
+    private static createResultContainer(): HTMLDivElement {
         const resultContainer = document.createElement('div');
         resultContainer.id = 'game-result';
         resultContainer.style.position = 'fixed';
@@ -116,159 +129,84 @@ export class GameRenderer {
         resultContainer.style.borderRadius = '10px';
         resultContainer.style.textAlign = 'center';
         resultContainer.style.color = 'white';
-        resultContainer.style.zIndex = '1000'; // S'assurer qu'il est au-dessus de tout
-    
-        const gameInstance = (window as any).gameInstance;
-    
-        let currentUser;
+        resultContainer.style.zIndex = '1000';
+        resultContainer.style.fontFamily = FontHelper.MIGHTY_SOULY_FONT;
+        return resultContainer;
+    }
+
+    private static getCurrentUser(gameInstance: any): any {
         if (gameInstance && typeof gameInstance.getUser === 'function') {
-            currentUser = gameInstance.getUser();
-            console.log("Retrieved user from Game instance:", currentUser);
+            console.log("Retrieved user from Game instance:", gameInstance.getUser());
+            return gameInstance.getUser();
         } else {
-            // Fallback si l'instance n'est pas disponible
             console.warn("Game instance not found, using default user");
-            currentUser = { id: "player1", name: "Player 1" };
-        }
-    
-        // Convertir l'ID en string pour la comparaison (car data.winner pourrait être une string)
-        const userId = String(currentUser.id);
-        console.log("Current user ID:", userId);
-        console.log("winner user_ID", data.winner);
-        console.log("game_mode", data.mode);
-
-        if (data.mode === 'local' || data.mode === 'ia') {
-            console.log("Local or AI mode detected");
-            const title = document.createElement('h2');
-            title.textContent = `${data.winner_name} wins!`;
-            title.style.color = '#4CAF50';
-            resultContainer.appendChild(title);
-
-            const button = document.createElement('button');
-            button.textContent = 'Retourner au lobby';
-            button.style.padding = '50px 40px';
-            button.style.backgroundColor = '#4a4a8f';
-            button.style.border = 'none';
-            button.style.borderRadius = '5px';
-            button.style.color = 'white';
-            button.style.cursor = 'pointer';
-            button.onclick = () => {
-                // Clear the game
-                const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-                if (gameCanvas) {
-                    const gameContext = gameCanvas.getContext('2d');
-                    if (gameContext) {
-                        gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                    }
-                    gameCanvas.style.display = 'block';
-                }
-                resultContainer.remove();
-                GameUI.showLobbyButtons();
-            };
-
-            resultContainer.appendChild(button);
-            document.body.appendChild(resultContainer);
-            return;
-        } else {
-            const isWinner = data.winner.toString() === userId.toString();
-            
-            // Titre du résultat
-            const title = document.createElement('h2');
-            title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
-            title.style.color = isWinner ? '#4CAF50' : '#F44336';
-        
-            // Message spécial pour la déconnexion
-            let message = document.createElement('p');
-            if (data.disconnection) {
-                message.textContent = `Votre adversaire (${data.disconnected_player}) s'est déconnecté !`;
-                message.style.color = '#FFC107';
-            } else {
-                message.textContent = `Score final: ${data.score.p1} - ${data.score.p2}`;
-                if (data.winner_name) {
-                    message.textContent += ` | Gagnant: ${data.winner_name}`;
-                }
-            }
-            message.style.marginBottom = '20px';
-            resultContainer.appendChild(title);
-
-        }
-
-        // Bouton pour retourner au lobby
-        const button = document.createElement('button');
-        button.textContent = 'Retourner au lobby';
-        button.style.padding = '10px 20px';
-        button.style.backgroundColor = '#4a4a8f';
-        button.style.border = 'none';
-        button.style.borderRadius = '5px';
-        button.style.color = 'white';
-        button.style.cursor = 'pointer';
-        button.onclick = () => {
-            //clear the game
-            const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-            const gameContext = gameCanvas.getContext('2d');
-            if (gameContext) {
-                gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-            }
-            resultContainer.remove();
-            if (gameCanvas) gameCanvas.style.display = 'block';
-            GameUI.showLobbyButtons();
-        
-        };
-    
-        if (data.mode !== 'tournament') {
-            resultContainer.appendChild(button);
-        } else {
-            // En mode tournoi, le comportement dépend si on est gagnant ou perdant
-            const isWinner = data.winner.toString() === userId.toString();
-            
-            if (isWinner) {
-                // Pour le gagnant - afficher un message d'attente
-                const waitingMessage = document.createElement('div');
-                waitingMessage.innerHTML = `
-                    <h3>Vous passez au tour suivant!</h3>
-                    <p>Veuillez patienter pendant que les autres matchs se terminent...</p>
-                    <div class="loading-spinner" style="margin: 20px auto; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 2s linear infinite;"></div>
-                `;
-                
-                // Ajouter le style de l'animation
-                const style = document.createElement('style');
-                style.textContent = `
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `;
-                document.head.appendChild(style);
-                
-                resultContainer.appendChild(waitingMessage);
-                
-                // Pour les gagnants de tournoi: le résultat sera automatiquement nettoyé après 5 secondes
-                // afin qu'ils soient prêts pour la finale
-                setTimeout(() => {
-                    if (resultContainer && resultContainer.parentNode) {
-                        resultContainer.remove();
-                        
-                        // S'assurer que le canvas est réinitialisé pour la prochaine partie
-                        const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-                        if (gameCanvas) {
-                            const ctx = gameCanvas.getContext('2d');
-                            if (ctx) {
-                                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                            }
-                            gameCanvas.style.display = 'block';
-                        }
-                    }
-                }, 5000);
-            } else {
-                // Pour le perdant - afficher le bouton de retour au lobby
-                const defeatMessage = document.createElement('p');
-                defeatMessage.textContent = "Vous êtes éliminé du tournoi.";
-                defeatMessage.style.color = '#F44336';
-                defeatMessage.style.marginBottom = '20px';
-                
-                resultContainer.appendChild(defeatMessage);
-                resultContainer.appendChild(button);
-            }
+            return { id: "player1", name: "Player 1" };
         }
     }
-}
 
+    private static handleLocalOrAIMode(resultContainer: HTMLDivElement, data: any): void {
+        const title = document.createElement('h2');
+        title.textContent = `${data.winner_name} wins!`;
+        title.style.color = '#4CAF50';
+        title.style.marginBottom = '60px';
+        resultContainer.style.top = '30%';
+        FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE);
+        resultContainer.appendChild(title);
+
+        const button = GameRenderer.createReturnToLobbyButton(resultContainer);
+        resultContainer.appendChild(button);
+    }
+
+    private static handleOnlineMode(resultContainer: HTMLDivElement, data: any, userId: string): void {
+        const isWinner = data.winner.toString() === userId.toString();
+
+        const title = document.createElement('h2');
+        title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
+        title.style.color = isWinner ? '#4CAF50' : '#F44336';
+        FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE);
+        resultContainer.appendChild(title);
+
+        const message = document.createElement('p');
+        if (data.disconnection) {
+            message.textContent = `Votre adversaire (${data.disconnected_player}) s'est déconnecté !`;
+            message.style.color = '#FFC107';
+        } else {
+            message.textContent = `Score final: ${data.score.p1} - ${data.score.p2}`;
+            if (data.winner_name) {
+                message.textContent += ` | Gagnant: ${data.winner_name}`;
+            }
+        }
+        message.style.marginBottom = '20px';
+        FontHelper.applyMightySoulyFont(message, FontHelper.TEXT_FONT_SIZE);
+        resultContainer.appendChild(message);
+
+        const button = GameRenderer.createReturnToLobbyButton(resultContainer);
+        resultContainer.appendChild(button);
+    }
+
+    private static createReturnToLobbyButton(resultContainer: HTMLDivElement): HTMLButtonElement {
+        const button = document.createElement('button');
+        button.textContent = 'Retourner au lobby';
+        button.style.width = '100%';
+        button.style.padding = '20px';
+        button.style.marginTop = '20px';
+
+        button.style.backgroundColor = '#B9D6F2';
+        button.style.color = '#091053';
+        button.style.cursor = 'pointer';
+        FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
+        button.onclick = () => {
+            const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+            if (gameCanvas) {
+                const gameContext = gameCanvas.getContext('2d');
+                if (gameContext) {
+                    gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                }
+                gameCanvas.style.display = 'block';
+            }
+            resultContainer.remove();
+            GameUI.showLobbyButtons();
+        };
+        return button;
+    }
+}

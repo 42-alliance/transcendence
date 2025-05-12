@@ -385,128 +385,7 @@ export class TournamentScreen extends BaseScreen {
     private activeTournamentModal: HTMLDivElement | null = null;
     private playersContainer: HTMLDivElement | null = null;
 
-    public updateTournamentEndMatch(tournamentId: string, matchId: string, winner_id: string): void {
-        console.log('Tournament match end:', { tournamentId, matchId, winner_id });
-        
-        if (this.activeTournamentId !== tournamentId || !this.activeTournamentModal) {
-            console.error("Tournament display not active");
-            return;
-        }
-    
-        while (this.activeTournamentModal.childNodes.length > 1) {
-            this.activeTournamentModal.removeChild(this.activeTournamentModal.lastChild!);
-        }
-        
-        // Garder seulement le titre
-        const title = this.activeTournamentModal.firstChild as HTMLElement;
-        
-        // Récupérer les informations de l'utilisateur actuel
-        const currentUser = getUserInfo();
-        const isWinner = winner_id === currentUser.id.toString();
-        
-        if (isWinner) {
-            // Pour le gagnant - message de progression au prochain tour
-            const winnerContainer = document.createElement('div');
-            winnerContainer.style.display = 'flex';
-            winnerContainer.style.flexDirection = 'column';
-            winnerContainer.style.alignItems = 'center';
-            winnerContainer.style.justifyContent = 'center';
-            winnerContainer.style.padding = '20px';
-            
-            const winnerMessage = document.createElement('div');
-            winnerMessage.textContent = 'Vous avez gagné le match!';
-            winnerMessage.style.color = '#00ff00';
-            winnerMessage.style.fontSize = '22px';
-            winnerMessage.style.fontWeight = 'bold';
-            winnerMessage.style.marginBottom = '15px';
-            
-            const waitingMessage = document.createElement('div');
-            waitingMessage.textContent = 'En attente du prochain match...';
-            waitingMessage.style.fontSize = '18px';
-            waitingMessage.style.color = '#aaaaaa';
-            waitingMessage.style.marginBottom = '20px';
-            
-            // Créer une animation de chargement
-            const spinnerContainer = document.createElement('div');
-            spinnerContainer.style.width = '50px';
-            spinnerContainer.style.height = '50px';
-            spinnerContainer.style.margin = '20px auto';
-            spinnerContainer.style.border = '5px solid rgba(255, 255, 255, 0.2)';
-            spinnerContainer.style.borderTop = '5px solid #3498db';
-            spinnerContainer.style.borderRadius = '50%';
-            
-            // Ajouter une animation au spinner
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-                .tournament-spinner {
-                    animation: spin 1.5s linear infinite;
-                }
-            `;
-            document.head.appendChild(style);
-            spinnerContainer.classList.add('tournament-spinner');
-            
-            // Ajouter les éléments au conteneur
-            winnerContainer.appendChild(winnerMessage);
-            winnerContainer.appendChild(waitingMessage);
-            winnerContainer.appendChild(spinnerContainer);
-            
-            this.activeTournamentModal.appendChild(winnerContainer);
-            
-            // Le modal se fermera automatiquement quand le match final commencera
-        } else {
-            // Pour le perdant - message d'élimination et bouton de retour
-            const loserContainer = document.createElement('div');
-            loserContainer.style.display = 'flex';
-            loserContainer.style.flexDirection = 'column';
-            loserContainer.style.alignItems = 'center';
-            loserContainer.style.justifyContent = 'center';
-            loserContainer.style.padding = '20px';
-            
-            const eliminatedMessage = document.createElement('div');
-            eliminatedMessage.textContent = 'Vous avez été éliminé du tournoi';
-            eliminatedMessage.style.color = '#ff4444';
-            eliminatedMessage.style.fontSize = '22px';
-            eliminatedMessage.style.fontWeight = 'bold';
-            eliminatedMessage.style.marginBottom = '15px';
-            
-            const scoreMessage = document.createElement('div');
-            scoreMessage.textContent = 'Vous pouvez retourner au lobby ou regarder la finale';
-            scoreMessage.style.fontSize = '16px';
-            scoreMessage.style.color = '#aaaaaa';
-            scoreMessage.style.marginBottom = '25px';
-            
-            // Bouton pour retourner au lobby
-            const returnButton = this.createActionButton('Retourner au Lobby', () => {
-                this.leaveTournament(tournamentId);
-                this.closeModal(this.activeTournamentModal!);
-                GameUI.showLobbyButtons();
-            });
-            returnButton.style.margin = '10px auto';
-            returnButton.style.display = 'block';
-            
-            // Bouton pour regarder la finale
-            const watchButton = this.createActionButton('Regarder la Finale', () => {
-                // Juste fermer le modal et attendre
-                this.closeActiveTournamentModal();
-            }, false);
-            watchButton.style.margin = '10px auto';
-            watchButton.style.display = 'block';
-            watchButton.style.backgroundColor = '#4a4a8f';
-            
-            // Assembler les éléments
-            loserContainer.appendChild(eliminatedMessage);
-            loserContainer.appendChild(scoreMessage);
-            loserContainer.appendChild(returnButton);
-            loserContainer.appendChild(watchButton);
-            
-            this.activeTournamentModal.appendChild(loserContainer);
-        }
-    }
-
+    // Méthode pour afficher le tournoi en attente
     public showTournamentWaiting(tournamentId: string, tournamentName: string, initialPlayers: any[]): void {
         this.activeTournamentId = tournamentId;
     
@@ -562,6 +441,150 @@ export class TournamentScreen extends BaseScreen {
         this.updateTournamentPlayers(tournamentId, initialPlayers);
     }
 
+    //methode pour afficher les match a venir
+    public showTournamentMatch(tournamentId: string, tournamentName: string, opponentName: string): void {
+        this.activeTournamentId = tournamentId;
+        
+        // Créer un overlay pour l'animation
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(9, 16, 83, 0.95)';
+        overlay.style.zIndex = '2000';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        
+        // Créer le conteneur d'animation
+        const animContainer = document.createElement('div');
+        animContainer.style.position = 'relative';
+        animContainer.style.width = '90%';
+        animContainer.style.maxWidth = '800px';
+        animContainer.style.height = '250px';
+        
+        // Créer le titre du tournoi
+        const title = document.createElement('div');
+        title.textContent = tournamentName.toUpperCase();
+        title.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        title.style.fontSize = '36px';
+        title.style.color = '#CAFE48';
+        title.style.textAlign = 'center';
+        title.style.marginBottom = '60px';
+        title.style.opacity = '0';
+        title.style.transform = 'translateY(-20px)';
+        title.style.transition = 'all 0.8s ease-out';
+        
+        // Après un court délai, faire apparaître le titre
+        setTimeout(() => {
+            title.style.opacity = '1';
+            title.style.transform = 'translateY(0)';
+        }, 300);
+        
+        // Récupérer le nom du joueur actuel
+        const currentUser = getUserInfo();
+        const playerName = currentUser?.username || "VOUS";
+        
+        // Joueur 1 (à gauche)
+        const player1 = document.createElement('div');
+        player1.textContent = playerName;
+        player1.style.position = 'absolute';
+        player1.style.left = '-100%';
+        player1.style.top = '50%';
+        player1.style.transform = 'translateY(-50%)';
+        player1.style.color = '#B9D6F2';
+        player1.style.fontSize = '48px';
+        player1.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        player1.style.whiteSpace = 'nowrap';
+        player1.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        // Joueur 2 (à droite)
+        const player2 = document.createElement('div');
+        player2.textContent = opponentName;
+        player2.style.position = 'absolute';
+        player2.style.right = '-100%';
+        player2.style.top = '50%';
+        player2.style.transform = 'translateY(-50%)';
+        player2.style.color = '#F44336';
+        player2.style.fontSize = '48px';
+        player2.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        player2.style.whiteSpace = 'nowrap';
+        player2.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        // VS au milieu
+        const vs = document.createElement('div');
+        vs.textContent = "VS";
+        vs.style.position = 'absolute';
+        vs.style.left = '50%';
+        vs.style.top = '50%';
+        vs.style.transform = 'translate(-50%, -50%) scale(0)';
+        vs.style.color = '#CAFE48';
+        vs.style.fontSize = '72px';
+        vs.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        vs.style.zIndex = '10';
+        vs.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        vs.style.textShadow = '0 0 15px rgba(202, 254, 72, 0.8)';
+        
+        // Ligne diagonale
+        
+        // Ajouter tous les éléments au conteneur d'animation
+        animContainer.appendChild(player1);
+        animContainer.appendChild(player2);
+        animContainer.appendChild(vs);
+        
+        overlay.appendChild(title);
+        overlay.appendChild(animContainer);
+        document.body.appendChild(overlay);
+        
+        // Déclencher les animations
+        setTimeout(() => {
+            player1.style.left = '5%';
+        }, 800);
+        
+        setTimeout(() => {
+            player2.style.right = '5%';
+        }, 1000);
+        
+      
+        
+        setTimeout(() => {
+            vs.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            setTimeout(() => {
+                vs.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 200);
+        }, 2000);
+        
+        // Après l'animation, afficher le jeu
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.remove();
+            }, 500);
+        }, 4000);
+        
+        // Envoyer un message au serveur que le joueur est prêt
+        setTimeout(() => {
+            // Cacher l'overlay d'animation
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.remove();
+                
+                // Indiquer au serveur que le joueur est prêt après l'animation
+                const customEvent = new CustomEvent('websocket_request', { 
+                    detail: {
+                        type: 'tournament_player_ready',
+                        tournament_id: tournamentId
+                    },
+                    bubbles: true
+                });
+                document.dispatchEvent(customEvent);
+            }, 500);
+        }, 5000); // Délai total d'animation
+    }
+        
     // Méthode pour mettre à jour la liste des joueurs
     public updateTournamentPlayers(tournamentId: string, players: any[]): void {
         if (this.activeTournamentId !== tournamentId || !this.activeTournamentModal || !this.playersContainer) {

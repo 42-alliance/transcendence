@@ -1,3 +1,5 @@
+import { FontHelper } from '../../FontHelper.js';
+
 export const UIStyles = {
     container: {
         position: 'fixed',
@@ -19,7 +21,7 @@ export const UIStyles = {
     title: {
         color: 'white',
         marginBottom: '20px',
-        fontFamily: "'Arial', sans-serif",
+        fontFamily: FontHelper.MIGHTY_SOULY_FONT,
         fontSize: '24px',
         fontWeight: 'bold',
         textTransform: 'uppercase',
@@ -42,7 +44,8 @@ export const UIStyles = {
             letterSpacing: '1px',
             margin: '5px 0',
             border: '1px solid #5d5daa',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+            fontFamily: FontHelper.MIGHTY_SOULY_FONT
         },
         hover: {
             background: 'linear-gradient(to bottom, #5d5daa, #4a4a8f)',
@@ -100,7 +103,7 @@ export const UIStyles = {
         },
         text: {
             color: 'white',
-            fontFamily: "'Arial', sans-serif",
+            fontFamily: FontHelper.MIGHTY_SOULY_FONT,
             fontSize: '18px'
         }
     }

@@ -130,9 +130,9 @@ class Game {
         // Calculate scaling factors
       
         // Initialize paddle and ball dimensions
-        this.paddleWidth = 15; // Fixed paddle width
-        this.paddleHeight = 100; // Fixed paddle height
-        this.ballRadius = 10; // Fixed ball radius
+        this.paddleWidth = 30; // Fixed paddle width
+        this.paddleHeight = 200; // Fixed paddle height
+        this.ballRadius = 25; // Fixed ball radius
 
         const paddleSpeed = 14; // Fixed paddle speed
         const ballSpeed = 7; // Fixed ball speed

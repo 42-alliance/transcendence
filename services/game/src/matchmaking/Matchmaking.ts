@@ -261,6 +261,11 @@ class WebSocketMessageHandler {
                 break;
             case 'leave_tournament':
                 this.handleLeaveTournament(data);
+                break;
+
+            case 'tournament_player_ready':
+                this.handleTournamentPlayerReady(data);
+                break;
 
             default:
                 console.error(`Unknown message type: ${data.type}`);
@@ -389,6 +394,60 @@ class WebSocketMessageHandler {
             else {
                 this.broadcastTournamentUpdate(tournament);
             }
+        }
+    }
+
+    private handleTournamentPlayerReady(data: any): void {
+        const tournamentId = data.tournament_id;
+        const tournament = GetTournamentById(tournamentId);
+        
+        if (!tournament) {
+            console.error(`Tournament ${tournamentId} not found`);
+            return;
+        }
+        
+        // Trouver le match en statut pre-active où ce joueur participe
+        const match = tournament.matches.find(m => 
+            m.status === 'pre-active' && 
+            (m.player1.user_id === this.player.user_id || m.player2.user_id === this.player.user_id)
+        );
+        
+        if (!match) {
+            console.error(`No pre-active match found for player ${this.player.username}`);
+            return;
+        }
+        
+        // Initialiser le tableau des joueurs prêts si nécessaire
+        if (!match.readyPlayers) {
+            match.readyPlayers = [];
+        }
+        
+        // Ajouter ce joueur aux joueurs prêts s'il n'est pas déjà là
+        if (!match.readyPlayers.includes(this.player.user_id)) {
+            match.readyPlayers.push(this.player.user_id);
+        }
+        
+        // Si les deux joueurs sont prêts, démarrer le match
+        if (match.readyPlayers.length === 2) {
+            console.log(`Both players ready for match ${match.id}, starting game`);
+            
+            // Créer une session de match pour ce match de tournoi
+            const matchManager = MatchManager.getInstance();
+            const session = matchManager.createTournamentMatch(
+                [match.player1, match.player2],
+                'tournament',
+                match.uuid_room,
+                tournament.id,
+                tournament.status === 'final' ? 'final' : 'round1'
+            );
+            
+            // Ajouter la session à la liste des sessions
+            all_sessions.push(session);
+            
+            // Marquer le match comme actif
+            UpdateMatchStatus(tournament.id, match.id, 'active');
+        } else {
+            console.log(`Player ${this.player.username} ready for match ${match.id}, waiting for opponent`);
         }
     }
 
@@ -589,26 +648,14 @@ function processAllTournaments() {
             for (const match of pendingMatches) {
                 console.log(`Starting tournament match: ${match.player1.username} vs ${match.player2.username}`);
 
-                // Créer une session de match pour ce match de tournoi
-                const matchManager = MatchManager.getInstance();
-                const session = matchManager.createTournamentMatch(
-                    [match.player1, match.player2],
-                    'tournament',
-                    match.uuid_room,
-                    tournament.id,
-                    'round1'
-                );
+                // Mettre à jour le statut du match à 'pre-active' au lieu de 'active'
+                UpdateMatchStatus(tournament.id, match.id, 'pre-active');
 
-                // Ajouter la session à la liste des sessions
-                all_sessions.push(session);
-
-                // Marquer le match comme actif
-                UpdateMatchStatus(tournament.id, match.id, 'active');
-
-                // Notifier les joueurs
+                // Notifier les joueurs et attendre leur confirmation
                 [match.player1, match.player2].forEach(player => {
                     secureSend(player.socket, {
                         type: 'tournament_match_starting',
+                        tournament_id: tournament.id,
                         tournament: tournament.name,
                         opponent: player === match.player1 ? match.player2.username : match.player1.username,
                         match_id: match.id

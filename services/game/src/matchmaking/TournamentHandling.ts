@@ -19,9 +19,9 @@ export type TournamentMatch = {
     player2: Player;
     winner?: Player;
     uuid_room: string;
-    status: 'pending' | 'active' | 'completed';
+    status: 'pending' | 'pre-active' | 'active' | 'completed';
+    readyPlayers?: string[]; // Pour suivre les joueurs qui ont confirmé
 };
-
 const TournamenntsList: Tournament[] = [];
 
 // Mise à jour de la fonction de création de tournoi
@@ -180,11 +180,12 @@ export function GetPendingMatches(tournamentId: string): TournamentMatch[] {
     const tournament = GetTournamentById(tournamentId);
     if (!tournament) return [];
     
+    // Ne retourner que les matchs réellement en attente
     return tournament.matches.filter(m => m.status === 'pending');
 }
 
 // Mettre à jour le statut d'un match
-export function UpdateMatchStatus(tournamentId: string, matchId: string, status: 'pending' | 'active' | 'completed'): boolean {
+export function UpdateMatchStatus(tournamentId: string, matchId: string, status: 'pending' | 'active' | 'completed' | 'pre-active'): boolean {
     const tournament = GetTournamentById(tournamentId);
     if (!tournament) return false;
     
