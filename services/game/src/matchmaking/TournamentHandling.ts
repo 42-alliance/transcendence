@@ -38,6 +38,15 @@ export function CreateTournament (Host: Player, tournamentName: string) {
     return tournament
 }
 
+export function DeleteTournament(uuid: string) {
+    const tournamentIndex = TournamenntsList.findIndex(t => t.id === uuid);
+    if (tournamentIndex !== -1) {
+        TournamenntsList.splice(tournamentIndex, 1);
+        return true;
+    }
+    return false;
+}
+
 // Lorsqu'un joueur est ajouté, vérifier si on peut lancer le tournoi
 export function AddPlayerToTournament(uuid: string, player: Player): boolean {
     const tournament = TournamenntsList.find(t => t.id === uuid);

@@ -302,14 +302,12 @@ class Game {
             },
         };
 
-
+        this.sendData(); // Send the updated score to both players
         if (this.mode === 'local' || this.mode === 'ia') {
             gameFinishedMessage.data.winner_name = winnerUserId;
         }
     
-        // Ajouter un traitement pour les tournois
         if (this.mode === 'tournament' && this.global_uuid) {
-            // Notifier le système de tournoi que ce match est terminé
             try {
                 handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
             } catch (error) {

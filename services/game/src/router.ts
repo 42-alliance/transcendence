@@ -23,7 +23,6 @@ export async function setupModeRoute(server: FastifyInstance) {
         try {
             const userId = extractUserId(request);
             const userName = extractUserName(request);
-            console.log("Matchmaking setup");
             reply.status(200).send({ success: true });
         }
         catch (e) {

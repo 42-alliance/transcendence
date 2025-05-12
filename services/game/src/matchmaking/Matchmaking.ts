@@ -11,7 +11,8 @@ import {
     RecordMatchWinner,
     Tournament,
     TournamentMatch,
-    createFinalMatch
+    createFinalMatch,
+    DeleteTournament
 } from './TournamentHandling.js';
 import { sessions } from '../gameplay/gameplay.js';
 
@@ -333,19 +334,20 @@ class WebSocketMessageHandler {
         const tournament = GetTournamentById(tournamentId);
 
         if (tournament) {
+            //si l'user est deja dans un tournoi, le faire quitter
+            if (this.player.uuid_room) {
+                RemovePlayerFromTournament(this.player.uuid_room, this.player);
+            }
             this.player.uuid_room = tournamentId;
             AddPlayerToTournament(tournamentId, this.player);
-
             secureSend(this.socket, {
                 type: 'tournament_joined',
                 tournament: tournament,
                 players: tournament.players
             });
-
-            // Notifier tous les joueurs du tournoi qu'un nouveau joueur a rejoint
+            // Notifier tous les joueurs du tournoi
             this.broadcastTournamentUpdate(tournament);
 
-            console.log(`Player ${this.player.username} joined tournament ${tournament.name}`);
         } else {
             secureSend(this.socket, {
                 type: 'error',
@@ -370,9 +372,24 @@ class WebSocketMessageHandler {
         if (tournament) {
             RemovePlayerFromTournament(tournamentId, this.player);
             this.player.uuid_room = '';
-            this.broadcastTournamentUpdate(tournament);
+            if (tournament.players.length === 0) {
+                DeleteTournament(tournamentId);
+            }
+            //if host leave tournament delete tournament
+            else if (tournament.host.user_id === this.player.user_id) {
+                //send to all player in the room
+                for (const player of tournament.players) {
+                    secureSend(player.socket, {
+                        type: 'tournament_deleted',
+                        tournament_id: tournamentId
+                    });
+                }
+                DeleteTournament(tournamentId); 
+            }
+            else {
+                this.broadcastTournamentUpdate(tournament);
+            }
         }
-        // Notifier tous les joueurs du tournoi qu'un joueur a quitté
     }
 
     private broadcastTournamentUpdate(tournament: Tournament): void {
@@ -403,13 +420,9 @@ export async function setupMatchmaking() {
 
     // Configuration du serveur WebSocket
     wss.on('connection', function connection(ws) {
-        console.log("New client connected");
-
-        // Variables pour suivre le joueur
         let connectedPlayer: Player | null = null;
         let gameRoom: string | null = null;
 
-        // Gestionnaire de messages
         ws.on('message', function incoming(message) {
             try {
                 const data = JSON.parse(message.toString());
@@ -425,7 +438,6 @@ export async function setupMatchmaking() {
                     };
                 }
 
-                // Si le message indique une nouvelle partie, réinitialiser l'UUID
                 if (data.type === 'random_adversaire' || data.type === 'local' ||
                     data.type === 'ia' || data.type === 'tournament') {
 
@@ -435,8 +447,6 @@ export async function setupMatchmaking() {
                     // Réinitialiser l'UUID de la salle dans les variables locales
                     gameRoom = null;
                     connectedPlayer.uuid_room = '';
-
-                    console.log(`Starting new game of type ${data.type}, resetting room UUID`);
                 }
 
                 // Mettre à jour l'ID de salle si présent dans le message
@@ -444,10 +454,7 @@ export async function setupMatchmaking() {
                     gameRoom = data.uuid_room;
                     connectedPlayer.uuid_room = data.uuid_room;
                     playerRooms.set(ws, data.uuid_room);
-                    console.log(`Updated room UUID for ${connectedPlayer.username}: ${data.uuid_room}`);
                 }
-
-                // Traiter le message
                 const messageHandler = new WebSocketMessageHandler(ws, connectedPlayer);
                 messageHandler.handleMessage(data);
 
@@ -467,22 +474,15 @@ export async function setupMatchmaking() {
             }
         });
 
-        // Gestionnaire de déconnexion
         ws.on('close', function () {
             // Récupérer la dernière salle connue depuis la carte de suivi
             const storedGameRoom = playerRooms.get(ws);
-            console.log(`Connection closed. Last known game room: ${storedGameRoom || 'none'}`);
-
-            // Utiliser uniquement l'UUID stocké dans playerRooms, pas gameRoom!
             handleDisconnection(ws, connectedPlayer, storedGameRoom ?? null);
         });
     });
 
-    // Démarrer les gestionnaires de files d'attente et de matchmaking
     startQueueProcessing();
     startMatchProcessing();
-
-    console.log("Matchmaking service started successfully");
 }
 
 // Fonctions utilitaires
@@ -614,21 +614,6 @@ function processAllTournaments() {
                         match_id: match.id
                     });
                 });
-
-                // Notifier tous les joueurs du tournoi
-                tournament.players.forEach(player => {
-                    if (player !== match.player1 && player !== match.player2) {
-                        secureSend(player.socket, {
-                            type: 'tournament_match_update',
-                            tournament_id: tournament.id,
-                            match: {
-                                player1: match.player1.username,
-                                player2: match.player2.username,
-                                status: 'active'
-                            }
-                        });
-                    }
-                });
             }
         }
     }
@@ -638,14 +623,11 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
     const tournament = GetTournamentById(tournamentId);
     if (!tournament) return;
 
-    // Trouver le match correspondant à cette salle
     const match = tournament.matches.find(m => m.uuid_room === roomUuid);
     if (!match) return;
 
-    // Déterminer le gagnant
     const winner = match.player1.user_id === winnerId ? match.player1 : match.player2;
 
-    // Enregistrer le vainqueur
     RecordMatchWinner(tournamentId, match.id, winner);
 
     // Notifier tous les joueurs du tournoi
@@ -678,7 +660,7 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
         //attendre 20 secondes avant de créer le match final
         setTimeout(() => {
            
-        }, 20000);
+        }, 40000);
 
         const finalMatch = createFinalMatch(tournament);
        
@@ -695,17 +677,6 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
                 }
             });
 
-            // Informer tous les autres joueurs de la finale
-            tournament.players.forEach(player => {
-                if (!tournament.winners.some(w => w.user_id === player.user_id) && player.socket) {
-                    secureSend(player.socket, {
-                        type: 'tournament_final_round',
-                        tournament_id: tournamentId,
-                        finalists: tournament.winners.map(w => w.username)
-                    });
-                }
-            });
-
             // Démarrer immédiatement la finale (au lieu d'attendre le prochain cycle de processAllTournaments)
             console.log(`Starting final match: ${tournament.winners[0].username} vs ${tournament.winners[1].username}`);
 
@@ -717,13 +688,9 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
                 finalMatch.uuid_room,
                 tournamentId,
                 'final'
-
             );
-
-            // Ajouter la session à la liste des sessions
             all_sessions.push(session);
 
-            // Marquer le match comme actif
             UpdateMatchStatus(tournamentId, finalMatch.id, 'active');
         }
     }
