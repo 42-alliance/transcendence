@@ -160,8 +160,6 @@ async function HandleMatch() {
                 game.p2.username = all_sessions[0].match.players[1].username;
                 game.p1.user_id = all_sessions[0].match.players[0].user_id; // Ajouter l'ID utilisateur
                 game.p2.user_id = all_sessions[0].match.players[1].user_id; // Ajouter l'ID utilisateur
-                console.log(game.p1.user_id);
-                console.log(game.p2.user_id);
                 game.match = all_sessions[0].match.players[0].username + " vs " + all_sessions[0].match.players[1].username;
                 game.p1.ws = all_sessions[0].match.players[0].socket;
                 game.p2.ws = all_sessions[0].match.players[1].socket;
@@ -169,6 +167,7 @@ async function HandleMatch() {
                 game.mapPlayers.set(all_sessions[0].match.players[1].user_id, game.p2);
                 game.uuid_room = all_sessions[0].match.uuid_room;
                 game.global_uuid = all_sessions[0].match.global_uuid; // Ajouter l'ID global du tournoi
+                game.tour_stat = all_sessions[0].match.tour_stat || ''; // Ajouter l'état du tournoi avec une valeur par défaut
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 console.log("A game is setting up");
                 if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {

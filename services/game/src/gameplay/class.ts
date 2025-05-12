@@ -120,6 +120,7 @@ class Game {
     global_uuid?: string; // Ajouter cette propriété pour les tournois
     ia_difficulty: string = "";
     is_end: boolean = false;
+    tour_stat: string = "";
 
 
     constructor(width: number, height: number) {
@@ -273,10 +274,7 @@ class Game {
         this.sendData(); // Send the updated score to both players
         const winner = this.checkWinner();
         if (winner) {
-            this.sendData(); // Send the final game state before ending the game
-            
             this.endGame(winner);
-            
         } else {
             this.resetBall(); // Réinitialiser la balle si personne n'a encore gagné
         }
@@ -289,6 +287,7 @@ class Game {
         // Déterminer le nom du gagnant à partir de l'ID
         const winnerName = this.p1.user_id === winnerUserId ? this.p1.username : this.p2.username;
 
+      
         const gameFinishedMessage = {
             type: 'game_finished',
             data: {
@@ -299,8 +298,10 @@ class Game {
                     p2: this.score_p2,
                 },
                 mode: this.mode,
+                stat: this.tour_stat,
             },
         };
+
 
         if (this.mode === 'local' || this.mode === 'ia') {
             gameFinishedMessage.data.winner_name = winnerUserId;

@@ -1,10 +1,10 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
-import { 
-    CreateTournament, 
-    GetAllTournaments, 
-    AddPlayerToTournament, 
-    RemovePlayerFromTournament, 
+import {
+    CreateTournament,
+    GetAllTournaments,
+    AddPlayerToTournament,
+    RemovePlayerFromTournament,
     GetTournamentById,
     GetPendingMatches,
     UpdateMatchStatus,
@@ -32,6 +32,7 @@ export interface Match {
     type: GameMode;
     uuid_room: string;
     global_uuid?: string;
+    tour_stat?: string;
 }
 
 export interface Session {
@@ -73,7 +74,7 @@ class QueueManager {
         while (this.pendingPlayers.length > 0) {
             const player = this.pendingPlayers.shift()!;
             const queue = this.queues.get(player.type);
-            
+
             if (queue) {
                 queue.push(player);
                 console.log(`Player ${player.username} moved to ${player.type} queue`);
@@ -90,7 +91,7 @@ class QueueManager {
     public removePlayerFromQueue(player: Player, type: GameMode): boolean {
         const queue = this.queues.get(type);
         if (!queue) return false;
-        
+
         const index = queue.findIndex(p => p.socket === player.socket);
         if (index !== -1) {
             queue.splice(index, 1);
@@ -108,7 +109,7 @@ class QueueManager {
             console.log(`Player ${player.username} removed from pending queue`);
             return;
         }
-        
+
         // Vérifier ensuite toutes les files spécifiques
         for (const [type, queue] of this.queues.entries()) {
             if (this.removePlayerFromQueue(player, type as GameMode)) {
@@ -123,7 +124,7 @@ class MatchManager {
     private sessions: Session[] = [];
     private static instance: MatchManager;
 
-    private constructor() {}
+    private constructor() { }
 
     public static getInstance(): MatchManager {
         if (!MatchManager.instance) {
@@ -139,7 +140,7 @@ class MatchManager {
             type,
             uuid_room
         };
-        
+
         const session: Session = { match };
         this.sessions.push(session);
 
@@ -147,48 +148,49 @@ class MatchManager {
             player.uuid_room = uuid_room;
             playerRooms.set(player.socket, uuid_room);
         });
-        
+
         console.log(`Match created - Type: ${type}, Room: ${uuid_room}, Players: ${players.map(p => p.username).join(', ')}`);
         return session;
     }
 
-    public createTournamentMatch(players: Player[], type: 'tournament', roomUuid: string, tournamentId: string): Session {
+    public createTournamentMatch(players: Player[], type: 'tournament', roomUuid: string, tournamentId: string, stat: string ): Session {
         const match: Match = {
             players,
             type,
             uuid_room: roomUuid,
-            global_uuid: tournamentId
+            global_uuid: tournamentId,
+            tour_stat: stat
         };
-        
+
         const session: Session = { match };
         this.sessions.push(session);
-        
+
         // Associer chaque joueur à la salle
         players.forEach(player => {
             player.uuid_room = roomUuid;
             playerRooms.set(player.socket, roomUuid);
         });
-        
+
         console.log(`Tournament match created - Room: ${roomUuid}, Players: ${players.map(p => p.username).join(', ')}`);
         return session;
     }
 
     public processMatches(): void {
         const queueManager = QueueManager.getInstance();
-        
+
         // Traiter les matchs en ligne (requiert 2 joueurs)
         const onlineQueue = queueManager.getQueueByType('random_adversaire');
         while (onlineQueue.length >= 2) {
             const players = [onlineQueue.shift()!, onlineQueue.shift()!];
             const session = this.createMatch(players, 'random_adversaire');
             all_sessions.push(session);
-            
+
             // Notifier les joueurs que le match est créé
             players.forEach(player => {
                 notifyWaiting(player.socket);
             });
         }
-        
+
         // Traiter les matchs locaux (requiert 1 joueur)
         const localQueue = queueManager.getQueueByType('local');
         while (localQueue.length >= 1) {
@@ -196,7 +198,7 @@ class MatchManager {
             const session = this.createMatch([player], 'local');
             all_sessions.push(session);
         }
-        
+
         // Traiter les matchs IA (requiert 1 joueur)
         const iaQueue = queueManager.getQueueByType('ia');
         while (iaQueue.length >= 1) {
@@ -215,55 +217,55 @@ class MatchManager {
 class WebSocketMessageHandler {
     private player: Player;
     private socket: WebSocket;
-    
+
     constructor(socket: WebSocket, player: Player) {
         this.socket = socket;
         this.player = player;
     }
-    
+
     public handleMessage(data: any): void {
         console.log(`Handling message of type: ${data.type}`);
-    
+
         // IMPORTANT: Réinitialiser l'UUID de la salle au début de chaque nouveau jeu
-        if (data.type === 'random_adversaire' || data.type === 'local' || 
+        if (data.type === 'random_adversaire' || data.type === 'local' ||
             data.type === 'ia' || data.type === 'tournament') {
             // Réinitialiser l'UUID de salle pour les nouvelles demandes de jeu
             this.player.uuid_room = '';
             playerRooms.delete(this.player.socket);
         }
-        
+
         switch (data.type) {
             case 'random_adversaire':
                 this.handleRandomGame(data);
                 break;
-                
+
             case 'local':
                 this.handleLocalGame(data);
                 break;
-                
+
             case 'ia':
                 this.handleIAGame(data);
                 break;
-                
+
             case 'create_tournament':
                 this.handleCreateTournament(data);
                 break;
-                
+
             case 'join_tournament':
                 this.handleJoinTournament(data);
                 break;
-                
+
             case 'get_all_tournaments':
                 this.handleGetAllTournaments(data);
                 break;
             case 'leave_tournament':
                 this.handleLeaveTournament(data);
-                
+
             default:
                 console.error(`Unknown message type: ${data.type}`);
         }
     }
-    
+
     private handleRandomGame(data: any): void {
         this.player.username = data.user.name;
         this.player.user_id = data.user.id;
@@ -272,44 +274,44 @@ class WebSocketMessageHandler {
         if (data.uuid_room) {
             this.player.uuid_room = data.uuid_room;
         }
-        
+
         const queueManager = QueueManager.getInstance();
         queueManager.addPlayerToPendingQueue(this.player);
-        
+
         notifyWaiting(this.socket);
     }
-    
+
     private handleLocalGame(data: any): void {
         this.player.username = data.user.name;
         this.player.type = 'local';
         this.player.user_id = data.user.id;
-        
+
         const queueManager = QueueManager.getInstance();
         queueManager.addPlayerToPendingQueue(this.player);
     }
-    
+
     private handleIAGame(data: any): void {
         this.player.username = data.user.name;
         this.player.type = 'ia';
         this.player.difficulty = data.difficulty;
         this.player.user_id = data.user.id;
-        
+
         const queueManager = QueueManager.getInstance();
         queueManager.addPlayerToPendingQueue(this.player);
     }
-    
+
     private handleCreateTournament(data: any): void {
         this.player.username = data.user.name;
         this.player.user_id = data.user.id;
-        
+
         const tournament = CreateTournament(this.player, data.tournament_name);
-        
+
         if (tournament) {
             this.player.type = 'tournament';
             this.player.uuid_room = tournament.id;
-            
+
             AddPlayerToTournament(tournament.id, this.player);
-            
+
             secureSend(this.socket, {
                 type: 'tournament_created',
                 tournament: tournament,
@@ -317,32 +319,32 @@ class WebSocketMessageHandler {
                 id: tournament.id,
                 players: tournament.players
             });
-            
+
             console.log(`Tournament created: ${tournament.name} (${tournament.id})`);
         }
     }
-    
+
     private handleJoinTournament(data: any): void {
         this.player.username = data.user.name;
         this.player.user_id = data.user.id;
         this.player.type = 'tournament';
-        
+
         const tournamentId = data.tournament_id;
         const tournament = GetTournamentById(tournamentId);
-        
+
         if (tournament) {
             this.player.uuid_room = tournamentId;
             AddPlayerToTournament(tournamentId, this.player);
-            
+
             secureSend(this.socket, {
                 type: 'tournament_joined',
                 tournament: tournament,
                 players: tournament.players
             });
-            
+
             // Notifier tous les joueurs du tournoi qu'un nouveau joueur a rejoint
             this.broadcastTournamentUpdate(tournament);
-            
+
             console.log(`Player ${this.player.username} joined tournament ${tournament.name}`);
         } else {
             secureSend(this.socket, {
@@ -351,10 +353,10 @@ class WebSocketMessageHandler {
             });
         }
     }
-    
+
     private handleGetAllTournaments(data: any): void {
         console.log("Get all tournaments request received");
-        
+
         secureSend(this.socket, {
             type: 'all_tournaments',
             request_id: data.request_id,
@@ -372,14 +374,20 @@ class WebSocketMessageHandler {
         }
         // Notifier tous les joueurs du tournoi qu'un joueur a quitté
     }
-    
+
     private broadcastTournamentUpdate(tournament: Tournament): void {
         tournament.players.forEach((player: Player) => {
             if (player.socket && player.socket !== this.socket) {
+                console.log(`Notifying player ${player.username} about tournament update`);
                 secureSend(player.socket, {
                     type: 'tournament_players_update',
                     tournament_id: tournament.id,
-                    players: tournament.players
+                    players: tournament.players.map(({ username, user_id, type, uuid_room }) => ({
+                        username,
+                        user_id,
+                        type,
+                        uuid_room
+                    }))
                 });
             }
         });
@@ -392,20 +400,20 @@ export const wss = new WebSocketServer({ port: 8790 });
 
 // Initialisation du matchmaking
 export async function setupMatchmaking() {
-    
+
     // Configuration du serveur WebSocket
     wss.on('connection', function connection(ws) {
         console.log("New client connected");
-        
+
         // Variables pour suivre le joueur
         let connectedPlayer: Player | null = null;
         let gameRoom: string | null = null;
-        
+
         // Gestionnaire de messages
         ws.on('message', function incoming(message) {
             try {
                 const data = JSON.parse(message.toString());
-                
+
                 // Initialiser le joueur s'il n'existe pas
                 if (!connectedPlayer) {
                     connectedPlayer = {
@@ -416,21 +424,21 @@ export async function setupMatchmaking() {
                         uuid_room: ''
                     };
                 }
-                
+
                 // Si le message indique une nouvelle partie, réinitialiser l'UUID
-                if (data.type === 'random_adversaire' || data.type === 'local' || 
+                if (data.type === 'random_adversaire' || data.type === 'local' ||
                     data.type === 'ia' || data.type === 'tournament') {
-                    
+
                     // Effacer l'ancien UUID de la carte de suivi
                     playerRooms.delete(ws);
-                    
+
                     // Réinitialiser l'UUID de la salle dans les variables locales
                     gameRoom = null;
                     connectedPlayer.uuid_room = '';
-                    
+
                     console.log(`Starting new game of type ${data.type}, resetting room UUID`);
                 }
-                
+
                 // Mettre à jour l'ID de salle si présent dans le message
                 if (data.uuid_room) {
                     gameRoom = data.uuid_room;
@@ -438,42 +446,42 @@ export async function setupMatchmaking() {
                     playerRooms.set(ws, data.uuid_room);
                     console.log(`Updated room UUID for ${connectedPlayer.username}: ${data.uuid_room}`);
                 }
-                
+
                 // Traiter le message
                 const messageHandler = new WebSocketMessageHandler(ws, connectedPlayer);
                 messageHandler.handleMessage(data);
-                
+
                 // Mettre à jour gameRoom après traitement du message
                 if (connectedPlayer.uuid_room && connectedPlayer.uuid_room !== '') {
                     gameRoom = connectedPlayer.uuid_room;
                     playerRooms.set(ws, connectedPlayer.uuid_room);
                 }
-                
+
             } catch (error) {
                 console.error("Error processing message:", error);
-                
+
                 secureSend(ws, {
                     type: 'error',
                     message: 'Invalid message format'
                 });
             }
         });
-        
+
         // Gestionnaire de déconnexion
-        ws.on('close', function() {
+        ws.on('close', function () {
             // Récupérer la dernière salle connue depuis la carte de suivi
             const storedGameRoom = playerRooms.get(ws);
             console.log(`Connection closed. Last known game room: ${storedGameRoom || 'none'}`);
-            
+
             // Utiliser uniquement l'UUID stocké dans playerRooms, pas gameRoom!
             handleDisconnection(ws, connectedPlayer, storedGameRoom ?? null);
         });
     });
-    
+
     // Démarrer les gestionnaires de files d'attente et de matchmaking
-    startQueueProcessing(); 
+    startQueueProcessing();
     startMatchProcessing();
-    
+
     console.log("Matchmaking service started successfully");
 }
 
@@ -495,20 +503,20 @@ function startMatchProcessing() {
 
 function handleDisconnection(ws: WebSocket, player: Player | null, gameRoom: string | null) {
     if (!player) return;
-    
+
     console.log(`Player ${player.username || 'unknown'} disconnected`);
-    
+
     if (!gameRoom && player) {
         gameRoom = playerRooms.get(ws) || player.uuid_room || null;
     }
-    
+
     const queueManager = QueueManager.getInstance();
     queueManager.removePlayerFromAllQueues(player);
-    
+
     // Gestion du tournoi si applicable
     if (player.type === 'tournament' && player.uuid_room) {
         RemovePlayerFromTournament(player.uuid_room, player);
-        
+
         // Notifier les autres joueurs du tournoi
         const tournament = GetTournamentById(player.uuid_room);
         if (tournament) {
@@ -523,15 +531,15 @@ function handleDisconnection(ws: WebSocket, player: Player | null, gameRoom: str
             });
         }
     }
-    
+
     // Gérer la déconnexion pendant un jeu actif
     if (gameRoom) {
         console.log(`Checking for active game in room: ${gameRoom}`);
-        const gameSession = Array.from(sessions.values()).find(session => 
-            session.uuid_room === gameRoom || 
+        const gameSession = Array.from(sessions.values()).find(session =>
+            session.uuid_room === gameRoom ||
             (session.match && session.uuid_room === gameRoom)
         );
-        
+
         if (gameSession) {
             console.log(`Found active game session: ${gameRoom}`);
             if (gameSession.p1 && gameSession.p1.ws === ws) {
@@ -547,7 +555,7 @@ function handleDisconnection(ws: WebSocket, player: Player | null, gameRoom: str
             console.log(`No active game session found for room: ${gameRoom}`);
         }
     }
-    
+
     // Nettoyer la carte de suivi
     playerRooms.delete(ws);
 }
@@ -572,30 +580,31 @@ function secureSend(ws: WebSocket, message: any): void {
 function processAllTournaments() {
     // Récupérer tous les tournois
     const tournaments = GetAllTournaments();
-    
+
     for (const tournament of tournaments) {
         // Ne traiter que les tournois avec suffisamment de joueurs et en attente
         if (tournament.status === 'round1' || tournament.status === 'final') {
             const pendingMatches = GetPendingMatches(tournament.id);
-            
+
             for (const match of pendingMatches) {
                 console.log(`Starting tournament match: ${match.player1.username} vs ${match.player2.username}`);
-                
+
                 // Créer une session de match pour ce match de tournoi
                 const matchManager = MatchManager.getInstance();
                 const session = matchManager.createTournamentMatch(
                     [match.player1, match.player2],
                     'tournament',
                     match.uuid_room,
-                    tournament.id
+                    tournament.id,
+                    'round1'
                 );
-                
+
                 // Ajouter la session à la liste des sessions
                 all_sessions.push(session);
-                
+
                 // Marquer le match comme actif
                 UpdateMatchStatus(tournament.id, match.id, 'active');
-                
+
                 // Notifier les joueurs
                 [match.player1, match.player2].forEach(player => {
                     secureSend(player.socket, {
@@ -605,7 +614,7 @@ function processAllTournaments() {
                         match_id: match.id
                     });
                 });
-                
+
                 // Notifier tous les joueurs du tournoi
                 tournament.players.forEach(player => {
                     if (player !== match.player1 && player !== match.player2) {
@@ -628,17 +637,17 @@ function processAllTournaments() {
 export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tournamentId: string) {
     const tournament = GetTournamentById(tournamentId);
     if (!tournament) return;
-    
+
     // Trouver le match correspondant à cette salle
     const match = tournament.matches.find(m => m.uuid_room === roomUuid);
     if (!match) return;
-    
+
     // Déterminer le gagnant
     const winner = match.player1.user_id === winnerId ? match.player1 : match.player2;
-    
+
     // Enregistrer le vainqueur
     RecordMatchWinner(tournamentId, match.id, winner);
-    
+
     // Notifier tous les joueurs du tournoi
     tournament.players.forEach(player => {
         secureSend(player.socket, {
@@ -647,27 +656,32 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
             match_id: match.id,
             winner_id: winner.user_id,
         });
-        
+
         // Si une finale vient de se terminer, notifier que le tournoi est terminé
         if (tournament.status === 'final' && tournament.matches.every(m => m.status === 'completed')) {
             tournament.status = 'completed';
             secureSend(player.socket, {
                 type: 'tournament_completed',
                 tournament_id: tournamentId,
-                winner: winner.username
+                winner: winner.user_id
             });
         }
     });
-    
+
     // Si tous les matchs du premier tour sont terminés, notifier que la finale va commencer
     const roundOneMatches = tournament.matches.slice(0, 2);
     if (roundOneMatches.every(m => m.status === 'completed') && tournament.status === 'round1') {
         // Changer le statut du tournoi
         tournament.status = 'final';
-        
+
         // Créer le match final
+        //attendre 20 secondes avant de créer le match final
+        setTimeout(() => {
+           
+        }, 20000);
+
         const finalMatch = createFinalMatch(tournament);
-        
+       
         if (finalMatch) {
             // Envoyer un signal spécial aux finalistes pour qu'ils sachent qu'ils sont en finale
             tournament.winners.forEach(player => {
@@ -691,22 +705,24 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
                     });
                 }
             });
-            
+
             // Démarrer immédiatement la finale (au lieu d'attendre le prochain cycle de processAllTournaments)
             console.log(`Starting final match: ${tournament.winners[0].username} vs ${tournament.winners[1].username}`);
-            
+
             // Créer une session de match pour ce match de tournoi
             const matchManager = MatchManager.getInstance();
             const session = matchManager.createTournamentMatch(
                 tournament.winners,
                 'tournament',
                 finalMatch.uuid_room,
-                tournamentId
+                tournamentId,
+                'final'
+
             );
-            
+
             // Ajouter la session à la liste des sessions
             all_sessions.push(session);
-            
+
             // Marquer le match comme actif
             UpdateMatchStatus(tournamentId, finalMatch.id, 'active');
         }
