@@ -1,9 +1,7 @@
 import { all_sessions, wss } from "../matchmaking/Matchmaking.js";
 import { Game, Paddle, Ball } from "./class.js";
 import { GameAI, AILevel } from "./ai.js";
-// Ajouter ces importations
-import { handleTournamentMatchEnd } from '../matchmaking/Matchmaking.js';
-// Set default dimensions for server-side (no window object in Node.js)
+
 let width = 1600; // Default width for game
 let height = 800; // Default height for game 
 

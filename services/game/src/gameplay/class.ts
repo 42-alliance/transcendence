@@ -310,6 +310,7 @@ class Game {
         if (this.mode === 'tournament' && this.global_uuid) {
             try {
                 handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
+                return
             } catch (error) {
                 console.error('Error handling tournament match end:', error);
             }
