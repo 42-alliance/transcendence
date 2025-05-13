@@ -98,8 +98,7 @@ export default class Game {
         });
         
         document.getElementById('iaButton')?.addEventListener('click', async () => {
-            console.log("IA button clicked");
-            
+
             try {
                 // Attendre que l'utilisateur sélectionne une difficulté
                 const difficultyMode = await GameUI.displayDifficultyButtons();

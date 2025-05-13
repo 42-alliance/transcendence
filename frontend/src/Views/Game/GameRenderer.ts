@@ -176,7 +176,7 @@ export class GameRenderer {
                 message.textContent += ` | Gagnant: ${data.winner_name}`;
             }
         }
-        message.style.marginBottom = '20px';
+        message.style.marginBottom = '60px';
         FontHelper.applyMightySoulyFont(message, FontHelper.TEXT_FONT_SIZE);
         resultContainer.appendChild(message);
 

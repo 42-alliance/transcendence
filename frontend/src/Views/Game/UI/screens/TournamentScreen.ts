@@ -3,6 +3,7 @@ import { createButton } from '../utils/ElementFactory.js';
 import { ModalStyles } from '../styles/ModalStyles.js';
 import { GameUI } from '../../GameUI.js';
 import { getUserInfo } from '../../UserStore.js';
+import { FontHelper } from '../../FontHelper.js'
 
 export class TournamentScreen extends BaseScreen {
     constructor() {
@@ -18,6 +19,7 @@ export class TournamentScreen extends BaseScreen {
             title.textContent = 'TOURNAMENT OPTIONS';
             title.style.color = 'white';
             title.style.marginBottom = '20px';
+            FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE); // Ajoute cette ligne
             this.addElement(title);
             
             // Define options (à compléter plus tard)
@@ -29,6 +31,7 @@ export class TournamentScreen extends BaseScreen {
             // Add option buttons
             options.forEach(option => {
                 const button = createButton(option.id, option.label);
+                FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE); // Ajoute cette ligne
                 button.onclick = () => {
                     this.hide();
                     resolve(option.id);
@@ -43,6 +46,8 @@ export class TournamentScreen extends BaseScreen {
                 resolve('cancel');
             };
             cancelButton.style.backgroundColor = '#8f4a4a';
+            
+            FontHelper.applyMightySoulyFont(cancelButton, '30px'); // Ajoute cette ligne
             this.addElement(cancelButton);
             this.container.style.display = 'block';
             this.isVisible = true;
@@ -58,6 +63,17 @@ export class TournamentScreen extends BaseScreen {
             const textInput = this.createInputElement('Tournament Name');
             const errorMsg = this.createErrorMsgElement();
             const buttonContainer = this.createButtonContainerElement();
+            FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE); // Ajoute cette ligne
+            FontHelper.applyMightySoulyFont(textInput, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
+            FontHelper.applyMightySoulyFont(errorMsg, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
+            FontHelper.applyMightySoulyFont(buttonContainer, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
+            // Appliquer les styles
+            Object.entries(ModalStyles.title).forEach(([key, value]) => {
+                title.style[key as any] = value;
+            });
+            Object.entries(ModalStyles.input).forEach(([key, value]) => {
+                textInput.style[key as any] = value;
+            });
             
             // Créer les boutons
             const createButton = this.createActionButton('Create', () => {
@@ -77,10 +93,14 @@ export class TournamentScreen extends BaseScreen {
                 reject('Cancelled');
                 this.closeModal(modal);
             }, true);
-            
+            cancelButton.style.justifyContent = 'center';
+            cancelButton.style.display = 'block';
+            cancelButton.style.margin = '0 auto';
+
             // Assembler les éléments
             buttonContainer.appendChild(cancelButton);
-            buttonContainer.appendChild(createButton);
+            //buttonContainer.appendChild(createButton);
+            
             
             modal.appendChild(title);
             modal.appendChild(textInput);
@@ -108,7 +128,7 @@ export class TournamentScreen extends BaseScreen {
         return new Promise((resolve, reject) => {
             // Créer le modal
             const modal = this.createModalElement();
-            
+            FontHelper.applyMightySoulyFont(modal, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
             // Créer les éléments du formulaire
             const title = this.createTitleElement('Join Tournament');
             
@@ -174,6 +194,7 @@ export class TournamentScreen extends BaseScreen {
     private createTitleElement(text: string): HTMLHeadingElement {
         const title = document.createElement('h3');
         title.textContent = text;
+        FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE); // Ajoute cette ligne
         
         Object.entries(ModalStyles.title).forEach(([key, value]) => {
             title.style[key as any] = value;
@@ -186,6 +207,7 @@ export class TournamentScreen extends BaseScreen {
         const input = document.createElement('input');
         input.type = 'text';
         input.placeholder = placeholder;
+        FontHelper.applyMightySoulyFont(input, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         
         Object.entries(ModalStyles.input).forEach(([key, value]) => {
             input.style[key as any] = value;
@@ -196,7 +218,7 @@ export class TournamentScreen extends BaseScreen {
     
     private createErrorMsgElement(): HTMLDivElement {
         const errorMsg = document.createElement('div');
-        
+        FontHelper.applyMightySoulyFont(errorMsg, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         Object.entries(ModalStyles.errorMessage).forEach(([key, value]) => {
             errorMsg.style[key as any] = value;
         });
@@ -206,7 +228,7 @@ export class TournamentScreen extends BaseScreen {
     
     private createButtonContainerElement(): HTMLDivElement {
         const container = document.createElement('div');
-        
+        FontHelper.applyMightySoulyFont(container, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         Object.entries(ModalStyles.buttonContainer).forEach(([key, value]) => {
             container.style[key as any] = value;
         });
@@ -217,7 +239,7 @@ export class TournamentScreen extends BaseScreen {
     private createActionButton(text: string, onClick: () => void, isCancel = false): HTMLButtonElement {
         const button = document.createElement('button');
         button.textContent = text;
-        
+        FontHelper.applyMightySoulyFont(button,'30px'); // Ajoute cette ligne
         // Appliquer les styles de base
         Object.entries(ModalStyles.button.base).forEach(([key, value]) => {
             button.style[key as any] = value;
@@ -228,7 +250,7 @@ export class TournamentScreen extends BaseScreen {
         Object.entries(specificStyles).forEach(([key, value]) => {
             button.style[key as any] = value;
         });
-        
+        FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE); // Ajoute cette ligne
         button.onclick = onClick;
         
         return button;
@@ -242,7 +264,7 @@ export class TournamentScreen extends BaseScreen {
     // Méthodes privées pour la fonctionnalité de jointure de tournoi
     private createTournamentListContainer(): HTMLDivElement {
         const container = document.createElement('div');
-        
+        FontHelper.applyMightySoulyFont(container, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         // Styles pour le container de liste
         const styles = {
             width: '90%',
@@ -279,6 +301,7 @@ export class TournamentScreen extends BaseScreen {
             noTournamentMsg.style.color = 'white';
             noTournamentMsg.style.textAlign = 'center';
             noTournamentMsg.style.padding = '10px';
+            FontHelper.applyMightySoulyFont(noTournamentMsg, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
             container.appendChild(noTournamentMsg);
             return;
         }
@@ -293,6 +316,7 @@ export class TournamentScreen extends BaseScreen {
             
             const tournamentButton = document.createElement('button');
             tournamentButton.textContent = tournament.name || 'Unnamed Tournament';
+            FontHelper.applyMightySoulyFont(tournamentButton, FontHelper.BUTTON_FONT_SIZE); // Ajoute cette ligne
             
             // Styles pour les boutons de tournoi
             const styles = {
@@ -316,6 +340,7 @@ export class TournamentScreen extends BaseScreen {
             infoSpan.textContent = ` (${playerCount}/${maxPlayers} players)`;
             infoSpan.style.fontSize = '0.8em';
             infoSpan.style.opacity = '0.8';
+            FontHelper.applyMightySoulyFont(infoSpan, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
             tournamentButton.appendChild(infoSpan);
             
             // Nom de l'hôte si disponible
@@ -325,6 +350,7 @@ export class TournamentScreen extends BaseScreen {
                 hostSpan.style.fontSize = '0.8em';
                 hostSpan.style.opacity = '0.8';
                 hostSpan.style.display = 'block';
+                FontHelper.applyMightySoulyFont(hostSpan, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
                 tournamentButton.appendChild(hostSpan);
             }
             
@@ -391,13 +417,16 @@ export class TournamentScreen extends BaseScreen {
     
         const modal = this.createModalElement();
         this.activeTournamentModal = modal;
+
         const title = this.createTitleElement(`Tournoi: ${tournamentName}`);
-        
+        FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE); // Ajoute cette ligne
+
         const playersInfo = document.createElement('div');
         playersInfo.textContent = 'Joueurs: 1/4';
         playersInfo.style.color = '#ffcc00';
         playersInfo.style.fontSize = '18px';
         playersInfo.style.marginBottom = '15px';
+        FontHelper.applyMightySoulyFont(playersInfo, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         
         const playersContainer = document.createElement('div');
         this.playersContainer = playersContainer;
@@ -408,6 +437,7 @@ export class TournamentScreen extends BaseScreen {
         playersContainer.style.margin = '10px 0';
         playersContainer.style.border = '1px solid rgba(255, 255, 255, 0.2)';
         playersContainer.style.borderRadius = '5px';
+        FontHelper.applyMightySoulyFont(playersContainer, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         
        
         const infoMessage = document.createElement('div');
@@ -416,6 +446,7 @@ export class TournamentScreen extends BaseScreen {
         infoMessage.style.fontSize = '14px';
         infoMessage.style.margin = '15px 0';
         infoMessage.style.textAlign = 'center';
+        FontHelper.applyMightySoulyFont(infoMessage, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         
         // Bouton pour quitter le tournoi
         const cancelButton = this.createActionButton('Quitter le tournoi', () => {
@@ -425,6 +456,7 @@ export class TournamentScreen extends BaseScreen {
         }, true);
         cancelButton.style.margin = '15px auto';
         cancelButton.style.display = 'block';
+        FontHelper.applyMightySoulyFont(cancelButton, FontHelper.BUTTON_FONT_SIZE); // Ajoute cette ligne
 
         modal.appendChild(title);
         modal.appendChild(playersInfo);
@@ -458,7 +490,7 @@ export class TournamentScreen extends BaseScreen {
         overlay.style.flexDirection = 'column';
         overlay.style.alignItems = 'center';
         overlay.style.justifyContent = 'center';
-        
+        FontHelper.applyMightySoulyFont(overlay, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
         // Créer le conteneur d'animation
         const animContainer = document.createElement('div');
         animContainer.style.position = 'relative';

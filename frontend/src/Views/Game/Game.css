@@ -20,6 +20,13 @@ body {
     padding: 20px;
 }
 
+/* ...existing code... */
+.button-container button {
+    /* ...existing code... */
+    font-family: 'Mighty Souly', Arial, sans-serif;
+}
+/* ...existing code... */
+
 .game-area {
     width: 100%;
     max-width: 1650px;
@@ -37,7 +44,7 @@ body {
 #gameCanvas {
     width: 100%;
     height: auto;
-    background-color: #000000;
+    background-color: #091053;
     border-radius: 8px;
     display: block;
     box-shadow: 0 0 20px rgba(0, 132, 255, 0.3);
@@ -63,7 +70,7 @@ body {
     border: none;
     border-radius: 6px;
     padding: 12px 24px;
-    font-size: 16px;
+    font-size: 40px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -72,6 +79,7 @@ body {
     letter-spacing: 1px;
     border: 1px solid #5d5daa;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-family: 'Mighty Souly', Arial, sans-serif;
 }
 
 .button-container button:hover {

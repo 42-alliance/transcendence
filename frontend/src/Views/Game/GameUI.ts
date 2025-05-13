@@ -40,6 +40,15 @@ export class GameUI {
     static showLobbyButtons(): void {
         this.toggleButtonVisibility(this.lobbyButtons, true);
         this.hideSpinner();
+        this.lobbyButtons.forEach(id => {
+        const button = document.getElementById(id);
+        if (button) {
+            // @ts-ignore
+            import('./FontHelper.js').then(({ FontHelper }) => {
+                FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
+            });
+        }
+    });
     }
     
     static hideGameButtons(): void {
