@@ -134,7 +134,7 @@ class Game {
         this.paddleHeight = 200; // Fixed paddle height
         this.ballRadius = 25; // Fixed ball radius
 
-        const paddleSpeed = 14; // Fixed paddle speed
+        const paddleSpeed = 18; // Fixed paddle speed
         const ballSpeed = 7; // Fixed ball speed
 
         // Create paddles and ball with scaling
@@ -158,7 +158,7 @@ class Game {
     resetBall() {
         this.ball.x = this.width / 2;
         this.ball.y = this.height / 2;
-        this.ball.speed = 4; // Reset ball speed
+        this.ball.speed = 7; // Reset ball speed
         const angle = (Math.random() * Math.PI/4) - Math.PI/8; // Small random angle variation
         // Alternate ball direction based on who scored
         const direction = this.ball.dx > 0 ? -1 : 1;
@@ -317,12 +317,15 @@ class Game {
         }
     
         try {
-            if (this.p1.ws) {
-                this.p1.ws.send(JSON.stringify(gameFinishedMessage));
+            setTimeout(() => {
+                if (this.p1.ws) {
+                    this.p1.ws.send(JSON.stringify(gameFinishedMessage));
+                }
+                if (this.p2.ws) {
+                    this.p2.ws.send(JSON.stringify(gameFinishedMessage));
+                }
             }
-            if (this.p2.ws) {
-                this.p2.ws.send(JSON.stringify(gameFinishedMessage));
-            }
+            , 1000); // Delay to allow for the last ball movement
         } catch (error) {
             console.error('Error sending game_finished message:', error);
         }

@@ -677,26 +677,34 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
 
     RecordMatchWinner(tournamentId, match.id, winner);
 
-    // Notifier tous les joueurs du tournoi
-    tournament.players.forEach(player => {
-        secureSend(player.socket, {
-            type: 'tournament_match_result',
-            tournament_id: tournamentId,
-            match_id: match.id,
-            winner_id: winner.user_id,
-        });
-
-        // Si une finale vient de se terminer, notifier que le tournoi est terminé
-        if (tournament.status === 'final' && tournament.matches.every(m => m.status === 'completed')) {
-            tournament.status = 'completed';
-            secureSend(player.socket, {
-                type: 'tournament_completed',
-                tournament_id: tournamentId,
-                winner: winner.user_id
-            });
-        }
-    });
-
+    // Notifier tous les joueurs du match en envoyant le resultat de leur match !!!
+    match.player1.socket.send(JSON.stringify({
+        type: 'tournament_match_result',
+        tournament_id: tournamentId,
+        match_id: match.id,
+        winner: winnerId,
+        current_user_id: match.player1.user_id,
+        opponent: match.player1.user_id === winnerId ? match.player2.username : match.player1.username,
+        status: match.status
+    }));
+    match.player2.socket.send(JSON.stringify({
+        type: 'tournament_match_result',
+        tournament_id: tournamentId,
+        match_id: match.id,
+        winner: winnerId,
+        current_user_id: match.player2.user_id,
+        opponent: match.player2.user_id === winnerId ? match.player1.username : match.player2.username,
+        status: match.status
+    }));
+    
+    // if (tournament.status === 'final' && tournament.matches.every(m => m.status === 'completed' )) {
+    //     tournament.status = 'completed';
+    //     secureSend(player.socket, {
+    //         type: 'tournament_completed',
+    //         tournament_id: tournamentId,
+    //         winner: winner.user_id
+    //     });
+    // }
     // Si tous les matchs du premier tour sont terminés, notifier que la finale va commencer
     const roundOneMatches = tournament.matches.slice(0, 2);
     if (roundOneMatches.every(m => m.status === 'completed') && tournament.status === 'round1') {
@@ -707,7 +715,7 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
         //attendre 20 secondes avant de créer le match final
         setTimeout(() => {
            
-        }, 40000);
+        }, 4000);
 
         const finalMatch = createFinalMatch(tournament);
        

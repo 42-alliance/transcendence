@@ -53,7 +53,44 @@ export class TournamentScreen extends BaseScreen {
             this.isVisible = true;
         });
     }
-    
+    private updateTournamentEndMatch(tournamentId: string, match: any, winner: string, user_id: string): void {
+ 
+      
+       if (winner.toString() !== user_id.toString()) {
+        // return to lobby
+        console.log('id of winner:', winner);
+        console.log('id of user:', user_id);
+        console.log("looser");
+        // Create a modal overlay
+        const modal = this.createModalElement();
+        // Message
+        const message = document.createElement('div');
+        message.textContent = 'Match terminé ! Vous avez perdu !';
+        message.style.color = '#ff6b6b';
+        message.style.textAlign = 'center';
+        message.style.padding = '10px';
+        message.style.fontSize = '20px';
+        FontHelper.applyMightySoulyFont(message, FontHelper.TEXT_FONT_SIZE);
+        // Button
+        const returnButton = this.createActionButton('Return to Lobby', () => {
+            this.closeModal(modal);
+            GameUI.showLobbyButtons();
+        }, true);
+        returnButton.style.margin = '20px auto 0 auto';
+        returnButton.style.display = 'block';
+        // Add to modal
+        modal.appendChild(message);
+        modal.appendChild(returnButton);
+        document.body.appendChild(modal);
+        setTimeout(() => {
+            modal.style.opacity = '1';
+        }, 50);
+        }
+        else {
+            console.log("winner");
+        }
+    }
+
     public showCreateTournament(): Promise<string> {
         return new Promise((resolve, reject) => {
             // Créer le modal
@@ -689,19 +726,12 @@ export class TournamentScreen extends BaseScreen {
     private prepareStartTournament(): void {
         if (this.activeTournamentModal) {
             this.activeTournamentModal.innerHTML = '';
-            const startingMessage = document.createElement('div');
-            startingMessage.textContent = 'Le tournoi commence...';
-            startingMessage.style.color = '#00ff00';
-            startingMessage.style.fontSize = '18px';
-            startingMessage.style.textAlign = 'center';
-            startingMessage.style.marginTop = '20px';
-            this.activeTournamentModal.appendChild(startingMessage);
             setTimeout(() => {
                 this.closeModal(this.activeTournamentModal!);
                 this.activeTournamentModal = null;
                 this.activeTournamentId = null;
                 this.playersContainer = null;
-            }, 600);
+            }, 100);
         }
     }
 
