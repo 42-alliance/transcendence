@@ -56,41 +56,49 @@ export class TournamentScreen extends BaseScreen {
     }
 
      private static createReturnToLobbyButton(resultContainer: HTMLDivElement): HTMLButtonElement {
-        const button = document.createElement('button');
-        button.textContent = 'Retourner au lobby';
-        button.style.width = '100%';
-        button.style.padding = '20px';
-        button.style.marginTop = '20px';
-
-        button.style.backgroundColor = '#B9D6F2';
-        button.style.color = '#091053';
-        button.style.cursor = 'pointer';
-        FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
-        button.onclick = () => {
-            console.log("click handled");
-            const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-            if (gameCanvas) {
-                console.log("Game canvas found");
-                // Clear the game canvas
-                const gameContext = gameCanvas.getContext('2d');
-                if (gameContext) {
-                    // Fill the canvas with a transparent color to fully clear it
-                    gameContext.save();
-                    gameContext.setTransform(1, 0, 0, 1, 0, 0); // Reset any transforms
-                    gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-                    gameContext.globalAlpha = 1.0;
-                    gameContext.fillStyle = "rgba(0,0,0,0)";
-                    gameContext.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-                    gameContext.restore();
-                }
-
-            }
+        const returnButton = document.createElement('button');
+        returnButton.textContent = 'Return to Lobby';
+        returnButton.style.backgroundColor = '#4CAF50';
+        returnButton.style.color = 'white';
+        returnButton.style.border = 'none';
+        returnButton.style.padding = '10px 20px';
+        returnButton.style.textAlign = 'center';
+        returnButton.style.textDecoration = 'none';
+        returnButton.style.display = 'inline-block';
+        returnButton.style.fontSize = '16px';
+        returnButton.style.marginTop = '20px';
+        returnButton.style.cursor = 'pointer';
+        FontHelper.applyMightySoulyFont(returnButton, FontHelper.BUTTON_FONT_SIZE); // Ajoute cette ligne
+        returnButton.onclick = () => {
             resultContainer.remove();
-            setTimeout(() => {
-                GameUI.showLobbyButtons();
-            }, 100); // Ensure DOM updates before showing lobby buttons
+            GameUI.showLobbyButtons();
         };
-        return button;
+        return returnButton;
+    }
+    private updateTournamentMatchWin(tournamentId: string, match: any, winner: string, user_id: string): void {
+        if (winner.toString() === user_id.toString()) {
+            console.log("winner");
+            // Create a modal overlay
+            const modal = this.createModalElement();
+            // Message
+            const message = document.createElement('div');
+            message.textContent = 'Tournoi terminé ! Vous avez gagné !';
+            message.style.color = '#4CAF50';
+            message.style.textAlign = 'center';
+            message.style.padding = '10px';
+            message.style.fontSize = '20px';
+            FontHelper.applyMightySoulyFont(message, FontHelper.TEXT_FONT_SIZE);
+            // Button
+            const returnButton = TournamentScreen.createReturnToLobbyButton(modal);
+      
+            // Add to modal
+            modal.appendChild(message);
+            modal.appendChild(returnButton);
+            document.body.appendChild(modal);
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 50);
+        }
     }
     private updateTournamentEndMatch(tournamentId: string, match: any, winner: string, user_id: string): void {
  

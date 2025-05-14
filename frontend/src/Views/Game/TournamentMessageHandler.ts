@@ -34,6 +34,8 @@ export class TournamentMessageHandler {
             case 'tournament_final_match':
                 this.handleTournamentFinalMatch(message);
                 return true;
+            case 'tournament_winner':
+                this.handleTournamentMatchWin(message);
 
             default:
                 return false; // Not a tournament message
@@ -75,6 +77,18 @@ export class TournamentMessageHandler {
         }
     }
 
+    private handleTournamentMatchWin(message: any): void {
+        console.log("Tournament match win:", message);
+        const tournamentScreen = GameUI.getScreen('tournament');
+        if (tournamentScreen && 'updateTournamentMatchWin' in tournamentScreen) {
+            (tournamentScreen as any).updateTournamentMatchWin(
+                message.tournament_id,
+                message.match_id,
+                message.winner,
+                message.current_user_id
+            );
+        }
+    }
     private handleAllTournamentsResponse(message: any): void {
         const tournamentEvent = new CustomEvent('websocket_response', {
             detail: {
