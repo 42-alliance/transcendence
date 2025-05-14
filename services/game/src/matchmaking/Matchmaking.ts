@@ -697,14 +697,9 @@ export function handleTournamentMatchEnd(roomUuid: string, winnerId: string, tou
         status: match.status
     }));
     
-    // if (tournament.status === 'final' && tournament.matches.every(m => m.status === 'completed' )) {
-    //     tournament.status = 'completed';
-    //     secureSend(player.socket, {
-    //         type: 'tournament_completed',
-    //         tournament_id: tournamentId,
-    //         winner: winner.user_id
-    //     });
-    // }
+    if (tournament.status === 'final' && tournament.matches.every(m => m.status === 'completed' )) {
+        DeleteTournament(tournamentId);
+    }
     // Si tous les matchs du premier tour sont terminés, notifier que la finale va commencer
     const roundOneMatches = tournament.matches.slice(0, 2);
     if (roundOneMatches.every(m => m.status === 'completed') && tournament.status === 'round1') {

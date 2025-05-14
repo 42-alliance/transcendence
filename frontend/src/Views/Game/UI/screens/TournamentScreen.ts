@@ -4,6 +4,7 @@ import { ModalStyles } from '../styles/ModalStyles.js';
 import { GameUI } from '../../GameUI.js';
 import { getUserInfo } from '../../UserStore.js';
 import { FontHelper } from '../../FontHelper.js'
+import { GameRenderer } from '../../GameRenderer.js';
 
 export class TournamentScreen extends BaseScreen {
     constructor() {
@@ -53,13 +54,49 @@ export class TournamentScreen extends BaseScreen {
             this.isVisible = true;
         });
     }
+
+     private static createReturnToLobbyButton(resultContainer: HTMLDivElement): HTMLButtonElement {
+        const button = document.createElement('button');
+        button.textContent = 'Retourner au lobby';
+        button.style.width = '100%';
+        button.style.padding = '20px';
+        button.style.marginTop = '20px';
+
+        button.style.backgroundColor = '#B9D6F2';
+        button.style.color = '#091053';
+        button.style.cursor = 'pointer';
+        FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
+        button.onclick = () => {
+            console.log("click handled");
+            const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+            if (gameCanvas) {
+                console.log("Game canvas found");
+                // Clear the game canvas
+                const gameContext = gameCanvas.getContext('2d');
+                if (gameContext) {
+                    // Fill the canvas with a transparent color to fully clear it
+                    gameContext.save();
+                    gameContext.setTransform(1, 0, 0, 1, 0, 0); // Reset any transforms
+                    gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                    gameContext.globalAlpha = 1.0;
+                    gameContext.fillStyle = "rgba(0,0,0,0)";
+                    gameContext.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                    gameContext.restore();
+                }
+
+            }
+            resultContainer.remove();
+            setTimeout(() => {
+                GameUI.showLobbyButtons();
+            }, 100); // Ensure DOM updates before showing lobby buttons
+        };
+        return button;
+    }
     private updateTournamentEndMatch(tournamentId: string, match: any, winner: string, user_id: string): void {
  
       
        if (winner.toString() !== user_id.toString()) {
-        // return to lobby
-        console.log('id of winner:', winner);
-        console.log('id of user:', user_id);
+
         console.log("looser");
         // Create a modal overlay
         const modal = this.createModalElement();
@@ -72,12 +109,9 @@ export class TournamentScreen extends BaseScreen {
         message.style.fontSize = '20px';
         FontHelper.applyMightySoulyFont(message, FontHelper.TEXT_FONT_SIZE);
         // Button
-        const returnButton = this.createActionButton('Return to Lobby', () => {
-            this.closeModal(modal);
-            GameUI.showLobbyButtons();
-        }, true);
-        returnButton.style.margin = '20px auto 0 auto';
-        returnButton.style.display = 'block';
+
+        const returnButton = TournamentScreen.createReturnToLobbyButton(modal);
+      
         // Add to modal
         modal.appendChild(message);
         modal.appendChild(returnButton);
