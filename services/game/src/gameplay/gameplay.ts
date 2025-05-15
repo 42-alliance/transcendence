@@ -33,6 +33,9 @@ function getAIDifficultyLevel(username: string): AILevel {
     }
     return level;
 }
+function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
 
 async function HandleMatch() {
     if (all_sessions.length > 0) {
@@ -55,6 +58,22 @@ async function HandleMatch() {
 
                 game.mapPlayers.set(all_sessions[0].match.players[0].user_id, game.p1);
                 game.mapPlayers.set(all_sessions[0].match.players[1].user_id, game.p2);
+                if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {
+                    game.p1.ws.send(JSON.stringify({
+                        type: 'start_animation',
+                        player: game.p1.username,
+                        opponent: game.p2.username,
+                        mode: game.mode
+                    }));
+                    game.p2.ws.send(JSON.stringify({
+                        type: 'start_animation',
+                        player: game.p2.username,
+                        opponent: game.p1.username,
+                        mode: game.mode
+                    }));
+                }
+                // wait 5 seconds before sending the start message
+                await delay(4000);
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {
                     console.log("Game start message sent to both players uuid_room: ", all_sessions[0].match.uuid_room);
@@ -70,6 +89,7 @@ async function HandleMatch() {
                         uuid_room : all_sessions[0].match.uuid_room,
                         dimensions: { width, height }
                     }))
+                    // send start_animation versus
                     all_sessions.shift();
                 }
                 else {
@@ -78,6 +98,9 @@ async function HandleMatch() {
                     secure_send(all_sessions[0].match.players[1].socket, JSON.stringify({ type: 'error', message: 'Error starting game' }));
                     all_sessions.shift();
                 }
+                setTimeout(() => {
+                }, 1000); //wait 5 seconds before sending the start message
+                //wait 5 seconds before sending the start message
                 break;
             case 'local':
                 game.p1.username = "PLAYER_A";
@@ -123,7 +146,6 @@ async function HandleMatch() {
                         aiName = "IA (Impossible)";
                         break;
                 }
-                
                 game.p2.username = aiName;
                 game.match = `${game.p1.username} vs ${aiName}`;
                 game.mode = 'ia';
@@ -145,7 +167,7 @@ async function HandleMatch() {
                         dimensions: { width, height }
                     }));
                     all_sessions.shift();
-                    console.log(`Game start message sent to player 1 (vs ${aiName})`);
+                    console.log(`Game start message sent to playequeuer 1 (vs ${aiName})`);
                 } else {
                     console.error("Error sending game start message");
                     sessions.delete(all_sessions[0].match.uuid_room);
