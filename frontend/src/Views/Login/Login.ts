@@ -55,7 +55,7 @@ export async function verifyIfUsernameInDatabase(username: string) {
 }
 
 async function validUsername(username: string, errorMessage: HTMLSpanElement) {
-	const regex = /^[a-zA-Z0-9_]+$/;
+	const regex = /^[a-zA-Z0-9_]{3,20}$/;
 
 	if (!regex.test(username)) {
 		errorMessage.style.display = "inline";

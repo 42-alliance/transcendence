@@ -44,10 +44,19 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 		});
 
 		if (existingFriendChip) {
-			return reply.status(400).send({message: "Friend request already exists"});
+			await prisma.friends.updateMany({
+				where: {
+					senderId: friend.id,
+					receiverId: userId,
+				},
+				data: {
+					status: "accepted",
+				}
+			});
+			return reply.status(201).send({message: `Friend request is now accepted`});
 		}
 
-		const oui = await prisma.friends.create({
+		await prisma.friends.create({
 			data: {
 				senderId: userId,
 				receiverId: friend.id,

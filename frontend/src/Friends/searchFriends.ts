@@ -133,7 +133,13 @@ function renderFriendsList(friends: Friends[]) {
             userSpan.classList.add("flex-1", "text-black");
 
             const userAdd = document.createElement("i");
-            userAdd.classList.add("fa-solid", "fa-user-plus", "cursor-pointer", "text-blue-500", "hover:text-blue-700");
+
+            console.log("DEBUG STATUS ==> ", friend.status);
+            if (friend.status === "pending") {
+                userAdd.classList.add("fa-solid", "fa-clock", "cursor-pointer", "text-blue-500", "hover:text-blue-700");                
+            } else {
+                userAdd.classList.add("fa-solid", "fa-user-plus", "cursor-pointer", "text-blue-500", "hover:text-blue-700");
+            }
 
             // userAdd.onclick = async () => {
             //     await addFriend(friend.name);
