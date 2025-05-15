@@ -39,6 +39,21 @@ check:
 	@docker volume ls
 
 fclean : down
+	@rm -rf media/files/*
+	@rm -rf services/*/node_modules/
+	@rm -rf services/*/package-*
+	@rm -rf services/*/.objs/
+	@rm -rf services/user/node_modules
+	@rm -rf gateway/node_modules
+	@rm -rf gateway/.objs/
+	@rm -rf backend/auth/node_modules/
+	@rm -rf backend/user/.objs/
+	@rm -rf frontend/node_modules/
+	@rm -rf frontend/.objs
+	@rm -rf tests/node_modules/
+	@rm -rf tests/.objs/
+	@rm -rf services/media/upload/*
+	@rm -rf services/user/prisma/node_modules/
 	docker system prune -af
 	docker volume prune -af
 	@docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
