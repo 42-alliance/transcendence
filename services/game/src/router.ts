@@ -18,7 +18,6 @@ export function extractUserName(request: FastifyRequest) {
 }
 
 export async function setupModeRoute(server: FastifyInstance) {
-    console.log("Setting upp game routes");
     server.get('/ws/game/matchmaking', async function handler(request, reply) {
         try {
             const userId = extractUserId(request);

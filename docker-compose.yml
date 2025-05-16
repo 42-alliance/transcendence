@@ -54,6 +54,19 @@ services:
       depends_on:
         - user
         - auth
+  game:
+     container_name: game
+     build: ./services/game
+     ports:
+       - "8765:8765"
+       - "8790:8790"
+     env_file:
+       - .env
+     volumes:
+       - ./services/game:/app
+     restart: always
+     networks:
+       - services_network
   gateway:
       container_name: gateway
       build: ./gateway/docker/

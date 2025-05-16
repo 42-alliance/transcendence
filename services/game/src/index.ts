@@ -13,7 +13,7 @@ export const server = fastify({
 
 
 await server.register(cors, {
-    origin: "*", // Permet toutes les origines (à restreindre en prod)
+    origin: ['http://localhost:8080', 'http://127.0.0.1:8080'], // Autoriser les requêtes CORS depuis ces origines
     methods: ["GET"], // Méthodes HTTP autorisées
 });
 

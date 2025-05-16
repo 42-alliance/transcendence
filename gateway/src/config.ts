@@ -25,5 +25,12 @@ export const config = {
 	frontend: {
 		host: process.env.FRONTEND_HOST!,
 		port: parseInt(process.env.FRONTEND_PORT!),
-	}
+	},
+	// COnfig pour le service game
+	game: {
+		host: process.env.GAME_HOST!,
+		port: parseInt(process.env.GAME_PORT!),
+		ws_port: parseInt(process.env.GAME_WS_PORT!), // Port pour le websocket
+	},
+
 };

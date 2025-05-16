@@ -50,12 +50,13 @@ export default class Game {
         const user_info = await getUserInfos();
         
         console.log("User info: --------", this.user_info);
-        fetch('http://127.0.0.1:8765/ws/game/matchmaking', {
+        // Remplace l'URL vide par celle du gateway qui route vers le service game
+        fetch('http://localhost:8000/game/matchmaking', {
             method: 'GET',
             headers: {
-                'Authorization': localStorage.getItem('access_token') || '',
-                'x-user-id': String(user_info?.id) || '',
-                'x-user-name': user_info?.name || ''
+                'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`,
+                'x-user-id': String(user_info?.id ?? ''),
+                'x-user-name': user_info?.name ?? ''
             }
         })
         .then(response => {
@@ -66,15 +67,15 @@ export default class Game {
         .then(data => {
             console.log("Matchmaking data:", data);
             if (data.success) {
-                // Initialize WebSocket
-                this.webSocket = new GameWebSocket(this.user_info);
-                this.webSocket.initializeWebSocket();
-                
-                // S'assurer que GameUI est initialisé pour charger les écrans
-                GameUI.initialize();
-                
-                // Set up event listeners for buttons
-                this.setupButtonEventListeners();
+            // Initialize WebSocket
+            this.webSocket = new GameWebSocket(this.user_info);
+            this.webSocket.initializeWebSocket();
+            
+            // S'assurer que GameUI est initialisé pour charger les écrans
+            GameUI.initialize();
+            
+            // Set up event listeners for buttons
+            this.setupButtonEventListeners();
             }
         })
         .catch(error => console.error('Error:', error));

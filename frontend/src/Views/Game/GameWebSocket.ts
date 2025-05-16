@@ -41,7 +41,7 @@ export class GameWebSocket {
     
     initializeWebSocket(): void {
         try {
-            const socket = new WebSocket('ws://localhost:8790');
+            const socket = new WebSocket('ws://localhost:8000/gamews'); // 👈 via gateway
             this.state.setSocket(socket);
 
             socket.onopen = () => {
