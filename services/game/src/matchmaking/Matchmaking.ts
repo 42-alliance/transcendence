@@ -636,6 +636,8 @@ function secureSend(ws: WebSocket, message: any): void {
     }
 }
 
+
+
 function processAllTournaments() {
     // Récupérer tous les tournois
     const tournaments = GetAllTournaments();
@@ -658,7 +660,8 @@ function processAllTournaments() {
                         tournament_id: tournament.id,
                         tournament: tournament.name,
                         opponent: player === match.player1 ? match.player2.username : match.player1.username,
-                        match_id: match.id
+                        match_id: match.id,
+                        user_name: player.username,
                     });
                 });
             }

@@ -2,6 +2,7 @@ import { DifficultyScreen } from './UI/screens/DifficultyScreen.js';
 import { UISpinner } from './UI/components/Spinner.js';
 import { IScreen } from './UI/interfaces/IScreen.js';
 import { TournamentScreen } from './UI/screens/TournamentScreen.js';
+import { FontHelper } from './FontHelper.js';
 
 export class GameUI {
     private static lobbyButtons = ['randomAdversaireButton', 'localButton', 'tournamentButton', 'iaButton'];
@@ -15,7 +16,8 @@ export class GameUI {
         this.screens.set('tournament', new TournamentScreen())
     }
     
-    static displaySpinner(message = 'Finding opponent...'): void {
+    static displaySpinner(message = 'Waiting...'): void {
+        FontHelper.applyMightySoulyFont(document.body, "80px");
         this.spinner.show(message);
     }
     
@@ -139,6 +141,126 @@ export class GameUI {
 
     static hasScreen(screenName: string): boolean {
         return this.screens.has(screenName);
+    }
+    
+    static showAnimationMatch(userName: string, opponentName: string, header: string): void {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(9, 16, 83, 0.95)';
+        overlay.style.zIndex = '2000';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        FontHelper.applyMightySoulyFont(overlay, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
+        // Créer le conteneur d'animation
+        const animContainer = document.createElement('div');
+        animContainer.style.position = 'relative';
+        animContainer.style.width = '90%';
+        animContainer.style.maxWidth = '800px';
+        animContainer.style.height = '250px';
+        
+        // Créer le titre du tournoi
+        const title = document.createElement('div');
+        title.textContent = header.toUpperCase();
+        title.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        title.style.fontSize = '36px';
+        title.style.color = '#CAFE48';
+        title.style.textAlign = 'center';
+        title.style.marginBottom = '60px';
+        title.style.opacity = '0';
+        title.style.transform = 'translateY(-20px)';
+        title.style.transition = 'all 0.8s ease-out';
+        
+        // Après un court délai, faire apparaître le titre
+        setTimeout(() => {
+            title.style.opacity = '1';
+            title.style.transform = 'translateY(0)';
+        }, 300);
+        
+        // Récupérer le nom du joueur actuel
+        const playerName = userName;
+        
+        // Joueur 1 (à gauche)
+        const player1 = document.createElement('div');
+        player1.textContent = playerName;
+        player1.style.position = 'absolute';
+        player1.style.left = '-100%';
+        player1.style.top = '50%';
+        player1.style.transform = 'translateY(-50%)';
+        player1.style.color = '#B9D6F2';
+        player1.style.fontSize = '48px';
+        player1.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        player1.style.whiteSpace = 'nowrap';
+        player1.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        // Joueur 2 (à droite)
+        const player2 = document.createElement('div');
+        player2.textContent = opponentName;
+        player2.style.position = 'absolute';
+        player2.style.right = '-100%';
+        player2.style.top = '50%';
+        player2.style.transform = 'translateY(-50%)';
+        player2.style.color = '#F44336';
+        player2.style.fontSize = '48px';
+        player2.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        player2.style.whiteSpace = 'nowrap';
+        player2.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        // VS au milieu
+        const vs = document.createElement('div');
+        vs.textContent = "VS";
+        vs.style.position = 'absolute';
+        vs.style.left = '50%';
+        vs.style.top = '50%';
+        vs.style.transform = 'translate(-50%, -50%) scale(0)';
+        vs.style.color = '#CAFE48';
+        vs.style.fontSize = '72px';
+        vs.style.fontFamily = "'Mighty Souly', Arial, sans-serif";
+        vs.style.zIndex = '10';
+        vs.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        vs.style.textShadow = '0 0 15px rgba(202, 254, 72, 0.8)';
+        
+        // Ligne diagonale
+        
+        // Ajouter tous les éléments au conteneur d'animation
+        animContainer.appendChild(player1);
+        animContainer.appendChild(player2);
+        animContainer.appendChild(vs);
+        
+        overlay.appendChild(title);
+        overlay.appendChild(animContainer);
+        document.body.appendChild(overlay);
+        
+        // Déclencher les animations
+        setTimeout(() => {
+            player1.style.left = '5%';
+        }, 800);
+        
+        setTimeout(() => {
+            player2.style.right = '5%';
+        }, 1000);
+        
+      
+        
+        setTimeout(() => {
+            vs.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            setTimeout(() => {
+                vs.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 200);
+        }, 2000);
+        
+        // Après l'animation, afficher le jeu
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.remove();
+            }, 500);
+        }, 4000);
     }
 }
 

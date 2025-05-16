@@ -12,15 +12,15 @@ export class UISpinner {
         this.container.style.left = '50%';
         this.container.style.transform = 'translate(-50%, -50%)';
         this.container.style.zIndex = '1000';
-        this.container.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        this.container.style.backgroundColor = '';
         this.container.style.padding = '20px';
         this.container.style.borderRadius = '10px';
         this.container.style.textAlign = 'center';
         
         // Create spinner
         const spinner = document.createElement('div');
-        spinner.style.border = '5px solid #f3f3f3';
-        spinner.style.borderTop = '5px solid #3498db';
+        spinner.style.border = '10px solid #f3f3f3';
+        spinner.style.borderTop = '9px solid #3498db';
         spinner.style.borderRadius = '50%';
         spinner.style.width = '50px';
         spinner.style.height = '50px';
@@ -30,7 +30,7 @@ export class UISpinner {
         // Create message
         this.message = document.createElement('p');
         this.message.style.color = 'white';
-        this.message.style.fontSize = '16px';
+        this.message.style.fontSize = '32px';
         this.message.style.margin = '0';
         
         // Add keyframes for spinner animation

@@ -49,7 +49,8 @@ export class TournamentMessageHandler {
             (tournamentScreen as any).showTournamentMatch(
                 message.tournament_id,
                 message.tournament,
-                message.opponent
+                message.opponent,
+                message.user_name
             );
         }
     }

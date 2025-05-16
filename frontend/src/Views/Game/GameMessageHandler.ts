@@ -40,7 +40,10 @@ export class GameMessageHandler {
                 console.log("Game finished:", message.data);
                 this.handleGameFinished(message);
                 break;
-                
+            case 'start_animation':
+                console.log("Starting animation:", message.data);
+                GameUI.showAnimationMatch(message.player, message.opponent, message.mode);
+                break;
             default:
                 // Unknown game message type, let the parent handler decide
                 return;

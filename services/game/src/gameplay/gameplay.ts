@@ -190,6 +190,7 @@ async function HandleMatch() {
                 game.tour_stat = all_sessions[0].match.tour_stat || ''; // Ajouter l'état du tournoi avec une valeur par défaut
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 console.log("A game is setting up");
+                await delay(4000);
                 if (game.p1.ws.readyState !== wss.close && game.p2.ws.readyState !== wss.close) {
                     game.p1.ws.send(JSON.stringify({
                         type: 'start',
