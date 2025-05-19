@@ -77,6 +77,8 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
             }
         }
 
+        console.log("DEBUG UPDATE USER => ", updateUser);
+
         if (updateUser.name && updateUser.name.trim().length < 3) {
             return reply.status(400).send({ message: "Nom invalide, trop court." });
         }
