@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import { config } from './config.js';
 import WebSocket from "ws";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '../prisma/node_modules/@prisma/client/client.js';
 import fastifyWebsocket from "@fastify/websocket";
 import { setupWebsocket } from "./chat/websocket.js";
 import { setupChatRoutes } from "./router.js";

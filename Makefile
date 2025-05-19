@@ -10,6 +10,9 @@ up :
 down : 
 	docker compose down
 
+downv : 
+	docker compose down -v
+
 oui : down up
 
 dbclean :
@@ -38,7 +41,7 @@ check:
 	@echo "$(MAGENTA)VOLUMES:$(RESET)"
 	@docker volume ls
 
-fclean : down
+fclean : downv dbclean
 	@rm -rf media/files/*
 	@rm -rf services/*/node_modules/
 	@rm -rf services/*/package-*
@@ -56,7 +59,6 @@ fclean : down
 	@rm -rf services/user/prisma/node_modules/
 	docker system prune -af
 	docker volume prune -af
-	@docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
 
 log :
 	docker compose logs -f
