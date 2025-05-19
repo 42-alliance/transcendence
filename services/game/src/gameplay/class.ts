@@ -1,4 +1,42 @@
 import { handleTournamentMatchEnd } from '../matchmaking/Matchmaking.js';
+// import { PrismaClient } from '@prisma/client';
+// const prisma = new PrismaClient();
+// async function saveMatchToDB(game: Game) {
+//   // 1. Trouver l'id du jeu Pong (Games)
+//   const pongGame = await prisma.games.findUnique({
+//     where: { name: "Pong" },
+//   });
+
+//   if (!pongGame) {
+//     console.error("Le jeu Pong n'existe pas dans la table Games.");
+//     return;
+//   }
+
+//   // 2. Créer le match
+//   const match = await prisma.matches.create({
+//     data: {
+//       gameId: pongGame.id,
+//       played_at: new Date(),
+//       players: {
+//         create: [
+//           {
+//             userId: Number(game.p1.user_id),
+//             score: game.score_p1,
+//             points: game.score_p1, // ou autre logique pour les points
+//           },
+//           {
+//             userId: Number(game.p2.user_id),
+//             score: game.score_p2,
+//             points: game.score_p2, // ou autre logique pour les points
+//           },
+//         ],
+//       },
+//     },
+//     include: { players: true },
+//   });
+
+//   console.log("Match sauvegardé :", match);
+// }
 
 class Paddle {
   x: number;
@@ -280,7 +318,7 @@ class Game {
         }
     }
     
-    endGame(winnerUserId: string) {
+    async endGame(winnerUserId: string) {
         this.is_end = true;
         this.resetBall(); // Reset ball position and speed
         
@@ -329,6 +367,13 @@ class Game {
         } catch (error) {
             console.error('Error sending game_finished message:', error);
         }
+
+        // Sauvegarde du match en base
+        // try {
+        //     await saveMatchToDB(this);
+        // } catch (e) {
+        //     console.error("Erreur lors de la sauvegarde du match :", e);
+        // }
     }
 
     handleDisconnection(player: 'p1' | 'p2') {
