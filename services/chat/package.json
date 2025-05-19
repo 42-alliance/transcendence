@@ -16,8 +16,8 @@
   "description": "",
   "dependencies": {
     "@fastify/websocket": "^11.0.2",
-    "@prisma/client": "^6.7.0",
-    "@sinclair/typebox": "^0.24.51",
+    "@prisma/client": "^6.8.2",
+    "@sinclair/typebox": "^0.34.33",
     "fastify": "^5.2.1",
     "nodemon": "^3.1.9",
     "pino-pretty": "^13.0.0",
