@@ -8,33 +8,16 @@ datasource db {
 
 generator client {
     provider      = "prisma-client-js"
-    binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
-model Games {
-    id          Int      @id @default(autoincrement())
-    name        String   @unique
-    description String?
-    image       String?
-    created_at  DateTime @default(now())
-    updated_at  DateTime @updatedAt
-
-    matches     Matches[]
+model Game {
+    id           Int       @id @default(autoincrement())
+    playerOne    String
+    playerTwo    String
+    scoreOne     Int       @default(0)
+    scoreTwo     Int       @default(0)
+    winner       String?
+    startedAt    DateTime  @default(now())
+    endedAt      DateTime?
 }
 
-model Matches {
-    id         Int       @id @default(autoincrement())
-    game       Games     @relation(fields: [gameId], references: [id])
-    gameId     Int
-    played_at  DateTime  @default(now())
-    players    MatchPlayers[]
-}
-
-model MatchPlayers {
-    id        Int    @id @default(autoincrement())
-    match     Matches @relation(fields: [matchId], references: [id])
-    matchId   Int
-    userId    Int    // Référence à l'ID d'utilisateur du service user
-    score     Int
-    points    Int
-}

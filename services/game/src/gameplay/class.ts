@@ -1,42 +1,29 @@
 import { handleTournamentMatchEnd } from '../matchmaking/Matchmaking.js';
-// import { PrismaClient } from '@prisma/client';
-// const prisma = new PrismaClient();
-// async function saveMatchToDB(game: Game) {
-//   // 1. Trouver l'id du jeu Pong (Games)
-//   const pongGame = await prisma.games.findUnique({
-//     where: { name: "Pong" },
-//   });
-
-//   if (!pongGame) {
-//     console.error("Le jeu Pong n'existe pas dans la table Games.");
-//     return;
-//   }
-
-//   // 2. Créer le match
-//   const match = await prisma.matches.create({
-//     data: {
-//       gameId: pongGame.id,
-//       played_at: new Date(),
-//       players: {
-//         create: [
-//           {
-//             userId: Number(game.p1.user_id),
-//             score: game.score_p1,
-//             points: game.score_p1, // ou autre logique pour les points
-//           },
-//           {
-//             userId: Number(game.p2.user_id),
-//             score: game.score_p2,
-//             points: game.score_p2, // ou autre logique pour les points
-//           },
-//         ],
-//       },
-//     },
-//     include: { players: true },
-//   });
-
-//   console.log("Match sauvegardé :", match);
-// }
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+async function saveMatchToDB(game: Game) {
+    try {
+        await prisma.game.create({
+            data: {
+                playerOne: game.p1.username,
+                playerTwo: game.p2.username,
+                scoreOne: game.score_p1,
+                scoreTwo: game.score_p2,
+                winner:
+                    game.score_p1 > game.score_p2
+                        ? game.p1.username
+                        : game.score_p2 > game.score_p1
+                        ? game.p2.username
+                        : null,
+                startedAt: new Date(), // You may want to store the actual start time if available
+                endedAt: new Date(),
+            },
+        });
+        console.log("Match sauvegardé dans la table Game.");
+    } catch (e) {
+        console.error("Erreur lors de la sauvegarde du match :", e);
+    }
+}
 
 class Paddle {
   x: number;
@@ -369,11 +356,13 @@ class Game {
         }
 
         // Sauvegarde du match en base
-        // try {
-        //     await saveMatchToDB(this);
-        // } catch (e) {
-        //     console.error("Erreur lors de la sauvegarde du match :", e);
-        // }
+        if (this.mode === 'random_adversaire') {
+            try {
+                await saveMatchToDB(this);
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde du match :", e);
+            }
+        }
     }
 
     handleDisconnection(player: 'p1' | 'p2') {
@@ -392,7 +381,7 @@ class Game {
         this.endGameWithDisconnection(winnerUserId, player);
     }
     
-    endGameWithDisconnection(winnerUserId: string, disconnectedPlayer: 'p1' | 'p2') {
+    async endGameWithDisconnection(winnerUserId: string, disconnectedPlayer: 'p1' | 'p2') {
         this.is_end = true;
         this.resetBall(); // Reset ball position and speed
         
@@ -423,7 +412,14 @@ class Game {
                 console.error('Error handling tournament match end:', error);
             }
         }
-    
+        // Sauvegarde du match en base
+        if (this.mode === 'random_adversaire') {
+            try {
+                await saveMatchToDB(this);
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde du match :", e);
+            }
+        }
         try {
             // Send the message only to the remaining player
             if (disconnectedPlayer === 'p2' && this.p1.ws) {
