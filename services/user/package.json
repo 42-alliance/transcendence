@@ -17,7 +17,7 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/multipart": "^9.0.3",
-    "@prisma/client": "^6.7.0",
+    "@prisma/client": "^6.8.2",
     "@sinclair/typebox": "^0.34.30",
     "@types/ws": "^8.18.0",
     "axios": "^1.8.3",
