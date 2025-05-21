@@ -43,17 +43,22 @@ class Paddle {
     this.dx = 0;
   }
 
-  moveUp() {
-    if (this.y > 0) {
-        this.y -= this.speed;
+    move(direction: 'up' | 'down', condition: () => boolean) {
+        const moveStep = () => {
+            if (!condition()) {
+                return; // Stop moving if the condition is false
+            }
+            console.log("mooving");
+            if (direction === 'up' && this.y > 0) {
+                this.y -= this.speed;
+            } else if (direction === 'down' && this.y + this.height < 800) {
+                this.y += this.speed;
+            }
+            setTimeout(moveStep, 16); // Continue moving in the next frame (~60fps)
+        };
+        moveStep();
     }
-  }
 
-  moveDown() {
-    if (this.y + this.height < 800) {
-        this.y += this.speed;
-    }
-}
 
   stop() {
     this.dx = 0;

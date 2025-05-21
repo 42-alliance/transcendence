@@ -43,13 +43,28 @@ export class GameAI {
     private targetY: number | null = null;
     private defensivePosition: number;
     private isAttacking: boolean = false;
+    private moveUp: boolean = false;
+    private moveDown: boolean = false;
   
-    
     constructor(game: Game, level: AILevel = AILevel.MEDIUM) {
         this.game = game;
         this.level = level;
         this.lastDecisionTime = Date.now();
         this.defensivePosition = game.height / 2;
+        this.moveUp = false;
+        this.moveDown = false;
+        
+        // Set up continuous movement with condition callbacks
+    }
+    
+    private move() {
+        const paddle = this.game.p2.paddle;
+        
+        // Set up move up with condition
+        paddle.move('up', () => this.moveUp);
+        
+        // Set up move down with condition
+        paddle.move('down', () => this.moveDown);
     }
     
     setLevel(level: AILevel): void {
@@ -141,13 +156,13 @@ export class GameAI {
         const paddle = this.game.p2.paddle;
         const ball = this.game.ball;
         const height = this.game.height;
-        const width = this.game.width;
         
-        // Attendre 50 ms avant de continuer
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        await delay(200);
+       
+        const time = this.REACTION_TIME[this.level];
+        await delay(time)
         // Mettre à jour les décisions selon le temps de réaction défini par le niveau
-        if (now - this.lastDecisionTime >= this.REACTION_TIME[this.level]) {
+        if (true) {
+            console.log("IA START DETERMINE HIS MOVE")
             this.lastDecisionTime = now;
             
             // Déterminer si l'IA doit jouer agressivement ou défensivement
@@ -169,51 +184,65 @@ export class GameAI {
                     this.defensivePosition = height / 2 + (ball.y - height / 2) * 0.3;
                 }
             }
-        }
-        
-        // Si l'IA est en mode attaque et a une cible
-        if (this.isAttacking && this.targetY !== null) {
-            // Mode agressif: se positionner plus près du filet
-            const aggressiveX = width * 0.85;
-            const currentDistanceFromNet = width - paddle.x;
+            if (this.isAttacking = true)
+                    console.log("IA DECIDE TO ATACK");
+            else 
+                console.log("IA DONT DECIDE TO ATACK");
             
-            // Déplacer le paddle vers la cible
-            if (paddle.y + paddle.height / 2 < this.targetY - 10) {
-                paddle.moveDown();
-            } else if (paddle.y + paddle.height / 2 > this.targetY + 10) {
-                paddle.moveUp();
-            }
-        } else {
-            // Mode défensif
+            // Déterminer la direction de déplacement en fonction de la cible
             const targetY = this.targetY !== null ? this.targetY : this.defensivePosition;
+            const paddleCenter = paddle.y + paddle.height / 2;
             
-            // Déplacer le paddle vers la position cible, avec une petite zone de repos
-            if (paddle.y + paddle.height / 2 < targetY - 15) {
-                paddle.moveDown();
-            } else if (paddle.y + paddle.height / 2 > targetY + 15) {
-                paddle.moveUp();
+            // Reset movement flags
+            this.moveUp = false;
+            this.moveDown = false;
+            
+            // Si l'IA est en mode attaque ou défense, définir les flags de mouvement
+            if (this.level === AILevel.EASY && Math.random() < 0.1) {
+                console.log("IA DEFINE MODE");
+                // Parfois faire des mouvements aléatoires pour l'IA facile
+                this.moveUp = Math.random() < 0.5;
+                this.moveDown = !this.moveUp;
+            } else if (this.level === AILevel.IMPOSSIBLE && ball.dx > 0) {
+                // Pour le niveau impossible, suivre la balle presque parfaitement
+                if (paddleCenter < ball.y - 5) {
+                    console.log("IA MOVE DOWN");
+                    this.moveDown = true;
+                } else if (paddleCenter > ball.y + 5) {
+                    console.log("IA MOVE UP");
+                    this.moveUp = true;
+                }
+            } else {
+                // Mode normal - suivre la cible avec une marge
+                const margin = this.level === AILevel.EASY ? 30 : 
+                              this.level === AILevel.MEDIUM ? 20 : 10;
+                
+                if (paddleCenter < targetY - margin) {
+                    this.moveDown = true;
+                    this.moveUp = false;
+                } else if (paddleCenter > targetY + margin) {
+                    this.moveUp = true;
+                    this.moveDown = false;
+                } else {
+                    // Dans la marge de repos, ne pas bouger
+                    this.moveUp = false;
+                    this.moveDown = false;
+                }
             }
+            this.move();
         }
-        
-        // Ajouter un comportement différent selon le niveau
-        if (this.level === AILevel.EASY && Math.random() < 0.1) {
-            // Parfois faire des mouvements aléatoires pour l'IA facile
-            if (Math.random() < 0.5) {
-                paddle.moveUp();
-            } else {
-                paddle.moveDown();
-            }
-        } else if (this.level === AILevel.IMPOSSIBLE && ball.dx > 0) {
-            // Pour le niveau impossible, suivre la balle presque parfaitement
-            if (paddle.y + paddle.height / 2 < ball.y) {
-                paddle.moveDown();
-            } else {
-                paddle.moveUp();
-            }
+        else
+        {
+            console.log( "now : " ,now );
+            console.log("ths.lastime", this.lastDecisionTime);
+            console.log("reaction time", this.REACTION_TIME[this.level]);
+
         }
     }
+    
     check_end_game() {
         return this.game.check_end();
     }
 
 }
+

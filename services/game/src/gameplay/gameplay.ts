@@ -257,8 +257,10 @@ async function UpdateGame() {
         console.log(`AI instance for game ${uuid} has been removed`);
     });
 }
-
 wss.on('connection', (ws) => {
+    // Store key states for each player to track changes
+    const playerKeyStates = new Map<string, any>();
+    
     ws.on('message', (message: string) => {
        // console.log("Received message from client:", message);
         try {
@@ -266,30 +268,73 @@ wss.on('connection', (ws) => {
             console.log(data.type);
             if (data.type === 'key_command' && data.uuid_room && sessions.has(data.uuid_room)) {
                 const session = sessions.get(data.uuid_room);
-                console.log("Received key command:", data.keys);
+                console.log("Received key state:", data.key_state);
                 if (!session) return;
+                
+                // Store current key states for this player
+                playerKeyStates.set(data.user_id, data.key_state);
     
                 if (session.mode === 'local') {
-                    if (data.keys.includes('ArrowUp')) session.p1.paddle.moveUp();
-                    if (data.keys.includes('ArrowDown')) session.p1.paddle.moveDown();
-                    if (data.keys.includes('z')) session.p2.paddle.moveUp();
-                    if (data.keys.includes('s')) session.p2.paddle.moveDown();
+                    // Apply continuous movement for player 1
+                    if (data.key_state.ArrowUp) {
+                        session.p1.paddle.move('up', () => 
+                            playerKeyStates.has(data.user_id) && 
+                            playerKeyStates.get(data.user_id).ArrowUp);
+                    }
+                    if (data.key_state.ArrowDown) {
+                        session.p1.paddle.move('down', () => 
+                            playerKeyStates.has(data.user_id) && 
+                            playerKeyStates.get(data.user_id).ArrowDown);
+                    }
+                    
+                    // Apply continuous movement for player 2
+                    if (data.key_state.z) {
+                        session.p2.paddle.move('up', () => 
+                            playerKeyStates.has(data.user_id) && 
+                            playerKeyStates.get(data.user_id).z);
+                    }
+                    if (data.key_state.s) {
+                        session.p2.paddle.move('down', () => 
+                            playerKeyStates.has(data.user_id) && 
+                            playerKeyStates.get(data.user_id).s);
+                    }
                 } 
                 else if (session.mode === 'random_adversaire' || session.mode === 'tournament') {
                     const player = session.mapPlayers.get(data.user_id);
                     if (player) {
-                        if (data.keys.includes('z')) player.paddle.moveUp();
-                        if (data.keys.includes('s')) player.paddle.moveDown();
+                        if (data.key_state.z) {
+                            player.paddle.move('up', () => 
+                                playerKeyStates.has(data.user_id) && 
+                                playerKeyStates.get(data.user_id).z);
+                        }
+                        if (data.key_state.s) {
+                            player.paddle.move('down', () => 
+                                playerKeyStates.has(data.user_id) && 
+                                playerKeyStates.get(data.user_id).s);
+                        }
+                        if (data.key_state.ArrowUp) {
+                            player.paddle.move('up', () => 
+                                playerKeyStates.has(data.user_id) && 
+                                playerKeyStates.get(data.user_id).ArrowUp);
+                        }
+                        if (data.key_state.ArrowDown) {
+                            player.paddle.move('down', () => 
+                                playerKeyStates.has(data.user_id) && 
+                                playerKeyStates.get(data.user_id).ArrowDown);
+                        }
                         console.log("Player paddle moved:", player.username);
-                        if (data.keys.includes('ArrowUp')) player.paddle.moveUp();
-                        if (data.keys.includes('ArrowDown')) player.paddle.moveDown();
                     }
                 }
                 else if (session.mode === 'ia') {
-            
-                    if (data) {
-                        if (data.keys.includes('ArrowUp')) session.p1.paddle.moveUp();
-                        if (data.keys.includes('ArrowDown')) session.p1.paddle.moveDown();
+                    if (data.key_state.ArrowUp) {
+                        session.p1.paddle.move('up', () => 
+                            playerKeyStates.has(data.user_id) && 
+                            playerKeyStates.get(data.user_id).ArrowUp);
+                    }
+                    if (data.key_state.ArrowDown) {
+                        session.p1.paddle.move('down', () => 
+                            playerKeyStates.has(data.user_id) && 
+                            playerKeyStates.get(data.user_id).ArrowDown);
                     }
                 }
                 else {
@@ -299,6 +344,14 @@ wss.on('connection', (ws) => {
         } catch (error) {
             console.error("Erreur de traitement du message:", error);
         }
+    });
+
+    // Clean up key states when connection closes
+    ws.on('close', () => {
+        // Find and remove any key states for this connection
+        playerKeyStates.forEach((_, userId) => {
+            playerKeyStates.delete(userId);
+        });
     });
 });
 
