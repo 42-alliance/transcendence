@@ -1,98 +1,15 @@
 
-<div class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-70" id="searchFriendsModal">
-    <div class="w-1/3 h-2/5 bg-white bg-opacity-90 p-6 rounded-lg shadow-xl flex flex-col">
-        <div class="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 class="text-lg font-semibold text-black">Search Friends</h2>
-            <button id="closeModal" class="text-gray-500 hover:text-gray-700 text-2xl" onclick="closeFriendSearch()">&times;</button>
-        </div>
-        <input id="searchFriendsInput" type="text" placeholder="Search..." class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
-        <div id="searchUsersFriends" class="mt-4 overflow-y-auto max-h-[200px] space-y-3 px-2">
-        </div>
-    </div>
-</div>
-
-
-<!-- Conteneur principal -->
-<div class="w-full h-screen flex">
-    <!-- Sidebar -->
-    <aside class="w-64 flex flex-col rounded-lg bg-amber-950 text-white p-6 space-y-8 h-full shadow-lg overflow-y-auto">
-        <!-- Logo -->
-        <a href="/" data-link class="flex justify-center">
-            <img class="h-20" src="assets/logo.png" alt="Dragon Pong Logo">
-        </a>
-
-        <!-- Navigation -->
-        <nav class="flex flex-col space-y-3 text-center">
-            <a href="/" data-link class="block py-3 px-4 rounded-lg hover:bg-amber-800 transition">🏠 Dashboard</a>
-            <a href="/game" data-link class="block py-3 px-4 rounded-lg hover:bg-amber-800 transition">🎮 Game</a>
-            <a href="/friends" data-link class="block py-3 px-4 rounded-lg hover:bg-amber-800 transition">👥 Friends</a>
-            <a href="/notifications" data-link class="block py-3 px-4 rounded-lg hover:bg-amber-800 transition">🔔 Notifications</a>
-
-        </nav>
-
-        <!-- Amis en ligne -->
-        <div class="space-y-4 flex-1 overflow-y-auto">
-            <div class="flex justify-between items-center px-4">
-                <span class="text-sm font-semibold">ONLINE FRIENDS</span>
-                <i class="fa-solid fa-plus cursor-pointer hover:text-gray-300 transition" onclick="openFriendSearch()"></i>
+<div class="game-container">
+        <link rel="stylesheet" href="src/Views/Game/Game.css">
+        <div class="game-area">
+            <canvas id="gameCanvas" width="1600" height="800" >
+            Your browser does not support the HTML5 canvas tag.
+            </canvas>
+            <div class="button-container">
+                <button id="randomAdversaireButton" type="button">Random Adversaire</button>
+                <button id="localButton" type="button">Local</button>
+                <button id="tournamentButton" type="button">Tournament</button>
+                <button id="iaButton" type="button">IA</button>
             </div>
-            <div class="space-y-3" id="online-friends"></div>
         </div>
-    </aside>
-
-    <!-- Contenu principal qui prend toute la hauteur -->
-    <div class="flex flex-col text-white p-8 flex-1 h-full gap-2">
-        <!-- Navbar -->
-		<nav class="flex justify-between items-center bg-amber-900 rounded-lg p-4 shadow-lg">
-			<input type="text" placeholder="Search for users..." class="p-2 w-1/3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
-		
-			<!-- Custom Audio Player -->
-			<div class="flex items-center space-x-4 bg-amber-800 px-4 py-2 rounded-lg" id="sound-bar">
-				<button id="prev-song" class="text-white text-lg cursor-pointer hover:text-gray-300 transition">
-					<i class="fa-solid fa-backward"></i>
-				</button>
-			
-				<audio id="audio-player" preload="auto" controls class="hidden">
-					<source src="assets/sounds/vegeta_sacrifice.mp3" type="audio/mp3">
-					<p>Votre navigateur est trop ancien pour lire ce fichier</p>
-				</audio>
-			
-				<button id="play-pause" class="text-white text-lg cursor-pointer hover:text-gray-300 transition">
-					<i class="fa-solid fa-play"></i>
-				</button>
-			
-				<input id="volume-slider" type="range" min="0" max="1" step="0.05" value="1" class="cursor-pointer">
-			
-				<button id="next-song" class="text-white text-lg cursor-pointer hover:text-gray-300 transition">
-					<i class="fa-solid fa-forward"></i>
-				</button>
-			
-				<!-- Titre de la musique -->
-				<span id="song-title" class="text-white text-lg font-semibold"></span>
-			</div>
-			
-		
-			<div class="flex items-center space-x-6">
-				<i class="fa-solid fa-bell cursor-pointer hover:text-gray-300 transition"></i>
-				<div class="flex items-center gap-5 px-4 py-2 bg-amber-800 rounded-lg cursor-pointer" id="userProfile-button"></div>
-				<i class="fa-solid fa-gear cursor-pointer hover:text-gray-300 transition" onclick="logOutUser()"></i>
-			</div>
-		</nav>
-
-        <!-- Contenu qui occupe tout l'espace -->
-        <div class="game-container">
-            <link rel="stylesheet" href="src/Views/Game/Game.css">
-            <div class="game-area">
-                <canvas id="gameCanvas" width="1600" height="800">
-                Your browser does not support the HTML5 canvas tag.
-                </canvas>
-                <div class="button-container">
-                    <button id="randomAdversaireButton" type="button">Random Adversaire</button>
-                    <button id="localButton" type="button">Local</button>
-                    <button id="tournamentButton" type="button">Tournament</button>
-                    <button id="iaButton" type="button">IA</button>
-                </div>
-            </div>
-    </div>
-    </div>
 </div>
