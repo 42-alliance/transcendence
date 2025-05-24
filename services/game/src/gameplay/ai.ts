@@ -159,7 +159,6 @@ export class GameAI {
         
        
         const time = this.REACTION_TIME[this.level];
-        await delay(time)
         // Mettre à jour les décisions selon le temps de réaction défini par le niveau
         if (true) {
             console.log("IA START DETERMINE HIS MOVE")
