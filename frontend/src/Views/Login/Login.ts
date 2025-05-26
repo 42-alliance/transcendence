@@ -89,7 +89,7 @@ export async function formSubmit(event: Event) {
 	const profilePicture = profileImage.files[0];
 	const maxSize = 2 * 1024 * 1024;
 	if (profilePicture && profilePicture.size > maxSize) { 
-		alert('File size exceeds 2 MB. Please select a smaller profile picture.');
+		alert('File size exceeds 2 MB. Please select a smaller profile picture. Coucou <3');
 		return;
 	}
 	updateUserInfos(username, profilePicture);

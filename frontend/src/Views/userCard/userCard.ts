@@ -1,4 +1,6 @@
 import { getUserInfos, userInfos } from "../../User/me.js";
+import { updateUserInfos } from "../../User/updateUser.js";
+import { navigateTo } from "../viewManager.js";
 
 interface UserData {
     name?: string;
@@ -9,7 +11,224 @@ interface UserData {
 
 let NewuserData: UserData = {};
 
-function updateUserCard(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void {
+function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void {
+	// Fonction pour créer une icône stylo Font Awesome
+	function createEditIcon(): HTMLElement {
+		const icon = document.createElement("i");
+		icon.className = "fa-solid fa-pen-to-square text-gray-400 hover:text-white ml-2 cursor-pointer";
+		icon.title = "Modifier";
+		icon.style.fontSize = "1.2rem";
+		return icon;
+	}
+
+	// Création du conteneur principal
+	const container = document.createElement("div");
+	container.className = "flex flex-col w-full h-full relative";
+
+	// ========== INPUTS CACHÉS (pour les images) ==========
+	const bannerInput = document.createElement("input");
+	bannerInput.type = "file";
+	bannerInput.accept = "image/*";
+	bannerInput.id = "bannerFileInput";
+	bannerInput.className = "hidden";
+
+	const profileInput = document.createElement("input");
+	profileInput.type = "file";
+	profileInput.accept = "image/*";
+	profileInput.id = "profileFileInput";
+	profileInput.className = "hidden";
+
+	// ========== BANNIÈRE ==========
+	const bannerContainer = document.createElement("div");
+	bannerContainer.className = "relative h-[300px] group cursor-pointer";
+
+	const bannerWrapper = document.createElement("div");
+	bannerWrapper.className = "w-full h-full overflow-hidden";
+
+	const bannerImg = document.createElement("img");
+	bannerImg.id = "banner-card";
+	bannerImg.className = "bg-[#1a1826] w-full h-full object-cover";
+	bannerImg.src = NewuserData.banner || userInfos.banner || "assets/default_banner.jpeg";
+	bannerImg.alt = "Bannière utilisateur";
+
+	const bannerOverlay = document.createElement("div");
+	bannerOverlay.className =
+		"absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-lg font-semibold opacity-0 group-hover:opacity-75 transition-opacity";
+	bannerOverlay.textContent = "Changer la bannière";
+
+	bannerInput.addEventListener("change", (event) => {
+		previewImage(event, "banner-card", "profile-picture-card", "profileImageInput");
+	});
+
+	bannerContainer.appendChild(bannerWrapper);
+	bannerWrapper.appendChild(bannerImg);
+	bannerContainer.appendChild(bannerOverlay);
+
+	bannerContainer.addEventListener("click", () => bannerInput.click());
+
+	// ========== PHOTO DE PROFIL ==========
+	const profileWrapper = document.createElement("div");
+	profileWrapper.className = "absolute top-[220px] left-[40px] w-[180px] h-[180px] group cursor-pointer";
+
+	const profileBg = document.createElement("div");
+	profileBg.className = "absolute inset-0 bg-[#1a1826] rounded-full";
+
+	const profileImg = document.createElement("img");
+	profileImg.id = "profile-picture-card";
+	profileImg.className = "w-full h-full rounded-full border-8 border-[#1a1826] relative z-10 object-cover";
+	profileImg.src = NewuserData.picture || userInfos.picture || "assets/default.jpeg";
+	profileImg.alt = "Photo de profil";
+
+	const profileOverlay = document.createElement("div");
+	profileOverlay.className =
+		"absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white text-sm font-semibold opacity-0 group-hover:opacity-75 transition-opacity z-20";
+	profileOverlay.textContent = "Changer la photo";
+
+	profileInput.addEventListener("change", (event) => {
+		previewImage(event, "profile-picture-card", "banner-card", "profileBannerInput");
+	});
+
+	profileWrapper.appendChild(profileBg);
+	profileWrapper.appendChild(profileImg);
+	profileWrapper.appendChild(profileOverlay);
+
+	profileWrapper.addEventListener("click", () => profileInput.click());
+
+	// ========== INFOS UTILISATEUR ==========
+	const userInfoContainer = document.createElement("div");
+	userInfoContainer.className = "ml-[240px] mt-20 px-10";
+
+	// TITRE PSEUDO
+	const pseudoTitle = document.createElement("label");
+	pseudoTitle.textContent = "Pseudo";
+	pseudoTitle.className = "text-white font-semibold mb-1 block";
+
+	// Pseudo avec édition
+	const userNameWrapper = document.createElement("div");
+	userNameWrapper.className = "flex items-center";
+
+	const userName = document.createElement("h2");
+	userName.className = "text-3xl font-bold text-white";
+	userName.id = "userCardName";
+	userName.textContent = NewuserData.name || userInfos.name || "Nom inconnu";
+
+	const editNameIcon = createEditIcon();
+
+	userNameWrapper.appendChild(userName);
+	userNameWrapper.appendChild(editNameIcon);
+
+	// TITRE BIO
+	const bioTitle = document.createElement("label");
+	bioTitle.textContent = "Bio";
+	bioTitle.className = "text-white font-semibold mt-6 mb-1 block";
+
+	// Bio avec édition
+	const userBioWrapper = document.createElement("div");
+	userBioWrapper.className = "flex items-center";
+
+	const userBio = document.createElement("p");
+	userBio.className = "text-gray-400 text-lg";
+	userBio.id = "userCardBio";
+	userBio.textContent = NewuserData.bio || userInfos.bio || "Aucune biographie disponible.";
+
+	const editBioIcon = createEditIcon();
+	userBioWrapper.appendChild(userBio);
+	userBioWrapper.appendChild(editBioIcon);
+
+	userInfoContainer.appendChild(pseudoTitle);
+	userInfoContainer.appendChild(userNameWrapper);
+
+	userInfoContainer.appendChild(bioTitle);
+	userInfoContainer.appendChild(userBioWrapper);
+
+	// === Comportement édition ===
+	function enableEditingText(element: HTMLElement, isTextArea = false) {
+		const currentText = element.textContent || "";
+		let inputEl: HTMLInputElement | HTMLTextAreaElement;
+
+		if (isTextArea) {
+			inputEl = document.createElement("textarea");
+			inputEl.className = "bg-[#1a1826] text-white rounded p-2 w-full resize-none";
+			(inputEl as HTMLTextAreaElement).rows = 4;
+		} else {
+			inputEl = document.createElement("input");
+			inputEl.type = "text";
+			inputEl.className = "bg-[#1a1826] text-white rounded p-1 w-full";
+		}
+
+		inputEl.value = currentText;
+		element.style.display = "none"; // cacher le texte d’origine
+		element.parentElement?.insertBefore(inputEl, element.nextSibling);
+		inputEl.focus();
+
+		function save() {
+			const newText = inputEl.value.trim() || (isTextArea ? "Aucune biographie disponible." : "Nom inconnu");
+
+			element.textContent = newText;
+			element.style.display = "";  // montrer à nouveau l’élément texte
+			inputEl.remove();
+		}
+
+		inputEl.addEventListener("blur", save);
+
+		if (!isTextArea) {
+			inputEl.addEventListener("keydown", (e) => {
+				const event = e as KeyboardEvent;
+				if (event.key === "Enter") {
+					event.preventDefault();
+					inputEl.blur();
+				}
+			});
+		}
+	}
+
+	editNameIcon.addEventListener("click", (e) => {
+		e.stopPropagation();
+		enableEditingText(userName, false);
+	});
+
+	editBioIcon.addEventListener("click", (e) => {
+		e.stopPropagation();
+		enableEditingText(userBio, true);
+	});
+
+	// ========== BOUTON UPDATE PROFILE ==========
+	const updateBtn = document.createElement("button");
+	updateBtn.textContent = "Update Profile";
+	updateBtn.className = "absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow cursor-pointer";
+
+	updateBtn.addEventListener("click", async () => {
+		const name = (document.getElementById("userCardName")?.textContent || "").trim();
+		const bio = (document.getElementById("userCardBio")?.textContent || "").trim();
+
+		const profileInputEl = container.querySelector<HTMLInputElement>("#profileFileInput");
+		const bannerInputEl = container.querySelector<HTMLInputElement>("#bannerFileInput");
+
+		const pictureFile = profileInputEl?.files?.[0];
+		const bannerFile = bannerInputEl?.files?.[0];
+
+		try {
+			await updateUserInfos(name, pictureFile, bannerFile, bio);
+			navigateTo("/");
+		} catch (error) {
+			alert("Erreur lors de la mise à jour du profil.");
+			console.error(error);
+		}
+	});
+
+	// ========== ASSEMBLAGE FINAL ==========
+	targetElement.innerHTML = "";
+	container.appendChild(bannerInput);
+	container.appendChild(profileInput);
+	container.appendChild(bannerContainer);
+	container.appendChild(profileWrapper);
+	container.appendChild(userInfoContainer);
+	container.appendChild(updateBtn);
+	targetElement.appendChild(container);
+}
+
+
+function updateUserCard(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void { // TODO: petit usercard
 	// Création du conteneur principal
 	const container = document.createElement("div");
 	container.className = "flex flex-col";
@@ -83,7 +302,7 @@ export async function injectUserCard(targetId: string): Promise<void> {
     }
 
 	await getUserInfos();
-	updateUserCard(targetElement, NewuserData, userInfos);
+	updateUserCardMaxi(targetElement, NewuserData, userInfos);
 }
 
 // 📌 Met à jour les données utilisateur et réinjecte la carte
