@@ -278,6 +278,7 @@ function updateUserCard(targetElement: HTMLElement, NewuserData: UserData, userI
 
 	const userBio = document.createElement("p");
 	userBio.className = "text-gray-500";
+    userBio.id = "userBio"
 	userBio.textContent = NewuserData.bio || userInfos.bio || "Aucune biographie disponible.";
 
 	userInfoContainer.appendChild(userName);

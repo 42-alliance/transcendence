@@ -17,6 +17,31 @@ export const addUserDatabaseSchema: FastifySchema = {
 	}),
 };
 
+export function generateRandomString(length: number) {
+	let result = "";
+	const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	const charactersLength = characters.length;
+	for (let i = 0; i < length; i++) {
+		result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
+}
+
+async function tryNameDatabase(name: string): Promise<string> {
+	let nb = 0;
+	let test_name = name + "_";
+
+	while (true) {
+		if (!await prisma.users.findFirst({
+			where: {
+				name: test_name + nb
+			}
+		}))
+			return test_name + nb;
+		nb++;
+	}
+}
+
 /**
  * Route POST `/users` - Ajoute un nouvel utilisateur à la base de données.
  *
@@ -38,6 +63,15 @@ export async function addUserDatabase(request: FastifyRequest, reply: FastifyRep
 			return reply.status(200).send({ id: user.id });
 		}
 		
+		if (await prisma.users.findFirst({
+			where: {
+				name: body.name,
+			}
+		})) {
+			body.name = await tryNameDatabase(body.name);
+		}
+
+		console.log("DEBUG BODY NAME = ", body.name);
 		const result = await prisma.users.create({
 			data: {
 				name: body.name,
