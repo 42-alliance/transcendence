@@ -24,6 +24,8 @@ services:
   user:
       container_name: user
       build: ./services/user
+      ports:
+        - "4000:4000"
       volumes:
         - ./services/user:/app
       env_file:

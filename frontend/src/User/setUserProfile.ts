@@ -1,40 +1,50 @@
-import { deleteUser } from "./deleteUser.js";
 import { getUserInfos } from "./me.js";
+import { userIsLogin } from "./userIsLogin.js";
 
-export async function setUserProfile() {
-	const userNameSpan = document.getElementById("username-navbar");
-	if (!userNameSpan) return;
-
-	const profilePicture = document.getElementById(
-		"profile-picture-navbar"
-	) as HTMLImageElement;
-	if (!profilePicture) return;
-
-	const user = await getUserInfos();
-	if (!user || !user.name || !user.picture) return;
-
-	userNameSpan.innerText = user.name;
-	profilePicture.src = user.picture;
-
-	const usernameDropdown = document.getElementById("username-dropdown");
-	if (!usernameDropdown) return;
-
-	usernameDropdown.innerText = user.name;
-
+function ifUserIsNotLog() {
 	const userButton = document.getElementById("user-button-navbar");
 	if (!userButton) return;
 
-	userButton.onclick = async () => {
-		const dropDown = document.getElementById("dropdown-user");
-		if (!dropDown) return;
+	userButton.innerHTML = "";
+}
 
-		if (userButton.ariaExpanded === "false") {
-			dropDown.classList.remove("hidden");
+export async function setUserProfile() {
+	if (await userIsLogin() === false) {
+		ifUserIsNotLog();
+		return;
+	}
 
-			userButton.ariaExpanded = "true";
-		} else {
+	const userNameSpan = document.getElementById("username-navbar");
+	const profilePicture = document.getElementById("profile-picture-navbar") as HTMLImageElement;
+	const usernameDropdown = document.getElementById("username-dropdown");
+	const emailDropdown = document.getElementById("email-dropdown");
+	const userButton = document.getElementById("user-button-navbar");
+	const dropDown = document.getElementById("dropdown-user");
+
+	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !userButton || !dropDown)
+		return;
+
+	const user = await getUserInfos();
+	if (!user || !user.name || !user.picture || !user.email)
+		return;
+
+	userNameSpan.innerText = user.name;
+	profilePicture.src = user.picture;
+	usernameDropdown.innerText = user.name;
+	emailDropdown.innerText = user.email;
+
+	userButton.onclick = () => {
+		const expanded = userButton.ariaExpanded === "true";
+		userButton.ariaExpanded = expanded ? "false" : "true";
+		dropDown.classList.toggle("hidden", expanded);
+	};
+
+	document.addEventListener("click", (event) => {
+		const isClickInside = dropDown.contains(event.target as Node) || userButton.contains(event.target as Node);
+		if (!isClickInside && !dropDown.classList.contains("hidden")) {
 			dropDown.classList.add("hidden");
 			userButton.ariaExpanded = "false";
 		}
-	};
+	});
 }
+

@@ -63,6 +63,7 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
 			id: me.id,
 			name: me.name,
 			picture: me.picture,
+            email: me.email,
 			banner: me.banner,
 			bio: me.bio,
 			created_at: me.created_at,

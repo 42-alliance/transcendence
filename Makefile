@@ -18,6 +18,7 @@ oui : down up
 dbclean :
 	rm -rf services/chat/prisma/database services/chat/prisma/migrations
 	rm -rf services/user/prisma/database services/user/prisma/migrations
+	@rm -rf media/files/*
 
 tests :
 	docker compose up --build -d
@@ -41,8 +42,7 @@ check:
 	@echo "$(MAGENTA)VOLUMES:$(RESET)"
 	@docker volume ls
 
-fclean : downv dbclean
-	@rm -rf media/files/*
+fclean : downv
 	@rm -rf services/*/node_modules/
 	@rm -rf services/*/package-*
 	@rm -rf services/*/.objs/

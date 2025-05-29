@@ -1,34 +1,66 @@
 import { getAllFriends } from "./getAllFriends.js";
 
+async function setupSearchFriendButton() {
+	const searchFriendButton = document.getElementById("search-friend-button");
+	if (!searchFriendButton) return;
+
+	searchFriendButton.onclick = () => {
+		const searchFriendModal = document.getElementById("search-friend-modal");
+		if (!searchFriendModal) return;
+
+		searchFriendModal.classList.remove('hidden');
+	}
+}
+
 export async function showOnlineFriends() {
+	await setupSearchFriendButton();
+
 	const onlineFriendsDiv = document.getElementById("online-friends");
-	
+
 	if (!onlineFriendsDiv)
 		return;
-	
+
 	const friends = await getAllFriends();
-	
-	if (!friends || friends.length == 0)
+
+	if (!friends || friends.length === 0)
 		return;
 
 	friends.forEach(friend => {
-		const friendDiv = document.createElement('div');
-		friendDiv.classList.add("flex", "items-center", "justify-between", "px-4", "py-3", "bg-amber-900", "rounded-lg");
+		const li = document.createElement("li");
 
-		const profileImg = document.createElement('img');
-		profileImg.classList.add("w-10", "rounded-full");
+		const friendDiv = document.createElement("div");
+		friendDiv.classList.add("flex", "items-center", "justify-between", "px-4", "py-3", "bg-[#645d59]", "rounded-lg", "hover:bg-[#8a807b]");
+
+		// Image de profil
+		const profileImg = document.createElement("img");
+		profileImg.classList.add("w-10", "h-10", "rounded-full");
 		profileImg.src = friend.picture;
+		profileImg.alt = `${friend.name}'s profile picture`;
 
-		const profileText = document.createElement('span');
+		// Nom (proche de l'image)
+		const profileText = document.createElement("span");
+		profileText.classList.add("ml-2", "text-white", "text-base", "font-medium");
 		profileText.innerText = friend.name;
 
-		const onlineCircle = document.createElement('div');
+		// Container gauche (image + nom)
+		const leftSection = document.createElement("div");
+		leftSection.classList.add("flex", "items-center", "gap-2");
+		leftSection.appendChild(profileImg);
+		leftSection.appendChild(profileText);
+
+		// Point vert
+		const onlineCircle = document.createElement("div");
 		onlineCircle.classList.add("w-3", "h-3", "bg-green-500", "rounded-full");
 
-		friendDiv.appendChild(profileImg);
-		friendDiv.appendChild(profileText);
-		friendDiv.appendChild(onlineCircle);
+		// Container droite (point vert + enveloppe)
+		const rightSection = document.createElement("div");
+		rightSection.classList.add("flex", "items-center", "gap-3");
+		rightSection.appendChild(onlineCircle);
 
-		onlineFriendsDiv.appendChild(friendDiv);
+		friendDiv.appendChild(leftSection);
+		friendDiv.appendChild(rightSection);
+
+		li.appendChild(friendDiv);
+		onlineFriendsDiv.appendChild(li);
 	});
 }
