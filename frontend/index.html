@@ -177,8 +177,8 @@
 						</li>
 						<li>
 							<a
-								href="#"
-								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+								href="/friends"
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" data-link>
 								<svg
 									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
 									aria-hidden="true"
@@ -276,10 +276,18 @@
 			<span data-i18n="video-error"></span>
 		</video>
 		
-		<div>
-			<div id="navbar-id"></div>	
-			<div id="app"></div>
+		<!-- Main Content Area -->
+		<div class="flex h-screen">
+			<!-- Space for sidebar (hidden on mobile, visible on desktop) -->
+			<div class="hidden sm:block w-64"></div>
+			
+			<!-- Main content container -->
+			<div class="flex-1 pt-20 min-h-0">
+				<div id="navbar-id"></div>	
+				<div id="app" class="h-full p-4 overflow-auto"></div>
+			</div>
 		</div>
+		
 		<script type="module" src=".objs/lang/langManager.js"></script>
 		<script type="module" src=".objs/Views/viewManager.js"></script>
 		<script type="module" src=".objs/include.js"></script>

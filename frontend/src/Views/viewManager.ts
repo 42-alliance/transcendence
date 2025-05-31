@@ -9,6 +9,7 @@ import AuthSuccess from "./Auth/AuthSuccess.js";
 import Dashboard from "./Dashboard/Dashboard.js";
 import Me from "./Me/Me.js";
 import { dynamicDisplay } from "./dynamicDisplay.js";
+import Friends from "./Friends/Friends.js";
 // Initialisation du WebSocket
 export const webSockets: WebSockets = {
   chat: null,
@@ -35,7 +36,7 @@ const router = async (): Promise<void> => {
 	const routes = [
 		{ path: "/", view: Dashboard },
 		{ path: "/game", view: Game },
-		// { path: "/friends", view: Friends },
+		{ path: "/friends", view: Friends },
 		{ path: "/auth-success", view: AuthSuccess },
 		{ path: "/auth", view: Auth },
 		{ path: "/me", view: Me },

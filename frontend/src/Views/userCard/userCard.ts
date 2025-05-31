@@ -11,6 +11,89 @@ interface UserData {
 
 let NewuserData: UserData = {};
 
+
+export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): void {
+	// Création du conteneur principal avec la bannière en fond
+	const container = document.createElement("div");
+	container.className = "flex flex-col items-center p-4 rounded-lg shadow-lg w-[300px] hover:shadow-xl transition-shadow duration-300 relative cursor-pointer hover:scale-105 transition-transform";
+	container.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
+	container.style.backgroundSize = "cover";
+	container.style.backgroundPosition = "center";
+	container.style.backgroundRepeat = "no-repeat";
+	container.style.backgroundColor = "#1a1826"; // fallback si pas d'image
+
+	// Overlay sombre pour lisibilité
+	const overlay = document.createElement("div");
+	overlay.className = "absolute inset-0 rounded-lg";
+	overlay.style.background = "rgba(26, 24, 38, 0.7)";
+	overlay.style.zIndex = "0";
+	container.appendChild(overlay);
+
+	// Photo de profil
+	const profileImg = document.createElement("img");
+	profileImg.id = "profile-picture-card";
+	profileImg.className = "w-[100px] h-[100px] rounded-full border-4 border-[#1a1826] mb-4 object-cover z-10";
+	profileImg.src = userInfos.picture || "assets/default.jpeg";
+	profileImg.alt = "Photo de profil";
+	profileImg.style.position = "relative";
+
+	// Nom d'utilisateur
+	const userName = document.createElement("h2");
+	userName.id = "userCardName";
+	userName.className = "text-xl font-bold text-white mb-2 z-10";
+	userName.textContent = userInfos.name || "Nom inconnu";
+	userName.style.position = "relative";
+
+	// Bouton "plus d'options" (icône ...)
+	const optionsBtn = document.createElement("button");
+	optionsBtn.className = "absolute top-2 right-2 text-gray-400 hover:text-white focus:outline-none z-20";
+	optionsBtn.title = "Plus d'options";
+	optionsBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+		<circle cx="5" cy="12" r="2"/>
+		<circle cx="12" cy="12" r="2"/>
+		<circle cx="19" cy="12" r="2"/>
+	</svg>`;
+
+	// Conteneur pour les boutons côte à côte
+	const btnGroup = document.createElement("div");
+	btnGroup.className = "flex gap-2 mt-2 z-10";
+	btnGroup.style.position = "relative";
+
+	// Bouton Chat
+	const chatBtn = document.createElement("button");
+	chatBtn.className = "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-4 rounded shadow cursor-pointer transition-colors";
+	chatBtn.textContent = "Chat";
+	chatBtn.title = "Envoyer un message";
+	chatBtn.onclick = () => {
+		alert(`Ouvrir le chat avec ${userInfos.name || "cet utilisateur"}`);
+	};
+
+	// Bouton Inviter à une partie rapide
+	const inviteBtn = document.createElement("button");
+	inviteBtn.className = "bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-4 rounded shadow cursor-pointer transition-colors";
+	inviteBtn.textContent = "Inviter à jouer";
+	inviteBtn.title = "Inviter à une partie rapide";
+	inviteBtn.onclick = () => {
+		alert(`Inviter ${userInfos.name || "cet utilisateur"} à une partie rapide`);
+	};
+
+	btnGroup.appendChild(chatBtn);
+	btnGroup.appendChild(inviteBtn);
+
+	// Positionnement relatif pour le bouton
+	container.style.position = "relative";
+	container.appendChild(optionsBtn);
+
+	// Assemblage final (overlay en premier, puis le reste)
+	container.appendChild(profileImg);
+	container.appendChild(userName);
+	container.appendChild(btnGroup);
+
+	// Injection dans l'élément cible
+	targetElement.innerHTML = "";
+	targetElement.appendChild(container);
+}
+
 function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void {
 	// Fonction pour créer une icône stylo Font Awesome
 	function createEditIcon(): HTMLElement {

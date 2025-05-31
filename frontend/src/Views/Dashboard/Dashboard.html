@@ -1,1 +1,113 @@
-<div> JE test</div>
+<div class="w-full h-screen flex flex-col items-center justify-center gap-8 p-6">
+  <!-- Titre ft_transcendence -->
+  <div class="text-center mb-8">
+    <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 bg-clip-text text-transparent drop-shadow-lg">
+      ft_transcendence
+    </h1>
+    <div class="w-32 h-1 bg-gradient-to-r from-orange-400 to-yellow-500 mx-auto mt-4 rounded-full"></div>
+  </div>
+
+  <!-- Container principal -->
+  <div class="flex flex-col lg:flex-row items-center justify-center gap-12 w-full max-w-6xl">
+    
+    <!-- Cadre pour l'image Pong -->
+    <div class="relative group">
+      <div class="absolute -inset-1 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+      <div class="relative w-80 h-64 md:w-96 md:h-72 lg:w-[500px] lg:h-80 bg-gray-900 rounded-2xl border-2 border-gray-700 overflow-hidden shadow-2xl">
+        
+        <!-- Image Pong -->
+        <img 
+          id="pongImage"
+          src="/assets/ping.gif" 
+          alt="Pong Game Screenshot" 
+          class="w-full h-full object-cover rounded-2xl"
+          onerror="this.style.display='none'; document.getElementById('placeholder').style.display='flex';"
+        />
+        
+        <!-- Placeholder de fallback (caché par défaut) -->
+        <div id="placeholder" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 relative" style="display: none;">
+          <!-- Grille de fond style retro -->
+          <div class="absolute inset-0 opacity-20">
+            <div class="grid grid-cols-8 grid-rows-6 h-full w-full">
+              <div class="border border-green-500/30"></div>
+              <div class="border border-green-500/30"></div>
+              <div class="border border-green-500/30"></div>
+              <div class="border border-green-500/30"></div>
+              <div class="border border-green-500/30"></div>
+              <div class="border border-green-500/30"></div>
+              <div class="border border-green-500/30"></div>
+              <div class="border border-green-500/30"></div>
+            </div>
+          </div>
+          
+          <!-- Image placeholder avec texte -->
+          <div class="z-10 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 bg-white rounded-full flex items-center justify-center animate-bounce">
+              <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+            </div>
+            <p class="text-gray-400 text-lg font-mono">PONG IMAGE</p>
+            <p class="text-gray-500 text-sm mt-2">Image non disponible</p>
+          </div>
+          
+          <!-- Effet de scan rétro -->
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-green-500/5 to-transparent animate-pulse"></div>
+        </div>
+        
+        <!-- Bordure lumineuse animée -->
+        <div class="absolute inset-0 rounded-2xl border border-green-400/50 animate-pulse pointer-events-none"></div>
+      </div>
+    </div>
+
+    <!-- Section bouton et informations -->
+    <div class="flex flex-col items-center gap-8">
+
+      <!-- Statistiques ou infos -->
+      <div class="grid grid-cols-2 gap-4 text-center">
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+          <div class="text-2xl font-bold text-orange-400">42</div>
+          <div class="text-sm text-gray-400">Games Played</div>
+        </div>
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+          <div class="text-2xl font-bold text-green-400">28</div>
+          <div class="text-sm text-gray-400">Wins</div>
+        </div>
+      </div>
+
+      <!-- Bouton Play -->
+      <button class="group relative overflow-hidden bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold text-2xl px-12 py-6 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50 active:scale-95">
+        
+        <!-- Effet de brillance -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+        
+        <!-- Contenu du bouton -->
+        <div class="relative flex items-center gap-4">
+          <svg class="w-8 h-8 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <span class="tracking-wider">PLAY PONG</span>
+          <svg class="w-8 h-8 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+        
+        <!-- Particules autour du bouton -->
+        <div class="absolute -top-1 -left-1 w-3 h-3 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"></div>
+        <div class="absolute -top-1 -right-1 w-3 h-3 bg-orange-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping" style="animation-delay: 0.2s"></div>
+        <div class="absolute -bottom-1 -left-1 w-3 h-3 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping" style="animation-delay: 0.4s"></div>
+        <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-orange-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping" style="animation-delay: 0.6s"></div>
+      </button>
+
+      <!-- Texte d'accroche -->
+      <p class="text-center text-gray-300 text-lg max-w-md">
+        Entrez dans l'arène et prouvez votre maîtrise du <span class="text-orange-400 font-bold">Pong classique</span> !
+      </p>
+    </div>
+  </div>
+
+  <!-- Effets de fond décoratifs -->
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <div class="absolute top-1/4 left-1/6 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-1/4 right-1/6 w-64 h-64 bg-yellow-500/10 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-3/4 left-3/4 w-48 h-48 bg-green-500/10 rounded-full blur-xl animate-pulse" style="animation-delay: 2s"></div>
+  </div>
+</div>

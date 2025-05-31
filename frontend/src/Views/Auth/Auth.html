@@ -1,15 +1,34 @@
-<div class="w-full flex flex-col items-center min-h-screen justify-center py-10">
-	<section class="w-4/5 h-full flex flex-col gap-12 justify-center items-center text-center">
-		<div class="flex flex-col items-center">
-			<p class="text-[50px] lg:text-[60px] font-bold sm:text-[35px]">Pong game, Dragon Ball, and more</p>
-			<h2 class="text-2xl lg:text-3xl sm:text-lg">Play anytime, anywhere</h2>
-		</div>
-		<div class="flex flex-col items-center gap-6">
-			<h4 class="text-xl lg:text-2xl sm:text-base">Ready to play? Click here to enter the arena</h4>
-			<div onclick="getAuthUrl()" class="max-w-fit flex justify-center items-center gap-6 rounded-[20px] bg-[var(--color-db-orange)] shadow-lg shadow-black/30 px-10 py-5 cursor-pointer transition-transform duration-250 hover:scale-110 sm:scale-90 sm:hover:scale-100">
-				<img src="assets/google_logo.png" alt="Google Logo" class="w-auto h-16">
-				<strong class="text-3xl lg:text-4xl text-black">Login with Google</strong>
-			</div>
-		</div>
-	</section>
+<div class="fixed inset-0 pt-20 flex flex-col items-center justify-center min-h-0">
+ <section class="w-4/5 max-w-4xl flex flex-col gap-12 justify-center items-center text-center px-4">
+ <div class="flex flex-col items-center gap-4">
+ <p class="text-[40px] md:text-[50px] lg:text-[60px] xl:text-[70px] font-bold leading-tight">
+   Pong game, Dragon Ball, and more
+ </p>
+ <h2 class="text-lg md:text-2xl lg:text-3xl text-gray-300">
+   Play anytime, anywhere
+ </h2>
+ </div>
+ 
+ <div class="flex flex-col items-center gap-8">
+ <h4 class="text-base md:text-xl lg:text-2xl text-gray-200">
+   Ready to play? Click here to enter the arena
+ </h4>
+ 
+ <div onclick="getAuthUrl()" 
+      class="group max-w-fit flex justify-center items-center gap-6 rounded-[20px] bg-[var(--color-db-orange)] shadow-2xl shadow-black/40 px-8 md:px-12 py-4 md:py-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:shadow-orange-500/20 active:scale-95">
+   <img src="assets/google_logo.png" 
+        alt="Google Logo" 
+        class="w-12 h-12 md:w-16 md:h-16 transition-transform duration-300 group-hover:rotate-12">
+   <strong class="text-2xl md:text-3xl lg:text-4xl text-black font-bold tracking-wide">
+     Login with Google
+   </strong>
+ </div>
+ 
+ <!-- Animation d'arrière-plan subtile -->
+ <div class="absolute inset-0 -z-10 opacity-20">
+   <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-orange-500 rounded-full blur-3xl animate-pulse"></div>
+   <div class="absolute bottom-1/4 right-1/4 w-24 h-24 bg-blue-500 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s"></div>
+   <div class="absolute top-3/4 left-3/4 w-20 h-20 bg-purple-500 rounded-full blur-xl animate-pulse" style="animation-delay: 2s"></div>
+ </div>
+ </section>
 </div>
