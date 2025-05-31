@@ -5,9 +5,12 @@ async function setupSearchFriendButton() {
 	if (!searchFriendButton) return;
 
 	searchFriendButton.onclick = () => {
+		
 		const searchFriendModal = document.getElementById("search-friend-modal");
 		if (!searchFriendModal) return;
+		
 
+		
 		searchFriendModal.classList.remove('hidden');
 	}
 }
