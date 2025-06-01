@@ -10,54 +10,44 @@ export const meSchema: FastifySchema = {
 };
 
 export async function me(request: FastifyRequest, reply: FastifyReply): Promise<object[]> {
-    const id = extractUserId(request);
+    const userId = extractUserId(request);
 
     try {
         const me = await prisma.users.findUnique({
             where: {
-                id: id,
+                id: userId,
             },
-            include: {
-                sentRequests: {
-                    include: {
-                        receiver: true
-                    }
-                },
-                receivedRequests: {
-                    include: {
-                        sender: true
-                    }
-                }
-            }
         });
+
         if (!me) {
             return reply.status(404).send({message: "User not found"});
         }
 
-        const friendsList = [
-            ...me.sentRequests
-            .filter(friend => friend.receiver.id !== id)
-            .map(friend => ({
-                receiver_id: friend.receiver.id,
-                receiver_name: friend.receiver.name,
-                received_at: friend.created_at,
-                picture: friend.receiver.picture,
-                relation_id: friend.id,
-                status: friend.status,
-                type: "sent"  
-            })),
-            ...me.receivedRequests
-            .filter(friend => friend.sender.id !== id)
-            .map(friend => ({
-                sender_id: friend.sender.id,
-                sender_name: friend.sender.name,
-        		sent_at: friend.created_at,
-                picture: friend.sender.picture,
-                relation_id: friend.id,
-                status: friend.status,
-                type: "received"
-            }))
-        ];
+        const friendsList = await prisma.friends.findMany({
+            where: {
+                OR: [
+                    { senderId: userId },
+                    { receiverId: userId }
+                ],
+                status: "accepted"
+            },
+            include: {
+                receiver: true,
+                sender: true
+            }
+        });
+
+        const friends = friendsList.map(friendship => {
+            const friend = friendship.senderId === userId ? friendship.receiver : friendship.sender;
+            return {
+                id: friend.id,
+                name: friend.name,
+                picture: friend.picture,
+				bio: friend.bio,
+				banner: friend.banner,
+                created_at: friend.created_at
+            };
+        });
 
         return reply.status(200).send({
 			id: me.id,
@@ -67,7 +57,7 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
 			banner: me.banner,
 			bio: me.bio,
 			created_at: me.created_at,
-			friends: friendsList
+			friends: friends
         });
     } catch (e) {
         return reply.status(500).send({error: e});

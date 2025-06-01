@@ -18,7 +18,8 @@ oui : down up
 dbclean :
 	rm -rf services/chat/prisma/database services/chat/prisma/migrations
 	rm -rf services/user/prisma/database services/user/prisma/migrations
-	@rm -rf media/files/*
+	@rm -rf services/media/upload/*
+
 
 tests :
 	docker compose up --build -d
@@ -55,7 +56,6 @@ fclean : downv
 	@rm -rf frontend/.objs
 	@rm -rf tests/node_modules/
 	@rm -rf tests/.objs/
-	@rm -rf services/media/upload/*
 	@rm -rf services/user/prisma/node_modules/
 	docker system prune -af
 	docker volume prune -af

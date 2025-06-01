@@ -1,1 +1,72 @@
-<div id="test-card"></div>
+<div class="w-full h-screen overflow-y-auto p-6">
+  <!-- Header avec le même style de titre -->
+  <div class="flex flex-col items-center mb-8">
+    <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 bg-clip-text text-transparent drop-shadow-lg mb-2">
+      Friends Hub
+    </h1>
+    <div class="w-24 h-1 bg-gradient-to-r from-orange-400 to-yellow-500 rounded-full mb-6"></div>
+    
+    <div class="flex justify-between items-center w-full max-w-6xl">
+      <p class="text-gray-400 text-sm">Connect with your transcendence community</p>
+      <!-- Bouton qui ouvre la recherche -->
+      <div class="relative flex flex-col items-end">
+        <button id="add-friend-btn"
+          class="px-6 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-orange-500/30 flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <span>Add Friend</span>
+        </button>
+        <!-- BARRE DE RECHERCHE sous le bouton, cachée par défaut -->
+        <div id="search-bar"
+          class="hidden w-full max-w-xs mt-2 transition-all duration-300 ease-out z-50"
+        >
+          <div class="relative">
+            <input 
+              type="text"
+              id="friend-search-input"
+              placeholder="Search user by name..."
+              class="w-full pl-10 pr-3 py-2 bg-gray-800/80 border border-orange-500/30 focus:border-orange-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/30 backdrop-blur-sm transition-all shadow"
+            />
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <button id="close-search" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-400 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <!-- Suggestions largeur identique à la barre -->
+            <div id="friend-search-suggestions" class="absolute left-0 right-0 mt-1 bg-gray-900/90 border border-orange-500/10 rounded-lg shadow-lg z-50 hidden"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets avec style néon -->
+  <div class="flex space-x-6 mb-8 border-b border-orange-500/10 max-w-6xl mx-auto">
+    <button class="tab-btn relative pb-3 px-1 font-medium group" data-tab="all">
+      <span class="text-orange-400 group-hover:text-yellow-400 transition-colors">All</span>
+      <span class="ml-1 px-2 py-0.5 bg-orange-900/30 text-orange-400 rounded-full text-xs">5</span>
+      <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
+    </button>
+    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online">
+      Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">2</span>
+    </button>
+    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending">
+      Pending <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-orange-500/20 group-hover:text-orange-300">1</span>
+    </button>
+  </div>
+
+  <!-- Conteneur des cartes avec effet néon -->
+  <div id="friend-list-card" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
+  </div>
+
+  <!-- Effets de fond décoratifs -->
+  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="absolute top-1/4 left-1/6 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-1/4 right-1/6 w-64 h-64 bg-yellow-500/10 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+</div>

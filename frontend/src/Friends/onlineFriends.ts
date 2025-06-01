@@ -1,3 +1,4 @@
+import { on } from "events";
 import { getAllFriends } from "./getAllFriends.js";
 
 async function setupSearchFriendButton() {
@@ -28,6 +29,7 @@ export async function showOnlineFriends() {
 	if (!friends || friends.length === 0)
 		return;
 
+	onlineFriendsDiv.innerHTML = ""; // Clear previous content
 	friends.forEach(friend => {
 		const li = document.createElement("li");
 
@@ -64,6 +66,7 @@ export async function showOnlineFriends() {
 		friendDiv.appendChild(rightSection);
 
 		li.appendChild(friendDiv);
+
 		onlineFriendsDiv.appendChild(li);
 	});
 }
