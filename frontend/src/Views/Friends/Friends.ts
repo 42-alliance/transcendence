@@ -56,6 +56,13 @@ export async function FriendViewListener() {
 		return;
 	}
 
+	const friendsList = await getAllFriends();
+	if (!friendsList) {
+		return;
+	}
+
+	const myFriends = friendsList.map(friend => friend.name);
+
 	document
 		.getElementById("add-friend-btn")
 		?.addEventListener("click", function () {
@@ -85,7 +92,6 @@ export async function FriendViewListener() {
 
 	
 	['input', 'focus'].forEach(eventType => {
-
 	document
 		.getElementById("friend-search-input")
 		?.addEventListener(eventType, function (event) {
@@ -99,45 +105,71 @@ export async function FriendViewListener() {
 			let matchCount = 0;
 
 			all_users.forEach(user => {
-				if (
-					user.name.toLowerCase().includes(searchValue) &&
-					user.name.toLowerCase() !== me.name?.toLowerCase()
-				) {
-					html += `
-				<div class="suggestion flex items-center gap-3 p-3 hover:bg-orange-500/10 border-b border-orange-500/5 last:border-b-0" data-name="${user.name}">
-					<img src="${user.picture}" class="w-9 h-9 rounded-full border border-orange-400/30" alt="picture">
-					<div class="flex-1 min-w-0">
+	if (
+		user.name.toLowerCase().includes(searchValue) &&
+		user.name.toLowerCase() !== me.name?.toLowerCase()
+	) {
+		const isFriend = myFriends.includes(user.name); // ou user.id si tu veux
+		html += `
+			<div class="suggestion flex items-center gap-3 p-3 hover:bg-orange-500/10 border-b border-orange-500/5 last:border-b-0" data-name="${user.name}">
+				<img src="${user.picture}" class="w-9 h-9 rounded-full border border-orange-400/30" alt="picture">
+				<div class="flex-1 min-w-0">
 					<div class="text-white font-medium truncate">${user.name}</div>
-					</div>
+				</div>
+				${
+					isFriend
+					? `
+					<!-- Bouton chat -->
+					<button 
+						class="chat-btn flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow transition-all duration-200 ml-2"
+						title="Ouvrir le chat"
+						data-name="${user.name}"
+					>
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h12a2 2 0 012 2z"/>
+						</svg>
+					</button>
+					`
+					: `
 					<!-- Bouton Envoyer (ajouter comme ami) -->
 					<button 
-					class="send-request-btn flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow transition-all duration-200 ml-2"
-					title="Envoyer une demande"
-					data-name="${user.name}"
+						class="send-request-btn flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow transition-all duration-200 ml-2"
+						title="Envoyer une demande"
+						data-name="${user.name}"
 					>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"></path>
-						<path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22L11 13L2 9l20-7z"></path>
-					</svg>
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22L11 13L2 9l20-7z"></path>
+						</svg>
 					</button>
-					<!-- Bouton trois points -->
-					<button 
-					class="more-options-btn flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-700/40 text-gray-400 hover:text-yellow-400 transition-all duration-200"
-					title="Plus d'options"
-					data-name="${user.name}"
-					>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-						<circle cx="5" cy="12" r="1.5"></circle>
-						<circle cx="12" cy="12" r="1.5"></circle>
-						<circle cx="19" cy="12" r="1.5"></circle>
-					</svg>
-					</button>
-				</div>
-				`;
-
-					matchCount++;
+					`
 				}
-			});
+				<div class="relative">
+					<button 
+						class="more-options-btn flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-700/40 text-gray-400 hover:text-yellow-400 transition-all duration-200"
+						title="Plus d'options"
+						data-name="${user.name}"
+						tabindex="0"
+						type="button"
+					>
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+							<circle cx="5" cy="12" r="1.5"></circle>
+							<circle cx="12" cy="12" r="1.5"></circle>
+							<circle cx="19" cy="12" r="1.5"></circle>
+						</svg>
+					</button>
+					<!-- Dropdown -->
+					<div class="dropdown-menu absolute right-0 top-10 mt-1 w-44 bg-gray-800 border border-orange-500/10 rounded-lg shadow-lg z-50 hidden">
+						<button class="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-orange-500/20 hover:text-orange-400 transition-colors ban-user-btn">Bloquer cet utilisateur</button>
+						<button class="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-orange-500/20 hover:text-orange-400 transition-colors quick-match-btn">Demander une partie rapide</button>
+					</div>
+				</div>
+			</div>
+		`;
+		matchCount++;
+	}
+});
+
 
 			if (!searchValue) {
 				suggestionsBox.innerHTML = "";
@@ -194,14 +226,10 @@ export async function FriendViewListener() {
 	const input = document.getElementById('friend-search-input') as HTMLInputElement;
 	const target = e.target as HTMLElement;
 
-	// Clic sur bouton "Envoyer"
 	if (target.closest('.send-request-btn')) {
 		const name = (target.closest('.send-request-btn') as HTMLElement).getAttribute('data-name');
 		if (!name) return;
-		// Remplace ce log par ta fonction pour envoyer la demande
 		await addFriend(name);
-		console.log('Envoyer demande à', name);
-		// Optionnel : feedback visuel, désactivation, etc.
 		return;
 	}
 
@@ -223,4 +251,5 @@ export async function FriendViewListener() {
 		// Tu peux déclencher une action ici (afficher profil, etc.)
 	}
 	});
+	
 }

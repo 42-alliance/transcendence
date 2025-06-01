@@ -28,7 +28,7 @@ export async function getAllConversations(server: FastifyInstance, request: Fast
 			}
 		});
 
-		return reply.status(200).send({ conversations });
+		return reply.status(200).send(conversations);
 	} catch (error) {
 		console.error("❌ Erreur lors de la récupération des conversations :", error);
 		return reply.status(500).send({ error: "Impossible de récupérer les conversations." });
