@@ -8,6 +8,7 @@ CREATE TABLE "Conversation" (
 -- CreateTable
 CREATE TABLE "ConversationMember" (
     "userId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "conversationId" INTEGER NOT NULL,
     "isAdmin" BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT "ConversationMember_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation" ("id") ON DELETE CASCADE ON UPDATE CASCADE

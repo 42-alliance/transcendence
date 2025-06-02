@@ -41,6 +41,23 @@ async function findExistingConversation(members: number[]): Promise<number | nul
   return null;
 }
 
+function createConversationName(users: User[], adminId: number): string {
+	let str = "";
+
+	users.forEach(user => {
+		if (user.id !== adminId) {
+			str += user.name + ', ';
+		}
+	});
+
+	const members = str.slice(0, -2).split(', '); // Enlever la dernière virgule et l'espace
+	if (members.length === 1) {
+		return members[0]; // Si un seul membre, retourner son nom
+	}
+	return members.slice(0, -1).join(', ') + ' and ' + members[members.length - 1]; // Formater comme "A, B and C"
+}
+
+
 export async function createConversation(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
 	try {
 		const adminId = extractUserIdHeader(request);
@@ -72,7 +89,7 @@ export async function createConversation(server: FastifyInstance, request: Fasti
 		// Créer la conversation dans la base de données
 		const conversation = await prisma.conversation.create({
 			data: {
-				name: name || null,
+				name: name || createConversationName(users, adminId),
 				isGroup: isGroup || members.length > 2,
 			},
 		});
@@ -82,11 +99,13 @@ export async function createConversation(server: FastifyInstance, request: Fasti
 			return prisma.conversationMember.create({
 				data: {
 					userId: user.id,
+					name: user.name,
 					conversationId: conversation.id,
 					isAdmin: user.id === adminId,
 				},
 			});
 		});
+		
 	
 		// Attendre que tous les membres soient ajoutés
 		await Promise.all(memberPromises);

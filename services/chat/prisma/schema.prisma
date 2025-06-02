@@ -26,6 +26,7 @@ model Conversation {
 
 model ConversationMember {
   userId         Int
+  name		   	String
   conversationId Int
   isAdmin        Boolean @default(false)
 

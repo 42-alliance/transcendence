@@ -15,59 +15,78 @@ let NewuserData: UserData = {};
 export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): void {
     // Création de la carte d'ami moderne
     const card = document.createElement("div");
-    card.className = "friend-card bg-gray-800/50 hover:bg-gray-700/60 rounded-xl p-4 transition-all duration-300 border border-gray-700/30 hover:border-gray-600/50 flex flex-col";
-    
+    card.className =
+        "friend-card rounded-xl p-4 transition-all duration-300 border border-gray-700/30 hover:border-gray-600/50 flex flex-col relative shadow-lg hover:shadow-xl overflow-hidden";
+    card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
+    card.style.backgroundSize = "cover";
+	card.style.backgroundAttachment = "local"
+    card.style.backgroundPosition = "center";
+    card.style.backgroundRepeat = "no-repeat";
+
+    // Overlay blur + opacité
+    const overlay = document.createElement("div");
+    overlay.className = "absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0 pointer-events-none rounded-xl";
+    card.appendChild(overlay);
+
     // Conteneur principal avec avatar et nom
     const topSection = document.createElement("div");
-    topSection.className = "flex items-center gap-3 mb-3";
-    
+    topSection.className = "flex items-center gap-3 mb-3 relative z-10";
+
     // Avatar avec indicateur de statut
     const avatarContainer = document.createElement("div");
     avatarContainer.className = "relative";
-    
+
     const profileImg = document.createElement("img");
     profileImg.className = "w-12 h-12 rounded-full object-cover border-2 border-blue-500/80";
     profileImg.src = userInfos.picture || "assets/default.jpeg";
     profileImg.alt = `${userInfos.name || "User"} profile picture`;
-    
-    // Indicateur de statut (vous pourriez ajouter une logique pour online/offline)
+
+    // Indicateur de statut (Online)
     const statusIndicator = document.createElement("span");
     statusIndicator.className = "absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-800";
-    
+
     avatarContainer.appendChild(profileImg);
     avatarContainer.appendChild(statusIndicator);
-    
+
     // Section info utilisateur
     const userInfo = document.createElement("div");
-    
+
     const userName = document.createElement("h3");
     userName.className = "font-semibold text-white truncate max-w-[150px]";
     userName.textContent = userInfos.name || "Unknown User";
-    
+
     const userStatus = document.createElement("p");
     userStatus.className = "text-xs text-blue-400";
-    userStatus.textContent = "Online"; // Vous pourriez dynamiser ceci
-    
+    userStatus.textContent = "Online"; // À remplacer dynamiquement si besoin
+
     userInfo.appendChild(userName);
     userInfo.appendChild(userStatus);
-    
+
     topSection.appendChild(avatarContainer);
     topSection.appendChild(userInfo);
-    
+
     // Bouton d'options (ellipsis)
     const optionsBtn = document.createElement("button");
-    optionsBtn.className = "absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-transparent hover:bg-gray-700/50 rounded-full transition-colors";
-    optionsBtn.title = "More options";
+    optionsBtn.className =
+        "absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-transparent hover:bg-gray-700/50 rounded-full transition-colors z-20";
+    optionsBtn.title = "Plus d'options";
     optionsBtn.innerHTML = `
         <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
+            <circle cx="5" cy="12" r="1.5"></circle>
+            <circle cx="12" cy="12" r="1.5"></circle>
+            <circle cx="19" cy="12" r="1.5"></circle>
         </svg>
     `;
-    
+    // (Exemple) Ouvre un menu, ici on affiche une alerte
+    optionsBtn.onclick = (e) => {
+        e.stopPropagation();
+        alert("Plus d'options à venir...");
+    };
+
     // Conteneur des boutons d'action
     const btnGroup = document.createElement("div");
-    btnGroup.className = "mt-auto flex gap-2";
-    
+    btnGroup.className = "mt-auto flex gap-2 relative z-10";
+
     // Bouton Chat
     const chatBtn = document.createElement("button");
     chatBtn.className = "flex-1 py-1.5 bg-blue-600/80 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors";
@@ -75,7 +94,7 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     chatBtn.onclick = () => {
         alert(`Ouvrir le chat avec ${userInfos.name || "cet utilisateur"}`);
     };
-    
+
     // Bouton Inviter à jouer
     const inviteBtn = document.createElement("button");
     inviteBtn.className = "w-9 h-9 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors";
@@ -88,18 +107,19 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     inviteBtn.onclick = () => {
         alert(`Inviter ${userInfos.name || "cet utilisateur"} à une partie rapide`);
     };
-    
+
     btnGroup.appendChild(chatBtn);
     btnGroup.appendChild(inviteBtn);
-    
+
     // Assemblage final
     card.appendChild(optionsBtn);
     card.appendChild(topSection);
     card.appendChild(btnGroup);
-    
+
     // Injection dans l'élément cible
     targetElement.appendChild(card);
 }
+
 
 function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void {
 	// Fonction pour créer une icône stylo Font Awesome

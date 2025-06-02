@@ -1,17 +1,18 @@
 import { fetchApi } from "../utils.js";
 
-interface Conversation {
+export interface Conversation {
   id: number;
   name: string | null;
   isGroup: boolean;
   menbers: [
 	{
 	  userId: number;
+	  name: string;
 	  conversationId: number;
 	  isAdmin: boolean;
 	}
   ]
-  messages: [string];
+  messages: string[];
 }
 
 /**

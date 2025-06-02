@@ -4,8 +4,13 @@
     <div class="px-6 py-5 border-b border-gray-700 flex items-center gap-3">
       <span class="text-2xl font-bold text-orange-400">Chats</span>
       <!-- Button to start new chat, optional -->
-      <button id="open-new-chat" class="ml-auto px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow">
-        <i class="fa fa-plus"></i>
+      <button 
+        id="open-new-chat" 
+        class="ml-auto flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow transition"
+        aria-label="Nouveau chat"
+        type="button"
+      >
+        <i class="fa fa-plus text-lg"></i>
       </button>
     </div>
     <!-- Conversations list -->

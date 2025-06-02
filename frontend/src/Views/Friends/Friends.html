@@ -1,4 +1,4 @@
-<div class="w-full h-screen overflow-y-auto p-6">
+<div class="w-full h-full overflow-y-auto p-6">
   <!-- Header avec le même style de titre -->
   <div class="flex flex-col items-center mb-8">
     <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 bg-clip-text text-transparent drop-shadow-lg mb-2">
@@ -47,16 +47,15 @@
 
   <!-- Onglets avec style néon -->
   <div class="flex space-x-6 mb-8 border-b border-orange-500/10 max-w-6xl mx-auto">
-    <button class="tab-btn relative pb-3 px-1 font-medium group" data-tab="all">
+    <button class="tab-btn relative pb-3 px-1 font-medium group" data-tab="all" id="all-button">
       <span class="text-orange-400 group-hover:text-yellow-400 transition-colors">All</span>
-      <span class="ml-1 px-2 py-0.5 bg-orange-900/30 text-orange-400 rounded-full text-xs">5</span>
       <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
     </button>
     <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online">
       Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">2</span>
     </button>
-    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending">
-      Pending <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-orange-500/20 group-hover:text-orange-300">1</span>
+    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
+      Pending
     </button>
   </div>
 

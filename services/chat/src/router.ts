@@ -9,6 +9,10 @@ export function setupChatRoutes(server: FastifyInstance) {
 		await createConversation(server, request, reply);
 	});
 
+	// server.delete<{Params: { conversationId: string }}>("/chat/conversations/:conversationId", async function handler(request, reply) {
+	// 	await deleteConversation(request, reply);
+	// });
+
 	server.get("/chat/conversations", { schema: getAllConversationsSchema }, async function handler(request, reply) {
 		await getAllConversations(server, request, reply);
 	});

@@ -1,4 +1,4 @@
-import { getAllConversations } from "../../Chat/getAllConversations.js";
+import { Conversation, getAllConversations } from "../../Chat/getAllConversations.js";
 import AView from "../AView.js";
 
 export default class extends AView {
@@ -19,6 +19,14 @@ export default class extends AView {
 			return `<p>Error loading content</p>`;
 		}
 	}
+}
+
+function createConversationName(conversation: Conversation): string {
+
+	if (conversation.name) {
+		return conversation.name;
+	}
+	return `Conversation ${conversation.id}`;
 }
 
 export async function ChatViewListener() {

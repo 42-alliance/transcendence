@@ -42,6 +42,26 @@ export async function injectFriends() {
 	friendsList.forEach(friend => {
 		miniUserCard(test_card, friend);
 	});
+
+	let all = document.getElementById("all-button");
+	let pending = document.getElementById("pending-button");
+	SetUpNotifs(all, pending);
+}
+
+export async function SetUpNotifs(all : HTMLElement | null, pending : HTMLElement | null) {
+	const friends = await getAllFriends();
+	let all_notifs = document.createElement("span");
+	let pending_notifs = document.createElement("span");
+	if (friends) {
+		all_notifs.textContent = `${friends.length}`;
+		all_notifs.className = "ml-1 px-2 py-0.5 bg-orange-900/30 text-orange-400 rounded-full text-xs";
+		pending_notifs.textContent = `${friends.filter(friend => friend.status === "pending").length}`;
+		pending_notifs.className = "ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-orange-500/20 group-hover:text-orange-300";
+	}
+	
+
+	all?.appendChild(all_notifs);
+	pending?.appendChild(pending_notifs);
 }
 
 export async function FriendViewListener() {
@@ -55,7 +75,6 @@ export async function FriendViewListener() {
 	if (!me) {
 		return;
 	}
-
 	const friendsList = await getAllFriends();
 	if (!friendsList) {
 		return;
