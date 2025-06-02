@@ -1,0 +1,69 @@
+<div class="flex h-full bg-gray-900">
+  <!-- SIDEBAR CONVOS -->
+  <aside class="w-80 min-w-[18rem] bg-gray-800 border-r border-gray-700 flex flex-col">
+    <div class="px-6 py-5 border-b border-gray-700 flex items-center gap-3">
+      <span class="text-2xl font-bold text-orange-400">Chats</span>
+      <!-- Button to start new chat, optional -->
+      <button id="open-new-chat" class="ml-auto px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow">
+        <i class="fa fa-plus"></i>
+      </button>
+    </div>
+    <!-- Conversations list -->
+    <ul id="conversation-list" class="flex-1 overflow-y-auto divide-y divide-gray-700">
+      <!-- Example item (repeat for each conversation) -->
+      <!--
+      <li class="flex items-center gap-3 px-6 py-4 cursor-pointer hover:bg-gray-700 transition group">
+        <img src="https://i.pravatar.cc/150?img=10" class="w-11 h-11 rounded-full border border-orange-400/30" alt="avatar">
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-white truncate">Jamie Smith</div>
+          <div class="text-xs text-gray-400 truncate">Dernier message...</div>
+        </div>
+        <span class="text-xs bg-orange-500/80 text-white rounded-full px-2 py-0.5 ml-2">2</span>
+      </li>
+      -->
+    </ul>
+  </aside>
+
+  <!-- MAIN CHAT AREA -->
+  <main class="flex-1 flex flex-col relative">
+    <!-- Header du chat ou placeholder -->
+    <div id="chat-header" class="h-20 min-h-[5rem] border-b border-gray-700 px-8 flex items-center gap-4 bg-gray-900">
+      <!-- Rempli dynamiquement selon la sélection -->
+      <!-- Exemple :
+      <img src="https://i.pravatar.cc/150?img=10" class="w-11 h-11 rounded-full border border-orange-400/30" alt="avatar">
+      <div>
+        <div class="font-semibold text-white text-lg">Jamie Smith</div>
+        <div class="text-xs text-gray-400">En ligne</div>
+      </div>
+      -->
+      <!-- Ou, si aucun chat sélectionné : rien ou invite à chercher un ami -->
+    </div>
+
+    <!-- Chat historique -->
+    <section id="chat-history" class="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-gray-900">
+      <!-- Messages dynamiques ici -->
+      <!--
+      <div class="flex items-end gap-3">
+        <img src="https://i.pravatar.cc/150?img=10" class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
+        <div>
+          <div class="bg-gray-800 px-4 py-2 rounded-2xl text-white max-w-md">Salut !</div>
+          <div class="text-xs text-gray-500 mt-1">13:05</div>
+        </div>
+      </div>
+      <div class="flex items-end gap-3 flex-row-reverse">
+        <img src="https://i.pravatar.cc/150?img=5" class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
+        <div>
+          <div class="bg-gradient-to-br from-orange-500 to-yellow-400 px-4 py-2 rounded-2xl text-black max-w-md">Salut, ça va ?</div>
+          <div class="text-xs text-gray-500 mt-1 text-right">13:06</div>
+        </div>
+      </div>
+      -->
+    </section>
+
+    <!-- Zone de saisie si chat ouvert, sinon recherche amis -->
+    <div id="chat-input-area" class="p-6 border-t border-gray-800 bg-gray-900">
+      <!-- Si chat sélectionné : form de message -->
+      <!-- Sinon : recherche d'amis pour démarrer une conversation -->
+    </div>
+  </main>
+</div>

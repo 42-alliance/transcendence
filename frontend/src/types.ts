@@ -5,6 +5,7 @@ export interface IUser {
 	picture?: string;
 	banner?: string;
 	bio?: string;
+	email?: string;
 }
 
 export interface WebSockets {

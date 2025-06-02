@@ -7,12 +7,6 @@
 	--border-raduis: 15px;
 }
 
-.dashboard-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Ensures it takes the full viewport height */
-}
-
 #navbar-id {
 	width: 100%;
 	display: flex;

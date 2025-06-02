@@ -55,7 +55,7 @@ export async function verifyIfUsernameInDatabase(username: string) {
 }
 
 async function validUsername(username: string, errorMessage: HTMLSpanElement) {
-	const regex = /^[a-zA-Z0-9_]+$/;
+	const regex = /^[a-zA-Z0-9_]{3,20}$/;
 
 	if (!regex.test(username)) {
 		errorMessage.style.display = "inline";
@@ -71,6 +71,11 @@ export async function formSubmit(event: Event) {
     const pseudoInput = document.getElementById('pseudo-input') as HTMLInputElement;
     if (pseudoInput === null)
         return;
+
+	const bioInput = document.getElementById('bio-input') as HTMLInputElement;
+	let bio: string = "";
+	if (bioInput) 
+		bio = bioInput.value.trim();
 	
 	const errorMessage = document.getElementById('input-error') as HTMLSpanElement;
 	if (errorMessage === null)
@@ -79,6 +84,13 @@ export async function formSubmit(event: Event) {
 	const username = pseudoInput.value.trim();
 	if (await validUsername(username, errorMessage) === false)
 		return;
+
+	const bannerInput = document.getElementById('profileBannerInput') as HTMLInputElement;
+
+	let banner: File | undefined;
+	if (bannerInput.files) {
+		banner = bannerInput.files[0];
+	}
 	
 	errorMessage.style.display = "none"; // Hide error message if valid
 	
@@ -89,10 +101,14 @@ export async function formSubmit(event: Event) {
 	const profilePicture = profileImage.files[0];
 	const maxSize = 2 * 1024 * 1024;
 	if (profilePicture && profilePicture.size > maxSize) { 
+		alert('File size exceeds 2 MB. Please select a smaller profile picture. Coucou <3');
+		return;
+	}
+	if (banner && banner.size > maxSize) {
 		alert('File size exceeds 2 MB. Please select a smaller profile picture.');
 		return;
 	}
-	updateUserInfos(username, profilePicture);
+	updateUserInfos(username, profilePicture, banner, bio);
 	navigateTo("/");
 }
 
@@ -119,6 +135,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 			if (!userCardPseudo) return;
 			const previousName = userInfos.name || "Error pseudo";
 			userCardPseudo.innerText = pseudo || previousName;
+		});
+	}
+
+	const bioInput = document.getElementById("bio-input") as HTMLInputElement;
+	if (bioInput) {
+		bioInput.addEventListener('input', (event: Event) => {
+			const target = event.target as HTMLInputElement | null;
+			if (!target) return;
+			const bio = target.value;
+			const userCardBio = document.getElementById('userBio');
+			if (!userCardBio) return;
+			const previousBio = userInfos.bio || "No bio yet ...";
+			userCardBio.innerText = bio || previousBio;
 		});
 	}
 

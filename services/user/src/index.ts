@@ -1,6 +1,6 @@
 import fastify from 'fastify';
 import { setupRoutes } from './router.js';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../prisma/node_modules/@prisma/client/client.js';
 import multipart from "@fastify/multipart";
 import cookie from "@fastify/cookie";
 

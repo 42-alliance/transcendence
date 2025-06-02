@@ -5,40 +5,290 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Pong Game</title>
 		
-		<!-- Font Awesome (Mettre avant les autres CSS) -->
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-		
-		<!-- Autres polices -->
+		<!-- Base styles first -->
+		<link rel="stylesheet" href="./output.css">
+		<link rel="stylesheet" href="./styles.css">
+		<link rel="stylesheet" href="src/Views/Dashboard/Dashboard.css">
+		<link rel="icon" type="image/png" href="/assets/favicon.ico">
+
+		<!-- Then external fonts and icons -->
 		<link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
 		<link href="https://fonts.cdnfonts.com/css/mighty-souly" rel="stylesheet">   
 		<link href="https://fonts.cdnfonts.com/css/gg-sans-2" rel="stylesheet">
-	
-		<!-- Tes fichiers CSS -->
-		<link rel="stylesheet" href="./output.css">
-		<link rel="stylesheet" href="src/Views/Dashboard/Dashboard.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 	</head>
 	
 	<body class="text-white">
 		<noscript>
 			<strong data-i18n="javasrcipt-error"></strong>
 		</noscript>
+
+		<div id="search-friend-modal" class="hidden">
+			<div class="fixed inset-0 flex items-center justify-center z-50">
+				<div class="absolute inset-0 bg-black bg-opacity-50"></div>
+				<div class="relative bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md z-10">
+					<h2 class="text-xl font-semibold mb-4" data-i18n="search-friend-title"></h2>
+					<input
+						type="text"
+						id="search-friend-input"
+						class="w-full p-2 border border-gray-300 rounded-lg mb-4"
+						placeholder="Enter friend's name or email" />
+				</div>
+			</div>
+		</div>
+
+		<!-- Navbar -->
+		<nav
+			class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+			<div class="px-3 py-3 lg:px-5 lg:pl-3">
+				<div class="flex items-center justify-between">
+					<!-- logo et dragon pong -->
+					<div class="flex items-center justify-start rtl:justify-end">
+						<a href="/" class="flex ms-2 md:me-24" data-link>
+							<img
+								src="/assets/ball.png"
+								class="h-8 me-3"
+								alt="FlowBite Logo" />
+							<span
+								class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
+								>Dragon Pong</span
+							>
+						</a>
+					</div>
+
+					<!-- username et profile picture -->
+					<!-- Container positionné en relatif -->
+					<div class="relative ms-3">
+						<button
+							id="user-button-navbar"
+							type="button"
+							class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 gap-2"
+							aria-expanded="false">
+							<span class="sr-only">Open user menu</span>
+							<span id="username-navbar" class="self-center"></span>
+							<img
+								id="profile-picture-navbar"
+								class="w-8 h-8 rounded-full"
+								alt="user photo" />
+						</button>
+
+						<!-- Dropdown en position absolue -->
+						<div
+							id="dropdown-user"
+							class="absolute right-0 z-50 hidden mt-2 w-48 text-base list-none bg-white divide-y divide-gray-100 rounded-sm shadow-sm dark:bg-gray-700 dark:divide-gray-600">
+							<div class="px-4 py-3" role="none">
+								<p
+									id="username-dropdown"
+									class="text-sm text-gray-900 dark:text-white"
+									role="none"></p>
+								<p
+									class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+									id="email-dropdown"
+									role="none"></p>
+							</div>
+							<ul class="py-1" role="none">
+								<li>
+									<a
+										href="/"
+										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										role="menuitem"
+										>My Profile</a
+									>
+								</li>
+								<li>
+									<a
+										href="#"
+										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										role="menuitem"
+										>Setting</a
+									>
+								</li>
+								<li>
+									<a
+										href="#"
+										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										role="menuitem"
+										onclick="logOutUser()"
+										>Sign out</a
+									>
+								</li>
+								<li>
+									<a
+										href="#"
+										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										role="menuitem"
+										onclick="deleteUser()"
+										>Delete Account</a
+									>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<aside
+			id="sidebar"
+			class="hidden fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+			aria-label="Sidebar">
+			<div
+				class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 flex flex-col justify-between">
+				<div>
+					<ul class="space-y-2 font-medium">
+						<li>
+							<a
+								href="/"
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+								data-link>
+								<svg
+									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="currentColor"
+									viewBox="0 0 18 18">
+									<path
+										d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
+								</svg>
+								<span class="ms-3">Dashboard</span>
+							</a>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+								<svg
+									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="currentColor"
+									viewBox="0 0 20 20">
+									<path
+										d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z" />
+								</svg>
+								<span class="flex-1 ms-3 whitespace-nowrap"
+									>Notifications</span
+								>
+								<span
+									class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300"
+									>3</span
+								>
+							</a>
+						</li>
+						<li>
+							<a
+								href="/friends"
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" data-link>
+								<svg
+									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="currentColor"
+									viewBox="0 0 20 18">
+									<path
+										d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
+								</svg>
+								<span class="flex-1 ms-3 whitespace-nowrap"
+									>Friends</span
+								>
+							</a>
+						</li>
+						<li>
+							<a
+								href="/chat"
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" data-link>
+								<svg
+									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 512 512"
+									class="w-5 h-5 fill-current dark:text-gray-600"
+									fill="currentColor">
+									<path
+										d="M448.205,392.507c30.519-27.2,47.8-63.455,47.8-101.078,0-39.984-18.718-77.378-52.707-105.3C410.218,158.963,366.432,144,320,144s-90.218,14.963-123.293,42.131C162.718,214.051,144,251.445,144,291.429s18.718,77.378,52.707,105.3c33.075,27.168,76.861,42.13,123.293,42.13,6.187,0,12.412-.273,18.585-.816l10.546,9.141A199.849,199.849,0,0,0,480,496h16V461.943l-4.686-4.685A199.17,199.17,0,0,1,448.205,392.507ZM370.089,423l-21.161-18.341-7.056.865A180.275,180.275,0,0,1,320,406.857c-79.4,0-144-51.781-144-115.428S240.6,176,320,176s144,51.781,144,115.429c0,31.71-15.82,61.314-44.546,83.358l-9.215,7.071,4.252,12.035a231.287,231.287,0,0,0,37.882,67.817A167.839,167.839,0,0,1,370.089,423Z"></path>
+									<path
+										d="M60.185,317.476a220.491,220.491,0,0,0,34.808-63.023l4.22-11.975-9.207-7.066C62.918,214.626,48,186.728,48,156.857,48,96.833,109.009,48,184,48c55.168,0,102.767,26.43,124.077,64.3,3.957-.192,7.931-.3,11.923-.3q12.027,0,23.834,1.167c-8.235-21.335-22.537-40.811-42.2-56.961C270.072,30.279,228.3,16,184,16S97.928,30.279,66.364,56.206C33.886,82.885,16,118.63,16,156.857c0,35.8,16.352,70.295,45.25,96.243a188.4,188.4,0,0,1-40.563,60.729L16,318.515V352H32a190.643,190.643,0,0,0,85.231-20.125,157.3,157.3,0,0,1-5.071-33.645A158.729,158.729,0,0,1,60.185,317.476Z"></path>
+								</svg>
+								<span class="flex-1 ms-3 whitespace-nowrap">Chat</span>
+							</a>
+						</li>
+					</ul>
+
+					<!-- Online friends -->
+
+					<ul
+						id="online-friends"
+						class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+						<li>
+							<div
+								class="flex justify-around items-center p-2 rounded-lg">
+								<span class="ms-3 text-gray-900 dark:text-white"
+									>Online Friends</span
+								>
+								<svg
+									id="search-friend-button"
+									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 640 512">
+									<path
+										d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM504 312l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
+								</svg>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<!-- Pending Requests -->
+				<ul
+					id="pending-requests"
+					class="pt- mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+					<li>
+						<div class="flex justify-around items-center p-2 rounded-lg">
+							<span class="ms-3 text-gray-900 dark:text-white"
+								>Pending Requests</span
+							>
+						</div>
+					</li>
+				</ul>
+
+				<!-- Logout Button -->
+				<div class="pt-4">
+					<button
+						class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition"
+						onclick="logOutUser()">
+						<svg
+							class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white"
+							fill="currentColor"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 512 512">
+							<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+							<path
+								d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+						</svg>
+
+						Log out
+					</button>
+				</div>
+			</div>
+		</aside>
+
 		<video autoplay loop muted playsinline class="absolute top-0 left-0 w-full h-full object-cover brightness-50 -z-40">
 			<source src="assets/goku.mp4" type="video/mp4">
 			<span data-i18n="video-error"></span>
 		</video>
 		
-		<div class="dashboard-wrapper">
-			<div id="navbar-id"></div>
-			<div id="app"></div>
+		<!-- Main Content Area -->
+		<div class="flex h-screen">
+			<!-- Space for sidebar (hidden on mobile, visible on desktop) -->
+			<div class="hidden sm:block w-64"></div>
+			
+			<!-- Main content container -->
+			<div class="flex-1 pt-20 min-h-0">
+				<div id="navbar-id"></div>	
+				<div id="app" class="h-full p-4 overflow-auto"></div>
+			</div>
 		</div>
-		<!-- <footer class="footer">
-			<p>
-				&copy; Transcendanse | <span data-i18n="made-by">Créé avec ❤️ par la </span><a href="broken.html" class="footer-broken" data-link>broken team</a>
-			</p>
-		</footer> -->
-		<!-- <div class="chat-panel" id="chat-panel-c">
-			<div class="chat-content" id="conv-container"></div>
-		</div> -->
+		
 		<script type="module" src=".objs/lang/langManager.js"></script>
 		<script type="module" src=".objs/Views/viewManager.js"></script>
 		<script type="module" src=".objs/include.js"></script>

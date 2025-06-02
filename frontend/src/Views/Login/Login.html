@@ -1,35 +1,8 @@
-<section class="flex flex-col items-center justify-center min-h-screen">
-	<div class="flex flex-col lg:flex-row items-center gap-16 w-full max-w-5xl">
-		<!-- Formulaire -->
-		<div class="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md">
-			<form class="flex flex-col gap-4 w-full" id="user-form">
-				<!-- Pseudo -->
-				<div class="flex flex-col gap-1">
-					<label for="pseudo" class="text-orange-400 font-semibold">Pseudo</label>
-					<input type="text" name="pseudo" id="pseudo-input" required minlength="2" autocomplete="off"
-						class="p-3 rounded-lg bg-gray-700 text-white outline-none focus:ring-2 focus:ring-orange-400">
-					<span id="input-error" class="text-red-600 hidden">Only letters, numbers, and underscores allowed!</span>
-				</div>
-				<!-- Image de profil -->
-				<div class="flex flex-col gap-1">
-					<label for="profileImage" class="text-orange-400 font-semibold">Select an image</label>
-					<input type="file" name="profileImage" id="profileImageInput" accept="image/*"
-						class="p-3 rounded-lg bg-gray-700 text-white cursor-pointer file:bg-orange-500 file:text-white file:px-4 file:py-2 file:rounded-lg file:border-none hover:file:bg-orange-400 transition">
-				</div>
-				<!-- Bannière -->
-				<div class="flex flex-col gap-1">
-					<label for="profileBanner" class="text-orange-400 font-semibold">Select a banner</label>
-					<input type="file" name="profileBanner" id="profileBannerInput" accept="image/*"
-						class="p-3 rounded-lg bg-gray-700 text-white cursor-pointer file:bg-orange-500 file:text-white file:px-4 file:py-2 file:rounded-lg file:border-none hover:file:bg-orange-400 transition">
-				</div>
-				<!-- Bouton Submit -->
-				<input type="submit" value="Enter the Arena"
-					class="mt-4 px-6 py-3 rounded-lg bg-orange-500 text-white font-bold text-lg shadow-md cursor-pointer hover:bg-yellow-400 transition transform hover:scale-105">
-			</form>
-		</div>
-
-		<div class="hidden lg:block h-[500px] w-[400px] rounded-[15px] overflow-hidden bg-[#1a1826]" id="card-login-container-id">
-
-		</div>
-	</div>
+<section class="fixed inset-0 pt-20 flex flex-col items-center justify-center min-h-0 px-4">
+ <div class="hidden lg:block h-[700px] w-[1000px] rounded-[15px] overflow-hidden bg-[#1a1826] shadow-2xl shadow-black/50 border border-gray-700/30" id="card-login-container-id">
+ </div>
+ 
+ <!-- Version responsive pour écrans plus petits -->
+ <div class="lg:hidden w-full max-w-md h-[500px] rounded-[15px] overflow-hidden bg-[#1a1826] shadow-2xl shadow-black/50 border border-gray-700/30" id="card-login-container-mobile">
+ </div>
 </section>

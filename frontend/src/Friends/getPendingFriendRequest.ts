@@ -8,7 +8,7 @@ interface PendingRequestUser {
 		banner: string;
 		bio: string;
 		created_at: Date;
-	};
+	}
 	request_sinced: Date;
 }
 

@@ -7,12 +7,12 @@ import cors from "@fastify/cors";
 
 
 export const server = Fastify({
-    logger: {
-        transport: {
-            target: "pino-pretty",
-            options: { colorize: true },
-        },
-    },
+    // logger: {
+    //     transport: {
+    //         target: "pino-pretty",
+    //         options: { colorize: true },
+    //     },
+    // },
 });
 
 server.register(cors, {

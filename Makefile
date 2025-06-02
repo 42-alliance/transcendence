@@ -10,11 +10,16 @@ up :
 down : 
 	docker compose down
 
+downv : 
+	docker compose down -v
+
 oui : down up
 
 dbclean :
 	rm -rf services/chat/prisma/database services/chat/prisma/migrations
 	rm -rf services/user/prisma/database services/user/prisma/migrations
+	@rm -rf services/media/upload/*
+
 
 tests :
 	docker compose up --build -d
@@ -38,11 +43,7 @@ check:
 	@echo "$(MAGENTA)VOLUMES:$(RESET)"
 	@docker volume ls
 
-fclean : down
-	docker system prune -af
-	docker volume prune -af
-	@docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
-	@rm -rf media/files/*
+fclean : downv
 	@rm -rf services/*/node_modules/
 	@rm -rf services/*/package-*
 	@rm -rf services/*/.objs/
@@ -55,7 +56,9 @@ fclean : down
 	@rm -rf frontend/.objs
 	@rm -rf tests/node_modules/
 	@rm -rf tests/.objs/
-	@rm -rf services/media/upload/*
+	@rm -rf services/user/prisma/node_modules/
+	docker system prune -af
+	docker volume prune -af
 
 log :
 	docker compose logs -f

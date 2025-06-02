@@ -13,70 +13,46 @@ export async function getFriends(request: FastifyRequest, reply: FastifyReply) {
     try {
         const userId = extractUserId(request);
 
-        const acceptedFriends = await prisma.$transaction([
-            // L'utilisateur a envoyé la demande d'amitié
-            prisma.friends.findMany({
-                where: {
-                    senderId: userId,
-                    status: 'accepted'
-                },
-                include: {
-                    receiver: {
-                        select: {
-                            id: true,
-                            name: true,
-                            picture: true
-                        }
-                    }
-                }
-            }),
-        
-            // L'utilisateur a reçu la demande d'amitié
-            prisma.friends.findMany({
-                where: {
-                    receiverId: userId,
-                    status: 'accepted'
-                },
-                include: {
-                    sender: {
-                        select: {
-                            id: true,
-                            name: true,
-                            picture: true
-                        }
-                    }
-                }
-            })
-        ]);
+        const me = await prisma.users.findUnique({
+            where: {
+                id: userId,
+            }
+        });
 
-        // Uniformisation de la sortie
-        const friendsList = [
-            ...acceptedFriends[0].map(friend => ({
-                friend: {
-                    id: Number(friend.receiver.id),
-                    name: friend.receiver.name,
-                    picture: friend.receiver.picture
-                },
-                relation_id: friend.id,
+        if (!me) {
+            return reply.status(404).send({ message: "User not found" });
+        }
+
+        const friendsList = await prisma.friends.findMany({
+            where: {
+                OR: [
+                    { senderId: userId },
+                    { receiverId: userId }
+                ],
+                status: "accepted"
+            },
+            include: {
+                receiver: true,
+                sender: true
+            }
+        });
+
+        const friends = friendsList.map(friendship => {
+            const friend = friendship.senderId === userId ? friendship.receiver : friendship.sender;
+            return {
+                id: friend.id,
+                name: friend.name,
+                picture: friend.picture,
+				bio: friend.bio,
+				banner: friend.banner,
                 created_at: friend.created_at
-            })),
-            ...acceptedFriends[1].map(friend => ({
-                friend: {
-                    id: Number(friend.sender.id),
-                    name: friend.sender.name,
-                    picture: friend.sender.picture
-                },
-                relation_id: friend.id,
-                created_at: friend.created_at
-            }))
-        ];
+            };
+        });
 
-        // Tri par `friend.name`
-        const sortedFriendsList = friendsList.sort((a, b) => a.friend.name.localeCompare(b.friend.name));
-
-        return reply.status(200).send(sortedFriendsList);
+        return reply.status(200).send(friends);
     } catch (error) {
         console.error("Error server:", error);
         return reply.status(500).send({ error: "Erreur serveur." });
     }
 }
+

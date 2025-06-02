@@ -1,3 +1,5 @@
+import { IUser } from "../../types.js";
+import { getUserInfos } from "../../User/me.js";
 import AView from "../AView.js";
 
 export default class extends AView {
@@ -18,4 +20,11 @@ export default class extends AView {
 			return `<p>Error loading content</p>`;
 		}
 	}
+}
+
+async function get_email() {
+	const infos = await getUserInfos();
+	if (!infos) return null;
+
+	return infos.email;
 }

@@ -1,28 +1,50 @@
-import { deleteUser } from "./deleteUser.js";
 import { getUserInfos } from "./me.js";
+import { userIsLogin } from "./userIsLogin.js";
 
+function ifUserIsNotLog() {
+	const userButton = document.getElementById("user-button-navbar");
+	if (!userButton) return;
+
+	userButton.innerHTML = "";
+}
 
 export async function setUserProfile() {
-	const profileButton = document.getElementById("userProfile-button");
-	if (!profileButton) return;
-
-	const user = await getUserInfos();
-	if (!user || !user.name || !user.picture) return;
-
-	profileButton.innerHTML = "";
-
-	const userImg = document.createElement('img');
-	userImg.classList.add("rounded-[50%]", "w-10", "h-10");
-	userImg.src = user.picture;
-	userImg.alt = `${user.name} picture`;
-
-	const userSpan = document.createElement('span');
-	userSpan.innerText = user.name;
-
-	profileButton.onclick = async () => {
-		await deleteUser();
+	if (await userIsLogin() === false) {
+		ifUserIsNotLog();
+		return;
 	}
 
-	profileButton.appendChild(userImg);
-	profileButton.appendChild(userSpan);
+	const userNameSpan = document.getElementById("username-navbar");
+	const profilePicture = document.getElementById("profile-picture-navbar") as HTMLImageElement;
+	const usernameDropdown = document.getElementById("username-dropdown");
+	const emailDropdown = document.getElementById("email-dropdown");
+	const userButton = document.getElementById("user-button-navbar");
+	const dropDown = document.getElementById("dropdown-user");
+
+	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !userButton || !dropDown)
+		return;
+
+	const user = await getUserInfos();
+	if (!user || !user.name || !user.picture || !user.email)
+		return;
+
+	userNameSpan.innerText = user.name;
+	profilePicture.src = user.picture;
+	usernameDropdown.innerText = user.name;
+	emailDropdown.innerText = user.email;
+
+	userButton.onclick = () => {
+		const expanded = userButton.ariaExpanded === "true";
+		userButton.ariaExpanded = expanded ? "false" : "true";
+		dropDown.classList.toggle("hidden", expanded);
+	};
+
+	document.addEventListener("click", (event) => {
+		const isClickInside = dropDown.contains(event.target as Node) || userButton.contains(event.target as Node);
+		if (!isClickInside && !dropDown.classList.contains("hidden")) {
+			dropDown.classList.add("hidden");
+			userButton.ariaExpanded = "false";
+		}
+	});
 }
+

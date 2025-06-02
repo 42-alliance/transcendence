@@ -24,6 +24,8 @@ services:
   user:
       container_name: user
       build: ./services/user
+      ports:
+        - "4000:4000"
       volumes:
         - ./services/user:/app
       env_file:
@@ -85,8 +87,8 @@ services:
   chat:
       container_name: chat
       build: ./services/chat
-      # ports:
-      #   - "5000:5000"
+      ports:
+        - "5000:5000"
       volumes:
         - ./services/chat:/app
       env_file:

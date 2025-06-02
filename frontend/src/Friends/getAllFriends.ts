@@ -1,10 +1,13 @@
 import { fetchApi, getHeader } from "../utils.js";
 
-interface Friends {
+export interface Friends {
 	id: number;
 	name: string;
 	picture: string;
 	banner: string;
+	status: string;
+	date: string;
+	type: string;
 	bio: string;
 }
 
