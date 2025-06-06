@@ -34,13 +34,24 @@ export async function getMessages(server: FastifyInstance, request: FastifyReque
 				createdAt: 'desc' // Messages les plus récents d'abord
 			},
 			include: {
+				conversation: {
+					select: {
+						id: true,
+						name: true,
+						members: {
+							select: {
+								userId: true,
+								name: true,
+								picture: true,
+							}
+						}
+					}
+				},
 				readBy: true // Inclure les informations de lecture
 			}
 		});
   
-		return reply.status(200).send({
-			data: messages,
-		});
+		return reply.status(200).send(messages);
 	} catch (error) {
 		console.error("❌ Erreur lors de la récupération des messages :", error);
 		return reply.status(400).send({ error: "Impossible de récupérer les messages." });

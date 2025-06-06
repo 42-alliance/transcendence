@@ -4,12 +4,12 @@ import fastifyStatic from "@fastify/static";
 import fs from "fs"; // Pour vérifier si un fichier existe
 
 export const server: FastifyInstance = Fastify({
-    // logger: {
-    //     transport: {
-    //         target: "pino-pretty",
-    //         options: { colorize: true },
-    //     },
-    // },
+    logger: {
+        transport: {
+            target: "pino-pretty",
+            options: { colorize: true },
+        },
+    },
 });
 
 // 📌 Définis le dossier où sont tes fichiers

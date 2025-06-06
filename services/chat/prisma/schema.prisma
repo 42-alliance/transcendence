@@ -27,6 +27,7 @@ model Conversation {
 model ConversationMember {
   userId         Int
   name		   	String
+  picture    	String
   conversationId Int
   isAdmin        Boolean @default(false)
 
@@ -40,6 +41,7 @@ model Message {
   content        String
   conversationId Int
   userId         Int // Référence à l'ID d'utilisateur dans un service externe
+  picture        String
 
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   readBy        MessageRead[]
