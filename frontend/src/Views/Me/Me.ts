@@ -8,7 +8,7 @@ export default class extends AView {
     
     async getHtml() {
         try {
-            const response = await fetch("src/Views/Me/Me.html");
+            const response = await fetch("/src/Views/Me/Me.html");
             if (!response.ok) {
                 throw new Error(`Failed to load HTML file: ${response.statusText}`);
             }

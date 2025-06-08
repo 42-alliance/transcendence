@@ -10,6 +10,7 @@ import Me from "./Me/Me.js";
 import { dynamicDisplay } from "./dynamicDisplay.js";
 import Friends from "./Friends/Friends.js";
 import Chat from "./Chat/Chat.js";
+import AView from "./AView.js";
 
 // Initialisation du WebSocket
 export const webSockets: WebSockets = {
@@ -48,30 +49,28 @@ function matchRoute(pathPattern: string, currentPath: string): { matched: boolea
   return { matched: true, params };
 }
 
-// Composant 404
-class NotFoundView {
-  async getHtml() {
-    return `<div class="text-center text-3xl text-red-500 mt-16 font-bold">404 - Page Not Found</div>`;
-  }
-}
-
 // Fonction principale du routeur
 const router = async (): Promise<void> => {
-  const routes: {path: string, view: } = [
-	  { path: "/", view: Dashboard },
-	  { path: "/game", view: Game },
-	  { path: "/chat", view: Chat },
-	  { path: "/chat/:conversationId", view: Chat },
-    { path: "/friends", view: Friends },
-    { path: "/auth-success", view: AuthSuccess },
-    { path: "/auth", view: Auth },
-    { path: "/me", view: Me },
-    // { path: "/selection", view: Selection },
-  ];
+type Route = {
+	path: string;
+	view: new () => AView;
+};
+
+const routes: Route[] = [
+	{ path: "/", view: Dashboard },
+	// { path: "/game", view: Game },
+	{ path: "/chat", view: Chat },
+	{ path: "/chat/:conversationId", view: Chat },
+	{ path: "/friends", view: Friends },
+	{ path: "/auth-success", view: AuthSuccess },
+	{ path: "/auth", view: Auth },
+	{ path: "/me", view: Me },
+	// { path: "/selection", view: Selection },
+];
 
   await getUserInfos();
 
-  let matchedRoute = { path: "/", view: Dashboard };
+  let matchedRoute = null;
   let routeParams: Record<string, string> = {};
 
   for (const route of routes) {
@@ -107,13 +106,14 @@ const router = async (): Promise<void> => {
 
   // Met à jour le titre de la page
   console.log(`Route: ${matchedRoute.path}`);
+  console.log("view:", matchedRoute.view);
   // Crée la vue (passe les params si besoin)
   const view = new matchedRoute.view();
 
   const appId = document.getElementById("app");
   if (appId) {
     appId.innerHTML = await view.getHtml();
-	console.log("appId.innerHTML", appId.innerHTML);
+	  console.log("appId.innerHTML", appId.innerHTML);
   }
 
   // Script supplémentaire si Game (exécution du JS de la vue)

@@ -16,7 +16,7 @@ export default class extends AView {
             return "";
         }
 		try {
-			const response = await fetch("src/Views/Auth/Auth.html");
+			const response = await fetch("/src/Views/Auth/Auth.html");
 			if (!response.ok) {
 				throw new Error(`Failed to load HTML file: ${response.statusText}`);
 			}

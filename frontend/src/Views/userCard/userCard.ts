@@ -2,7 +2,7 @@ import { getUserInfos, userInfos } from "../../User/me.js";
 import { updateUserInfos } from "../../User/updateUser.js";
 import { navigateTo } from "../viewManager.js";
 
-interface UserData {
+export interface UserData {
     name?: string;
     picture	?: string;
     banner?: string;

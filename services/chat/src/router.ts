@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { createConversation, createConversationSchema } from "./conversation/create.conversation.js";
 import { getMessages } from "./message/get.message.js";
 import { getAllConversations, getAllConversationsSchema } from "./conversation/getAll.conversation.js";
+import { getConversationInfos } from "./conversation/getConversationInfos.js";
 
 
 export function setupChatRoutes(server: FastifyInstance) {
@@ -19,5 +20,9 @@ export function setupChatRoutes(server: FastifyInstance) {
 
 	server.get<{Params: { conversationId: string }}>("/chat/conversations/:conversationId", async function handler(request, reply) {
 		await getMessages(server, request, reply);
+	});
+
+	server.get<{Params: { conversationId: string }}>("/chat/conversations/:conversationId/infos", async function handler(request, reply) {
+		await getConversationInfos(request, reply);
 	});
 }

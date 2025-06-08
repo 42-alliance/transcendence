@@ -10,7 +10,7 @@ export default class extends AView {
 	
 	async getHtml() {
 		try {
-			const response = await fetch("src/Views/Dashboard/Dashboard.html");
+			const response = await fetch("/src/Views/Dashboard/Dashboard.html");
 			if (!response.ok) {
 				throw new Error(`Failed to load HTML file: ${response.statusText}`);
 			}
@@ -20,11 +20,4 @@ export default class extends AView {
 			return `<p>Error loading content</p>`;
 		}
 	}
-}
-
-async function get_email() {
-	const infos = await getUserInfos();
-	if (!infos) return null;
-
-	return infos.email;
 }

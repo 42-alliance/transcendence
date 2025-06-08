@@ -1,6 +1,6 @@
 import { fetchApi } from "../utils.js";
 
-interface PendingRequestUser {
+export interface PendingRequestUser {
 	sender: {
 		id: number;
 		name: string;

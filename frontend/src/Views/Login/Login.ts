@@ -15,7 +15,7 @@ export default class extends AView {
     // Charge le contenu HTML du formulaire
     async getHtml() {
         try {
-            const response = await fetch("src/Views/Login/Login.html");
+            const response = await fetch("/src/Views/Login/Login.html");
             if (!response.ok) {
                 throw new Error(`Failed to load HTML file: ${response.statusText}`);
             }
