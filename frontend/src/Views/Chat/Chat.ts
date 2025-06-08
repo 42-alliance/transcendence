@@ -99,7 +99,7 @@ async function renderConversations() {
 			? conversation.messages[0].content
 			: "Aucun message";
 		center.appendChild(nameDiv);
-		center.appendChild(lastMessageDiv);
+		// center.appendChild(lastMessageDiv);
 
 		// Montage final dans un <a>
 		const a = document.createElement("a");
@@ -141,6 +141,7 @@ async function renderChat(conversation: Conversation, userInfos: IUser) {
 
 	// HEADER
 	chatHeader.innerHTML = "";
+	chatHistory.setAttribute("data-conversation-id", conversation.id.toString());
 	if (otherMembers.length === 1) {
 		chatHeader.innerHTML = `
 			<img src="${otherMembers[0].picture || "/assets/default.jpeg"}" class="w-11 h-11 rounded-full border border-orange-400/30" alt="${otherMembers[0].name} avatar">
@@ -187,6 +188,11 @@ async function renderChat(conversation: Conversation, userInfos: IUser) {
 		chatHistory.scrollTop = chatHistory.scrollHeight;
 	}
 
+	setTimeout(() => {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 0);
+
+
 	// ZONE DE SAISIE
 	chatInputArea.innerHTML = `
 		<form id="send-message-form" class="flex items-center gap-3">
@@ -210,8 +216,9 @@ async function renderChat(conversation: Conversation, userInfos: IUser) {
 				conversationId: conversation.id,
 				content: value,
 			}));
-
+			
 			input.value = "";
+			
 		};
 	}
 }

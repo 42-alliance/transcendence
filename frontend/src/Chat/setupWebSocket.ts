@@ -44,6 +44,10 @@ export function setupChatWebSocket() {
 		if (msg.type === "new_message") {
 			const chatHistory = document.getElementById("chat-history");
 			if (chatHistory) {
+				const conversationId = chatHistory.getAttribute("data-conversation-id");
+				if (conversationId && msg.data.conversationId !== parseInt(conversationId)) {
+					return;
+				}
 				const isMe = msg.data.userId === me.id;
 				chatHistory.innerHTML += `
 					<div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
@@ -55,6 +59,10 @@ export function setupChatWebSocket() {
 						</div>
 					</div>
 				`;
+
+				setTimeout(() => {
+        			chatHistory.scrollTop = chatHistory.scrollHeight;
+		    	}, 0);
 			}
 		}
 
