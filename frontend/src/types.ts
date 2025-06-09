@@ -11,4 +11,5 @@ export interface IUser {
 export interface WebSockets {
 	chat: WebSocket | null;
 	game: WebSocket | null;
+	user: WebSocket | null;
 }

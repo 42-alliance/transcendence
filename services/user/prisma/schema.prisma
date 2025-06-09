@@ -19,6 +19,8 @@ model Users {
   picture			String
   banner			String?
   bio				String?
+
+  is_online			Boolean   @default(false)
   created_at		DateTime  @default(now())
   sentRequests		Friends[] @relation("SentRequests")
   receivedRequests	Friends[] @relation("ReceivedRequests")

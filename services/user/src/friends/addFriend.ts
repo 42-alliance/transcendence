@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
-import { prisma } from "../index.js";
+import { connectedSockets, prisma } from "../index.js";
 import { extractUserId } from "../utils.js"
 import { Type } from '@sinclair/typebox'
 
@@ -18,6 +18,16 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 	const { friendName } = request.body as { friendName: string };
 	
 	try {
+		const me = await prisma.users.findUnique({
+			where: {
+				id: userId,
+			}
+		});
+		if (!me) {
+			console.error("You are not logged in");
+			return reply.status(401).send({ message: "You are not logged in" });
+		}
+
 		const friend = await prisma.users.findUnique({
 			where: {
 				name: friendName,
@@ -60,6 +70,19 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 			data: {
 				senderId: userId,
 				receiverId: friend.id,
+			}
+		});
+
+		connectedSockets.get(friend.id)?.forEach((socket) => {
+			if (socket.readyState === socket.OPEN) {
+				socket.send(JSON.stringify({
+					type: "friend_request",
+					friend: {
+						id: userId,
+						name: me.name,
+						picture: me.picture
+					}
+				}));
 			}
 		});
 		console.log(`Demande d'ami envoyée de ${userId} à ${friendName}.`);

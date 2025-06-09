@@ -17,9 +17,9 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/multipart": "^9.0.3",
+    "@fastify/websocket": "^11.1.0",
     "@prisma/client": "^6.9.0",
     "@sinclair/typebox": "^0.34.30",
-    "@types/ws": "^8.18.0",
     "axios": "^1.8.3",
     "fastify": "^5.2.1",
     "form-data": "^4.0.2",
@@ -31,6 +31,7 @@
     "@jest/transform": "^29.7.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.10",
+    "@types/ws": "^8.18.1",
     "jest": "^29.7.0",
     "prisma": "^6.8.2",
     "ts-jest": "^29.2.6",

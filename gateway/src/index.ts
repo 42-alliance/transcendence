@@ -47,6 +47,27 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
+    upstream: `ws://${config.users.host}:${config.users.port}`,
+    websocket: true,
+    prefix: "/ws/users",
+    rewritePrefix: "/ws/users",
+    http2: false,
+    preHandler: async (request, reply) => {    
+        await verifyJWT_WebSocket(server, request, reply);
+
+        const userId = request.headers["x-user-id"];  // JWT extrait ici
+        const url = new URL(request.url, `http://${request.headers.host}`);
+
+        // Ajoute `userId` dans la query string avant de proxyfier
+        url.searchParams.set("userId", userId as string);
+
+        // 🔥 Modifie directement `request.raw.url` avant que Fastify Proxy ne traite la requête
+        request.raw.url = url.pathname + url.search;
+        console.log("🚀 Nouvelle URL proxyfiée:", request.raw.url);
+    }
+});
+
+server.register(proxy, {
 	upstream: `http://${config.auth.host}:${config.auth.port}`,
 	prefix: '/auth/@me',
 	rewritePrefix: '/auth/@me',

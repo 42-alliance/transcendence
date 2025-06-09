@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox";
-import { prisma } from "../../index.js";
+import { connectedSockets, prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
 import { FastifyReply, FastifyRequest, FastifyInstance, FastifySchema } from "fastify";
+import { connect } from "http2";
 
 const StatusEnum = {
 	// pending: 'pending',
@@ -62,6 +63,20 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 				}
 			});
 		}
+
+		connectedSockets.get(friendship.senderId)?.forEach(socket => {
+			if (socket.readyState === socket.OPEN) {
+				socket.send(JSON.stringify({
+					type: "friendship_status_update",
+					data: {
+						friendshipId: friendship.id,
+						status: status,
+						senderId: friendship.senderId,
+						receiverId: friendship.receiverId,
+					}
+				}));
+			}
+		});
 
         console.log(`Friend request between ${friendship.senderId} and ${friendship.receiverId} is now ${status}.`);
 

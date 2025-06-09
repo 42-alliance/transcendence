@@ -3,6 +3,8 @@ import { setupRoutes } from './router.js';
 import { PrismaClient } from '../prisma/node_modules/@prisma/client/client.js';
 import multipart from "@fastify/multipart";
 import cookie from "@fastify/cookie";
+import { setupWebsocket } from './websocket/setupWebsocket.js';
+import websocket, { WebSocket } from '@fastify/websocket';
 
 export const prisma = new PrismaClient(); // client prisma
 
@@ -28,6 +30,18 @@ await server.register(multipart, {
 server.get("/users/healthcheck", async function handler(request, reply) {
 	return reply.status(200).send("user server is ready");
 });
+
+server.register(websocket);
+
+export const connectedSockets = new Map<number, Set<WebSocket>>();
+export const connectedUsers = new Set<number>();
+
+server.register(async function (server) {
+	server.get("/ws/users", { websocket: true }, (socket, req) => {
+		setupWebsocket(socket, req);
+	});
+});
+
 
 await setupRoutes(server);
 

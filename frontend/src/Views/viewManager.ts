@@ -11,10 +11,12 @@ import { dynamicDisplay } from "./dynamicDisplay.js";
 import Friends from "./Friends/Friends.js";
 import Chat from "./Chat/Chat.js";
 import AView from "./AView.js";
+import { setupUserWebsocket } from "../User/setupWebsockets.js";
 
 // Initialisation du WebSocket
 export const webSockets: WebSockets = {
   chat: null,
+  user: null,
   game: null,
 };
 
@@ -93,9 +95,15 @@ const routes: Route[] = [
     return;
   }
 
+  const isLogin = await userIsLogin();
   // Setup websocket si loggé et pas encore fait
-  if (await userIsLogin() && webSockets.chat === null) {
+  if (isLogin && webSockets.chat === null) {
     setupChatWebSocket();
+  }
+  
+  // Setup websocket si loggé et pas encore fait
+  if (isLogin && webSockets.user === null) {
+    setupUserWebsocket();
   }
 
   // Check si changement réel de page/params
