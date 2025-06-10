@@ -21,9 +21,9 @@ export function showToast(args: ToastType) {
     const toastContainer = document.getElementById("toast-container");
     if (!toastContainer) return;
 
-    // Toast principal
+    // Ajoute pr-10 pour espace croix à droite
     const toast = document.createElement("div");
-    toast.className = "flex items-center bg-gray-800 text-white px-4 py-3 rounded-xl toast-shadow min-w-[280px] max-w-xs relative animate-fade-in";
+    toast.className = "flex items-center bg-gray-800 text-white px-4 py-3 pr-10 rounded-xl toast-shadow min-w-[280px] max-w-xs relative animate-fade-in";
     toast.style.animation = "fade-in 0.2s";
 
     // Image
@@ -41,7 +41,6 @@ export function showToast(args: ToastType) {
     textDiv.textContent = args.text;
     center.appendChild(textDiv);
 
-    // Boutons
     if (args.buttons.length) {
         const btns = document.createElement("div");
         btns.className = "flex gap-2";
@@ -67,13 +66,11 @@ export function showToast(args: ToastType) {
     close.onclick = closeToast;
     toast.appendChild(close);
 
-    // Anim fade-in (optionnel)
     toast.style.opacity = "0";
     setTimeout(() => { toast.style.opacity = "1"; }, 20);
 
-    // Fermer
     function closeToast() {
-        toast.style.opacity = '1';
+        toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 200);
     }
 
@@ -83,5 +80,3 @@ export function showToast(args: ToastType) {
         setTimeout(closeToast, args.duration);
     }
 }
-
-

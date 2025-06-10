@@ -40,7 +40,7 @@ export function setupChatWebSocket() {
 					buttons: [
 						{ label: "Go chat", onClick: () => navigateTo(`/chat/${msg.data.conversationId}`) },
 					],
-					duration: 8000 // 0 = ne s’enlève pas tant qu’on ferme pas
+					duration: 0 // 0 = ne s’enlève pas tant qu’on ferme pas
 				});
 	}
 
@@ -55,7 +55,7 @@ export function setupChatWebSocket() {
     }
 
     const isMe = msg.data.userId === me.id;
-//  TODO: changer ca
+
     if (msg.type === "new_message") {
         const chatHistory = document.getElementById("chat-history");
 		if (!chatHistory) {
@@ -67,7 +67,7 @@ export function setupChatWebSocket() {
 		else {
 			const conversationId = chatHistory?.getAttribute("data-conversation-id");
 			if (!conversationId) {
-				console.error("⚠️ Aucune conversation ouverte pour afficher le message.");
+				callToast(msg);
 				return;
 			}
 			
