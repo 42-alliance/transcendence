@@ -8,11 +8,12 @@ export async function showPendingFriends() {
 			return;
 	
 		const friends = await getPendingFriendRequest();
-	
-		if (!friends || friends.length === 0)
+
+
+		if (!friends ||  friends.incoming.length === 0)
 			return;
 	
-		friends.forEach(friend => {
+		 friends.incoming.forEach(friend => {
 			const li = document.createElement("li");
 	
 			const friendDiv = document.createElement("div");
@@ -21,13 +22,13 @@ export async function showPendingFriends() {
 			// Image de profil
 			const profileImg = document.createElement("img");
 			profileImg.classList.add("w-10", "h-10", "rounded-full");
-			profileImg.src = friend.sender.picture;
-			profileImg.alt = `${friend.sender.name}'s profile picture`;
+			profileImg.src = friend.user.picture || "";
+			profileImg.alt = `${friend.user.name}'s profile picture`;
 	
 			// Nom (proche de l'image)
 			const profileText = document.createElement("span");
 			profileText.classList.add("ml-2", "text-white", "text-base", "font-medium");
-			profileText.innerText = friend.sender.name;
+			profileText.innerText = friend.user.name || "";
 	
 			// Container gauche (image + nom)
 			const leftSection = document.createElement("div");

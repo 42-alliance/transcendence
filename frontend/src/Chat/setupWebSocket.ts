@@ -1,7 +1,9 @@
 import { getUserInfos } from "../User/me.js";
 import { getAccessToken } from "../utils.js";
-import { getUserPicture } from "../Views/Chat/Chat.js";
-import { webSockets } from "../Views/viewManager.js";
+import Chat, { getUserPicture } from "../Views/Chat/Chat.js";
+import Me from "../Views/Me/Me.js";
+import { showToast } from "../Views/triggerToast.js";
+import { navigateTo, router, webSockets } from "../Views/viewManager.js";
 import { Message } from "./getAllMessages.js";
 
 interface ChatMessage {
@@ -13,6 +15,7 @@ interface ChatMessage {
 		conversationId: number;
 		userId: number;
 		picture: string;
+		name: string;
 	};
 }
 
@@ -30,25 +33,50 @@ export function setupChatWebSocket() {
 		console.log(`✅ Connecté a la websocket de chat`);
 	}
 
-	webSockets.chat.onmessage = async (event) => {
-		const msg: ChatMessage = JSON.parse(event.data);
-		console.log("📩 Message reçu => ", msg);
-		// TODO: faire un truc
+	function callToast(msg:	ChatMessage) {
+		showToast({
+					text: `${msg.data.name} send you a new message !`,
+					img: msg.data.picture,
+					buttons: [
+						{ label: "Go chat", onClick: () => navigateTo(`/chat/${msg.data.conversationId}`) },
+					],
+					duration: 8000 // 0 = ne s’enlève pas tant qu’on ferme pas
+				});
+	}
 
-		const me = await getUserInfos();
-		if (!me) {
-			console.error("⚠️ Impossible de récupérer les informations de l'utilisateur.");
+	webSockets.chat.onmessage = async (event) => {
+    const msg: ChatMessage = JSON.parse(event.data);
+    console.log("📩 Message reçu => ", msg);
+
+    const me = await getUserInfos();
+    if (!me) {
+        console.error("⚠️ Impossible de récupérer les informations de l'utilisateur.");
+        return;
+    }
+
+    const isMe = msg.data.userId === me.id;
+//  TODO: changer ca
+    if (msg.type === "new_message") {
+        const chatHistory = document.getElementById("chat-history");
+		if (!chatHistory) {
+			if (!isMe) {
+				callToast(msg);
+			}
 			return;
 		}
-
-		if (msg.type === "new_message") {
-			const chatHistory = document.getElementById("chat-history");
-			if (chatHistory) {
-				const conversationId = chatHistory.getAttribute("data-conversation-id");
-				if (conversationId && msg.data.conversationId !== parseInt(conversationId)) {
-					return;
-				}
-				const isMe = msg.data.userId === me.id;
+		else {
+			const conversationId = chatHistory?.getAttribute("data-conversation-id");
+			if (!conversationId) {
+				console.error("⚠️ Aucune conversation ouverte pour afficher le message.");
+				return;
+			}
+			
+			if (Number(conversationId) !== msg.data.conversationId && !isMe) {
+				// Si la conversation ouverte n'est pas celle du message, on ne l'affiche pas
+				callToast(msg);
+				return;
+			}
+			else {
 				chatHistory.innerHTML += `
 					<div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
 						<img src="${msg.data.picture}" 
@@ -59,14 +87,14 @@ export function setupChatWebSocket() {
 						</div>
 					</div>
 				`;
-
 				setTimeout(() => {
-        			chatHistory.scrollTop = chatHistory.scrollHeight;
-		    	}, 0);
+					chatHistory.scrollTop = chatHistory.scrollHeight;
+				}, 0);
 			}
 		}
+    }
+};
 
-	};
 
 	webSockets.chat.onclose = (event) => {
 		console.log("❌ WebSocket déconnecté !", event);

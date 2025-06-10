@@ -9,25 +9,37 @@ export const getPendingFriendRequestSchema: FastifySchema = {
 	}),
 };
 
-export async function getPendingFriendRequest(request: FastifyRequest,reply: FastifyReply) {
-
+export async function getPendingFriendRequest(request: FastifyRequest, reply: FastifyReply) {
 	const userId = extractUserId(request);
 
-    console.log("Getting pending requests for user:", userId);
+	console.log("Getting pending requests for user:", userId);
 
-    try {
+	try {
+		// Demandes reçues (incoming)
 		const incomingPendingRequests = await prisma.friends.findMany({
 			where: {
-			  receiverId: userId,
-			  status: 'pending'
+				receiverId: userId,
+				status: 'pending'
 			},
 			include: {
-			  sender: true
+				sender: true
 			}
 		});
-		  
-		const requestSenders = incomingPendingRequests.map(request => ({
-			sender: {
+
+		// Demandes envoyées (outgoing)
+		const outgoingPendingRequests = await prisma.friends.findMany({
+			where: {
+				senderId: userId,
+				status: 'pending'
+			},
+			include: {
+				receiver: true
+			}
+		});
+
+		const incoming = incomingPendingRequests.map(request => ({
+			type: 'incoming',
+			user: {
 				id: request.sender.id,
 				name: request.sender.name,
 				picture: request.sender.picture,
@@ -35,12 +47,28 @@ export async function getPendingFriendRequest(request: FastifyRequest,reply: Fas
 				bio: request.sender.bio,
 				created_at: request.sender.created_at,
 			},
-			request_sinced: request.created_at
+			request_since: request.created_at
 		}));
 
-        return reply.status(200).send(requestSenders);
-    } catch (error) {
-        console.error("Error server:", error);
-        return reply.status(500).send({ error: "Erreur serveur." });
-    }
+		const outgoing = outgoingPendingRequests.map(request => ({
+			type: 'outgoing',
+			user: {
+				id: request.receiver.id,
+				name: request.receiver.name,
+				picture: request.receiver.picture,
+				banner: request.receiver.banner,
+				bio: request.receiver.bio,
+				created_at: request.receiver.created_at,
+			},
+			request_since: request.created_at
+		}));
+
+		return reply.status(200).send({
+			incoming,
+			outgoing
+		});
+	} catch (error) {
+		console.error("Error server:", error);
+		return reply.status(500).send({ error: "Erreur serveur." });
+	}
 }

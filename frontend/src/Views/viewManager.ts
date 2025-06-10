@@ -52,7 +52,7 @@ function matchRoute(pathPattern: string, currentPath: string): { matched: boolea
 }
 
 // Fonction principale du routeur
-const router = async (): Promise<void> => {
+export const router = async (): Promise<void> => {
 type Route = {
 	path: string;
 	view: new () => AView;

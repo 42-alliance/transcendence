@@ -42,6 +42,7 @@ model Message {
   conversationId Int
   userId         Int // Référence à l'ID d'utilisateur dans un service externe
   picture        String
+  name		   String
 
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   readBy        MessageRead[]

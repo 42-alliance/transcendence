@@ -287,14 +287,20 @@ export async function displayAllFriendsDynamically() {
 	});
 }
 
-function PendingUser_to_Friend(pendingUser: PendingRequestUser): UserData {
-	return {
-		name: pendingUser.sender.name,
-		picture: pendingUser.sender.picture,
-		bio: pendingUser.sender.bio,
-		banner: pendingUser.sender.banner,
-	};
-}
+// function PendingSender_to_Friend(pendingUser: PendingRequestUser): UserData {
+// 	return {
+// 		name: pendingUser.sender.name,
+// 		picture: pendingUser.sender.picture,
+// 		bio: pendingUser.sender.bio,
+// 		banner: pendingUser.sender.banner,
+// 	};
+// }
+
+// function PendingReceiver_to_Friend(pendingUser: PendingRequestUser): UserData {
+// 	return {
+		
+// 	}
+// }
 
 export async function displayPendingFriendsDynamically() {
 	const onglet = document.getElementById("onglets-id");
@@ -309,8 +315,8 @@ export async function displayPendingFriendsDynamically() {
 	</button>
 	<button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
 		<span class="text-orange-400 group-hover:text-yellow-400 transition-colors">Pending</span>
-      	<div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
-    </button>`
+		<div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
+	</button>`
 
 	document.getElementById("all-button")?.addEventListener('click', async () => {
 		console.log("click on all");
@@ -325,11 +331,45 @@ export async function displayPendingFriendsDynamically() {
 	if (!test_card) return;
 
 	const friendsList = await getPendingFriendRequest();
+	console.log("PENDING LIST : ", friendsList);
 	if (!friendsList) return;
 
-	test_card.innerHTML = ""; // Clear previous content if needed
+	test_card.innerHTML = `
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Incoming requests -->
+    <section class="bg-gradient-to-br from-gray-800/90 to-gray-900/80 border border-orange-400/10 rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-xl font-bold text-orange-400"><i class="fa fa-user-plus mr-2"></i> Incoming</span>
+        <span class="ml-auto bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full text-xs">${friendsList.incoming.length}</span>
+      </div>
+      <div id="friend-list-card-incoming" class="flex flex-col gap-5"></div>
+      ${friendsList.incoming.length === 0
+        ? `<div class="text-gray-500 text-sm text-center py-6">No incoming requests</div>`
+        : ''}
+    </section>
+    <!-- Outgoing requests -->
+    <section class="bg-gradient-to-br from-gray-900/90 to-gray-800/80 border border-yellow-400/10 rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-xl font-bold text-yellow-300"><i class="fa fa-paper-plane mr-2"></i> Outgoing</span>
+        <span class="ml-auto bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full text-xs">${friendsList.outgoing.length}</span>
+      </div>
+      <div id="friend-list-card-outgoing" class="flex flex-col gap-5"></div>
+      ${friendsList.outgoing.length === 0
+        ? `<div class="text-gray-500 text-sm text-center py-6">No outgoing requests</div>`
+        : ''}
+    </section>
+  </div>
+`;
 
-	friendsList.forEach(friend => {
-		miniUserCard(test_card, PendingUser_to_Friend(friend));
+
+	const incoming_card = document.getElementById("friend-list-card-incoming");
+	const outgoing_card = document.getElementById("friend-list-card-outgoing");
+	if (!incoming_card || !outgoing_card) return;
+
+	friendsList.incoming.forEach(friend => {
+		miniUserCard(incoming_card, friend.user);
+	});
+	friendsList.outgoing.forEach(friend => {
+		miniUserCard(outgoing_card, friend.user);
 	});
 }

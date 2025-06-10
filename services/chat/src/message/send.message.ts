@@ -33,6 +33,7 @@ export async function storeMessage(sender: number, data: WebSocketMessage) {
 		data: {
 			content: data.content,
 			userId: sender,
+			name: membership.name,
 			picture: membership.picture,
 			conversationId: data.conversationId
 		}

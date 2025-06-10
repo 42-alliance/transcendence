@@ -31,6 +31,22 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
     const friendID = parseInt(friendId);
 
     try {
+		const me = await prisma.users.findUnique({
+			where: { id: userId },
+			select: { id: true, name: true, picture: true }
+		});
+		if (!me) {
+			return reply.status(404).send({ message: "User not found" });
+		}
+
+		const friend = await prisma.users.findUnique({
+			where: { id: friendID },
+			select: { id: true, name: true, picture: true }
+		});
+		if (!friend) {
+			return reply.status(404).send({ message: "Friend not found" });
+		}
+
         const friendship = await prisma.friends.findFirst({
             where: {
                 OR: [
@@ -71,8 +87,11 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 					data: {
 						friendshipId: friendship.id,
 						status: status,
-						senderId: friendship.senderId,
-						receiverId: friendship.receiverId,
+						friend: {
+							id: friend.id,
+							name: friend.name,
+							picture: friend.picture,
+						},
 					}
 				}));
 			}

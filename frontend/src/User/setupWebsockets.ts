@@ -1,3 +1,4 @@
+import { updateFriendStatus } from "../Friends/updateFriendStatus.js";
 import { showToast } from "../Views/triggerToast.js";
 import { webSockets } from "../Views/viewManager.js";
 import { getAccessToken } from "../utils.js";
@@ -32,10 +33,22 @@ export async function setupUserWebsocket() {
 			text: `${friend.name} send you a friend request !`,
 			img: friend.picture,
 			buttons: [
-				{ label: "Accepter", onClick: () => alert("Partie acceptée !") },
-				{ label: "Refuser", onClick: () => alert("Refusé !") }
+				{ label: "Accept", onClick: async () => await updateFriendStatus(friend.id, "accepted") },
+				{ label: "Refuse", onClick: async () => await updateFriendStatus(friend.id, "rejected") }
 			],
 			duration: 8000 // 0 = ne s’enlève pas tant qu’on ferme pas
+		});
+	}
+
+	console.log(msg);
+	if (msg.type === "friendship_status_update" && msg.data.status === "accepted") {
+		console.log("📩 Friend request accepted => ", msg);
+		const friend = msg.data.friend;
+		showToast({
+			text: `${friend.name} accepted your friend request !`,
+			img: friend.picture,
+			buttons: [] ,
+			duration: 5000 // 0 = ne s’enlève pas tant qu’on ferme pas
 		});
 	}
 	
