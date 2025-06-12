@@ -1,4 +1,6 @@
 import { fetchApi, getHeader } from "../utils.js";
+import { showToast } from "../Views/triggerToast.js";
+import { updateFriendStatus } from "./updateFriendStatus.js";
 
 
 export async function addFriend(username: string) {
@@ -19,6 +21,16 @@ export async function addFriend(username: string) {
 		}
 
 		const result = await response.json();
+
+		if (result.message === "Friend request is now accepted")
+			return;
+		const id = Number(result.friend.id);
+		showToast({
+					text: `Friend request send to ${username}`,
+					img: "/assets/valid.jpg",
+					buttons: [ {label: "Cancel", onClick: async () => { await updateFriendStatus(id, "rejected");} } ],
+					duration: 8000
+			});
 		console.log("result: ", result);
 	} catch (error) {
 		console.error("Error: ", error);

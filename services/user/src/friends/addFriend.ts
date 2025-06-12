@@ -63,7 +63,32 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 					status: "accepted",
 				}
 			});
-			return reply.status(201).send({message: `Friend request is now accepted`});
+
+			connectedSockets.get(friend.id)?.forEach(socket => {
+			if (socket.readyState === socket.OPEN) {
+				socket.send(JSON.stringify({
+					type: "friendship_status_update",
+					data: {
+						friendshipId: existingFriendChip.id,
+						status: "accepted",
+						friend: {
+							id: friend.id,
+							name: friend.name,
+							picture: friend.picture,
+						},
+					}
+				}));
+			}
+		});
+
+			return reply.status(201).send({
+				message: `Friend request is now accepted`,
+				friend: {
+					id: friend.id,
+					name: friend.name,
+					picture: friend.picture
+				}
+			});
 		}
 
 		await prisma.friends.create({
@@ -87,7 +112,14 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 		});
 		console.log(`Demande d'ami envoyée de ${userId} à ${friendName}.`);
 
-		return reply.status(201).send({ message: `Friend request sent to ${friend.name}` });
+		return reply.status(201).send({
+			message: `Friend request sent to ${friend.name}`,
+			friend: {
+				id: friend.id,
+				name: friend.name,
+				picture: friend.picture
+			}
+		});
 	} catch (error) {
 		console.error("Error server:" + error);
 		return reply.status(500).send({ message: "Erreur serveur." });

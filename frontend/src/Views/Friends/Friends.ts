@@ -1,11 +1,12 @@
-import { get } from "http";
 import AView from "../AView.js";
-import { Friends, getAllFriends } from "../../Friends/getAllFriends.js";
+import { getAllFriends } from "../../Friends/getAllFriends.js";
 import { getUserInfos } from "../../User/me.js";
 import { miniUserCard, UserData } from "../userCard/userCard.js";
 import { getAllUsers } from "../../User/getAllUsers.js";
 import { addFriend } from "../../Friends/addFriend.js";
-import { getPendingFriendRequest, PendingRequestUser } from "../../Friends/getPendingFriendRequest.js";
+import { getPendingFriendRequest } from "../../Friends/getPendingFriendRequest.js";
+import { showToast } from "../triggerToast.js";
+import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 
 
 export default class extends AView {
@@ -126,7 +127,7 @@ export async function setupAddFriendSearchBar() {
 								<button 
 									class="chat-btn flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow transition-all duration-200 ml-2"
 									title="Ouvrir le chat"
-									data-name="${user.name}"
+									data-name="${user.name}" data-id="${user.id}"
 								>
 									<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h12a2 2 0 012 2z"/>
@@ -137,7 +138,7 @@ export async function setupAddFriendSearchBar() {
 								<button 
 									class="send-request-btn flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow transition-all duration-200 ml-2"
 									title="Envoyer une demande"
-									data-name="${user.name}"
+									data-name="${user.name}" data-id="${user.id}"
 								>
 									<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"></path>
@@ -218,7 +219,8 @@ export async function setupAddFriendSearchBar() {
 
 		if (target.closest('.send-request-btn')) {
 			const name = (target.closest('.send-request-btn') as HTMLElement).getAttribute('data-name');
-			if (!name) return;
+			const id = (target.closest('.send-request-btn') as HTMLElement).getAttribute('data-id');
+			if (!name || !id) return;
 			await addFriend(name);
 			return;
 		}
@@ -286,21 +288,6 @@ export async function displayAllFriendsDynamically() {
 		miniUserCard(test_card, friend);
 	});
 }
-
-// function PendingSender_to_Friend(pendingUser: PendingRequestUser): UserData {
-// 	return {
-// 		name: pendingUser.sender.name,
-// 		picture: pendingUser.sender.picture,
-// 		bio: pendingUser.sender.bio,
-// 		banner: pendingUser.sender.banner,
-// 	};
-// }
-
-// function PendingReceiver_to_Friend(pendingUser: PendingRequestUser): UserData {
-// 	return {
-		
-// 	}
-// }
 
 export async function displayPendingFriendsDynamically() {
 	const onglet = document.getElementById("onglets-id");

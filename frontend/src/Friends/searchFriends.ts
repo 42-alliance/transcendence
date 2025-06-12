@@ -1,6 +1,7 @@
 import { IUser } from "../types.js";
 import { getAllUsers, User } from "../User/getAllUsers.js";
 import { getUserInfos } from "../User/me.js";
+import { showToast } from "../Views/triggerToast.js";
 import { addFriend } from "./addFriend.js";
 import { Friends, getAllFriends } from "./getAllFriends.js";
 
@@ -37,7 +38,14 @@ function renderUsers(filteredUsers: User[], me: IUser, searchUsersDiv: HTMLEleme
             userAdd.classList.add("fa-solid", "fa-user-plus", "cursor-pointer", "text-blue-500", "hover:text-blue-700");
 
             userAdd.onclick = async () => {
+				console.log("Adding friend: ", user.name);
                 await addFriend(user.name);
+				showToast({
+					text: `Friend request send to ${user.name}`,
+					img: user.picture,
+					buttons: [],
+					duration: 3000
+				});
             };
 
             userDiv.appendChild(userImg);
