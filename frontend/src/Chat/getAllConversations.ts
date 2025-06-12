@@ -15,6 +15,7 @@ export interface Conversation {
   isGroup: boolean;
   members: Member[]
   messages: Message[];
+  unreadCount: number;
 }
 
 /**

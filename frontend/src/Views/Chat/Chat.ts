@@ -101,6 +101,16 @@ async function renderConversations() {
 		center.appendChild(nameDiv);
 		// center.appendChild(lastMessageDiv);
 
+		// Badge messages non lus
+		const unreadCount = conversation.unreadCount || 0;
+		const unreadBadge = document.createElement("span");
+		unreadBadge.className = "text-xs bg-orange-500/80 text-white rounded-full px-2 py-0.5 ml-2 hidden";
+		unreadBadge.id = `unread-badge-${conversation.id}`;
+		unreadBadge.textContent = unreadCount.toString();
+		if (unreadCount > 0) {
+			unreadBadge.classList.remove("hidden");
+		}
+
 		// Montage final dans un <a>
 		const a = document.createElement("a");
 		a.href = `/chat/${conversation.id}`;
@@ -109,12 +119,14 @@ async function renderConversations() {
 
 		a.appendChild(avatarContainer);
 		a.appendChild(center);
+		a.appendChild(unreadBadge);
 
 		li.appendChild(a);
 
 		conversationList.appendChild(li);
 	});
 }
+
 
 
 export function getUserPicture(conversation: Conversation, userId: number): string {
@@ -138,6 +150,8 @@ async function renderChat(conversation: Conversation, userInfos: IUser) {
 	// Trouver les autres membres pour le header
 	const my_name = userInfos.name || "Unknown User";
 	const otherMembers = (conversation.members || []).filter((m: any) => m.name !== my_name);
+
+	document.getElementById(`unread-badge-${conversation.id}`)?.classList.add("hidden"); // Cacher le badge de non-lu
 
 	// HEADER
 	chatHeader.innerHTML = "";

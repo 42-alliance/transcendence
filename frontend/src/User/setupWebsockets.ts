@@ -19,8 +19,6 @@ export async function setupUserWebsocket() {
 
 
   webSockets.user.onmessage = (event) => {
-	// TODO: faire une truc
-
 	if (!event.data) return;
 
 	const msg = JSON.parse(event.data);

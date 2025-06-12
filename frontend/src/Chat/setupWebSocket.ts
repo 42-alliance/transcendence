@@ -65,15 +65,38 @@ export function setupChatWebSocket() {
 			return;
 		}
 		else {
+			const conv_list = document.getElementById("conversation-list");
+			if (!conv_list) {
+				return;
+			}
+			const li = conv_list?.querySelector(`li[data-conversation-id="${msg.data.conversationId}"]`);
+			if (!li) {
+				return;
+			}
+			conv_list.prepend(li);
+			
+			console.log("li", li);
 			const conversationId = chatHistory?.getAttribute("data-conversation-id");
 			if (!conversationId) {
 				callToast(msg);
+				const unread_badge = document.getElementById(`unread-badge-${msg.data.conversationId}`);
+				if (!unread_badge) {
+					return
+				}
+				unread_badge.innerHTML = (Number(unread_badge.innerHTML) + 1).toString();
+				unread_badge.classList.remove("hidden");
 				return;
 			}
 			
 			if (Number(conversationId) !== msg.data.conversationId && !isMe) {
 				// Si la conversation ouverte n'est pas celle du message, on ne l'affiche pas
 				callToast(msg);
+				const unread_badge = document.getElementById(`unread-badge-${msg.data.conversationId}`);
+				if (!unread_badge) {
+					return
+				}
+				unread_badge.innerHTML = (Number(unread_badge.innerHTML) + 1).toString();
+				unread_badge.classList.remove("hidden");
 				return;
 			}
 			else {
