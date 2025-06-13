@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
-import { prisma } from "../index.js";
+import { connectedSockets, prisma } from "../index.js";
 import { extractUserId } from "../utils.js"
 import { Type } from '@sinclair/typebox'
+import { connect } from "http2";
 
 export const removeFriendSchema: FastifySchema = {
 	headers: Type.Object({
@@ -37,7 +38,18 @@ export async function removeFriend(request: FastifyRequest<{ Params: { friendId:
 	  if (query.count === 0) {
 		return reply.status(400).send({ message: "Relation not found in database" });
 	  }
-  
+	  
+	  connectedSockets.get(fID)?.forEach((socket) => {
+		if (socket.readyState === socket.OPEN) {
+		  socket.send(JSON.stringify({
+			type: "friend_removed",
+			data: {
+				friend_id: userId,
+			}
+		  }));
+		}
+	  });
+
 	  return { message: "Friend deleted successfully" };
 	} catch (error) {
 	  console.error("Error server:", error);

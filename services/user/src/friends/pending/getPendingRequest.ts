@@ -50,6 +50,8 @@ export async function getPendingFriendRequest(request: FastifyRequest, reply: Fa
 			request_since: request.created_at
 		}));
 
+		incoming.sort((a, b) => new Date(a.request_since).getTime() - new Date(b.request_since).getTime());
+
 		const outgoing = outgoingPendingRequests.map(request => ({
 			type: 'outgoing',
 			user: {
@@ -62,6 +64,9 @@ export async function getPendingFriendRequest(request: FastifyRequest, reply: Fa
 			},
 			request_since: request.created_at
 		}));
+
+		outgoing.sort((a, b) => new Date(a.request_since).getTime() - new Date(b.request_since).getTime());
+
 
 		return reply.status(200).send({
 			incoming,

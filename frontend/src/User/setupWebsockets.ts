@@ -38,6 +38,18 @@ export async function setupUserWebsocket() {
 		});
 	}
 
+	if (msg.type === "friend_removed") {
+		const id = msg.data.friend_id;
+		const friendElement = document.querySelectorAll(`.friend-${id}`);
+		if (friendElement) {
+			friendElement.forEach((el) => {
+				el.remove();
+			});
+		}
+		console.log("📩 Friend removed => ", msg);
+
+	}
+
 	console.log(msg);
 	if (msg.type === "friendship_status_update" && msg.data.status === "accepted") {
 		console.log("📩 Friend request accepted => ", msg);

@@ -70,8 +70,6 @@ const routes: Route[] = [
 	// { path: "/selection", view: Selection },
 ];
 
-  await getUserInfos();
-
   let matchedRoute = null;
   let routeParams: Record<string, string> = {};
 
@@ -88,6 +86,13 @@ const routes: Route[] = [
 	  matchedRoute = { view: Dashboard, path: "/" };
 	  routeParams = {};
 	}
+
+  // Check si changement réel de page/params
+  const currentKey = location.pathname + JSON.stringify(routeParams);
+  if (previousPage && previousPage === currentKey) return;
+  previousPage = currentKey;
+
+  await getUserInfos();
 
   // Vérifie authentification si nécessaire
   if (await needToAuthenticate(matchedRoute.path) === true) {
@@ -106,10 +111,7 @@ const routes: Route[] = [
     setupUserWebsocket();
   }
 
-  // Check si changement réel de page/params
-  const currentKey = location.pathname + JSON.stringify(routeParams);
-  if (previousPage && previousPage === currentKey) return;
-  previousPage = currentKey;
+
 
 
   // Met à jour le titre de la page

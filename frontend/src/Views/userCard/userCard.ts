@@ -1,8 +1,14 @@
+import { create } from "domain";
 import { getUserInfos, userInfos } from "../../User/me.js";
 import { updateUserInfos } from "../../User/updateUser.js";
 import { navigateTo } from "../viewManager.js";
+import { createConversation } from "../../Chat/createConversation.js";
+import { get } from "http";
+import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
+import { removeFriend } from "../../Friends/removeFriend.js";
 
 export interface UserData {
+	id?: number;
     name?: string;
     picture	?: string;
     banner?: string;
@@ -15,11 +21,26 @@ let NewuserData: UserData = {};
 export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): void {
     // Création de la carte d'ami moderne
     const card = document.createElement("div");
-    card.className =
-        "friend-card rounded-xl p-4 transition-all duration-300 border border-gray-700/30 hover:border-gray-600/50 flex flex-col relative shadow-lg hover:shadow-xl overflow-hidden";
+	card.classList.add(`friend-${userInfos.id}`);
+	card.classList.add(
+		"friend-card",
+		"rounded-xl",
+		"p-4",
+		"transition-all",
+		"duration-300",
+		"border",
+		"border-gray-700/30",
+		"hover:border-gray-600/50",
+		"flex",
+		"flex-col",
+		"relative",
+		"shadow-lg",
+		"hover:shadow-xl",
+		"overflow-hidden"
+	);
     card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
     card.style.backgroundSize = "cover";
-	card.style.backgroundAttachment = "local"
+    card.style.backgroundAttachment = "local"
     card.style.backgroundPosition = "center";
     card.style.backgroundRepeat = "no-repeat";
 
@@ -65,6 +86,9 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     topSection.appendChild(avatarContainer);
     topSection.appendChild(userInfo);
 
+    // Dropdown dans le body
+    let dropdown: HTMLDivElement | null = null;
+
     // Bouton d'options (ellipsis)
     const optionsBtn = document.createElement("button");
     optionsBtn.className =
@@ -77,10 +101,58 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
             <circle cx="19" cy="12" r="1.5"></circle>
         </svg>
     `;
-    // (Exemple) Ouvre un menu, ici on affiche une alerte
     optionsBtn.onclick = (e) => {
         e.stopPropagation();
-        alert("Plus d'options à venir...");
+
+        // Fermer si déjà ouvert
+        if (dropdown) {
+            dropdown.remove();
+            dropdown = null;
+            return;
+        }
+
+        // Création du dropdown
+        dropdown = document.createElement("div");
+        dropdown.className = "absolute bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] min-w-[170px] animate-fade-in";
+        dropdown.innerHTML = `
+            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm rounded-t-lg">Voir profil</button>
+            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm">Bloquer</button>
+            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-red-400 text-sm rounded-b-lg">Supprimer l'ami</button>
+        `;
+
+        // Placement dynamique
+        document.body.appendChild(dropdown);
+        const btnRect = optionsBtn.getBoundingClientRect();
+        dropdown.style.top = `${btnRect.bottom + window.scrollY + 4}px`; // Décalage vertical
+        dropdown.style.left = `${btnRect.right - dropdown.offsetWidth + window.scrollX}px`;
+
+        // Click en dehors = ferme le menu
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdown && !dropdown.contains(event.target as Node) && event.target !== optionsBtn) {
+                dropdown.remove();
+                dropdown = null;
+                document.removeEventListener("mousedown", handleClickOutside);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+
+        // Event sur les boutons (exemple)
+        const btns = dropdown.querySelectorAll("button");
+        btns[0].addEventListener("click", () => {
+            alert("Voir profil bientôt !");
+            dropdown?.remove();
+            dropdown = null;
+        });
+        btns[1].addEventListener("click", async () => {
+			await updateFriendStatus(userInfos.id!, "blocked");
+            dropdown?.remove();
+            dropdown = null;
+        });
+        btns[2].addEventListener("click", async () => {
+			await removeFriend(userInfos.id!);
+            dropdown?.remove();
+            dropdown = null;
+        });
     };
 
     // Conteneur des boutons d'action
@@ -91,8 +163,9 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     const chatBtn = document.createElement("button");
     chatBtn.className = "flex-1 py-1.5 bg-blue-600/80 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors";
     chatBtn.textContent = "Message";
-    chatBtn.onclick = () => {
-        alert(`Ouvrir le chat avec ${userInfos.name || "cet utilisateur"}`);
+    chatBtn.onclick = async () => {
+        const conv_id = await createConversation([userInfos.name!, (await getUserInfos())?.name!]);
+        navigateTo(`/chat/${conv_id}`);
     };
 
     // Bouton Inviter à jouer
@@ -119,6 +192,7 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     // Injection dans l'élément cible
     targetElement.appendChild(card);
 }
+
 
 
 function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void {

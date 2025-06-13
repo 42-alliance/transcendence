@@ -7,6 +7,8 @@ import { addFriend } from "../../Friends/addFriend.js";
 import { getPendingFriendRequest } from "../../Friends/getPendingFriendRequest.js";
 import { showToast } from "../triggerToast.js";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
+import { createConversation } from "../../Chat/createConversation.js";
+import { navigateTo } from "../viewManager.js";
 
 
 export default class extends AView {
@@ -225,6 +227,16 @@ export async function setupAddFriendSearchBar() {
 			return;
 		}
 
+		if (target.closest('.chat-btn')) {
+			const name = (target.closest('.chat-btn') as HTMLElement).getAttribute('data-name');
+			const id = (target.closest('.chat-btn') as HTMLElement).getAttribute('data-id');
+			if (!name || !id) return;
+
+			const conv_id = await createConversation([me.name!, name]);
+			navigateTo(`/chat/${conv_id}`);
+			return;
+		}
+
 		if (target.closest('.more-options-btn')) {
 			const name = (target.closest('.more-options-btn') as HTMLElement).getAttribute('data-name');
 			console.log('Plus d’options pour', name);
@@ -238,7 +250,6 @@ export async function setupAddFriendSearchBar() {
 			(this as HTMLDivElement).classList.add('hidden');
 		}
 	});
-	console.error("je set up tout comme il faut");
 	displayAllFriendsDynamically();
 	document.getElementById("all-button")?.addEventListener('click', async () => {
 		console.log("click on all");

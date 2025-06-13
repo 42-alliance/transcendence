@@ -40,7 +40,7 @@ export function setupChatWebSocket() {
 					buttons: [
 						{ label: "Go chat", onClick: () => navigateTo(`/chat/${msg.data.conversationId}`) },
 					],
-					duration: 0 // 0 = ne s’enlève pas tant qu’on ferme pas
+					duration: 5000 // 0 = ne s’enlève pas tant qu’on ferme pas
 				});
 	}
 

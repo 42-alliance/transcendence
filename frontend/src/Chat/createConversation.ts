@@ -25,7 +25,7 @@ export async function createConversation(members: string[]): Promise<number> {
 	if (!conversation) {
 		throw new Error("Invalid conversation data received");
 	}
-	if (conversation.message = "Une conversation existe déjà avec ces membres.") {
+	if (conversation.message === "Une conversation existe déjà avec ces membres.") {
 		return conversation.conversationId;
 	}
 	else {
