@@ -114,16 +114,12 @@ const routes: Route[] = [
 
 
 
-  // Met à jour le titre de la page
-  console.log(`Route: ${matchedRoute.path}`);
-  console.log("view:", matchedRoute.view);
   // Crée la vue (passe les params si besoin)
   const view = new matchedRoute.view();
 
   const appId = document.getElementById("app");
   if (appId) {
     appId.innerHTML = await view.getHtml();
-	  console.log("appId.innerHTML", appId.innerHTML);
   }
 
   // Script supplémentaire si Game (exécution du JS de la vue)

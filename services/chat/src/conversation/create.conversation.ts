@@ -53,7 +53,13 @@ export async function createConversation(server: FastifyInstance, request: Fasti
   
 	  	let users: User[] = [];
 		let userIDs: number[] = [];
-	  
+
+		// verifier si les membres sont uniques
+		const uniqueMembers = Array.from(new Set(members));
+		if (uniqueMembers.length !== members.length) {
+			return reply.status(400).send({ error: "Les membres doivent être uniques." });
+		}
+
 		// Vérifier si tous les membres existent
 		for (const member of members) {
 			const user = await checkIfUserExist(member, adminId);

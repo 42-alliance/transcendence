@@ -6,6 +6,7 @@ import { createConversation } from "../../Chat/createConversation.js";
 import { get } from "http";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 import { removeFriend } from "../../Friends/removeFriend.js";
+import { showToast } from "../triggerToast.js";
 
 export interface UserData {
 	id?: number;
@@ -16,6 +17,186 @@ export interface UserData {
 }
 
 let NewuserData: UserData = {};
+
+export async function goChat(userInfos: UserData): Promise<void> {
+	try {
+		const conv_id = await createConversation([userInfos.name!, (await getUserInfos())?.name!]);
+		navigateTo(`/chat/${conv_id}`);	
+	} catch (error) {
+		showToast({
+			text: "Error going to chat",
+			buttons: [],
+			duration: 5000
+		});
+	}
+}
+
+export function miniPendingUserCard(
+	userInfos: UserData,
+	onAccept: () => void,
+	onDecline: () => void,
+	onInvite: () => void, // callback pour "inviter à jouer" dans le dropdown
+	onChat: () => void, // callback pour "inviter à jouer" dans le dropdown
+	onProfile: () => void // callback pour "voir profil" dans le dropdown
+): HTMLDivElement {
+	const card = document.createElement("div");
+	card.classList.add(
+		`friend-${userInfos.id}`,
+		"friend-card",
+		"rounded-xl",
+		"p-4",
+		"transition-all",
+		"duration-300",
+		"border",
+		"border-gray-700/30",
+		"hover:border-gray-600/50",
+		"flex",
+		"flex-col",
+		"relative",
+		"shadow-lg",
+		"hover:shadow-xl",
+		"overflow-hidden",
+		"min-w-[220px]",
+		"max-w-full",
+		"sm:max-w-xs"
+	);
+	card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
+	card.style.backgroundSize = "cover";
+	card.style.backgroundAttachment = "local";
+	card.style.backgroundPosition = "center";
+	card.style.backgroundRepeat = "no-repeat";
+
+	const overlay = document.createElement("div");
+	overlay.className = "absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0 pointer-events-none rounded-xl";
+	card.appendChild(overlay);
+
+	const topSection = document.createElement("div");
+	topSection.className = "flex items-center gap-3 mb-3 relative z-10";
+
+	const avatarContainer = document.createElement("div");
+	avatarContainer.className = "relative";
+	const profileImg = document.createElement("img");
+	profileImg.className = "w-12 h-12 rounded-full object-cover border-2 border-orange-400/80";
+	profileImg.src = userInfos.picture || "assets/default.jpeg";
+	profileImg.alt = `${userInfos.name || "User"} profile picture`;
+	avatarContainer.appendChild(profileImg);
+
+	const userInfo = document.createElement("div");
+	const userName = document.createElement("h3");
+	userName.className = "font-semibold text-white truncate max-w-[150px]";
+	userName.textContent = userInfos.name || "Unknown User";
+	const userStatus = document.createElement("p");
+	userStatus.className = "text-xs text-orange-400";
+	userStatus.textContent = "Demande d'ami";
+	userInfo.appendChild(userName);
+	userInfo.appendChild(userStatus);
+
+	topSection.appendChild(avatarContainer);
+	topSection.appendChild(userInfo);
+
+	// Dropdown (avec placement intelligent)
+	let dropdown: HTMLDivElement | null = null;
+	const optionsBtn = document.createElement("button");
+	optionsBtn.className =
+		"absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-transparent hover:bg-gray-700/50 rounded-full transition-colors z-20";
+	optionsBtn.title = "Plus d'options";
+	optionsBtn.innerHTML = `
+		<svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<circle cx="5" cy="12" r="1.5"></circle>
+			<circle cx="12" cy="12" r="1.5"></circle>
+			<circle cx="19" cy="12" r="1.5"></circle>
+		</svg>
+	`;
+	optionsBtn.onclick = (e) => {
+		e.stopPropagation();
+		if (dropdown) {
+			dropdown.remove();
+			dropdown = null;
+			return;
+		}
+		dropdown = document.createElement("div");
+		dropdown.className = "absolute bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] min-w-[170px] animate-fade-in";
+		dropdown.innerHTML = `
+			<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm rounded-t-lg">Voir profil</button>
+			<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm rounded-t-lg">Go chat</button>
+			<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-blue-400 text-sm">Inviter à jouer</button>
+		`;
+		document.body.appendChild(dropdown);
+		const btnRect = optionsBtn.getBoundingClientRect();
+		dropdown.style.top = `${btnRect.bottom + window.scrollY + 4}px`;
+		dropdown.style.left = `${btnRect.right - dropdown.offsetWidth + window.scrollX}px`;
+		// Click out
+		function handleClickOutside(event: MouseEvent) {
+			if (dropdown && !dropdown.contains(event.target as Node) && event.target !== optionsBtn) {
+				dropdown.remove();
+				dropdown = null;
+				document.removeEventListener("mousedown", handleClickOutside);
+			}
+		}
+		document.addEventListener("mousedown", handleClickOutside);
+
+		const btns = dropdown.querySelectorAll("button");
+		btns[0].addEventListener("click", () => {
+			onProfile && onProfile();
+			dropdown?.remove();
+			dropdown = null;
+		});
+		btns[1].addEventListener("click", () => {
+			onChat && onChat();
+			dropdown?.remove();
+			dropdown = null;
+		});
+		btns[2].addEventListener("click", () => {
+			onInvite && onInvite();
+			dropdown?.remove();
+			dropdown = null;
+		});
+	};
+	card.appendChild(optionsBtn);
+
+	const btnGroup = document.createElement("div");
+	btnGroup.className = "mt-auto flex gap-2 relative z-10";
+
+	// Responsive : affiche le texte sur largeur > 400px, icône sinon
+	function createButton(label: string, iconSvg: string, colorClass: string, onClick: () => void) {
+		const btn = document.createElement("button");
+		btn.className = `flex-1 min-w-[2.5rem] px-2 py-2 flex items-center justify-center ${colorClass} text-white text-sm rounded-lg transition-colors select-none`;
+		btn.innerHTML = `
+			<span class="inline-block sm:hidden">${iconSvg}</span>
+			<span class="hidden sm:inline">${label}</span>
+		`;
+		btn.onclick = (e) => {
+			e.stopPropagation();
+			onClick();
+		};
+		return btn;
+	}
+
+	// Bouton Accepter
+	const acceptIcon = `
+		<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+			<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.004 7.004a1 1 0 01-1.414 0l-3.004-3.004a1 1 0 111.414-1.414l2.297 2.297 6.297-6.297a1 1 0 011.414 0z" clip-rule="evenodd" />
+		</svg>
+	`;
+	const acceptBtn = createButton("Accepter", acceptIcon, "bg-green-600 hover:bg-green-700", onAccept);
+
+	// Bouton Refuser
+	const refuseIcon = `
+		<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+			<line x1="18" y1="6" x2="6" y2="18"/>
+			<line x1="6" y1="6" x2="18" y2="18"/>
+		</svg>
+	`;
+	const refuseBtn = createButton("Refuser", refuseIcon, "bg-red-600 hover:bg-red-700", onDecline);
+
+	btnGroup.appendChild(acceptBtn);
+	btnGroup.appendChild(refuseBtn);
+
+	card.appendChild(topSection);
+	card.appendChild(btnGroup);
+
+	return card;
+}
 
 
 export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): void {
@@ -163,10 +344,7 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     const chatBtn = document.createElement("button");
     chatBtn.className = "flex-1 py-1.5 bg-blue-600/80 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors";
     chatBtn.textContent = "Message";
-    chatBtn.onclick = async () => {
-        const conv_id = await createConversation([userInfos.name!, (await getUserInfos())?.name!]);
-        navigateTo(`/chat/${conv_id}`);
-    };
+    chatBtn.onclick = async () => { await goChat(userInfos); };
 
     // Bouton Inviter à jouer
     const inviteBtn = document.createElement("button");

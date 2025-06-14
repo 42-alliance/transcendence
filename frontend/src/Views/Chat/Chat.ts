@@ -12,6 +12,7 @@ import AView from "../AView.js";
 import { navigateTo, webSockets } from "../viewManager.js";
 import { conversationById } from "../../Chat/conversationById.js";
 import { getAllUsers } from "../../User/getAllUsers.js";
+import { showToast } from "../triggerToast.js";
 
 export default class extends AView {
 	constructor() {
@@ -49,6 +50,8 @@ function createConversationName(otherMembers: Member[]): string {
 async function renderConversations() {
 	const conversations = await getAllConversations();
 	if (!conversations) return;
+
+	console.log("Rendering conversations:", conversations);
 
 	const conversationList = document.getElementById("conversation-list");
 	if (!conversationList) return;
@@ -383,7 +386,6 @@ export async function ChatViewListener(conversationId?: number) {
 					}
 
 					members.push(userInfos.name);
-					console.log("Creating conversation with members:", members);
 
 					try {
 						const conversationId = await createConversation(
@@ -399,6 +401,11 @@ export async function ChatViewListener(conversationId?: number) {
 							`/chat/${conversationId}`
 						);
 					} catch (error) {
+						showToast({
+							text: "Error creating conversation.",
+							buttons: [],
+							duration: 5000,
+						})
 						console.error("Error creating conversation:", error);
 					}
 

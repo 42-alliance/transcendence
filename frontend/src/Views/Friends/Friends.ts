@@ -1,7 +1,7 @@
 import AView from "../AView.js";
 import { getAllFriends } from "../../Friends/getAllFriends.js";
 import { getUserInfos } from "../../User/me.js";
-import { miniUserCard, UserData } from "../userCard/userCard.js";
+import { goChat, miniPendingUserCard, miniUserCard, UserData } from "../userCard/userCard.js";
 import { getAllUsers } from "../../User/getAllUsers.js";
 import { addFriend } from "../../Friends/addFriend.js";
 import { getPendingFriendRequest } from "../../Friends/getPendingFriendRequest.js";
@@ -338,11 +338,11 @@ export async function displayPendingFriendsDynamically() {
     <section class="bg-gradient-to-br from-gray-800/90 to-gray-900/80 border border-orange-400/10 rounded-2xl p-6 shadow-lg">
       <div class="flex items-center gap-3 mb-4">
         <span class="text-xl font-bold text-orange-400"><i class="fa fa-user-plus mr-2"></i> Incoming</span>
-        <span class="ml-auto bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full text-xs">${friendsList.incoming.length}</span>
+        <span id="incoming-friend-length" class="ml-auto bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full text-xs">${friendsList.incoming.length}</span>
       </div>
       <div id="friend-list-card-incoming" class="flex flex-col gap-5"></div>
       ${friendsList.incoming.length === 0
-        ? `<div class="text-gray-500 text-sm text-center py-6">No incoming requests</div>`
+        ? `<div id="no-incoming-friend" class="text-gray-500 text-sm text-center py-6">No incoming requests</div>`
         : ''}
     </section>
     <!-- Outgoing requests -->
@@ -365,7 +365,15 @@ export async function displayPendingFriendsDynamically() {
 	if (!incoming_card || !outgoing_card) return;
 
 	friendsList.incoming.forEach(friend => {
-		miniUserCard(incoming_card, friend.user);
+		const card = miniPendingUserCard(
+				friend.user,
+				async () => { await updateFriendStatus(friend.user.id!, "accepted"); },
+				async () => { await updateFriendStatus(friend.user.id!, "rejected"); },
+				async () => {}, // invite to play
+				async () => { await goChat(friend.user); }, // go chat
+				async () => {}, // show profile
+			);
+		incoming_card.appendChild(card);
 	});
 	friendsList.outgoing.forEach(friend => {
 		miniUserCard(outgoing_card, friend.user);

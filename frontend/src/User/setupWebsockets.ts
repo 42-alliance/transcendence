@@ -1,8 +1,38 @@
 import { updateFriendStatus } from "../Friends/updateFriendStatus.js";
 import { showToast } from "../Views/triggerToast.js";
+import { goChat, miniPendingUserCard } from "../Views/userCard/userCard.js";
 import { webSockets } from "../Views/viewManager.js";
 import { getAccessToken } from "../utils.js";
 
+function insertPendingFriendRequest(friend: any) {
+	const incoming_card = document.getElementById("friend-list-card-incoming");
+	if (!incoming_card) return;
+
+	if (!friend || !friend.id || !friend.name || !friend.picture) {
+		console.error("Invalid friend data:", friend);
+		return;
+	}
+
+	const card = miniPendingUserCard(
+		friend,
+		async () => { await updateFriendStatus(friend.id, "accepted"); },
+		async () => { await updateFriendStatus(friend.id, "rejected"); },
+		async () => {}, // invite to play
+		async () => { await goChat(friend); }, // go chat
+		async () => {}, // show profile
+	);
+
+	let incomingFriendLengthElem = document.getElementById("incoming-friend-length");
+	if (incomingFriendLengthElem) {
+		console.log("Current incoming friend length:", incomingFriendLengthElem);
+		const newLength = parseInt(incomingFriendLengthElem.innerHTML) + 1;
+		incomingFriendLengthElem.innerHTML = newLength.toString();
+	}
+
+	document.getElementById("no-incoming-friend")?.remove();
+
+	incoming_card.prepend(card);
+}
 
 export async function setupUserWebsocket() {
 	const wsUrl = `ws://localhost:8000/ws/users`
@@ -27,6 +57,7 @@ export async function setupUserWebsocket() {
 
 		console.log("📩 Friend request received => ", msg);
 		const friend = msg.friend;
+		console.log("Friend request from: ", friend);
 		showToast({
 			text: `${friend.name} send you a friend request !`,
 			img: friend.picture,
@@ -36,6 +67,7 @@ export async function setupUserWebsocket() {
 			],
 			duration: 8000 // 0 = ne s’enlève pas tant qu’on ferme pas
 		});
+		insertPendingFriendRequest(friend);
 	}
 
 	if (msg.type === "friend_removed") {
@@ -47,7 +79,6 @@ export async function setupUserWebsocket() {
 			});
 		}
 		console.log("📩 Friend removed => ", msg);
-
 	}
 
 	console.log(msg);
