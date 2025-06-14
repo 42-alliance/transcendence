@@ -55,15 +55,15 @@ export async function setupWebsocket(socket: WebSocket, req: FastifyRequest) {
 
 				prisma.users.update({
 					where: { id: userId },
-					data: { is_online: false },
+					data: { is_online: "offline" },
 				}).catch(err => {
 					console.error('Erreur lors de la mise à jour de l\'utilisateur:', err);
 				});
 
 				await sendMessageToAllSockets({
 					type: "online_status",
-					userId: userId,
-					is_online: false,
+					user_id: userId,
+					status: "offline",
 				});
 			}
 			console.log('Connexion WebSocket fermée');
@@ -71,15 +71,15 @@ export async function setupWebsocket(socket: WebSocket, req: FastifyRequest) {
 	
 		prisma.users.update({
 			where: { id: userId },
-			data: { is_online: true },
+			data: { is_online: "online" },
 		}).catch(err => {
 			console.error('Erreur lors de la mise à jour de l\'utilisateur:', err);
 		});
 
 		await sendMessageToAllSockets({
 			type: "online_status",
-			userId: userId,
-			is_online: true,
+			user_id: userId,
+			status : "online",
 		});
 		
 	} catch (error) {

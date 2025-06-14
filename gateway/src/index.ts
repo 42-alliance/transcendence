@@ -4,6 +4,7 @@ import { config } from "./config.js";
 import { verifyJWT, verifyJWT_WebSocket } from "./verify.js";
 import jwt from "@fastify/jwt";
 import cors from "@fastify/cors";
+import { updateLastSeen } from "./update_last_seen.js";
 
 
 export const server = Fastify({
@@ -20,6 +21,8 @@ server.register(cors, {
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Autorisez les méthodes nécessaires
     credentials: true,  // Si vous avez besoin de cookies ou d'autres informations de session
 });
+
+
 
 
 server.register(jwt, {
@@ -74,6 +77,7 @@ server.register(proxy, {
 	http2: false,
 	preHandler: async (request, reply) => {	
         await verifyJWT(server, request, reply);
+		await updateLastSeen(server, request, reply);
     }
 });
 server.register(proxy, {
@@ -102,6 +106,7 @@ server.register(proxy, {
         // 🔥 Modifie directement `request.raw.url` avant que Fastify Proxy ne traite la requête
         request.raw.url = url.pathname + url.search;
         console.log("🚀 Nouvelle URL proxyfiée:", request.raw.url);
+		await updateLastSeen(server, request, reply);
     }
 });
 
@@ -112,6 +117,7 @@ server.register(proxy, {
     http2: false,
 	preHandler: async (request, reply) => {	
         await verifyJWT(server, request, reply);
+		await updateLastSeen(server, request, reply);
     }
 });
 
@@ -119,7 +125,7 @@ server.register(proxy, {
 	upstream: `http://${config.media.host}:${config.media.port}`,
     prefix: '/media',
     http2: false,
-	preHandler: async (request, reply) => {	
+	preHandler: async (request, reply) => {
         if (request.method !== 'GET') {
             return reply.status(405).send({ error: 'Method not allowed' });
         }

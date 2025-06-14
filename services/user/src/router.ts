@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { getFriendStatus, getFriendStatusSchema } from "./friends/status/getFriendStatus.js";
-import { updateUserInfos } from "./users/@me/updateUserInfos.js";
+import { updateLastSeen, updateUserInfos } from "./users/@me/updateUserInfos.js";
 import { deleteUserDatabase, deleteUserDatabaseSchema } from "./users/delete.user.js";
 import { addFriend, addFriendSchema } from "./friends/addFriend.js";
 import { removeFriend, removeFriendSchema } from "./friends/removeFriend.js";
@@ -42,6 +42,10 @@ async function setupUsersRoute(server: FastifyInstance) {
 
 	server.put('/users/@me', async function handler(request, reply) {
 		return await updateUserInfos(request, reply);
+	});
+
+	server.get("/users/clock", async function handler(request, reply) {
+		return await updateLastSeen(request, reply);
 	});
 }
 

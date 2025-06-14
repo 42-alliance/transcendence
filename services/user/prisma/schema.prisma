@@ -20,10 +20,18 @@ model Users {
   banner			String?
   bio				String?
 
-  is_online			Boolean   @default(false)
+  is_online			UserStatus   @default(offline)
   created_at		DateTime  @default(now())
   sentRequests		Friends[] @relation("SentRequests")
   receivedRequests	Friends[] @relation("ReceivedRequests")
+  lastSeen			DateTime @default(now())
+}
+
+enum UserStatus {
+  online
+  offline
+  away
+  inGame
 }
 
 enum Status {

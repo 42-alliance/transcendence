@@ -1,5 +1,5 @@
 import { fetchApi, getHeader } from "../utils.js";
-import { navigateTo } from "../Views/viewManager.js";
+import { navigateTo, webSockets } from "../Views/viewManager.js";
 
 /**
  * Logs out the current user and clears the session storage.
@@ -14,6 +14,9 @@ export async function logOutUser(): Promise<void> {
 		});
 
 		const result = await response.json();
+		webSockets.chat?.close();
+		webSockets.game?.close();
+		webSockets.user?.close();
 		console.log(result.message);
 		localStorage.removeItem("access_token");
 		navigateTo("/auth");

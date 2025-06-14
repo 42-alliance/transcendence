@@ -1,6 +1,9 @@
+import { write } from "fs";
+import { pendingFriendSidebarCard } from "../Friends/showPendingRequest.js";
 import { updateFriendStatus } from "../Friends/updateFriendStatus.js";
+import { displayAllFriendsDynamically } from "../Views/Friends/Friends.js";
 import { showToast } from "../Views/triggerToast.js";
-import { goChat, miniPendingUserCard } from "../Views/userCard/userCard.js";
+import { addAttribute, goChat, miniPendingUserCard, writeStatus } from "../Views/userCard/userCard.js";
 import { webSockets } from "../Views/viewManager.js";
 import { getAccessToken } from "../utils.js";
 
@@ -15,7 +18,7 @@ function insertPendingFriendRequest(friend: any) {
 
 	const card = miniPendingUserCard(
 		friend,
-		async () => { await updateFriendStatus(friend.id, "accepted"); },
+		async () => { await updateFriendStatus(friend.id, "accepted"); removePendingFriendRequest(friend); },
 		async () => { await updateFriendStatus(friend.id, "rejected"); },
 		async () => {}, // invite to play
 		async () => { await goChat(friend); }, // go chat
@@ -29,9 +32,62 @@ function insertPendingFriendRequest(friend: any) {
 		incomingFriendLengthElem.innerHTML = newLength.toString();
 	}
 
-	document.getElementById("no-incoming-friend")?.remove();
+	document.getElementById("no-incoming-friend")?.classList.add("hidden");
 
 	incoming_card.prepend(card);
+
+	console.log("Inserting pending friend request for:", friend);
+	const li = pendingFriendSidebarCard(friend);
+
+	const header = document.getElementById("pending-friend-header");
+	if (!header) return;
+
+	header.after(li);
+}
+
+function removePendingFriendRequest(friend: any) {
+	const incomingFriendElem = document.querySelectorAll(`.incoming-friend-${friend.id}`);
+	if (!incomingFriendElem) return;
+
+	incomingFriendElem.forEach((elem) => {
+		elem.remove();
+	});
+
+	let incomingFriendLengthElem = document.getElementById("incoming-friend-length");
+	if (incomingFriendLengthElem) {
+		const newLength = parseInt(incomingFriendLengthElem.innerHTML) - 1;
+		incomingFriendLengthElem.innerHTML = newLength.toString();
+
+		if (newLength <= 0) {
+			document.getElementById("no-incoming-friend")?.classList.remove("hidden");
+		}
+	}
+}
+
+function changeStatusOnline(userId: number, status: string) {
+	const userStatusElem = document.querySelectorAll(`.status-indicator-${userId}`);
+	if (!userStatusElem) return;
+
+	if (status === "online") {
+		userStatusElem.forEach((elem) => {
+			addAttribute(elem, "online");
+		});
+	}
+	else if (status === "offline") {
+		userStatusElem.forEach((elem) => {
+			addAttribute(elem, "offline");
+		});
+	}
+	else if (status === "away") {
+		userStatusElem.forEach((elem) => {
+			addAttribute(elem, "away");
+		});
+	}
+	else if (status === "inGame") {
+		userStatusElem.forEach((elem) => {
+			addAttribute(elem, "inGame");
+		});
+	}
 }
 
 export async function setupUserWebsocket() {
@@ -53,6 +109,8 @@ export async function setupUserWebsocket() {
 
 	const msg = JSON.parse(event.data);
 
+
+	console.log("msg.type == ", msg.type)
 	if (msg.type === "friend_request") {
 
 		console.log("📩 Friend request received => ", msg);
@@ -70,7 +128,7 @@ export async function setupUserWebsocket() {
 		insertPendingFriendRequest(friend);
 	}
 
-	if (msg.type === "friend_removed") {
+	else if (msg.type === "friend_removed") {
 		const id = msg.data.friend_id;
 		const friendElement = document.querySelectorAll(`.friend-${id}`);
 		if (friendElement) {
@@ -81,8 +139,7 @@ export async function setupUserWebsocket() {
 		console.log("📩 Friend removed => ", msg);
 	}
 
-	console.log(msg);
-	if (msg.type === "friendship_status_update" && msg.data.status === "accepted") {
+	else if (msg.type === "friendship_status_update" && msg.data.status === "accepted") {
 		console.log("📩 Friend request accepted => ", msg);
 		const friend = msg.data.friend;
 		showToast({
@@ -91,8 +148,27 @@ export async function setupUserWebsocket() {
 			buttons: [] ,
 			duration: 5000 // 0 = ne s’enlève pas tant qu’on ferme pas
 		});
+		displayAllFriendsDynamically();
 	}
-	
+	else if (msg.type === "online_status") {
+		const userId = msg.user_id;
+		const status = msg.status;
+		
+		const all_indicators = document.querySelectorAll(`.status-indicator-${userId}`);
+		if (all_indicators) {
+			all_indicators.forEach((elem) => {
+				addAttribute(elem, status);
+			});
+		}
+
+		const all_status_texts = document.querySelectorAll(`.status-text-${userId}`);
+		if (all_status_texts) {
+			all_status_texts.forEach((elem) => {
+				writeStatus(elem, status);
+			});
+		}
+	}	
+
 	console.log('Message from server:', event.data);
   };
 

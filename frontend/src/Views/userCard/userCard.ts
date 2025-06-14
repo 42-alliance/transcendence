@@ -7,12 +7,34 @@ import { get } from "http";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 import { removeFriend } from "../../Friends/removeFriend.js";
 import { showToast } from "../triggerToast.js";
+import { write } from "fs";
+
+// Définition de plusieurs constantes utiles pour la réutilisation (comme des "define")
+export const status: Record<string, string> = {
+	online: "bg-green-500",
+	offline: "bg-gray-500",
+	away: "bg-yellow-500",
+	inGame: "bg-red-500"
+};
+
+export const defaultImages = {
+	profile: "assets/default.jpeg",
+	banner: "assets/default_banner.jpeg"
+};
+
+export const userStatusLabels: Record<string, string> = {
+	online: "Online",
+	offline: "Offline",
+	away: "Away",
+	inGame: "In Game"
+};
 
 export interface UserData {
 	id?: number;
     name?: string;
     picture	?: string;
     banner?: string;
+	status?: string; // "online", "offline", "away", "inGame"
     bio?: string;
 }
 
@@ -41,7 +63,7 @@ export function miniPendingUserCard(
 ): HTMLDivElement {
 	const card = document.createElement("div");
 	card.classList.add(
-		`friend-${userInfos.id}`,
+		`incoming-friend-${userInfos.id}`,
 		"friend-card",
 		"rounded-xl",
 		"p-4",
@@ -198,6 +220,37 @@ export function miniPendingUserCard(
 	return card;
 }
 
+export function addAttribute(Elem: Element, attribute: string) {
+	console.log("Adding attribute:", attribute);
+	if (!Elem) return;
+	Elem.classList.remove(status.online, status.offline, status.away, status.inGame);
+	if (attribute === "online") {
+		Elem.classList.add(status.online);
+	}
+	else if (attribute === "offline") {	
+		Elem.classList.add(status.offline);
+	}
+	else if (attribute === "away") {
+		Elem.classList.add(status.away);
+	}
+	else if (attribute === "inGame") {
+		Elem.classList.add(status.inGame);
+	}
+	else {
+		console.warn("Unknown status attribute:", attribute);
+		return;
+	}
+}
+
+export function writeStatus(Elem: Element, status_to_write: string) {
+	if (!Elem) return;
+	Elem.classList.remove(status.online, status.offline, status.away, status.inGame);
+	if (status_to_write === "online" || status_to_write === "offline" || status_to_write === "away") {
+		Elem.textContent = status_to_write;
+	} else if (status_to_write === "inGame") {
+		Elem.textContent = "In Game";
+	}
+}
 
 export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): void {
     // Création de la carte d'ami moderne
@@ -245,7 +298,18 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
 
     // Indicateur de statut (Online)
     const statusIndicator = document.createElement("span");
-    statusIndicator.className = "absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-800";
+	statusIndicator.classList.add(`status-indicator-${userInfos.id}`);
+	addAttribute(statusIndicator, userInfos.status!);
+	statusIndicator.classList.add(
+		"absolute",
+		"bottom-0",
+		"right-0",
+		"w-3",
+		"h-3",
+		"rounded-full",
+		"border-2",
+		"border-gray-800"
+	);
 
     avatarContainer.appendChild(profileImg);
     avatarContainer.appendChild(statusIndicator);
@@ -258,8 +322,9 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     userName.textContent = userInfos.name || "Unknown User";
 
     const userStatus = document.createElement("p");
-    userStatus.className = "text-xs text-blue-400";
-    userStatus.textContent = "Online"; // À remplacer dynamiquement si besoin
+    userStatus.className = `status-text-${userInfos.id} text-xs text-blue-400`;
+	writeStatus(userStatus, userInfos.status!);
+
 
     userInfo.appendChild(userName);
     userInfo.appendChild(userStatus);

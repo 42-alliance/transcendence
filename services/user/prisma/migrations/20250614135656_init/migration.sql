@@ -6,8 +6,9 @@ CREATE TABLE "Users" (
     "picture" TEXT NOT NULL,
     "banner" TEXT,
     "bio" TEXT,
-    "is_online" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "is_online" TEXT NOT NULL DEFAULT 'offline',
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastSeen" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable

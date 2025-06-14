@@ -20,7 +20,6 @@ dbclean :
 	rm -rf services/user/prisma/database services/user/prisma/migrations
 	@rm -rf services/media/upload/*
 
-
 tests :
 	docker compose up --build -d
 	docker exec -e FORCE_COLOR=1 tests npm test --force-color
@@ -64,6 +63,8 @@ log :
 	docker compose logs -f
 
 re : fclean all
+
+redb: dbclean re
 
 retest : fclean tests
 

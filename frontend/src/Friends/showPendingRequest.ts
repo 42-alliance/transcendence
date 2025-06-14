@@ -1,22 +1,10 @@
-import { getPendingFriendRequest } from "./getPendingFriendRequest.js";
+import { UserData } from "../Views/userCard/userCard.js";
+import { FriendUser, getPendingFriendRequest } from "./getPendingFriendRequest.js";
 import { updateFriendStatus } from "./updateFriendStatus.js";
 
-
-export async function showPendingFriends() {
-	const pendingFriendsDiv = document.getElementById("pending-requests");
-	if (!pendingFriendsDiv) return;
-
-	const friends = await getPendingFriendRequest();
-	if (!friends || friends.incoming.length === 0) return;
-
-	pendingFriendsDiv.innerHTML = `
-		<div class="flex justify-around items-center p-2 rounded-lg">
-			<span class="ms-3 text-gray-900 dark:text-white">Pending Requests</span>
-		</div>
-	`;
-
-	friends.incoming.forEach(friend => {
-		const li = document.createElement("li");
+export function pendingFriendSidebarCard(friend: UserData): HTMLLIElement {
+	const li = document.createElement("li");
+		li.classList.add(`incoming-friend-${friend.id}`);
 
 		const friendDiv = document.createElement("div");
 		friendDiv.classList.add("flex", "items-center", "justify-between", "px-4", "py-3", "bg-[#645d59]", "rounded-lg", "hover:bg-[#8a807b]");
@@ -24,13 +12,13 @@ export async function showPendingFriends() {
 		// Image de profil
 		const profileImg = document.createElement("img");
 		profileImg.classList.add("w-10", "h-10", "rounded-full");
-		profileImg.src = friend.user.picture || "";
-		profileImg.alt = `${friend.user.name}'s profile picture`;
+		profileImg.src = friend.picture || "";
+		profileImg.alt = `${friend.name}'s profile picture`;
 
 		// Nom (proche de l'image)
 		const profileText = document.createElement("span");
 		profileText.classList.add("ml-2", "text-white", "text-base", "font-medium");
-		profileText.innerText = friend.user.name || "";
+		profileText.innerText = friend.name || "";
 
 		// Container gauche (image + nom)
 		const leftSection = document.createElement("div");
@@ -48,7 +36,7 @@ export async function showPendingFriends() {
 			</svg>
 		`;
 		acceptBtn.onclick = async () => {
-			await updateFriendStatus(friend.user.id!, "accepted");
+			await updateFriendStatus(friend.id!, "accepted");
 			li.remove();
 		};
 
@@ -62,7 +50,7 @@ export async function showPendingFriends() {
 			</svg>
 		`;
 		rejectBtn.onclick = async () => {
-			await updateFriendStatus(friend.user.id!, "rejected");
+			await updateFriendStatus(friend.id!, "rejected");
 			li.remove();
 		};
 
@@ -75,6 +63,24 @@ export async function showPendingFriends() {
 		friendDiv.appendChild(rightSection);
 
 		li.appendChild(friendDiv);
+		return li;
+}
+
+export async function showPendingFriends() {
+	const pendingFriendsDiv = document.getElementById("pending-requests");
+	if (!pendingFriendsDiv) return;
+
+	const friends = await getPendingFriendRequest();
+	if (!friends || friends.incoming.length === 0) return;
+
+	pendingFriendsDiv.innerHTML = `
+		<div class="flex justify-around items-center p-2 rounded-lg">
+			<span class="ms-3 text-gray-900 dark:text-white">Pending Requests</span>
+		</div>
+	`;
+
+	friends.incoming.forEach(friend => {
+		const li = pendingFriendSidebarCard(friend.user);
 		pendingFriendsDiv.appendChild(li);
 	});
 }

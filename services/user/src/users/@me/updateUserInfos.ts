@@ -95,3 +95,18 @@ export async function updateUserInfos(request: FastifyRequest, reply: FastifyRep
     }
 }
 
+export async function updateLastSeen(request: FastifyRequest, reply: FastifyReply) {
+	const userId = extractUserId(request);
+
+	try {
+		await prisma.users.update({
+			where: { id: userId },
+			data: { lastSeen: new Date() },
+		});
+
+		return reply.status(200).send({ message: "Dernière connexion mise à jour avec succès." });
+	} catch (error) {
+		console.error("Erreur lors de la mise à jour de la dernière connexion :", error);
+		return reply.status(500).send({ message: "Erreur interne du serveur." });
+	}
+}

@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fa
 import { prisma } from "../index.js";
 import { extractUserId } from "../utils.js"
 import { Type } from '@sinclair/typebox'
+// import { time } from "console";
 
 export const getFriendsSchema: FastifySchema = {
 	headers: Type.Object({
@@ -37,15 +38,19 @@ export async function getFriends(request: FastifyRequest, reply: FastifyReply) {
             }
         });
 
+		
         const friends = friendsList.map(friendship => {
-            const friend = friendship.senderId === userId ? friendship.receiver : friendship.sender;
+			const friend = friendship.senderId === userId ? friendship.receiver : friendship.sender;
+            let delta = Date.now() - friend.lastSeen.getTime();
+			
             return {
                 id: friend.id,
                 name: friend.name,
                 picture: friend.picture,
 				bio: friend.bio,
 				banner: friend.banner,
-                created_at: friend.created_at
+                created_at: friend.created_at,
+				status: friend.is_online === "online" && delta < 10 * 60 * 1000 ? "online" : friend.is_online === "offline" ? "offline" : "away",
             };
         });
 

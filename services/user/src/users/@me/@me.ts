@@ -56,6 +56,8 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
             email: me.email,
 			banner: me.banner,
 			bio: me.bio,
+			last_seen: me.lastSeen,
+			status: me.is_online,
 			created_at: me.created_at,
 			friends: friends
         });
