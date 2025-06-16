@@ -1,4 +1,6 @@
+import { sidebar_visibility } from "../sidebar.js";
 import { fetchApi } from "../utils.js";
+import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 
 enum FriendState {
 	"accepted",
@@ -26,7 +28,10 @@ export async function updateFriendStatus(friendId: number, state: any): Promise<
 		});
 
 		const result = await response.json();
-		console.log(result.message);
+		console.log("je passe par ici: ", result);
+		await displayPendingFriendsDynamically();
+		await displayAllFriendsDynamically();
+		await sidebar_visibility();
 	} catch (error) {
 		console.error("Error: ", error);
 	}

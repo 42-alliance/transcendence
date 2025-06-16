@@ -6,6 +6,7 @@ import { showToast } from "../Views/triggerToast.js";
 import { addAttribute, goChat, miniPendingUserCard, writeStatus } from "../Views/userCard/userCard.js";
 import { webSockets } from "../Views/viewManager.js";
 import { getAccessToken } from "../utils.js";
+import { sidebar_visibility } from "../sidebar.js";
 
 function insertPendingFriendRequest(friend: any) {
 	const incoming_card = document.getElementById("friend-list-card-incoming");
@@ -19,10 +20,10 @@ function insertPendingFriendRequest(friend: any) {
 	const card = miniPendingUserCard(
 		friend,
 		async () => { await updateFriendStatus(friend.id, "accepted"); removePendingFriendRequest(friend); },
-		async () => { await updateFriendStatus(friend.id, "rejected"); },
-		async () => {}, // invite to play
+		async () => { await updateFriendStatus(friend.id, "rejected"); removePendingFriendRequest(friend); },
+		async () => {}, // TODO: invite to play
 		async () => { await goChat(friend); }, // go chat
-		async () => {}, // show profile
+		async () => {}, // TODO: show profile
 	);
 
 	let incomingFriendLengthElem = document.getElementById("incoming-friend-length");
@@ -36,16 +37,17 @@ function insertPendingFriendRequest(friend: any) {
 
 	incoming_card.prepend(card);
 
-	console.log("Inserting pending friend request for:", friend);
-	const li = pendingFriendSidebarCard(friend);
+	console.log("Inserted pending friend request for:", friend.name);
+	// console.log("Inserting pending friend request for:", friend);
+	// const li = pendingFriendSidebarCard(friend);
 
-	const header = document.getElementById("pending-friend-header");
-	if (!header) return;
+	// const header = document.getElementById("pending-friend-header");
+	// if (!header) return;
 
-	header.after(li);
+	// header.after(li);
 }
 
-function removePendingFriendRequest(friend: any) {
+export function removePendingFriendRequest(friend: any) {
 	const incomingFriendElem = document.querySelectorAll(`.incoming-friend-${friend.id}`);
 	if (!incomingFriendElem) return;
 
@@ -104,7 +106,7 @@ export async function setupUserWebsocket() {
   };
 
 
-  webSockets.user.onmessage = (event) => {
+  webSockets.user.onmessage = async (event) => {
 	if (!event.data) return;
 
 	const msg = JSON.parse(event.data);
@@ -116,12 +118,14 @@ export async function setupUserWebsocket() {
 		console.log("📩 Friend request received => ", msg);
 		const friend = msg.friend;
 		console.log("Friend request from: ", friend);
+		await sidebar_visibility();
+
 		showToast({
 			text: `${friend.name} send you a friend request !`,
 			img: friend.picture,
 			buttons: [
-				{ label: "Accept", onClick: async () => await updateFriendStatus(friend.id, "accepted") },
-				{ label: "Refuse", onClick: async () => await updateFriendStatus(friend.id, "rejected") }
+				{ label: "Accept", onClick: async () => { await updateFriendStatus(friend.id, "accepted"); removePendingFriendRequest(friend) } },
+				{ label: "Refuse", onClick: async () => { await updateFriendStatus(friend.id, "rejected"); removePendingFriendRequest(friend) } }
 			],
 			duration: 8000 // 0 = ne s’enlève pas tant qu’on ferme pas
 		});

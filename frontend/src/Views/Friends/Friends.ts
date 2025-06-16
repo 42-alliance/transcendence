@@ -9,6 +9,7 @@ import { showToast } from "../triggerToast.js";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 import { createConversation } from "../../Chat/createConversation.js";
 import { navigateTo } from "../viewManager.js";
+import { removePendingFriendRequest } from "../../User/setupWebsockets.js";
 
 
 export default class extends AView {
@@ -384,6 +385,37 @@ export async function displayAllFriendsDynamically() {
 	});
 }
 
+export async function ongletsNbChange() {
+	const onglet = document.getElementById("onglets-id");
+	
+	if (!onglet) return;
+
+	onglet.innerHTML = `<button class="tab-btn relative pb-3 px-1 font-medium group" data-tab="all" id="all-button">
+      <span class="text-orange-400 group-hover:text-yellow-400 transition-colors">All</span>
+      <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
+    </button>
+    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online" id="online-button">
+      Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">2</span>
+    </button>
+    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
+      Pending
+    </button>`
+
+
+	const pending = document.getElementById("pending-button");
+	if (!pending) return;
+
+	const pendingCount = await getPendingFriendRequest();
+	if (!pendingCount) return;
+
+	const length = pendingCount.incoming.length + pendingCount.outgoing.length;
+
+	pending.innerHTML = `
+		pending
+		<span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${length}</span>
+		`;
+}
+
 export async function displayPendingFriendsDynamically() {
 	const onglet = document.getElementById("onglets-id");
 	
@@ -399,6 +431,12 @@ export async function displayPendingFriendsDynamically() {
 		<span class="text-orange-400 group-hover:text-yellow-400 transition-colors">Pending</span>
 		<div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
 	</button>`
+
+
+	const pending = document.getElementById("pending-button");
+	if (!pending) return;
+
+	pending.classList.add("active");
 
 	document.getElementById("all-button")?.addEventListener('click', async () => {
 		console.log("click on all");
@@ -451,8 +489,8 @@ export async function displayPendingFriendsDynamically() {
 	friendsList.incoming.forEach(friend => {
 		const card = miniPendingUserCard(
 				friend.user,
-				async () => { await updateFriendStatus(friend.user.id!, "accepted"); },
-				async () => { await updateFriendStatus(friend.user.id!, "rejected"); },
+				async () => { await updateFriendStatus(friend.user.id!, "accepted"); removePendingFriendRequest(friend); },
+				async () => { await updateFriendStatus(friend.user.id!, "rejected"); removePendingFriendRequest(friend); },
 				async () => {}, // invite to play
 				async () => { await goChat(friend.user); }, // go chat
 				async () => {}, // show profile
@@ -488,7 +526,7 @@ export async function displayPendingFriendsDynamically() {
 					}
 				},
 				{
-					label: "cancel request",
+					label: "Cancel request",
 					colorClass: "text-red-500 hover:text-red-700",
 					onClick: async () => {
 						await updateFriendStatus(friend.user.id!, "rejected");

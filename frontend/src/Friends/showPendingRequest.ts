@@ -1,3 +1,4 @@
+import { removePendingFriendRequest } from "../User/setupWebsockets.js";
 import { UserData } from "../Views/userCard/userCard.js";
 import { FriendUser, getPendingFriendRequest } from "./getPendingFriendRequest.js";
 import { updateFriendStatus } from "./updateFriendStatus.js";
@@ -37,7 +38,7 @@ export function pendingFriendSidebarCard(friend: UserData): HTMLLIElement {
 		`;
 		acceptBtn.onclick = async () => {
 			await updateFriendStatus(friend.id!, "accepted");
-			li.remove();
+			removePendingFriendRequest(friend);
 		};
 
 		// Bouton Refuser (croix)
@@ -51,7 +52,7 @@ export function pendingFriendSidebarCard(friend: UserData): HTMLLIElement {
 		`;
 		rejectBtn.onclick = async () => {
 			await updateFriendStatus(friend.id!, "rejected");
-			li.remove();
+			removePendingFriendRequest(friend);
 		};
 
 		const rightSection = document.createElement("div");
