@@ -1,4 +1,5 @@
 import { fetchApi, getHeader } from "../utils.js";
+import { displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 import { showToast } from "../Views/triggerToast.js";
 import { updateFriendStatus } from "./updateFriendStatus.js";
 
@@ -31,6 +32,7 @@ export async function addFriend(username: string) {
 			buttons: [ {label: "Cancel", onClick: async () => { await updateFriendStatus(id, "rejected");} } ],
 			duration: 8000
 		});
+		await displayPendingFriendsDynamically();
 		console.log("result: ", result);
 	} catch (error) {
 		console.error("Error: ", error);

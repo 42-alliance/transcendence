@@ -44,8 +44,51 @@ export async function injectFriends() {
 		return;
 	}
 
+	const me = await getUserInfos();
+	if (!me) {
+		showToast({
+			text: "You must be logged in to see your friends.",
+			img: "/assets/default.jpg",
+			buttons: [],
+			duration: 5000,
+		});
+		return;
+	}
+
+	console.error("JE PASSE PAR ICI");
+
 	friendsList.forEach(friend => {
-		miniUserCard(test_card, friend);
+		miniUserCard(
+			test_card,
+			friend,
+			[
+				{
+					label: "See Profile",
+					onClick: async () => {},
+				},
+				{
+					label: "Send Message",
+					onClick: async () => {
+						const conv_id = await createConversation([friend.name, me.name!]);
+						navigateTo(`/chat/${conv_id}`);
+					}
+				},
+				{
+					label: "Remove Friend",
+					colorClass: "text-red-500 hover:text-red-700",
+					onClick: async () => {
+						await updateFriendStatus(friend.id!, "rejected");
+						showToast({
+							text: `You removed ${friend.name} from your friends.`,
+							img: "/assets/valid.jpg",
+							buttons: [],
+							duration: 5000,
+						});
+						await displayAllFriendsDynamically();
+					}
+				}
+			]
+		);
 	});
 
 	let all = document.getElementById("all-button");
@@ -293,10 +336,51 @@ export async function displayAllFriendsDynamically() {
 	const friendsList = await getAllFriends();
 	if (!friendsList) return;
 
+	const me = await getUserInfos();
+	if (!me) {
+		showToast({
+			text: "You must be logged in to see your friends.",
+			img: "/assets/default.jpg",
+			buttons: [],
+			duration: 5000,
+		});
+		return;
+	}
+
 	test_card.innerHTML = ""; // Clear previous content if needed
 
 	friendsList.forEach(friend => {
-		miniUserCard(test_card, friend);
+		miniUserCard(
+			test_card,
+			friend,
+			[
+				{
+					label: "See Profile",
+					onClick: async () => {},
+				},
+				{
+					label: "Send Message",
+					onClick: async () => {
+						const conv_id = await createConversation([friend.name, me.name!]);
+						navigateTo(`/chat/${conv_id}`);
+					}
+				},
+				{
+					label: "Remove Friend",
+					colorClass: "text-red-500 hover:text-red-700",
+					onClick: async () => {
+						await updateFriendStatus(friend.id!, "rejected");
+						showToast({
+							text: `You removed ${friend.name} from your friends.`,
+							img: "/assets/valid.jpg",
+							buttons: [],
+							duration: 5000,
+						});
+						await displayAllFriendsDynamically();
+					}
+				}
+			]
+		);
 	});
 }
 
@@ -375,7 +459,49 @@ export async function displayPendingFriendsDynamically() {
 			);
 		incoming_card.appendChild(card);
 	});
+
+	const me = await getUserInfos();
+	if (!me) {
+		showToast({
+			text: "You must be logged in to see your friends.",
+			img: "/assets/default.jpg",
+			buttons: [],
+			duration: 5000,
+		});
+		return;
+	}
+
 	friendsList.outgoing.forEach(friend => {
-		miniUserCard(outgoing_card, friend.user);
+		miniUserCard(
+			outgoing_card,
+			friend.user,
+			[
+				{
+					label: "See Profile",
+					onClick: async () => {},
+				},
+				{
+					label: "Send Message",
+					onClick: async () => {
+						const conv_id = await createConversation([friend.user.name!, me.name!]);
+						navigateTo(`/chat/${conv_id}`);
+					}
+				},
+				{
+					label: "cancel request",
+					colorClass: "text-red-500 hover:text-red-700",
+					onClick: async () => {
+						await updateFriendStatus(friend.user.id!, "rejected");
+						showToast({
+							text: `You removed ${friend.user.name} from your friends.`,
+							img: "/assets/valid.jpg",
+							buttons: [],
+							duration: 5000,
+						});
+						await displayAllFriendsDynamically();
+					}
+				}
+			]
+		);
 	});
 }

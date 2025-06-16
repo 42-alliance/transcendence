@@ -1,7 +1,7 @@
 import { write } from "fs";
 import { pendingFriendSidebarCard } from "../Friends/showPendingRequest.js";
 import { updateFriendStatus } from "../Friends/updateFriendStatus.js";
-import { displayAllFriendsDynamically } from "../Views/Friends/Friends.js";
+import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 import { showToast } from "../Views/triggerToast.js";
 import { addAttribute, goChat, miniPendingUserCard, writeStatus } from "../Views/userCard/userCard.js";
 import { webSockets } from "../Views/viewManager.js";
@@ -149,6 +149,9 @@ export async function setupUserWebsocket() {
 			duration: 5000 // 0 = ne s’enlève pas tant qu’on ferme pas
 		});
 		displayAllFriendsDynamically();
+	}
+	else if (msg.type === "friendship_status_update" && msg.data.status === "rejected") {
+		displayPendingFriendsDynamically();
 	}
 	else if (msg.type === "online_status") {
 		const userId = msg.user_id;

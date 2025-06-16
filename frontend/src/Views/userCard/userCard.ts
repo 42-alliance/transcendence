@@ -252,29 +252,41 @@ export function writeStatus(Elem: Element, status_to_write: string) {
 	}
 }
 
-export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): void {
+type DropdownOption = {
+    label: string;
+    colorClass?: string;
+    onClick: (user: UserData, card: HTMLDivElement) => void;
+};
+
+export function miniUserCard(
+    targetElement: HTMLElement,
+    userInfos: UserData,
+    dropdownOptions: DropdownOption[] = []
+): void {
+	console.log("ok pas mal" );
+	console.log("dropdownOptions: ", dropdownOptions);
     // Création de la carte d'ami moderne
     const card = document.createElement("div");
-	card.classList.add(`friend-${userInfos.id}`);
-	card.classList.add(
-		"friend-card",
-		"rounded-xl",
-		"p-4",
-		"transition-all",
-		"duration-300",
-		"border",
-		"border-gray-700/30",
-		"hover:border-gray-600/50",
-		"flex",
-		"flex-col",
-		"relative",
-		"shadow-lg",
-		"hover:shadow-xl",
-		"overflow-hidden"
-	);
+    card.classList.add(`friend-${userInfos.id}`);
+    card.classList.add(
+        "friend-card",
+        "rounded-xl",
+        "p-4",
+        "transition-all",
+        "duration-300",
+        "border",
+        "border-gray-700/30",
+        "hover:border-gray-600/50",
+        "flex",
+        "flex-col",
+        "relative",
+        "shadow-lg",
+        "hover:shadow-xl",
+        "overflow-hidden"
+    );
     card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
     card.style.backgroundSize = "cover";
-    card.style.backgroundAttachment = "local"
+    card.style.backgroundAttachment = "local";
     card.style.backgroundPosition = "center";
     card.style.backgroundRepeat = "no-repeat";
 
@@ -298,18 +310,18 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
 
     // Indicateur de statut (Online)
     const statusIndicator = document.createElement("span");
-	statusIndicator.classList.add(`status-indicator-${userInfos.id}`);
-	addAttribute(statusIndicator, userInfos.status!);
-	statusIndicator.classList.add(
-		"absolute",
-		"bottom-0",
-		"right-0",
-		"w-3",
-		"h-3",
-		"rounded-full",
-		"border-2",
-		"border-gray-800"
-	);
+    statusIndicator.classList.add(`status-indicator-${userInfos.id}`);
+    addAttribute(statusIndicator, userInfos.status!);
+    statusIndicator.classList.add(
+        "absolute",
+        "bottom-0",
+        "right-0",
+        "w-3",
+        "h-3",
+        "rounded-full",
+        "border-2",
+        "border-gray-800"
+    );
 
     avatarContainer.appendChild(profileImg);
     avatarContainer.appendChild(statusIndicator);
@@ -323,8 +335,7 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
 
     const userStatus = document.createElement("p");
     userStatus.className = `status-text-${userInfos.id} text-xs text-blue-400`;
-	writeStatus(userStatus, userInfos.status!);
-
+    writeStatus(userStatus, userInfos.status!);
 
     userInfo.appendChild(userName);
     userInfo.appendChild(userStatus);
@@ -360,17 +371,34 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
         // Création du dropdown
         dropdown = document.createElement("div");
         dropdown.className = "absolute bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] min-w-[170px] animate-fade-in";
-        dropdown.innerHTML = `
-            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm rounded-t-lg">Voir profil</button>
-            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm">Bloquer</button>
-            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-red-400 text-sm rounded-b-lg">Supprimer l'ami</button>
-        `;
 
-        // Placement dynamique
+        dropdown.innerHTML = dropdownOptions.map((opt, idx) => `
+            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-sm ${opt.colorClass || ""} ${idx === 0 ? "rounded-t-lg" : ""} ${idx === dropdownOptions.length - 1 ? "rounded-b-lg" : ""}" data-opt-index="${idx}">
+                ${opt.label}
+            </button>
+        `).join('');
+
+        // Placement dynamique, calcul pour pas dépasser la fenêtre
         document.body.appendChild(dropdown);
         const btnRect = optionsBtn.getBoundingClientRect();
-        dropdown.style.top = `${btnRect.bottom + window.scrollY + 4}px`; // Décalage vertical
-        dropdown.style.left = `${btnRect.right - dropdown.offsetWidth + window.scrollX}px`;
+        const dropdownRect = dropdown.getBoundingClientRect();
+        let top = btnRect.bottom + window.scrollY + 4;
+        let left = btnRect.right - dropdown.offsetWidth + window.scrollX;
+
+        // Corriger si déborde en bas
+        if (top + dropdown.offsetHeight > window.scrollY + window.innerHeight) {
+            top = btnRect.top + window.scrollY - dropdown.offsetHeight - 4;
+        }
+        // Corriger si déborde à droite
+        if (left + dropdown.offsetWidth > window.scrollX + window.innerWidth) {
+            left = window.scrollX + window.innerWidth - dropdown.offsetWidth - 12;
+        }
+        // Corriger si trop à gauche
+        if (left < 0) left = 12;
+
+        dropdown.style.position = "absolute";
+        dropdown.style.top = `${top}px`;
+        dropdown.style.left = `${left}px`;
 
         // Click en dehors = ferme le menu
         function handleClickOutside(event: MouseEvent) {
@@ -382,22 +410,14 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
         }
         document.addEventListener("mousedown", handleClickOutside);
 
-        // Event sur les boutons (exemple)
-        const btns = dropdown.querySelectorAll("button");
-        btns[0].addEventListener("click", () => {
-            alert("Voir profil bientôt !");
-            dropdown?.remove();
-            dropdown = null;
-        });
-        btns[1].addEventListener("click", async () => {
-			await updateFriendStatus(userInfos.id!, "blocked");
-            dropdown?.remove();
-            dropdown = null;
-        });
-        btns[2].addEventListener("click", async () => {
-			await removeFriend(userInfos.id!);
-            dropdown?.remove();
-            dropdown = null;
+        // Ajout events dynamiquement
+        dropdown.querySelectorAll("button").forEach((btn, idx) => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                dropdownOptions[idx].onClick(userInfos, card);
+                dropdown?.remove();
+                dropdown = null;
+            });
         });
     };
 
@@ -435,6 +455,7 @@ export function miniUserCard(targetElement: HTMLElement, userInfos: UserData): v
     // Injection dans l'élément cible
     targetElement.appendChild(card);
 }
+
 
 
 

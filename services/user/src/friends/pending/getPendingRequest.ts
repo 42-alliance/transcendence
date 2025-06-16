@@ -45,6 +45,7 @@ export async function getPendingFriendRequest(request: FastifyRequest, reply: Fa
 				picture: request.sender.picture,
 				banner: request.sender.banner,
 				bio: request.sender.bio,
+				status: request.sender.is_online,
 				created_at: request.sender.created_at,
 			},
 			request_since: request.created_at
@@ -60,6 +61,7 @@ export async function getPendingFriendRequest(request: FastifyRequest, reply: Fa
 				picture: request.receiver.picture,
 				banner: request.receiver.banner,
 				bio: request.receiver.bio,
+				status: request.receiver.is_online,
 				created_at: request.receiver.created_at,
 			},
 			request_since: request.created_at
