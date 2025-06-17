@@ -28,7 +28,6 @@ export async function updateFriendStatus(friendId: number, state: any): Promise<
 		});
 
 		const result = await response.json();
-		console.log("je passe par ici: ", result);
 		await displayPendingFriendsDynamically();
 		await displayAllFriendsDynamically();
 		await sidebar_visibility();

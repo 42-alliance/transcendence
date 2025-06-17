@@ -41,7 +41,6 @@ function renderUsers(filteredUsers: User[], me: IUser, searchUsersDiv: HTMLEleme
             userAdd.onclick = async () => {
 				console.log("Adding friend: ", user.name);
                 await addFriend(user.name);
-				console.error("je passe par ici");
             };
 
             userDiv.appendChild(userImg);

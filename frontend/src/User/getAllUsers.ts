@@ -6,6 +6,7 @@ export interface User {
 	picture: string;
 	banner: string;
 	bio: string;
+	email?: string;
 	created_at: Date;
 }
 

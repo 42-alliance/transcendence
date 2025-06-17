@@ -88,9 +88,9 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 						friendshipId: friendship.id,
 						status: status,
 						friend: {
-							id: friend.id,
-							name: friend.name,
-							picture: friend.picture,
+							id: me.id,
+							name: me.name,
+							picture: me.picture,
 						},
 					}
 				}));

@@ -92,6 +92,15 @@ function changeStatusOnline(userId: number, status: string) {
 	}
 }
 
+export function removeFriendDiv(friendId: number) {
+	const friendElement = document.querySelectorAll(`.friend-${friendId}`);
+	if (friendElement) {
+		friendElement.forEach((el) => {
+			el.remove();
+		});
+	}
+}
+
 export async function setupUserWebsocket() {
 	const wsUrl = `ws://localhost:8000/ws/users`
 
@@ -134,12 +143,7 @@ export async function setupUserWebsocket() {
 
 	else if (msg.type === "friend_removed") {
 		const id = msg.data.friend_id;
-		const friendElement = document.querySelectorAll(`.friend-${id}`);
-		if (friendElement) {
-			friendElement.forEach((el) => {
-				el.remove();
-			});
-		}
+		removeFriendDiv(id);
 		console.log("📩 Friend removed => ", msg);
 	}
 
@@ -152,9 +156,11 @@ export async function setupUserWebsocket() {
 			buttons: [] ,
 			duration: 5000 // 0 = ne s’enlève pas tant qu’on ferme pas
 		});
+		sidebar_visibility();
 		displayAllFriendsDynamically();
 	}
 	else if (msg.type === "friendship_status_update" && msg.data.status === "rejected") {
+		console.log("📩 Friend request rejected => ", msg);
 		displayPendingFriendsDynamically();
 	}
 	else if (msg.type === "online_status") {

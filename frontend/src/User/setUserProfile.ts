@@ -21,12 +21,16 @@ export async function setUserProfile() {
 	const userButton = document.getElementById("user-button-navbar");
 	const dropDown = document.getElementById("dropdown-user");
 
-	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !userButton || !dropDown)
+	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !userButton || !dropDown !)
 		return;
 
 	const user = await getUserInfos();
 	if (!user || !user.name || !user.picture || !user.email)
 		return;
+
+	const profileLink = document.getElementById("profile-link") as HTMLAnchorElement;
+	if (profileLink)
+		profileLink.href = `/${user.name}`;
 
 	userNameSpan.innerText = user.name;
 	profilePicture.src = user.picture;

@@ -116,7 +116,6 @@ export async function formSubmit(event: Event) {
 document.addEventListener("DOMContentLoaded", async () => {
 	await new Promise<void>((r) => setTimeout(r, 400));
   
-	await injectUserCard("card-login-container-id");
   
 	const userForm = document.getElementById("user-form") as HTMLFormElement;
 	if (userForm) {

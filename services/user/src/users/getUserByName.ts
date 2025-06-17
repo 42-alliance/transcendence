@@ -11,29 +11,40 @@ export const getUserByNameSchema: FastifySchema = {
 	})
 };
 
-
-export async function getUserByName(request: FastifyRequest<{ Params: { name: string } }>, reply: FastifyReply) {
+export async function getUserByName(
+	request: FastifyRequest<{ Params: { name: string } }>,
+	reply: FastifyReply
+) {
 	const { name } = request.params;
-  
+
 	try {
-		const user = await prisma.users.findUniqueOrThrow({
-			where: { name: name },
-			select: {
-				id: true,
-				name: true,
-				picture: true,
-				banner: true,
-				bio: true,
-				created_at: true,
-			}
-		});
-  
-	  	return user;
-	} catch (error: any) {
-		if (error.code == "P2025") {
+		// Utilisation de $queryRawUnsafe pour insérer dynamiquement la valeur de name
+		const users = await prisma.$queryRawUnsafe<
+			{
+				id: number;
+				name: string;
+				picture: string;
+				banner: string | null;
+				bio: string | null;
+				created_at: Date;
+			}[]
+		>(`
+			SELECT id, name, picture, banner, bio, created_at
+			FROM Users
+			WHERE LOWER(name) = LOWER(${JSON.stringify(name)})
+			LIMIT 1;
+		`);
+
+		const user = users[0];
+
+		if (!user) {
 			console.error("User not found");
 			return reply.status(404).send({ error: "User not found" });
 		}
+
+		return user;
+	} catch (error) {
+		console.error("Unexpected error:", error);
 		return reply.status(500).send({ error: "Internal server error" });
 	}
 }

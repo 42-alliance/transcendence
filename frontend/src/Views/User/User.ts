@@ -8,10 +8,11 @@ export default class extends AView {
     
     async getHtml() {
         try {
-            const response = await fetch("/src/Views/Me/Me.html");
+            const response = await fetch("/src/Views/User/User.html");
             if (!response.ok) {
                 throw new Error(`Failed to load HTML file: ${response.statusText}`);
             }
+            // Get the :username param from the URL
             return await response.text();
         } catch (error) {
             console.error(error);

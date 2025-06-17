@@ -1,7 +1,7 @@
 import { getUserInfos } from "../User/me.js";
 import { getAccessToken } from "../utils.js";
 import Chat, { getUserPicture } from "../Views/Chat/Chat.js";
-import Me from "../Views/Me/Me.js";
+import User from "../Views/User/User.js";
 import { showToast } from "../Views/triggerToast.js";
 import { navigateTo, router, webSockets } from "../Views/viewManager.js";
 import { Message } from "./getAllMessages.js";

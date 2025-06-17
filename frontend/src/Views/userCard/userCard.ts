@@ -8,6 +8,7 @@ import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 import { removeFriend } from "../../Friends/removeFriend.js";
 import { showToast } from "../triggerToast.js";
 import { write } from "fs";
+import { GetUserByName } from "../../User/getUserByName.js";
 
 // Définition de plusieurs constantes utiles pour la réutilisation (comme des "define")
 export const status: Record<string, string> = {
@@ -752,6 +753,23 @@ export async function injectUserCard(targetId: string): Promise<void> {
 
 	await getUserInfos();
 	updateUserCardMaxi(targetElement, NewuserData, userInfos);
+}
+
+export async function injectExportUserCard(targetId: string, username: string): Promise<void> {
+    const targetElement = document.getElementById(targetId);
+
+
+    
+    if (!targetElement) {
+        return;
+    }
+
+	// await getUserInfos();
+	let user = await GetUserByName(username);
+	console.error("user found => ", user);
+	if (!user)
+		return;
+	updateUserCardMaxi(targetElement, user, user);
 }
 
 // 📌 Met à jour les données utilisateur et réinjecte la carte

@@ -1,5 +1,5 @@
 import { fetchApi } from "../utils.js";
-import Me from "../Views/Me/Me.js";
+import User from "../Views/User/User.js";
 import { Conversation } from "./getAllConversations.js";
 
 export interface Message {

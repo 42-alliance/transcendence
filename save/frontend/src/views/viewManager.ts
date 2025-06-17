@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", async () => {
   await new Promise<void>((r) => setTimeout(r, 400));
 
-  injectUserCard("card-login-container-id", {});
+  // injectUserCard("card-login-container-id", {});
 
   const userForm = document.getElementById("user-form") as HTMLFormElement;
   userForm.addEventListener("input", () => {

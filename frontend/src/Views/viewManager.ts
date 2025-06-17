@@ -6,7 +6,7 @@ import Auth from "./Auth/Auth.js";
 import Game from "./Game/Game.js";
 import AuthSuccess from "./Auth/AuthSuccess.js";
 import Dashboard from "./Dashboard/Dashboard.js";
-import Me from "./Me/Me.js";
+import User from "./User/User.js";
 import { dynamicDisplay } from "./dynamicDisplay.js";
 import Friends from "./Friends/Friends.js";
 import Chat from "./Chat/Chat.js";
@@ -66,7 +66,7 @@ const routes: Route[] = [
 	{ path: "/friends", view: Friends },
 	{ path: "/auth-success", view: AuthSuccess },
 	{ path: "/auth", view: Auth },
-	{ path: "/me", view: Me },
+	{ path: "/:username", view: User },
 	// { path: "/selection", view: Selection },
 ];
 
@@ -110,9 +110,6 @@ const routes: Route[] = [
   if (isLogin && webSockets.user === null) {
     setupUserWebsocket();
   }
-
-
-
 
   // Crée la vue (passe les params si besoin)
   const view = new matchedRoute.view();
