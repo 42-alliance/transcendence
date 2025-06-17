@@ -1,16 +1,4 @@
 /* Main container styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #0c0c14;
-    color: #ffffff;
-    overflow-x: hidden;
-}
 
 .game-container {
     display: flex;
@@ -29,7 +17,6 @@ body {
 
 .game-area {
     width: 100%;
-    max-width: 1650px;
     background-color: #1a1a2e;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);

@@ -60,7 +60,7 @@ type Route = {
 
 const routes: Route[] = [
 	{ path: "/", view: Dashboard },
-	// { path: "/game", view: Game },
+	{ path: "/game", view: Game },
 	{ path: "/chat", view: Chat },
 	{ path: "/chat/:conversationId", view: Chat },
 	{ path: "/friends", view: Friends },

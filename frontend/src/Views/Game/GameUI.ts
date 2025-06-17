@@ -17,7 +17,7 @@ export class GameUI {
     }
     
     static displaySpinner(message = 'Waiting...'): void {
-        FontHelper.applyMightySoulyFont(document.body, "80px");
+        // FontHelper.applyMightySoulyFont(document.body, "80px");
         this.spinner.show(message);
     }
     

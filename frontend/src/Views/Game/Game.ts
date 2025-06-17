@@ -1,29 +1,24 @@
 // Ajouter ceci au début du fichier
-let instance: Game | null = null;
-
 import { getUserInfos } from "../../User/me.js";
 import { GameWebSocket } from "./GameWebSocket.js";
 import { GameUI } from "./GameUI.js";
+import AView from "../AView.js";
 
-export default class Game {
+export default class extends AView {
     private webSocket: GameWebSocket | null = null;
     private user_info: any;
     
     constructor() {
+		super();
         // Conserver l'instance dans la variable globale
-        instance = this;
         (window as any).gameInstance = this;
         this.initializeUserInfo();
     }
 
-    // Ajouter une méthode statique pour obtenir l'instance
-    static getInstance(): Game | null {
-        return instance;
-    }
-
     private async initializeUserInfo() {
         this.user_info = await getUserInfos();
-        this.user_info.id = Math.floor(Math.random() * 1000000);
+        // this.user_info.id = Math.floor(Math.random() * 1000000);
+
     }
     
     async executeViewScript() {
@@ -226,3 +221,24 @@ export default class Game {
         }
     }
 }
+
+// export default class extends AView {
+// 	constructor() {
+// 		super();
+// 		this.initializeUserInfo();
+// 		this.setTitle("Chat");
+// 	}
+
+// 	async getHtml() {
+//         try {
+//             const response = await fetch("src/Views/Game/Game.html");
+//             if (!response.ok) {
+//                 throw new Error(`Failed to load HTML file: ${response.statusText}`);
+//             }
+//             return await response.text();
+//         } catch (error) {
+//             console.error(error);
+//             return `<p>Erreur lors du chargement du formulaire</p>`;
+//         }
+//     }
+// }
