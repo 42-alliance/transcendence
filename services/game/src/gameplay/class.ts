@@ -1,53 +1,87 @@
+import { handleTournamentMatchEnd } from '../matchmaking/Matchmaking.js';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+async function saveMatchToDB(game: Game) {
+    try {
+        await prisma.game.create({
+            data: {
+                playerOne: game.p1.username,
+                playerTwo: game.p2.username,
+                scoreOne: game.score_p1,
+                scoreTwo: game.score_p2,
+                winner:
+                    game.score_p1 > game.score_p2
+                        ? game.p1.username
+                        : game.score_p2 > game.score_p1
+                        ? game.p2.username
+                        : null,
+                startedAt: new Date(), // You may want to store the actual start time if available
+                endedAt: new Date(),
+            },
+        });
+        console.log("Match sauvegardé dans la table Game.");
+    } catch (e) {
+        console.error("Erreur lors de la sauvegarde du match :", e);
+    }
+}
+
 class Paddle {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    speed: number;
-    dx: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
   
-    constructor(x: number, y: number, width: number, height: number, speed: number) {
-      this.x = x;
-      this.y = y;
-      this.width = width;
-      this.height = height;
-      this.speed = speed;
-      this.dx = 0; // Paddle's horizontal speed
-    }
+  speed: number;
+  dx: number;
 
-    // Fix movement directions (up should decrease y, down should increase y)
-    moveUp() {
-      this.y -= this.speed; // Changed from += to -=
-    }
-
-    moveDown() {
-      this.y += this.speed; // Changed from -= to +=
-    }
-  
-    stop() {
-      this.dx = 0;
-    }
-
-    update() {
-      this.x += this.dx;
-    }
-  
-    checkBounds(minX: number, maxX: number, minY: number, maxY: number) {
-      if (this.x < minX) {                         
-        this.x = minX;
-      } else if (this.x + this.width > maxX) {
-        this.x = maxX - this.width;
-      }
-      // Add vertical bounds checking
-      if (this.y < minY) {
-        this.y = minY;
-      } else if (this.y + this.height > maxY) {
-        this.y = maxY - this.height;
-      }
-    }
+  constructor(x: number, y: number, width: number, height: number, speed: number) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height ;
+    this.speed = speed;
+    this.dx = 0;
   }
 
-// Update the Ball constructor
+    move(direction: 'up' | 'down', condition: () => boolean) {
+        const moveStep = () => {
+            if (!condition()) {
+                return; // Stop moving if the condition is false
+            }
+            console.log("mooving");
+            if (direction === 'up' && this.y > 0) {
+                this.y -= this.speed;
+            } else if (direction === 'down' && this.y + this.height < 800) {
+                this.y += this.speed;
+            }
+            setTimeout(moveStep, 16); // Continue moving in the next frame (~60fps)
+        };
+        moveStep();
+    }
+
+
+  stop() {
+    this.dx = 0;
+  }
+
+  update() {
+    this.x += this.dx;
+  }
+
+  checkBounds(minX: number, maxX: number, minY: number, maxY: number) {
+    if (this.x < minX) {
+      this.x = minX;
+    } else if (this.x + this.width > maxX) {
+      this.x = maxX - this.width;
+    }
+    if (this.y < minY) {
+      this.y = minY;
+    } else if (this.y + this.height > maxY) {
+      this.y = maxY - this.height;
+    }
+  }
+}
+
 class Ball {
     x: number;
     y: number;
@@ -55,33 +89,33 @@ class Ball {
     speed: number;
     dx: number;
     dy: number;
-    
+
+
     constructor(x: number, y: number, radius: number, speed: number) {
-        this.x = x;
+        this.x = x ;
         this.y = y;
-        this.radius = radius;
-        this.speed = speed;
-        
-        // Initial angle should be more horizontal than vertical for better gameplay
-        const angle = (Math.random() * Math.PI/4) - Math.PI/8; // Small angle variation
-        this.dx = speed * Math.cos(angle);
-        this.dy = speed * Math.sin(angle) * 0.5; // Reduce vertical component
+        this.radius = radius ; // Scale radius proportionally
+        this.speed = speed ; // Speed is scaled based on horizontal dimension
+
+        const angle = (Math.random() * Math.PI / 4) - Math.PI / 8;
+        this.dx = this.speed * Math.cos(angle);
+        this.dy = this.speed * Math.sin(angle);
     }
-    
+
     update() {
-      this.x += this.dx;
-      this.y += this.dy;
+        this.x += this.dx;
+        this.y += this.dy;
     }
-  
+
     checkBounds(minX: number, minY: number, maxX: number, maxY: number) {
-      if (this.x - this.radius < minX || this.x + this.radius > maxX) {
-        this.dx = -this.dx;
-      }
-      if (this.y - this.radius < minY || this.y + this.radius > maxY) {
-        this.dy = -this.dy;
-      }
+        if (this.x - this.radius < minX || this.x + this.radius > maxX) {
+            this.dx = -this.dx;
+        }
+        if (this.y - this.radius < minY || this.y + this.radius > maxY) {
+            this.dy = -this.dy;
+        }
     }
-  }
+}
 
 class player {
     username: string;
@@ -93,6 +127,7 @@ class player {
         this.score = score;
         this.paddle = paddle;
     }
+    user_id: string = "";
 }
 
 class Game {
@@ -110,42 +145,39 @@ class Game {
     paddleWidth: number;
     paddleHeight: number;
     ballRadius: number;
+    mapPlayers: Map<string, player> = new Map();
+    uuid_room: string = "";
+    global_uuid?: string; // Ajouter cette propriété pour les tournois
+    ia_difficulty: string = "";
+    is_end: boolean = false;
+    tour_stat: string = "";
+
 
     constructor(width: number, height: number) {
-        // Calculate dimensions relative to screen size
         this.width = width;
         this.height = height;
-        
-        // Adjust paddle dimensions for better gameplay
-        this.paddleWidth = Math.floor(width * 0.015); // 1.5% of screen width
-        this.paddleHeight = Math.floor(height * 0.20); // 15% of screen height (shorter paddles)
-        
-        // Make ball slightly bigger for better visibility and easier hits
-        this.ballRadius = Math.floor(Math.min(width, height) * 0.0155); // 1.25% of smaller dimension
-        
-        // Adjust speeds - ball should move faster than paddles for good gameplay
-        const paddleSpeed = Math.floor(height * 0.04); // Slower paddle speed
-        const ballSpeed = Math.floor(width * 0.01); // Slightly faster ball speed
-        
-        // Create game objects with relative dimensions
-        this.paddle_1 = new Paddle(
-            this.paddleWidth, 
-            (height - this.paddleHeight) / 2, 
-            this.paddleWidth, 
-            this.paddleHeight, 
-            paddleSpeed
-        );
-        
+
+        // Calculate scaling factors
+      
+        // Initialize paddle and ball dimensions
+        this.paddleWidth = 30; // Fixed paddle width
+        this.paddleHeight = 200; // Fixed paddle height
+        this.ballRadius = 25; // Fixed ball radius
+
+        const paddleSpeed = 18; // Fixed paddle speed
+        const ballSpeed = 7; // Fixed ball speed
+
+        // Create paddles and ball with scaling
+        this.paddle_1 = new Paddle(10, (height - this.paddleHeight) / 2, this.paddleWidth, this.paddleHeight, paddleSpeed);
         this.paddle_2 = new Paddle(
-            width - this.paddleWidth * 2, 
-            (height - this.paddleHeight) / 2, 
-            this.paddleWidth, 
-            this.paddleHeight, 
-            paddleSpeed
+            this.width - this.paddleWidth - 10, // Position paddle_2 at the right edge
+            (this.height - this.paddleHeight) / 2, // Center paddle_2 vertically
+            this.paddleWidth,
+            this.paddleHeight,
+            paddleSpeed,
         );
-        
         this.ball = new Ball(width / 2, height / 2, this.ballRadius, ballSpeed);
-        
+
         this.score_p1 = 0;
         this.score_p2 = 0;
         this.mode = "local";
@@ -156,6 +188,7 @@ class Game {
     resetBall() {
         this.ball.x = this.width / 2;
         this.ball.y = this.height / 2;
+        this.ball.speed = 7; // Reset ball speed
         const angle = (Math.random() * Math.PI/4) - Math.PI/8; // Small random angle variation
         // Alternate ball direction based on who scored
         const direction = this.ball.dx > 0 ? -1 : 1;
@@ -166,17 +199,13 @@ class Game {
     }
 
     update() {
-        // Store previous positions for collision detection
-        const prevBallX = this.ball.x;
-        const prevBallY = this.ball.y;
-        
         // Update paddle positions first
         this.paddle_1.update();
         this.paddle_2.update();
         
         // Check paddle bounds
-        this.paddle_1.checkBounds(0, this.width, 0, this.height);
-        this.paddle_2.checkBounds(0, this.width, 0, this.height);
+        this.paddle_1.checkBounds(0, this.width , 0, this.height );
+        this.paddle_2.checkBounds(0, this.width , 0, this.height);
         
         // Check for collisions BEFORE updating ball position
         this.checkPaddleCollision(this.paddle_1);
@@ -192,36 +221,61 @@ class Game {
     checkWallCollisions() {
         // Horizontal bounds - scoring
         if (this.ball.x - this.ball.radius < 0) {
-            this.score_p2++;
-            this.resetBall();
+            this.updateScore('p2'); // Player 2 marque un point
         } else if (this.ball.x + this.ball.radius > this.width) {
-            this.score_p1++;
-            this.resetBall();
+            this.updateScore('p1'); // Player 1 marque un point
         }
-        
-        // Vertical bounds - bounce with more realistic physics
+    
+        // Vertical bounds - bounce
         if (this.ball.y - this.ball.radius < 0) {
-            // Ceiling collision
-            this.ball.dy = -this.ball.dy * 0.9; // 10% energy loss on bounce
-            // Ensure the ball is positioned correctly
-            this.ball.y = this.ball.radius + 1;
-            
-            // Log for debugging
-            console.log("Ceiling bounce, new velocity:", this.ball.dy);
+            // Ajuster la posscore_p2ition pour éviter que la balle ne sorte des limites
+            this.ball.y = this.ball.radius;
+            this.ball.dy = -this.ball.dy * 0.9; // Réduction de la vitesse verticale
         } else if (this.ball.y + this.ball.radius > this.height) {
-            // Floor collision
-            this.ball.dy = -this.ball.dy * 0.9; // 10% energy loss on bounce
-            // Ensure the ball is positioned correctly
-            this.ball.y = this.height - this.ball.radius - 1;
-            
-            // Log for debugging
-            console.log("Floor bounce, new velocity:", this.ball.dy);
+            // Ajuster la position pour éviter que la balle ne sorte des limites
+            this.ball.y = this.height - this.ball.radius;
+            this.ball.dy = -this.ball.dy * 0.9; // Réduction de la vitesse verticale
         }
     }
     
     checkBounds() {
         // This method is now split into checkWallCollisions
         this.checkWallCollisions();
+        this.checkPaddleCollision(this.paddle_1);
+        this.checkPaddleCollision(this.paddle_2);
+    }
+    checkWinner() {
+        console.log("user_id p1:", this.p1.user_id + " | user_id p2:", this.p2.user_id);
+        console.log("Score Player 1:", this.score_p1 + " | Score Player 2:", this.score_p2);
+        if (this.score_p2 == 5) {
+            console.log(this.p2.user_id);
+            if (this.mode === 'local')
+                return 'PLAYER_B';
+            if (this.mode === 'ia')
+                return 'Computer';
+            return this.p2.user_id; // Retourner l'ID du gagnant
+        } 
+        else if (this.score_p1 == 5) {
+            console.log(this.p1.user_id);
+            if (this.mode === 'local')
+                return 'PLAYER_A';
+            if (this.mode === 'ia')
+                return 'You';
+            return this.p1.user_id; // Retourner l'ID du gagnant
+        }
+        return null; // Pas encore de gagnant
+    }
+
+    handlePaddleCollision(paddle: Paddle) {
+        const relativeIntersectY = (this.ball.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
+        const bounceAngle = relativeIntersectY * (Math.PI / 4); // Limiter l'angle à 45 degrés
+        const direction = this.ball.dx > 0 ? -1 : 1;
+
+        this.ball.dx = direction * this.ball.speed * Math.cos(bounceAngle);
+        this.ball.dy = this.ball.speed * Math.sin(bounceAngle);
+
+        // Augmenter la vitesse de la balle après chaque collision
+        this.ball.speed *= 1.1;
     }
     
     checkPaddleCollision(paddle: Paddle) {
@@ -229,153 +283,235 @@ class Game {
         // This tracks the ball's path between frames to prevent tunneling
         
         // Get the ball's current and next positions
-        const ballCurrX = this.ball.x;
-        const ballCurrY = this.ball.y;
-        const ballNextX = this.ball.x + this.ball.dx;
-        const ballNextY = this.ball.y + this.ball.dy;
+        const nextX = this.ball.x + this.ball.dx;
+        const nextY = this.ball.y + this.ball.dy;
+        if (this.ball.dx > 0 && nextX + this.ball.radius > paddle.x && this.ball.x - this.ball.radius < paddle.x + paddle.width && nextY > paddle.y && this.ball.y < paddle.y + paddle.height) {
+            // Ball is moving right and collides with left paddle edge
+            this.handlePaddleCollision(paddle);
+        }
+        else if (this.ball.dx < 0 && nextX - this.ball.radius < paddle.x + paddle.width && this.ball.x + this.ball.radius > paddle.x && nextY > paddle.y && this.ball.y < paddle.y + paddle.height) {
+            // Ball is moving left and collides with right paddle edge
+            this.handlePaddleCollision(paddle);
+        }
+    }  
+    
+    updateScore(player: 'p1' | 'p2') {
+        if (player === 'p1') {
+            this.score_p1++;
+        } else {
+            this.score_p2++;
+        }
+        this.sendData(); // Send the updated score to both players
+        const winner = this.checkWinner();
+        if (winner) {
+            this.endGame(winner);
+        } else {
+            this.resetBall(); // Réinitialiser la balle si personne n'a encore gagné
+        }
+    }
+    
+    async endGame(winnerUserId: string) {
+        this.is_end = true;
+        this.resetBall(); // Reset ball position and speed
         
-        const paddleLeft = paddle.x;
-        const paddleRight = paddle.x + paddle.width;
-        const paddleTop = paddle.y;
-        const paddleBottom = paddle.y + paddle.height;
-        
-        // Check if the ball is moving toward the paddle
-        const movingTowardPaddle = 
-            (paddle === this.paddle_1 && this.ball.dx < 0) || 
-            (paddle === this.paddle_2 && this.ball.dx > 0);
-            
-        // Only check collision if ball is moving toward paddle
-        if (!movingTowardPaddle) return;
-        
-        // Calculate the closest point on the line segment between current and next positions
-        // to the paddle rectangle
-        const closestX = Math.max(paddleLeft, Math.min(ballCurrX, paddleRight));
-        const closestY = Math.max(paddleTop, Math.min(ballCurrY, paddleBottom));
-        
-        // Calculate distance from ball center to closest point
-        const distX = ballCurrX - closestX;
-        const distY = ballCurrY - closestY;
-        const distance = Math.sqrt(distX * distX + distY * distY);
-        
-        // Check if any part of the trajectory intersects the paddle
-        // We'll use a simplified line-rectangle intersection test
-        
-        // First check if start or end points are inside paddle
-        const ballRadius = this.ball.radius;
-        const startInPaddle = 
-            ballCurrX + ballRadius > paddleLeft && 
-            ballCurrX - ballRadius < paddleRight &&
-            ballCurrY + ballRadius > paddleTop &&
-            ballCurrY - ballRadius < paddleBottom;
-        
-        const endInPaddle = 
-            ballNextX + ballRadius > paddleLeft && 
-            ballNextX - ballRadius < paddleRight &&
-            ballNextY + ballRadius > paddleTop &&
-            ballNextY - ballRadius < paddleBottom;
-        
-        // Then check if the trajectory crosses the paddle
-        let collision = startInPaddle || endInPaddle;
-        
-        // If no collision yet, check if the line segment crosses paddle boundaries
-        if (!collision) {
-            // Line representation: p + t*v where p is starting point, v is velocity, t is parameter
-            const vx = this.ball.dx;
-            const vy = this.ball.dy;
-            
-            // Check each edge of the paddle rectangle
-            // Left edge
-            if (vx !== 0) {
-                const t = (paddleLeft - ballRadius - ballCurrX) / vx;
-                if (t >= 0 && t <= 1) {
-                    const y = ballCurrY + t * vy;
-                    if (y + ballRadius >= paddleTop && y - ballRadius <= paddleBottom) {
-                        collision = true;
-                    }
-                }
-            }
-            
-            // Right edge
-            if (vx !== 0 && !collision) {
-                const t = (paddleRight + ballRadius - ballCurrX) / vx;
-                if (t >= 0 && t <= 1) {
-                    const y = ballCurrY + t * vy;
-                    if (y + ballRadius >= paddleTop && y - ballRadius <= paddleBottom) {
-                        collision = true;
-                    }
-                }
-            }
-            
-            // Top edge
-            if (vy !== 0 && !collision) {
-                const t = (paddleTop - ballRadius - ballCurrY) / vy;
-                if (t >= 0 && t <= 1) {
-                    const x = ballCurrX + t * vx;
-                    if (x + ballRadius >= paddleLeft && x - ballRadius <= paddleRight) {
-                        collision = true;
-                    }
-                }
-            }
-            
-            // Bottom edge
-            if (vy !== 0 && !collision) {
-                const t = (paddleBottom + ballRadius - ballCurrY) / vy;
-                if (t >= 0 && t <= 1) {
-                    const x = ballCurrX + t * vx;
-                    if (x + ballRadius >= paddleLeft && x - ballRadius <= paddleRight) {
-                        collision = true;
-                    }
-                }
+        // Déterminer le nom du gagnant à partir de l'ID
+        const winnerName = this.p1.user_id === winnerUserId ? this.p1.username : this.p2.username;
+
+      
+        const gameFinishedMessage = {
+            type: 'game_finished',
+            data: {
+                winner: winnerUserId,
+                winner_name: winnerName, // Ajouter le nom du gagnant pour l'affichage
+                score: {
+                    p1: this.score_p1,
+                    p2: this.score_p2,
+                },
+                mode: this.mode,
+                stat: this.tour_stat,
+            },
+        };
+
+        this.sendData(); // Send the updated score to both players
+        if (this.mode === 'local' || this.mode === 'ia') {
+            gameFinishedMessage.data.winner_name = winnerUserId;
+        }
+    
+        if (this.mode === 'tournament' && this.global_uuid) {
+            try {
+                handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
+                return
+            } catch (error) {
+                console.error('Error handling tournament match end:', error);
             }
         }
-        
-        if (collision) {
-            // Log collision for debugging
-            console.log(`Collision detected with paddle at x=${paddle.x}, y=${paddle.y}`);
-            
-            // Calculate bounce angle based on where ball hits paddle
-            const hitPosition = (this.ball.y - (paddle.y + paddle.height/2)) / (paddle.height/2);
-            const bounceAngle = hitPosition * (Math.PI/3); // Max 60-degree angle
-            
-            // Determine direction based on which paddle was hit
-            const direction = (paddle === this.paddle_1) ? 1 : -1;
-            
-            // Calculate speed, preserving current magnitude
-            const speed = Math.sqrt(this.ball.dx * this.ball.dx + this.ball.dy * this.ball.dy);
-            
-            // Cap the speed to prevent tunneling
-            const maxSpeed = Math.max(this.width, this.height) * 0.02; // 2% of game size per frame max
-            const cappedSpeed = Math.min(speed, maxSpeed);
-            
-            // Set new velocity components
-            this.ball.dx = direction * cappedSpeed * Math.cos(bounceAngle);
-            this.ball.dy = cappedSpeed * Math.sin(bounceAngle);
-            
-            // Ensure ball doesn't get stuck in paddle by moving it outside paddle bounds
-            if (paddle === this.paddle_1) {
-                this.ball.x = paddleRight + this.ball.radius + 1;
-            } else {
-                this.ball.x = paddleLeft - this.ball.radius - 1;
+    
+        try {
+            setTimeout(() => {
+                if (this.p1.ws) {
+                    this.p1.ws.send(JSON.stringify(gameFinishedMessage));
+                }
+                if (this.p2.ws) {
+                    this.p2.ws.send(JSON.stringify(gameFinishedMessage));
+                }
             }
+            , 1000); // Delay to allow for the last ball movement
+        } catch (error) {
+            console.error('Error sending game_finished message:', error);
+        }
+
+        // Sauvegarde du match en base
+        if (this.mode === 'random_adversaire') {
+            try {
+                await saveMatchToDB(this);
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde du match :", e);
+            }
+        }
+    }
+
+    handleDisconnection(player: 'p1' | 'p2') {
+        const winnerUserId = player === 'p1' ? this.p2.user_id : this.p1.user_id;
+        
+        // Set the score to ensure a decisive victory
+        if (player === 'p1') {
+            this.score_p2 = 5;
+            this.score_p1 = 0;
+        } else {
+            this.score_p1 = 5;
+            this.score_p2 = 0;
+        }
+        
+        // End the game with a forfeit message
+        this.endGameWithDisconnection(winnerUserId, player);
+    }
+    
+    async endGameWithDisconnection(winnerUserId: string, disconnectedPlayer: 'p1' | 'p2') {
+        this.is_end = true;
+        this.resetBall(); // Reset ball position and speed
+        
+        // Déterminer le nom du gagnant à partir de l'ID
+        const winnerName = this.p1.user_id === winnerUserId ? this.p1.username : this.p2.username;
+        
+        const gameFinishedMessage = {
+            type: 'game_finished',
+            data: {
+                winner: winnerUserId,
+                winner_name: winnerName,
+                score: {
+                    p1: this.score_p1,
+                    p2: this.score_p2,
+                },
+                mode: this.mode,
+                disconnection: true,
+                disconnected_player: disconnectedPlayer === 'p1' ? this.p1.username : this.p2.username
+            },
+        };
+    
+        // Ajouter un traitement pour les tournois
+        if (this.mode === 'tournament' && this.global_uuid) {
+            // Notifier le système de tournoi que ce match est terminé avec le forfait
+            try {
+                handleTournamentMatchEnd(this.uuid_room, winnerUserId, this.global_uuid);
+            } catch (error) {
+                console.error('Error handling tournament match end:', error);
+            }
+        }
+        // Sauvegarde du match en base
+        if (this.mode === 'random_adversaire') {
+            try {
+                await saveMatchToDB(this);
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde du match :", e);
+            }
+        }
+        try {
+            // Send the message only to the remaining player
+            if (disconnectedPlayer === 'p2' && this.p1.ws) {
+                this.p1.ws.send(JSON.stringify(gameFinishedMessage));
+            } else if (disconnectedPlayer === 'p1' && this.p2.ws) {
+                this.p2.ws.send(JSON.stringify(gameFinishedMessage));
+            }
+        } catch (error) {
+            console.error('Error sending game_finished message:', error);
         }
     }
 
     sendData() {
-      const gameState = {
-        paddle1: { x: this.paddle_1.x, y: this.paddle_1.y },
-        paddle2: { x: this.paddle_2.x, y: this.paddle_2.y },
-        ball: { x: this.ball.x, y: this.ball.y },
-        score: { p1: this.score_p1, p2: this.score_p2 }
-      };
+        const gameState = {
+            paddle1: {
+                x: this.paddle_1.x , // Unscale x-coordinate
+                y: this.paddle_1.y , // Unscale y-coordinate
+                width: this.paddle_1.width , // Unscale width
+                height: this.paddle_1.height  // Unscale height
+            },
+            paddle2: {
+                x: this.paddle_2.x , // Unscale x-coordinate
+                y: this.paddle_2.y , // Unscale y-coordinate
+                width: this.paddle_2.width , // Unscale width
+                height: this.paddle_2.height  // Unscale height
+            },
+            ball: {
+                x: this.ball.x , // Unscale x-coordinate
+                y: this.ball.y , // Unscale y-coordinate
+                radius: this.ball.radius // Unscale radius proportionally
+            },
+            score: {
+                p1: this.score_p1,
+                p2: this.score_p2,
+                p1_name: this.p1.username,
+                p2_name: this.p2.username
+            },
+            width: this.width, // Logical game width
+            height: this.height // Logical game height
+        };
+    
+        // check if both ws is connected for online game
+        if (this.mode === 'random_adversaire' && (!this.p1.ws || !this.p2.ws)) {
+            if (this.p1.ws) {
+                this.p1.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+            }
+            return;
+        }
+        if (this.p1.ws) {
+            this.p1.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+        }
+        if (this.p2.ws) {
+            this.p2.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+        }
+    }
 
-      if (this.p1.ws) {
-        this.p1.ws.send(JSON.stringify({ type: 'update', data : gameState}));
-      }
-      if (this.p2.ws) {
-        this.p2.ws.send(JSON.stringify({ type: 'update', data : gameState}));
-      }
+    synchronizeState() {
+        const gameState = {
+            paddle1: { x: this.paddle_1.x, y: this.paddle_1.y },
+            paddle2: { x: this.paddle_2.x, y: this.paddle_2.y },
+            ball: { x: this.ball.x, y: this.ball.y },
+            score: { p1: this.score_p1, p2: this.score_p2 },
+        };
+        if (this.is_end) {
+            return;
+        }
+        try {
+            if (this.p1.ws) {
+                this.p1.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+            }
+            if (this.p2.ws) {
+                this.p2.ws.send(JSON.stringify({ type: 'game_state', data: gameState }));
+            }
+        } catch (error) {
+            console.error('Error sending game state:', error);
+        }
+    }
+
+    check_end(): boolean {
+        return this.is_end;
+    }
+    logEvent(event: string, data: any) {
+        console.log(`[Game Event] ${event}:`, data);
     }
 }
 
 
+
 export { Paddle, Ball, Game };
+

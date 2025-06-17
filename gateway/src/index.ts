@@ -39,6 +39,31 @@ server.register(proxy, {
     }
 });
 
+// route pour game 
+server.register(proxy, {
+	upstream: `http://${config.game.host}:${config.game.port}`,
+	prefix: '/game',
+	rewritePrefix: '/ws/game',
+	http2: false,
+	preHandler: async (request, reply) => {
+        try{   
+            await verifyJWT(server, request, reply); 
+        }
+        catch (error) {
+            console.error("Error in preHandler:", error);
+            return reply.status(500).send({ error: "Internal Server Error" });
+        }
+	}
+});
+
+server.register(proxy, {
+  upstream: `ws://${config.game.host}:${config.game.ws_port}`, // ws_port = 8790
+  prefix: '/gamews', // endpoint exposé par le gateway
+  websocket: true // 👈 important pour activer WebSocket proxy
+});
+
+
+
 server.register(proxy, {
     upstream: `http://${config.users.host}:${config.users.port}`,
     prefix: '/friends',

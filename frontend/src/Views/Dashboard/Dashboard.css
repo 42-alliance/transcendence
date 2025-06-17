@@ -1,0 +1,11 @@
+:root {
+    --yellow-color: #fbbc42;
+    --orange-color: #e76a24;
+    --white-color: #e7e5e8;
+    --black-color: #01080a;
+    --blue-color: #1c4595;
+    --font-size-sm: 14px;
+    --font-size-md: 16px;
+    --border-radius: 10px;
+    --font-family: 'Inter', sans-serif;
+}
