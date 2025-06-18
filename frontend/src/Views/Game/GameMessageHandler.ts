@@ -81,6 +81,13 @@ export class GameMessageHandler {
     private handleGameFinished(message: any): void {
         this.state.setRunningState(false);
         this.animationController.stopAnimation();
+        
+        // Ensure game-mode-grid stays hidden
+        const gameModeGrid = document.querySelector('.game-mode-grid');
+        if (gameModeGrid) {
+            (gameModeGrid as HTMLElement).style.display = 'none';
+        }
+        
         GameRenderer.showGameFinished(message.data);
     }
     

@@ -205,8 +205,8 @@ export class GameRenderer {
                 if (gameContext) {
                     gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
                 }
-                gameCanvas.style.display = 'block';
             }
+            
             resultContainer.remove();
             GameUI.showLobbyButtons();
         };

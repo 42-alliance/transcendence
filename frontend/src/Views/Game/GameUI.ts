@@ -39,6 +39,8 @@ export class GameUI {
             }
         });
     }
+
+    
     
     static showLobbyButtons(): void {
     
@@ -46,14 +48,14 @@ export class GameUI {
         this.hideSpinner();
         
         const canvasContainer = document.getElementById('canvas-container');
-        const buttonContainer = document.querySelector('.button-container');
+        const gameModeGrid = document.querySelector('.game-mode-grid');
         
         if (canvasContainer) {
             canvasContainer.style.display = 'none';
         }
         
-        if (buttonContainer) {
-            (buttonContainer as HTMLElement).style.display = 'flex';
+        if (gameModeGrid) {
+            (gameModeGrid as HTMLElement).style.display = 'grid';
         }
         
         this.lobbyButtons.forEach(id => {
@@ -285,14 +287,14 @@ export class GameUI {
     
     static showGameCanvas(): void {
         const canvasContainer = document.getElementById('canvas-container');
-        const buttonContainer = document.querySelector('.button-container');
+        const gameModeGrid = document.querySelector('.game-mode-grid');
         
         if (canvasContainer) {
             canvasContainer.style.display = 'flex';
         }
         
-        if (buttonContainer) {
-            (buttonContainer as HTMLElement).style.display = 'none';
+        if (gameModeGrid) {
+            (gameModeGrid as HTMLElement).style.display = 'none';
         }
     }
 
