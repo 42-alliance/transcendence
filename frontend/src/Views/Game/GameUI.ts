@@ -113,6 +113,12 @@ export class GameUI {
     static hideDifficultyButtons(): void {
         this.hideScreen('difficulty');
     }
+    static hideGameArea(): void {
+        const gameArea = document.getElementById('gameArea');
+        if (gameArea) {
+            gameArea.style.display = 'none';
+        }
+    }
         
     static hideAll(): void {
         // Hide all screens

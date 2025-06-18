@@ -17,6 +17,9 @@ export class GameRenderer {
         GameUI.hideSpinner();
         GameUI.hideGameButtons();
         GameUI.hideDifficultyButtons();
+        //hide gamearea
+        GameUI.hideGameArea();
+
        /// GameUI.hideOptionButtons();
         if (!gameCanvas) return;
         const ctx = gameCanvas.getContext('2d');

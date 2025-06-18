@@ -17,25 +17,17 @@
 
 .game-area {
     width: 100%;
-    background-color: #1a1a2e;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 1px solid #4b4b6c;
 }
 
 /* Canvas styles */
 #gameCanvas {
     width: 100%;
     height: auto;
-    background-color: #091053;
-    border-radius: 8px;
     display: block;
-    box-shadow: 0 0 20px rgba(0, 132, 255, 0.3);
-    border: 2px solid #2d2d44;
     max-height: 70vh;
     object-fit: contain;
 }
@@ -44,15 +36,14 @@
 .button-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
+    background-color: #5d5daa;
+    height: 80%;
     margin-top: 25px;
-    width: 100%;
+    width: 80%;
 }
 
 /* Button styles */
 .button-container button {
-    background: linear-gradient(to bottom, #4a4a8f, #2d2d64);
     color: white;
     border: none;
     border-radius: 6px;
