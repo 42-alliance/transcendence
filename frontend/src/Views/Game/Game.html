@@ -1,15 +1,46 @@
-
-<div class="flex justify-self-center self-center w-full h-full overflow-hidden">
-        <div class="game-area">
-            <canvas id="gameCanvas" width="1600" height="800" >
+<div class="game-wrapper">
+    <div id="canvas-container" style="display: none;">
+        <canvas id="gameCanvas" width="1600" height="800">
             Your browser does not support the HTML5 canvas tag.
-            </canvas>
- 
-        </div>
-        <div class="button-container">
-                <button id="randomAdversaireButton" type="button">Random Adversaire</button>
-                <button id="localButton" type="button">Local</button>
-                <button id="tournamentButton" type="button">Tournament</button>
-                <button id="iaButton" type="button">IA</button>
-        </div>
+        </canvas>
+    </div>
+    
+    <div class="button-container">
+        <button id="randomAdversaireButton" type="button">Random Adversaire</button>
+        <button id="localButton" type="button">Local</button>
+        <button id="tournamentButton" type="button">Tournament</button>
+        <button id="iaButton" type="button">IA</button>
+    </div>
 </div>
+
+<style>
+    .game-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    #canvas-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    #gameCanvas {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+    }
+    
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 80%;
+        max-width: 400px;
+    }
+</style>

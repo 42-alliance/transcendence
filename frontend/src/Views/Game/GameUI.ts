@@ -26,6 +26,7 @@ export class GameUI {
     }
     
     static toggleButtonVisibility(ids: string[], show: boolean): void {
+
         ids.forEach(id => {
             const button = document.getElementById(id);
             if (button) {
@@ -40,8 +41,21 @@ export class GameUI {
     }
     
     static showLobbyButtons(): void {
+    
         this.toggleButtonVisibility(this.lobbyButtons, true);
         this.hideSpinner();
+        
+        const canvasContainer = document.getElementById('canvas-container');
+        const buttonContainer = document.querySelector('.button-container');
+        
+        if (canvasContainer) {
+            canvasContainer.style.display = 'none';
+        }
+        
+        if (buttonContainer) {
+            (buttonContainer as HTMLElement).style.display = 'flex';
+        }
+        
         this.lobbyButtons.forEach(id => {
         const button = document.getElementById(id);
         if (button) {
@@ -86,24 +100,24 @@ export class GameUI {
                        // Ajouter cette méthode à GameUI
     static clearGameResults(): void {
      // Supprimer tous les résultats de jeu existants
-     const existingResultModal = document.getElementById('game-result');
-     if (existingResultModal) {
-         existingResultModal.remove();
-     }
-     
-     // Réinitialiser le canvas de jeu
-     const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-     if (gameCanvas) {
-         const ctx = gameCanvas.getContext('2d');
-         if (ctx) {
-             ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-         }
-         gameCanvas.style.display = 'block'; // S'assurer que le canvas est visible
-     }
-     
-     // Supprimer aussi les notifications qui pourraient rester
-     const notifications = document.querySelectorAll('.tournament-notification');
-     notifications.forEach(notification => notification.remove());
+        const existingResultModal = document.getElementById('game-result');
+        if (existingResultModal) {
+            existingResultModal.remove();
+        }
+        
+        // Réinitialiser le canvas de jeu
+        const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+        if (gameCanvas) {
+            const ctx = gameCanvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            }
+            gameCanvas.style.display = 'block'; // S'assurer que le canvas est visible
+        }
+        
+        // Supprimer aussi les notifications qui pourraient rester
+        const notifications = document.querySelectorAll('.tournament-notification');
+        notifications.forEach(notification => notification.remove());
     }
     // Maintient la compatibilité avec l'API existante
     static displayDifficultyButtons(): Promise<string> {
@@ -267,6 +281,27 @@ export class GameUI {
                 overlay.remove();
             }, 500);
         }, 4000);
+    }
+    
+    static showGameCanvas(): void {
+        const canvasContainer = document.getElementById('canvas-container');
+        const buttonContainer = document.querySelector('.button-container');
+        
+        if (canvasContainer) {
+            canvasContainer.style.display = 'flex';
+        }
+        
+        if (buttonContainer) {
+            (buttonContainer as HTMLElement).style.display = 'none';
+        }
+    }
+
+    static hideGameCanvas(): void {
+        const canvasContainer = document.getElementById('canvas-container');
+        
+        if (canvasContainer) {
+            canvasContainer.style.display = 'none';
+        }
     }
 }
 

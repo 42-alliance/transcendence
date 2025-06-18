@@ -69,6 +69,9 @@ export class GameMessageHandler {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         GameState.initializeGame(gameCanvas);
         
+        // Show the game canvas
+        GameUI.showGameCanvas();
+        
         this.animationController.startAnimation();
         
         GameUI.hideGameButtons();

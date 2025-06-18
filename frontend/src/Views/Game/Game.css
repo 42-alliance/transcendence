@@ -36,11 +36,11 @@
 .button-container {
     display: flex;
     flex-wrap: wrap;
-    background-color: #5d5daa;
     height: 80%;
     margin-top: 25px;
     width: 80%;
 }
+
 
 /* Button styles */
 .button-container button {
@@ -56,6 +56,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     border: 1px solid #5d5daa;
+    background-color: #4a4a8f;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     font-family: 'Mighty Souly', Arial, sans-serif;
 }

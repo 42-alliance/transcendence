@@ -88,9 +88,11 @@ export default class extends AView {
         document.getElementById('localButton')?.addEventListener('click', () => {
             console.log("Local button clicked");
             GameUI.displayWaiting();
+            
             this.webSocket?.sendMessage('local', { user: this.user_info,
                 type: 'local'
              });
+            
         });
         
         document.getElementById('iaButton')?.addEventListener('click', async () => {
@@ -196,6 +198,8 @@ export default class extends AView {
             } catch (error) {
                 console.error("Error with tournament selection:", error);
                 // En cas d'erreur, rétablir les boutons du lobby
+                // enlever gameCanvas
+            
                 GameUI.showLobbyButtons();
             }
         });
@@ -214,6 +218,7 @@ export default class extends AView {
             if (!response.ok) {
                 throw new Error(`Failed to load HTML file: ${response.statusText}`);
             }
+       
             return await response.text();
         } catch (error) {
             console.error(error);
@@ -222,23 +227,3 @@ export default class extends AView {
     }
 }
 
-// export default class extends AView {
-// 	constructor() {
-// 		super();
-// 		this.initializeUserInfo();
-// 		this.setTitle("Chat");
-// 	}
-
-// 	async getHtml() {
-//         try {
-//             const response = await fetch("src/Views/Game/Game.html");
-//             if (!response.ok) {
-//                 throw new Error(`Failed to load HTML file: ${response.statusText}`);
-//             }
-//             return await response.text();
-//         } catch (error) {
-//             console.error(error);
-//             return `<p>Erreur lors du chargement du formulaire</p>`;
-//         }
-//     }
-// }
