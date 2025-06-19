@@ -16,7 +16,7 @@
   "description": "",
   "dependencies": {
     "@fastify/websocket": "^11.0.2",
-    "@prisma/client": "^6.10.0",
+    "@prisma/client": "^6.10.1",
     "@sinclair/typebox": "^0.34.33",
     "fastify": "^5.2.1",
     "nodemon": "^3.1.9",

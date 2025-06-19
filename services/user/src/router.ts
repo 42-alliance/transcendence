@@ -12,6 +12,7 @@ import { getUserByName, getUserByNameSchema } from "./users/getUserByName.js";
 import { addUserDatabase, addUserDatabaseSchema } from "./users/addUser.js";
 import { me, meSchema } from "./users/@me/@me.js";
 import { getSendFriendRequest, getSendFriendRequestSchema } from "./friends/pending/getSendFriendRequest.js";
+import { storeGameDatabase } from "./game/storeGameDatabase.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -91,7 +92,14 @@ async function setupFriendsRoute(server: FastifyInstance) {
 	});
 }
 
+async function setupGameRoute(server: FastifyInstance) {
+	server.post('/game/store', async function handler(request, reply) {
+		return await storeGameDatabase(request, reply);
+	});
+}
+
 export async function setupRoutes(server: FastifyInstance) {
 	await setupUsersRoute(server);
 	await setupFriendsRoute(server);
+	await setupGameRoute(server);
 }

@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 import { prisma } from "../index.js";
 import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
+import { extractUserId } from "../utils.js";
 
 export const getUserByNameSchema: FastifySchema = {
 	headers: Type.Object({
@@ -42,7 +43,98 @@ export async function getUserByName(
 			return reply.status(404).send({ error: "User not found" });
 		}
 
-		return user;
+		const user_id = extractUserId(request);
+
+		let common_friends = await prisma.friends.findMany({
+			where: {
+				status: "accepted",
+				OR: [
+					{ senderId: user.id, receiverId: user_id },
+					{ senderId: user_id, receiverId: user.id }
+				]
+			},
+			include: {
+				sender: {
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						banner: true,
+						bio: true,
+						created_at: true
+					}
+				},
+				receiver: {
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						banner: true,
+						bio: true,
+						created_at: true
+					}
+				}
+			}
+		});
+		const common_friends_users = common_friends.map(friend => {
+			return friend.senderId === user.id ? friend.receiver : friend.sender;
+		});
+
+		const user_games = await prisma.game.findMany({
+			where: {
+				OR: [
+					{ player1Id: user.id },
+					{ player2Id: user.id }
+				]
+			},
+			orderBy: {
+				started_at: 'desc'
+			},
+			select: {
+				id: true,
+				mode: true,
+				status: true,
+				score1: true,
+				score2: true,
+				player1Id: true,
+				player2Id: true,
+				player1_name: true,
+				player2_name: true,
+				winner: true,
+				started_at: true,
+				finished_at: true,
+				player1: {
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						bio: true,
+						banner: true,
+						created_at: true,
+						is_online: true,
+						lastSeen: true
+					}
+				},
+				player2: {
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						bio: true,
+						banner: true,
+						created_at: true,
+						is_online: true,
+						lastSeen: true
+					}
+				}
+			}
+		});
+
+		return {
+			user: user,
+			common_friends: common_friends_users,
+			games: user_games
+		};
 	} catch (error) {
 		console.error("Unexpected error:", error);
 		return reply.status(500).send({ error: "Internal server error" });

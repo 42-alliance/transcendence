@@ -89,6 +89,7 @@ async function HandleMatch() {
                         uuid_room : all_sessions[0].match.uuid_room,
                         dimensions: { width, height }
                     }))
+					game.started_at = new Date();
                     // send start_animation versus
                     all_sessions.shift();
                 }

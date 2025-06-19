@@ -53,6 +53,11 @@ function matchRoute(pathPattern: string, currentPath: string): { matched: boolea
 
 // Fonction principale du routeur
 export const router = async (): Promise<void> => {
+const existingResultModal = document.getElementById('game-result');
+if (existingResultModal) {
+	existingResultModal.remove();
+}
+
 type Route = {
 	path: string;
 	view: new () => AView;
@@ -89,7 +94,7 @@ const routes: Route[] = [
 
   // Check si changement réel de page/params
   const currentKey = location.pathname + JSON.stringify(routeParams);
-  if (previousPage && previousPage === currentKey) return;
+  if (previousPage && previousPage === currentKey && matchedRoute.path !== "/game") return;
   previousPage = currentKey;
 
   await getUserInfos();

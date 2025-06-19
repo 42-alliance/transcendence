@@ -13,6 +13,7 @@ export async function dynamicDisplay(params: { conversationId?: string, username
 	} else {
 		await injectUserCard("card-login-container-id");
 	}
+	
 	await setUserProfile();
 	setupSoundListener();
 	await sidebar_visibility();

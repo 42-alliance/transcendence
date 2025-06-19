@@ -16,7 +16,6 @@
   "description": "",
   "dependencies": {
     "@fastify/cors": "^11.0.0",
-    "@prisma/client": "6.8.2",
     "@types/cors": "^2.8.17",
     "fastify": "^5.2.1",
     "pino-pretty": "^13.0.0",

@@ -1,25 +1,47 @@
+import { stat } from 'fs';
+import { config } from '../config.js';
 import { handleTournamentMatchEnd } from '../matchmaking/Matchmaking.js';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+
 async function saveMatchToDB(game: Game) {
     try {
-        await prisma.game.create({
-            data: {
-                playerOne: game.p1.username,
-                playerTwo: game.p2.username,
-                scoreOne: game.score_p1,
-                scoreTwo: game.score_p2,
-                winner:
-                    game.score_p1 > game.score_p2
-                        ? game.p1.username
+		const header = new Headers();
+		header.append("Content-Type", "application/json");
+		const response = await fetch(`http://${config.users.host}:${config.users.port}/game/store`, {
+			method: "POST",
+			headers: header,
+			body: JSON.stringify({
+				mode: game.mode,
+				status: game.status,
+				score1: game.score_p1,
+				score2: game.score_p2,
+				players: [
+					{
+						name: game.p1.username,
+						id: game.p1.user_id,
+					},
+					{
+						name: game.p2.username,
+						id: game.p2.user_id,
+					}
+				],
+				winner: 
+					game.score_p1 > game.score_p2
+                        ? game.p1.user_id
                         : game.score_p2 > game.score_p1
-                        ? game.p2.username
+                        ? game.p2.user_id
                         : null,
-                startedAt: new Date(), // You may want to store the actual start time if available
-                endedAt: new Date(),
-            },
-        });
+				started_at: game.started_at,
+				finished_at: game.finished_at,
+			}),
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to save match: ${response.statusText}`);
+		}
+
+		const data = await response.json();
         console.log("Match sauvegardé dans la table Game.");
+		return data;
     } catch (e) {
         console.error("Erreur lors de la sauvegarde du match :", e);
     }
@@ -132,6 +154,7 @@ class player {
 
 class Game {
     match: string = "";
+	status: string = "waiting";
     paddle_1: Paddle;
     paddle_2: Paddle;
     p1: player;
@@ -149,6 +172,8 @@ class Game {
     uuid_room: string = "";
     global_uuid?: string; // Ajouter cette propriété pour les tournois
     ia_difficulty: string = "";
+	started_at: Date = new Date();
+	finished_at: Date = new Date();
     is_end: boolean = false;
     tour_stat: string = "";
 
@@ -317,7 +342,8 @@ class Game {
         // Déterminer le nom du gagnant à partir de l'ID
         const winnerName = this.p1.user_id === winnerUserId ? this.p1.username : this.p2.username;
 
-      
+		this.finished_at = new Date();
+		this.status = "finished";
         const gameFinishedMessage = {
             type: 'game_finished',
             data: {
@@ -393,6 +419,8 @@ class Game {
         // Déterminer le nom du gagnant à partir de l'ID
         const winnerName = this.p1.user_id === winnerUserId ? this.p1.username : this.p2.username;
         
+		this.finished_at = new Date();
+		this.status = "ragequit";
         const gameFinishedMessage = {
             type: 'game_finished',
             data: {
