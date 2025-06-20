@@ -41,7 +41,7 @@ export interface Session {
 }
 
 // Types pour les différents modes de jeu
-type GameMode = 'random_adversaire' | 'local' | 'ia' | 'tournament';
+type GameMode = 'random_adversaire' | 'local' | 'ia' | 'tournament' | 'inv_game' | 'create_inv_game' | 'join_inv_game';
 
 // Classes pour gérer les différentes files d'attente
 class QueueManager {
@@ -54,7 +54,8 @@ class QueueManager {
             ['random_adversaire', []],
             ['local', []],
             ['ia', []],
-            ['tournament', []]
+            ['tournament', []],
+            ['inv_game', []]
         ]);
     }
 
@@ -178,7 +179,7 @@ class MatchManager {
 
     public processMatches(): void {
         const queueManager = QueueManager.getInstance();
-
+        
         // Traiter les matchs en ligne (requiert 2 joueurs)
         const onlineQueue = queueManager.getQueueByType('random_adversaire');
         while (onlineQueue.length >= 2) {
@@ -207,6 +208,41 @@ class MatchManager {
             const session = this.createMatch([player], 'ia');
             all_sessions.push(session);
         }
+
+        // Process invitation games
+        const invQueue = queueManager.getQueueByType('create_inv_game');
+        const joinInvQueue = queueManager.getQueueByType('join_inv_game');
+        
+        // Process each join request
+        for (let i = joinInvQueue.length - 1; i >= 0; i--) {
+            const joiner = joinInvQueue[i];
+            
+            // Find the creator with the matching room UUID
+            const creatorIndex = invQueue.findIndex(p => p.uuid_room === joiner.uuid_room);
+            
+            if (creatorIndex !== -1) {
+                // Found a match! Remove both players from their queues
+                const creator = invQueue.splice(creatorIndex, 1)[0];
+                joinInvQueue.splice(i, 1);
+                
+                // Create a match with these two players
+                const session = this.createMatch([creator, joiner], 'random_adversaire');
+                all_sessions.push(session);
+                
+                // Notify both players
+                secureSend(creator.socket, {
+                    type: 'match_found',
+                    opponent: joiner.username,
+                    uuid_room: creator.uuid_room
+                });
+                
+                secureSend(joiner.socket, {
+                    type: 'match_found',
+                    opponent: creator.username,
+                    uuid_room: joiner.uuid_room
+                });
+            }
+        }
     }
 
     public getSessionByRoom(roomId: string): Session | undefined {
@@ -226,10 +262,9 @@ class WebSocketMessageHandler {
 
     public handleMessage(data: any): void {
         console.log(`Handling message of type: ${data.type}`);
-
         // IMPORTANT: Réinitialiser l'UUID de la salle au début de chaque nouveau jeu
         if (data.type === 'random_adversaire' || data.type === 'local' ||
-            data.type === 'ia' || data.type === 'tournament') {
+            data.type === 'ia' || data.type === 'tournament' || data.type === 'inv_game') {
             // Réinitialiser l'UUID de salle pour les nouvelles demandes de jeu
             this.player.uuid_room = '';
             playerRooms.delete(this.player.socket);
@@ -266,6 +301,11 @@ class WebSocketMessageHandler {
             case 'tournament_player_ready':
                 this.handleTournamentPlayerReady(data);
                 break;
+            case 'create_inv_game':
+                this.handleInvitationGame(data);
+                break;
+            case 'join_inv_game':
+                this.handleInvitationGame(data);
 
             default:
                 console.error(`Unknown message type: ${data.type}`);
@@ -285,6 +325,34 @@ class WebSocketMessageHandler {
         queueManager.addPlayerToPendingQueue(this.player);
 
         notifyWaiting(this.socket);
+    }
+
+    private handleInvitationGame(data: any): void {
+        this.player.username = data.user.name;
+        this.player.type = data.type;
+        this.player.user_id = data.user.id;
+        
+        if (data.type === 'create_inv_game') {
+            this.player.uuid_room = uuidv4();
+            secureSend(this.socket, {
+                type: 'create_game_response',
+                uuid: this.player.uuid_room  // Fixed syntax error: = to :
+            });
+        } else if (data.type === 'join_inv_game') {
+            // We need to set the player's room ID to the UUID provided in the join request
+            if (data.uuid_room) {
+                this.player.uuid_room = data.uuid_room;
+            } else {
+                secureSend(this.socket, {
+                    type: 'error',
+                    message: 'Missing invitation code'
+                });
+                return;
+            }
+        }
+
+        const queueManager = QueueManager.getInstance();
+        queueManager.addPlayerToPendingQueue(this.player);
     }
 
     private handleLocalGame(data: any): void {
@@ -496,9 +564,8 @@ export async function setupMatchmaking() {
                         uuid_room: ''
                     };
                 }
-
                 if (data.type === 'random_adversaire' || data.type === 'local' ||
-                    data.type === 'ia' || data.type === 'tournament') {
+                    data.type === 'ia' || data.type === 'tournament' || data.type == 'create_inv_game') {
 
                     // Effacer l'ancien UUID de la carte de suivi
                     playerRooms.delete(ws);

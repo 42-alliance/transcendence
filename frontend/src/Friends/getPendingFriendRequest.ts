@@ -1,17 +1,5 @@
+import { UserData } from "../types.js";
 import { fetchApi } from "../utils.js";
-import { UserData } from "../Views/userCard/userCard.js";
-
-// export interface PendingRequestUser {
-// 	sender: {
-// 		id: number;
-// 		name: string;
-// 		picture: string;
-// 		banner: string;
-// 		bio: string;
-// 		created_at: Date;
-// 	}
-// 	request_sinced: Date;
-// }
 
 export interface FriendUser {
 	user: UserData,

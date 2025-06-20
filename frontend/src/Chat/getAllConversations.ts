@@ -1,22 +1,7 @@
+import { Conversation } from "../types.js";
 import { fetchApi } from "../utils.js";
-import { Message } from "./getAllMessages.js";
 
-export interface Member {
-  userId: number;
-  name: string;
-  picture: string;
-  conversationId: number;
-  isAdmin: boolean;
-}
 
-export interface Conversation {
-  id: number;
-  name: string | null;
-  isGroup: boolean;
-  members: Member[]
-  messages: Message[];
-  unreadCount: number;
-}
 
 /**
  * Fetches all conversations from the server.

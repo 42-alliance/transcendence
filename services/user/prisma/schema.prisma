@@ -64,7 +64,7 @@ model Game {
     winner Int? // 1 = player1, 2 = player2, null = égalité/abandonné
 
     started_at  DateTime  @default(now())
-    finished_at DateTime?
+    finished_at DateTime
 }
 
 model Friends {

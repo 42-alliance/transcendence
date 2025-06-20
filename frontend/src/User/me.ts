@@ -1,13 +1,13 @@
-import { IUser } from "../types.js";
+import { UserData } from "../types.js";
 import { fetchApi } from "../utils.js";
 
-export let userInfos: IUser = {};
+export let userInfos: UserData = {};
 
 /**
  * Vérifie si les informations de l'utilisateur sont complètes,
  * sinon fait un appel à `me()` pour les récupérer.
  */
-export async function getUserInfos(): Promise<IUser | null> {
+export async function getUserInfos(): Promise<UserData | null> {
     if (userInfos.id && userInfos.name && userInfos.picture && userInfos.banner && userInfos.bio) {
         return userInfos; // 🔹 Déjà complet, pas besoin d'un nouvel appel
     }
@@ -31,7 +31,7 @@ export async function getUserInfos(): Promise<IUser | null> {
  * 
  * @returns The user data if the request is successful, otherwise null.
  */
-export async function me(): Promise<IUser | null> {
+export async function me(): Promise<UserData | null> {
 	const headers = new Headers();
 	headers.append('Content-Type', 'application/json');
 	try {
@@ -39,7 +39,7 @@ export async function me(): Promise<IUser | null> {
 			method: 'GET',
 			headers: headers,
 		});
-		const data: IUser = await response.json();
+		const data: UserData = await response.json();
 		console.log("data: ", data);
 
 		userInfos = data;

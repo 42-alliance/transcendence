@@ -1,7 +1,7 @@
 import AView from "../AView.js";
 import { getAllFriends } from "../../Friends/getAllFriends.js";
 import { getUserInfos } from "../../User/me.js";
-import { goChat, miniPendingUserCard, miniUserCard, UserData } from "../userCard/userCard.js";
+import { goChat, miniPendingUserCard, miniUserCard } from "../userCard/userCard.js";
 import { getAllUsers } from "../../User/getAllUsers.js";
 import { addFriend } from "../../Friends/addFriend.js";
 import { getPendingFriendRequest } from "../../Friends/getPendingFriendRequest.js";
@@ -71,7 +71,7 @@ export async function injectFriends() {
 				{
 					label: "Send Message",
 					onClick: async () => {
-						const conv_id = await createConversation([friend.name, me.name!]);
+						const conv_id = await createConversation([friend.name!, me.name!]);
 						navigateTo(`/chat/${conv_id}`);
 					}
 				},
@@ -120,7 +120,7 @@ export async function setupAddFriendSearchBar() {
 	const all_users = await getAllUsers();
 	if (!all_users) return;
 
-	all_users.sort((a, b) => a.name.localeCompare(b.name));
+	all_users.sort((a, b) => a.name!.localeCompare(b.name!));
 	const me = await getUserInfos();
 	if (!me) return;
 	const friendsList = await getAllFriends();
@@ -159,8 +159,8 @@ export async function setupAddFriendSearchBar() {
 
 			all_users.forEach(user => {
 				if (
-					user.name.toLowerCase().includes(searchValue) &&
-					user.name.toLowerCase() !== me.name?.toLowerCase()
+					user.name!.toLowerCase().includes(searchValue) &&
+					user.name!.toLowerCase() !== me.name?.toLowerCase()
 				) {
 					const isFriend = myFriends.includes(user.name);
 					html += `
@@ -364,7 +364,7 @@ export async function displayAllFriendsDynamically() {
 				{
 					label: "Send Message",
 					onClick: async () => {
-						const conv_id = await createConversation([friend.name, me.name!]);
+						const conv_id = await createConversation([friend.name!, me.name!]);
 						navigateTo(`/chat/${conv_id}`);
 					}
 				},

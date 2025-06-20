@@ -1,5 +1,3 @@
-import { IUser } from "../../types.js";
-import { getUserInfos } from "../../User/me.js";
 import AView from "../AView.js";
 
 export default class extends AView {

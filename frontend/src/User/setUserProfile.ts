@@ -32,6 +32,16 @@ export async function setUserProfile() {
 	if (profileLink)
 		profileLink.href = `/${user.name}`;
 
+	const nb_wins = document.getElementById("nb-wins");
+	if (nb_wins) {
+		nb_wins.innerText = user.games?.filter(game => game.winner === user.id).length.toString() || "0";
+	}
+
+	const nb_games = document.getElementById("nb-games");
+	if (nb_games) {
+		nb_games.innerText = user.games?.length.toString() || "0";
+	}
+
 	userNameSpan.innerText = user.name;
 	profilePicture.src = user.picture;
 	usernameDropdown.innerText = user.name;

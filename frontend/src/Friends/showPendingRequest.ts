@@ -1,5 +1,5 @@
+import { UserData } from "../types.js";
 import { removePendingFriendRequest } from "../User/setupWebsockets.js";
-import { UserData } from "../Views/userCard/userCard.js";
 import { FriendUser, getPendingFriendRequest } from "./getPendingFriendRequest.js";
 import { updateFriendStatus } from "./updateFriendStatus.js";
 

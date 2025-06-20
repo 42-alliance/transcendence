@@ -1,10 +1,7 @@
 import { getUserInfos } from "../User/me.js";
 import { getAccessToken } from "../utils.js";
-import Chat, { getUserPicture } from "../Views/Chat/Chat.js";
-import User from "../Views/User/User.js";
 import { showToast } from "../Views/triggerToast.js";
-import { navigateTo, router, webSockets } from "../Views/viewManager.js";
-import { Message } from "./getAllMessages.js";
+import { navigateTo, webSockets } from "../Views/viewManager.js";
 
 interface ChatMessage {
 	type: "new_message";

@@ -5,6 +5,7 @@ import { setUserProfile } from "../User/setUserProfile.js";
 import Chat, { ChatViewListener } from "./Chat/Chat.js";
 import { setupAddFriendSearchBar, injectFriends} from "./Friends/Friends.js";
 import { showToast } from "./triggerToast.js";
+import { showUserProfile } from "./User/User.js";
 import { injectExportUserCard, injectUserCard } from "./userCard/userCard.js";
 
 export async function dynamicDisplay(params: { conversationId?: string, username?: string }): Promise<void> {
@@ -15,6 +16,7 @@ export async function dynamicDisplay(params: { conversationId?: string, username
 	}
 	
 	await setUserProfile();
+	await showUserProfile(params.username);
 	setupSoundListener();
 	await sidebar_visibility();
 	await injectFriends();

@@ -1,16 +1,5 @@
+import { Message } from "../types.js";
 import { fetchApi } from "../utils.js";
-import User from "../Views/User/User.js";
-import { Conversation } from "./getAllConversations.js";
-
-export interface Message {
-	id: number;
-	createdAt: string;
-	content: string;
-	conversationId: number;
-	userId: number;
-	readBy: number[];
-	conversation: Conversation;
-}
 
 export async function getAllMessages(conversationId: number): Promise<Message[]> {
 	try {

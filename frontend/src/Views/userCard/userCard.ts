@@ -9,6 +9,7 @@ import { removeFriend } from "../../Friends/removeFriend.js";
 import { showToast } from "../triggerToast.js";
 import { write } from "fs";
 import { GetUserByName } from "../../User/getUserByName.js";
+import { UserData } from "../../types.js";
 
 // Définition de plusieurs constantes utiles pour la réutilisation (comme des "define")
 export const status: Record<string, string> = {
@@ -29,15 +30,6 @@ export const userStatusLabels: Record<string, string> = {
 	away: "Away",
 	inGame: "In Game"
 };
-
-export interface UserData {
-	id?: number;
-    name?: string;
-    picture	?: string;
-    banner?: string;
-	status?: string; // "online", "offline", "away", "inGame"
-    bio?: string;
-}
 
 let NewuserData: UserData = {};
 
@@ -497,7 +489,7 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 	const bannerImg = document.createElement("img");
 	bannerImg.id = "banner-card";
 	bannerImg.className = "bg-[#1a1826] w-full h-full object-cover";
-	bannerImg.src = NewuserData.banner || userInfos.banner || "assets/default_banner.jpeg";
+	bannerImg.src = userInfos.banner || "assets/default_banner.jpeg";
 	bannerImg.alt = "Bannière utilisateur";
 
 	const bannerOverlay = document.createElement("div");
@@ -677,23 +669,23 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 }
 
 
-function updateUserCard(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void { // TODO: petit usercard
+export function createUserCard(targetElement: HTMLElement, userInfos: UserData): void {
 	// Création du conteneur principal
 	const container = document.createElement("div");
-	container.className = "flex flex-col";
+	container.className = "flex flex-col w-fit h-fit relative bg-[#1a1826] text-white p-8 rounded-2xl shadow-2xl";
 
 	// Bannière et image de profil
 	const bannerContainer = document.createElement("div");
-	bannerContainer.className = "h-[220px] relative";
+	bannerContainer.className = "h-[320px] relative";
 
 	// Conteneur de la bannière
 	const bannerWrapper = document.createElement("div");
-	bannerWrapper.className = "w-[410px] h-[150px] overflow-hidden";
+	bannerWrapper.className = "w-[700px] h-[250px] overflow-hidden";
 
 	const bannerImg = document.createElement("img");
 	bannerImg.id = "banner-card";
-	bannerImg.className = "bg-[#1a1826] w-[450px] object-cover";
-	bannerImg.src = NewuserData.banner || userInfos.banner || "assets/default_banner.jpeg";
+	bannerImg.className = "bg-[#1a1826] w-[700px] h-[250px] object-cover";
+	bannerImg.src = userInfos.banner || "assets/default_banner.jpeg";
 	bannerImg.alt = "Bannière utilisateur";
 
 	bannerWrapper.appendChild(bannerImg);
@@ -701,7 +693,7 @@ function updateUserCard(targetElement: HTMLElement, NewuserData: UserData, userI
 
 	// Conteneur de l'image de profil avec fond
 	const profileWrapper = document.createElement("div");
-	profileWrapper.className = "absolute top-[80px] left-[5%] w-[130px] h-[130px]";
+	profileWrapper.className = "absolute top-[160px] left-[5%] w-[200px] h-[200px]";
 
 	const profileBg = document.createElement("div");
 	profileBg.className = "absolute inset-0 bg-[#1a1826] rounded-full";
@@ -709,7 +701,7 @@ function updateUserCard(targetElement: HTMLElement, NewuserData: UserData, userI
 	const profileImg = document.createElement("img");
 	profileImg.id = "profile-picture-card";
 	profileImg.className = "w-full h-full rounded-full border-8 border-[#1a1826] relative z-10";
-	profileImg.src = NewuserData.picture	 || userInfos.picture	 || "assets/default.jpeg";
+	profileImg.src = userInfos.picture	 || "assets/default.jpeg";
 	profileImg.alt = "Photo de profil";
 
 	profileWrapper.appendChild(profileBg);
@@ -718,17 +710,17 @@ function updateUserCard(targetElement: HTMLElement, NewuserData: UserData, userI
 
 	// Infos utilisateur
 	const userInfoContainer = document.createElement("div");
-	userInfoContainer.className = "ml-8 mt-4";
+	userInfoContainer.className = "ml-16 mt-8";
 
 	const userName = document.createElement("h2");
-	userName.className = "text-xl font-bold";
+	userName.className = "text-3xl font-bold";
 	userName.id = "userCardName";
-	userName.textContent = NewuserData.name || userInfos.name || "Nom inconnu";
+	userName.textContent = userInfos.name || "Nom inconnu";
 
 	const userBio = document.createElement("p");
-	userBio.className = "text-gray-500";
-    userBio.id = "userBio"
-	userBio.textContent = NewuserData.bio || userInfos.bio || "Aucune biographie disponible.";
+	userBio.className = "text-gray-400 text-xl mt-2";
+	userBio.id = "userBio"
+	userBio.textContent = userInfos.bio || "Aucune biographie disponible.";
 
 	userInfoContainer.appendChild(userName);
 	userInfoContainer.appendChild(userBio);

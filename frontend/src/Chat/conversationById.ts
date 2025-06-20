@@ -1,5 +1,5 @@
+import { Conversation } from "../types.js";
 import { fetchApi } from "../utils.js";
-import { Conversation } from "./getAllConversations.js";
 
 
 export async function conversationById(conversationId: number): Promise<Conversation> {

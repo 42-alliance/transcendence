@@ -1,16 +1,7 @@
+import { UserData } from "../types.js";
 import { fetchApi, getHeader } from "../utils.js";
 
-export interface User {
-	id: number;
-	name: string;
-	picture: string;
-	banner: string;
-	bio: string;
-	email?: string;
-	created_at: Date;
-}
-
-export async function getAllUsers(): Promise< User[] | null> {
+export async function getAllUsers(): Promise< UserData[] | null> {
 	try {
 		const header = getHeader();
 

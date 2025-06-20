@@ -49,8 +49,8 @@ export async function getUserByName(
 			where: {
 				status: "accepted",
 				OR: [
-					{ senderId: user.id, receiverId: user_id },
-					{ senderId: user_id, receiverId: user.id }
+					{ senderId: user.id },
+					{ receiverId: user.id }
 				]
 			},
 			include: {
@@ -76,6 +76,7 @@ export async function getUserByName(
 				}
 			}
 		});
+
 		const common_friends_users = common_friends.map(friend => {
 			return friend.senderId === user.id ? friend.receiver : friend.sender;
 		});
@@ -131,7 +132,12 @@ export async function getUserByName(
 		});
 
 		return {
-			user: user,
+			id: user.id,
+    		name: user.name,
+    		picture: user.picture,
+    		banner: user.banner,
+    		bio: user.bio,
+    		created_at: user.created_at,
 			common_friends: common_friends_users,
 			games: user_games
 		};

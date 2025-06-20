@@ -1,10 +1,9 @@
 import { fetchApi } from "../utils.js";
-import { Conversation } from "./getAllConversations.js";
 
 /**
  * Creates a new conversation with the specified members.
  * @param {string[]} members - An array of member IDs to include in the conversation.
- * @returns {Promise<Conversation>} - A promise that resolves to the created conversation object.
+ * @returns {Promise<number>} - A promise that resolves to the id of the conversation.
  * @throws {Error} - Throws an error if the conversation creation fails.
  */
 export async function createConversation(members: string[]): Promise<number> {

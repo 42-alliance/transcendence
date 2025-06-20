@@ -17,81 +17,123 @@ export class GameRenderer {
         GameUI.hideSpinner();
         GameUI.hideGameButtons();
         GameUI.hideDifficultyButtons();
-        //hide gamearea
         GameUI.hideGameArea();
 
-       /// GameUI.hideOptionButtons();
         if (!gameCanvas) return;
         const ctx = gameCanvas.getContext('2d');
         if (!ctx || !gameState) return;
-    
+
         // Clear the canvas
         ctx.fillStyle = '#091053';
         ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-    
+
         const game = gameState;
-    
-        // Draw the net
+        
+        // Déterminer si le jeu est en ligne et si nous devons inverser l'affichage
+        const gameInstance = (window as any).gameInstance;
+        const currentUser = GameRenderer.getCurrentUser(gameInstance);
+        const isOnlineMode = game.mode === 'random_adversaire' || game.mode === 'tournament';
+        const shouldFlip = isOnlineMode && game.score && game.score.p2_id === currentUser.id;
+        console.log( `Current user ID: ${currentUser.id} P2 user ID , Game mode: ${game.mode}, Should flip: ${shouldFlip}`);
+        
+        // Draw the net (toujours au centre)
         ctx.fillStyle = 'white';
         ctx.imageSmoothingQuality = 'high';
         const netX = (gameCanvas.width - 2) / 2;
         for (let i = 0; i <= gameCanvas.height; i += 15) {
             ctx.fillRect(netX, i, 4, 20);
         }
+
+        // Dessiner les paddles selon l'orientation
+        ctx.fillStyle = '#b9d6f2';
+        
+        // Premier paddle (à gauche ou à droite selon shouldFlip)
         if (game.paddle1) {
-            ctx.fillStyle = '#b9d6f2';
-            ctx.fillRect(
-                game.paddle1.x , 
-                game.paddle1.y , 
-                game.paddle1.width , 
-                game.paddle1.height 
-            );
+            if (!shouldFlip) {
+                // Normal: Paddle 1 à gauche
+                ctx.fillRect(
+                    game.paddle1.x,
+                    game.paddle1.y,
+                    game.paddle1.width,
+                    game.paddle1.height
+                );
+            } else {
+                // Inversé: Paddle 1 à droite
+                ctx.fillRect(
+                    gameCanvas.width - game.paddle1.x - game.paddle1.width,
+                    game.paddle1.y,
+                    game.paddle1.width,
+                    game.paddle1.height
+                );
+            }
         }
-    
+
+        // Deuxième paddle (à droite ou à gauche selon shouldFlip)
         if (game.paddle2) {
-            ctx.fillStyle = '#b9d6f2';
-            ctx.fillRect(
-                game.paddle2.x ,
-                game.paddle2.y, 
-                game.paddle2.width ,
-                game.paddle2.height 
-            );
+            if (!shouldFlip) {
+                // Normal: Paddle 2 à droite
+                ctx.fillRect(
+                    game.paddle2.x,
+                    game.paddle2.y,
+                    game.paddle2.width,
+                    game.paddle2.height
+                );
+            } else {
+                // Inversé: Paddle 2 à gauche
+                ctx.fillRect(
+                    gameCanvas.width - game.paddle2.x - game.paddle2.width,
+                    game.paddle2.y,
+                    game.paddle2.width,
+                    game.paddle2.height
+                );
+            }
         }
-    
+
+        // Dessiner la balle (inverser sa position si nécessaire)
         if (game.ball) {
-            // Save the current canvas state
             ctx.save();
             ctx.globalCompositeOperation = 'source-over';
             ctx.fillStyle = '#CAFE48';
             ctx.beginPath();
+            
+            const ballX = shouldFlip ? gameCanvas.width - game.ball.x : game.ball.x;
+            
             ctx.arc(
-            game.ball.x, 
-            game.ball.y,
-            game.ball.radius, 
-            0,
-            Math.PI * 2
+                ballX,
+                game.ball.y,
+                game.ball.radius,
+                0,
+                Math.PI * 2
             );
             ctx.closePath();
             ctx.fill();
             ctx.restore();
         }
-    
-        // Draw scores
+
+        // Dessiner les scores (également inversés si nécessaire)
         ctx.fillStyle = 'white';
         ctx.font = FontHelper.getScoreFont();
         ctx.textAlign = 'center';
-    
+
         if (game.score) {
-            ctx.fillText(game.score.p1_name, gameCanvas.width / 4, 50);
-            ctx.fillText(game.score.p2_name.toString() , (3 * gameCanvas.width) / 4, 50);
-            
-            ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
-            ctx.fillText(game.score.p1.toString(), gameCanvas.width / 4, 300, 200);
-            ctx.fillText(game.score.p2.toString(), (3 * gameCanvas.width) / 4, 300, 200);
-        }
-    
-        if (game.opponent && game.opponent.score !== undefined) {
-            ctx.fillText(game.opponent.score.toString(), (3 * gameCanvas.width) / 4, 50);
+            // Noms des joueurs
+            if (!shouldFlip) {
+                // Affichage normal
+                ctx.fillText(game.score.p1_name, gameCanvas.width / 4, 50);
+                ctx.fillText(game.score.p2_name, (3 * gameCanvas.width) / 4, 50);
+                
+                ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
+                ctx.fillText(game.score.p1.toString(), gameCanvas.width / 4, 300, 200);
+                ctx.fillText(game.score.p2.toString(), (3 * gameCanvas.width) / 4, 300, 200);
+            } else {
+                // Affichage inversé
+                ctx.fillText(game.score.p2_name, gameCanvas.width / 4, 50);
+                ctx.fillText(game.score.p1_name, (3 * gameCanvas.width) / 4, 50);
+                
+                ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
+                ctx.fillText(game.score.p2.toString(), gameCanvas.width / 4, 300, 200);
+                ctx.fillText(game.score.p1.toString(), (3 * gameCanvas.width) / 4, 300, 200);
+            }
         }
     }
 

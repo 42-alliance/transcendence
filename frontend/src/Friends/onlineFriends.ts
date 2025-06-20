@@ -39,7 +39,7 @@ export async function showOnlineFriends() {
 		// Image de profil
 		const profileImg = document.createElement("img");
 		profileImg.classList.add("w-10", "h-10", "rounded-full");
-		profileImg.src = friend.picture;
+		profileImg.src = friend.picture!;
 		profileImg.alt = `${friend.name}'s profile picture`;
 
 		// Nom (proche de l'image)
@@ -50,7 +50,7 @@ export async function showOnlineFriends() {
 			"text-base",
 			"font-medium"
 		);
-		profileText.innerText = friend.name;
+		profileText.innerText = friend.name!;
 
 		// Container gauche (image + nom)
 		const leftSection = document.createElement("div");

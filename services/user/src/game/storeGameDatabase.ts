@@ -16,7 +16,7 @@ export const storeGameDatabaseSchema: FastifySchema = {
 		),
 		winner: Type.Integer({ nullable: true }),
 		startTime: Type.Date(),
-		endTime: Type.Date({ nullable: true }),
+		finished_at: Type.Date({ nullable: true }),
 	}),
 }
 
@@ -36,7 +36,7 @@ export async function storeGameDatabase(request: FastifyRequest, reply: FastifyR
 		players: player[];
 		winner: number | null;
 		startTime: Date;
-		endTime: Date | null;
+		finished_at: Date;
 	}
 
 	console.log('Storing game database:', game);
@@ -53,7 +53,7 @@ export async function storeGameDatabase(request: FastifyRequest, reply: FastifyR
 		player2_name: game.players[1].name,
 		winner: game.winner,
 		started_at: game.startTime,
-		finished_at: game.endTime ? game.endTime : null,
+		finished_at: game.finished_at,
 	  },
 	});	
 	

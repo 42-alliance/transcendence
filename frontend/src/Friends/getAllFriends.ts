@@ -1,17 +1,7 @@
+import { UserData } from "../types.js";
 import { fetchApi, getHeader } from "../utils.js";
 
-export interface Friends {
-	id: number;
-	name: string;
-	picture: string;
-	banner: string;
-	status: string;
-	date: string;
-	type: string;
-	bio: string;
-}
-
-export async function getAllFriends(): Promise< Friends[] | null> {
+export async function getAllFriends(): Promise< UserData[] | null> {
 	try {
 		const header = getHeader();
 

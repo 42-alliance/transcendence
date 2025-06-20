@@ -1,12 +1,8 @@
 import { tracingChannel } from "diagnostics_channel";
 import { createConversation } from "../../Chat/createConversation.js";
-import {
-	Conversation,
-	getAllConversations,
-	Member,
-} from "../../Chat/getAllConversations.js";
-import { getAllMessages, Message } from "../../Chat/getAllMessages.js";
-import { IUser } from "../../types.js";
+import { getAllConversations } from "../../Chat/getAllConversations.js";
+import { getAllMessages } from "../../Chat/getAllMessages.js";
+import { Conversation, Member, Message, UserData } from "../../types.js";
 import { getUserInfos } from "../../User/me.js";
 import AView from "../AView.js";
 import { navigateTo, webSockets } from "../viewManager.js";
@@ -39,6 +35,19 @@ export default class extends AView {
 function createConversationName(otherMembers: Member[]): string {
 	let str = "";
 	otherMembers.forEach(member => {
+		str += `<a href="/${member.name}"
+				 class="hover:underline hover:text-orange-400 transition-colors"
+				 data-link>${member.name}</a>, `;
+	});
+	if (str.length > 0) {
+		str = str.slice(0, -2); // Remove trailing comma and space
+	}
+	return str;
+}
+
+function createConversationNameNoClick(otherMembers: Member[]): string {
+	let str = "";
+	otherMembers.forEach(member => {
 		str += member.name + ", ";
 	});
 	if (str.length > 0) {
@@ -46,6 +55,7 @@ function createConversationName(otherMembers: Member[]): string {
 	}
 	return str;
 }
+
 
 async function renderConversations() {
 	const conversations = await getAllConversations();
@@ -105,7 +115,7 @@ async function renderConversations() {
 		const nameDiv = document.createElement("div");
 		nameDiv.className = "font-semibold text-white truncate";
 		nameDiv.textContent =
-			conversation.name || createConversationName(otherMembers);
+			conversation.name || createConversationNameNoClick(otherMembers);
 		const lastMessageDiv = document.createElement("div");
 		lastMessageDiv.className = "text-xs text-gray-400 truncate";
 		lastMessageDiv.textContent =
@@ -159,7 +169,7 @@ export function getUserPicture(
 	return userInfos.picture;
 }
 
-async function renderChat(conversation: Conversation, userInfos: IUser) {
+async function renderChat(conversation: Conversation, userInfos: UserData) {
 	const chatHeader = document.getElementById("chat-header");
 	const chatHistory = document.getElementById("chat-history");
 	const chatInputArea = document.getElementById("chat-input-area");
@@ -194,19 +204,22 @@ async function renderChat(conversation: Conversation, userInfos: IUser) {
 `;
 
 	if (otherMembers.length === 1) {
-		chatHeader.innerHTML = `
-        <img src="${
-			otherMembers[0].picture || "/assets/default.jpeg"
-		}" class="w-11 h-11 rounded-full border border-orange-400/30" alt="${
-			otherMembers[0].name
-		} avatar">
-        <div>
-            <div class="font-semibold text-white text-lg">${
-				otherMembers[0].name
-			}</div>
-            <div class="text-xs text-gray-400">En ligne</div>
+    chatHeader.innerHTML = `
+    <a href="/${otherMembers[0].name}" class="flex items-center gap-3 w-full h-full group transition-colors data-link">
+    <img src="${otherMembers[0].picture || "/assets/default.jpeg"}"
+        class="w-11 h-11 rounded-full border border-orange-400/30 group-hover:border-orange-400 transition-all duration-200"
+        alt="${otherMembers[0].name} avatar">
+    <div>
+        <div class="font-semibold text-white text-lg group-hover:text-orange-400 transition-colors">
+            ${otherMembers[0].name}
         </div>
-        ${inviteBtnHTML}
+        <div class="text-xs text-gray-400">
+            En ligne
+        </div>
+    </div>
+    ${inviteBtnHTML}
+</a>
+
     `;
 	} else {
 		chatHeader.innerHTML = `
@@ -365,15 +378,13 @@ export async function ChatViewListener(conversationId?: number) {
 						.map(name => name.trim())
 						.filter(name => name !== "")
 						.map(name => {
-							// Recherche dans allUsers par nom insensible à la casse
 							const found = allUsers.find(
-								user =>
-									user.name.toLowerCase() ===
-									name.toLowerCase()
+								user => user.name!.toLowerCase() === name.toLowerCase()
 							);
-							return found ? found.name : name; // Utilise la vraie casse si trouvé, sinon le nom entré
+							return found ? found.name : name;
 						})
-						.filter((name, idx, arr) => arr.indexOf(name) === idx); // éviter les doublons
+						.filter((name, idx, arr) => arr.indexOf(name) === idx) // éviter les doublons
+						.filter((name): name is string => typeof name === "string" && name !== undefined); // filter out undefined
 
 					if (members.length === 0) return;
 
