@@ -488,8 +488,11 @@ class Game {
                 p1: this.score_p1,
                 p2: this.score_p2,
                 p1_name: this.p1.username,
-                p2_name: this.p2.username
+                p2_name: this.p2.username,
+                p1_id: this.p1.user_id,
+                p2_id: this.p2.user_id
             },
+            mode: this.mode, // Game mode
             width: this.width, // Logical game width
             height: this.height // Logical game height
         };
@@ -514,7 +517,7 @@ class Game {
             paddle1: { x: this.paddle_1.x, y: this.paddle_1.y },
             paddle2: { x: this.paddle_2.x, y: this.paddle_2.y },
             ball: { x: this.ball.x, y: this.ball.y },
-            score: { p1: this.score_p1, p2: this.score_p2 },
+            score: { p1: this.score_p1, p2: this.score_p2, p1_name: this.p1.username, p2_name: this.p2.username, p1_id: this.p1.user_id, p2_id: this.p2.user_id },
         };
         if (this.is_end) {
             return;

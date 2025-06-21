@@ -28,13 +28,14 @@ export class GameRenderer {
         ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
 
         const game = gameState;
+        console.log('GAME DATA:', game);
         
         // Déterminer si le jeu est en ligne et si nous devons inverser l'affichage
         const gameInstance = (window as any).gameInstance;
         const currentUser = GameRenderer.getCurrentUser(gameInstance);
         const isOnlineMode = game.mode === 'random_adversaire' || game.mode === 'tournament';
         const shouldFlip = isOnlineMode && game.score && game.score.p2_id === currentUser.id;
-        console.log( `Current user ID: ${currentUser.id} P2 user ID , Game mode: ${game.mode}, Should flip: ${shouldFlip}`);
+        console.log( `Current user ID: ${currentUser.id} P2 user ID: ${game.score.p2_id} , Game mode: ${game.mode}, Should flip: ${shouldFlip}`);
         
         // Draw the net (toujours au centre)
         ctx.fillStyle = 'white';
