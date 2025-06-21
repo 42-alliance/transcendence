@@ -58,7 +58,7 @@ function timeAgo(dateInput: string | Date, locale: string = "en"): string {
 	return locale === "fr" ? "à l’instant" : "just now";
 }
 
-async function renderGameHistory(
+function renderGameHistory(
 	user: UserData,
 	historyList: Games[],
 	targetId = "game-history-list"
@@ -217,12 +217,6 @@ export async function showUserProfile(username?: string) {
 	if (!game_play_div) return;
 	game_play_div.innerHTML = user.games!.length.toString();
 
-	const game_win_div = document.getElementById("user-win-count");
-	if (!game_win_div) return;
-	game_win_div.innerHTML = user.games!.filter(
-		game => game.winner === user.id
-	).length.toString();
-
-	await renderGameHistory(user, user.games!, "game-history-list");
-	await renderWinLossStats(user);
+	renderGameHistory(user, user.games!, "game-history-list");
+	renderWinLossStats(user);
 }

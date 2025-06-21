@@ -28,10 +28,11 @@ export async function getUserByName(
 				is_online: string;
 				banner: string | null;
 				bio: string | null;
+				lastSeen: Date;
 				created_at: Date;
 			}[]
 		>(`
-			SELECT id, name, picture, banner, bio, is_online, created_at
+			SELECT id, name, picture, banner, bio, is_online, created_at, lastSeen
 			FROM Users
 			WHERE LOWER(name) = LOWER(${JSON.stringify(name)})
 			LIMIT 1;
@@ -78,9 +79,56 @@ export async function getUserByName(
 			}
 		});
 
-		const common_friends_users = common_friends.map(friend => {
+		const user_friends = common_friends.map(friend => {
 			return friend.senderId === user.id ? friend.receiver : friend.sender;
 		});
+
+		const my_friends = await prisma.friends.findMany({
+			where: {
+				status: "accepted",
+				OR: [
+					{ senderId: user_id },
+					{ receiverId: user_id }
+				]
+			},
+			include: {
+				sender: {
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						banner: true,
+						bio: true,
+						created_at: true
+					}
+				},
+				receiver: {
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						banner: true,
+						bio: true,
+						created_at: true
+					}
+				}
+			}
+		});
+
+		const my_friends_users = my_friends.map(friend => {
+			return friend.senderId === user.id ? friend.receiver : friend.sender;
+		});
+
+		const common_friends_users = user_friends.filter(friend =>
+			my_friends_users.some(myFriend => myFriend.id === friend.id)
+		).map(friend => ({
+			id: friend.id,
+			name: friend.name,
+			picture: friend.picture,
+			banner: friend.banner,
+			bio: friend.bio,
+			created_at: friend.created_at,
+		}));
 
 		const user_games = await prisma.game.findMany({
 			where: {
@@ -132,6 +180,8 @@ export async function getUserByName(
 			}
 		});
 
+		let delta = Date.now() - user.lastSeen.getTime();
+
 		return reply.status(200).send({
 			id: user.id,
     		name: user.name,
@@ -139,7 +189,7 @@ export async function getUserByName(
     		banner: user.banner,
     		bio: user.bio,
     		created_at: user.created_at,
-			status: user.is_online,
+			status: user.is_online === "online" && delta < 10 * 60 * 1000 ? "online" : user.is_online === "offline" ? "offline" : "away",
 			common_friends: common_friends_users,
 			games: user_games
 		});

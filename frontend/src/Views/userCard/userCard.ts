@@ -725,10 +725,30 @@ export function createUserCard(targetElement: HTMLElement, userInfos: UserData):
 	const profileImg = document.createElement("img");
 	profileImg.id = "profile-picture-card";
 	profileImg.className = "w-full h-full rounded-full border-8 border-[#1a1826] relative z-10";
-	profileImg.src = userInfos.picture	 || "assets/default.jpeg";
+	profileImg.src = userInfos.picture || "assets/default.jpeg";
 	profileImg.alt = "Photo de profil";
 
-	const statusBadgeElement = statusBadge(userInfos);
+	// Ajoute le badge de statut, plus gros et superposé à l'image de profil
+	const statusBadgeElement = document.createElement("span");
+	statusBadgeElement.className = `
+		status-indicator-${userInfos.id!}
+		absolute
+		bottom-2 right-2
+		w-12 h-12
+		rounded-full
+		border-4 border-[#1a1826]
+		flex items-center justify-center
+		${status[userInfos.status || "offline"]}
+		z-30
+		pointer-events-none
+		shadow-lg
+	`;
+
+	// Pour l'accessibilité (screen readers)
+	const srText = document.createElement("span");
+	srText.className = "sr-only";
+	srText.textContent = userStatusLabels[userInfos.status || "offline"];
+	statusBadgeElement.appendChild(srText);
 
 	profileWrapper.appendChild(profileBg);
 	profileWrapper.appendChild(profileImg);
