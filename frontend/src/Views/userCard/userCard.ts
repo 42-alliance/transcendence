@@ -5,6 +5,10 @@ import { createConversation } from "../../Chat/createConversation.js";
 import { showToast } from "../triggerToast.js";
 import { GetUserByName } from "../../User/getUserByName.js";
 import { UserData } from "../../types.js";
+import { removeFriend } from "../../Friends/removeFriend.js";
+import { addFriend } from "../../Friends/addFriend.js";
+import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
+import { on } from "events";
 
 // Définition de plusieurs constantes utiles pour la réutilisation (comme des "define")
 export const status: Record<string, string> = {
@@ -663,37 +667,84 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 	targetElement.appendChild(container);
 }
 
+function createDropdownButton(
+	bannerContainer: HTMLElement,
+	onChat: () => void,
+	onInvite: () => void,
+	onAddDelete: () => void,
+	onAddDelete_msg: string,
+	onAddDelete_color: string,
+	onBlock: () => void,
+): HTMLButtonElement {
 
-function statusBadge(userInfos: UserData): HTMLDivElement {
-	// Badge de statut
-	const user_status = userInfos.status!;
-	let badgeColor = status.offline;
-	let badgeText = "Hors-ligne";
-	if (user_status === "online") {
-		badgeColor = status.online;
-		badgeText = "En ligne";
-	} else if (user_status === "away") {
-		badgeColor = status.away;
-		badgeText = "Absent";
-	} else if (user_status === "inGame") {
-		badgeColor = status.inGame;
-		badgeText = "En jeu";
-	}
-
-	// Badge rond + tooltip
-	const statusBadge = document.createElement("div");
-	statusBadge.className = `absolute bottom-4 right-6 flex items-center`;
-	statusBadge.innerHTML = `
-	<span class="status-indicator-${userInfos.id!} w-6 h-6 rounded-full border-4 border-[#1a1826] ${badgeColor} flex items-center justify-center">
-		<span class="sr-only">${badgeText}</span>
-	</span>
-	<span class="ml-2 text-xs font-bold text-white bg-black/60 px-2 py-1 rounded hidden lg:inline">${badgeText}</span>
+	// Bouton ... (dropdown) positionné en bas à droite de la bannière
+	const dropdownBtn = document.createElement("button");
+	dropdownBtn.className = "absolute bottom-4 right-8 w-10 h-10 flex items-center justify-center bg-gray-800/80 hover:bg-gray-700 rounded-full transition-colors z-20";
+	dropdownBtn.title = "Plus d'options";
+	dropdownBtn.innerHTML = `
+		<svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<circle cx="5" cy="12" r="1.5"></circle>
+			<circle cx="12" cy="12" r="1.5"></circle>
+			<circle cx="19" cy="12" r="1.5"></circle>
+		</svg>
 	`;
 
-	return statusBadge;
+	let dropdown: HTMLDivElement | null = null;
+	dropdownBtn.onclick = (e) => {
+		e.stopPropagation();
+		if (dropdown) {
+			dropdown.remove();
+			dropdown = null;
+			return;
+		}
+		dropdown = document.createElement("div");
+		dropdown.className = "absolute bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] min-w-[170px] animate-fade-in";
+		dropdown.style.top = `${dropdownBtn.offsetTop + dropdownBtn.offsetHeight + 8}px`;
+		dropdown.style.right = "0.5rem";
+		dropdown.innerHTML = `
+		<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm rounded-t-lg">Go chat</button>
+		<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-blue-400 text-sm">Invite to play</button>
+		<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 ${onAddDelete_color} text-sm ">${onAddDelete_msg}</button>
+			<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-red-400 text-sm">Block user</button>
+		`;
+		bannerContainer.appendChild(dropdown);
+
+		// Click out
+		function handleClickOutside(event: MouseEvent) {
+			if (dropdown && !dropdown.contains(event.target as Node) && event.target !== dropdownBtn) {
+				dropdown.remove();
+				dropdown = null;
+				document.removeEventListener("mousedown", handleClickOutside);
+			}
+		}
+		document.addEventListener("mousedown", handleClickOutside);
+
+		const btns = dropdown.querySelectorAll("button");
+		btns[0].addEventListener("click", () => {
+			onChat();
+			dropdown?.remove();
+			dropdown = null;
+		});
+		btns[1].addEventListener("click", () => {
+			onInvite();
+			dropdown?.remove();
+			dropdown = null;
+		});
+		btns[2].addEventListener("click", () => {
+			onAddDelete();
+			dropdown?.remove();
+			dropdown = null;
+		});
+		btns[3].addEventListener("click", () => {
+			onBlock();
+			dropdown?.remove();
+			dropdown = null;
+		});
+	};
+	return dropdownBtn;	
 }
 
-export function createUserCard(targetElement: HTMLElement, userInfos: UserData): void {
+export async function createUserCard(targetElement: HTMLElement, userInfos: UserData): Promise<void> {
 	// Création du conteneur principal
 	const container = document.createElement("div");
 	container.className = "flex flex-col w-fit h-fit relative bg-[#1a1826] text-white p-8 rounded-2xl shadow-2xl";
@@ -704,7 +755,7 @@ export function createUserCard(targetElement: HTMLElement, userInfos: UserData):
 
 	// Conteneur de la bannière
 	const bannerWrapper = document.createElement("div");
-	bannerWrapper.className = "w-[700px] h-[250px] overflow-hidden";
+	bannerWrapper.className = "w-[700px] h-[250px] overflow-hidden relative rounded-lg shadow-xl";
 
 	const bannerImg = document.createElement("img");
 	bannerImg.id = "banner-card";
@@ -714,6 +765,34 @@ export function createUserCard(targetElement: HTMLElement, userInfos: UserData):
 
 	bannerWrapper.appendChild(bannerImg);
 	bannerContainer.appendChild(bannerWrapper);
+
+	const me = await getUserInfos();
+	if (!me) return;
+	if (userInfos.id !== me.id) {
+		const isFriend = me.friends?.some(friend => friend.id === userInfos.id);
+		const dropdownBtn = createDropdownButton(
+			bannerContainer, 
+			async () => {
+				await goChat(userInfos);
+			}, 
+			() => {
+				alert("Inviter à jouer cliqué !");
+			}, 
+			() => {
+				if (isFriend) {
+					removeFriend(userInfos.id!);
+				} else {
+					addFriend(userInfos.name!);
+				}
+			},
+			isFriend ? "Remove Friend" : "Add to Friend",
+			isFriend ? "text-red-400" : "text-green-400",
+			() => {
+				updateFriendStatus(userInfos.id!, "blocked");
+			}
+		);
+		bannerContainer.appendChild(dropdownBtn);
+	}
 
 	// Conteneur de l'image de profil avec fond
 	const profileWrapper = document.createElement("div");
@@ -780,7 +859,6 @@ export function createUserCard(targetElement: HTMLElement, userInfos: UserData):
 	targetElement.innerHTML = "";
 	targetElement.appendChild(container);
 }
-
 
 // 📌 Injecte la carte utilisateur dans l'élément cible
 export async function injectUserCard(targetId: string): Promise<void> {

@@ -20,8 +20,9 @@ export async function setUserProfile() {
 	const emailDropdown = document.getElementById("email-dropdown");
 	const userButton = document.getElementById("user-button-navbar");
 	const dropDown = document.getElementById("dropdown-user");
+	const profil_link_sidebar = document.getElementById("profile-link-sidebar") as HTMLAnchorElement;
 
-	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !userButton || !dropDown !)
+	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !userButton || !dropDown || !profil_link_sidebar)
 		return;
 
 	const user = await getUserInfos();
@@ -31,6 +32,9 @@ export async function setUserProfile() {
 	const profileLink = document.getElementById("profile-link") as HTMLAnchorElement;
 	if (profileLink)
 		profileLink.href = `/${user.name}`;
+
+	if (profil_link_sidebar)
+		profil_link_sidebar.href = `/${user.name}`;
 
 	const nb_wins = document.getElementById("nb-wins");
 	if (nb_wins) {
@@ -56,6 +60,10 @@ export async function setUserProfile() {
 	document.addEventListener("click", (event) => {
 		const isClickInside = dropDown.contains(event.target as Node) || userButton.contains(event.target as Node);
 		if (!isClickInside && !dropDown.classList.contains("hidden")) {
+			dropDown.classList.add("hidden");
+			userButton.ariaExpanded = "false";
+		} else if (dropDown.contains(event.target as Node)) {
+			// Hide dropdown even if clicking inside dropdown
 			dropDown.classList.add("hidden");
 			userButton.ariaExpanded = "false";
 		}

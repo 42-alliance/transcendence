@@ -20,10 +20,11 @@ enum UserStatus {
 }
 
 enum Status {
-    pending
+	pending
     accepted
     rejected
     blocked
+	unblocked
 }
 
 model Users {

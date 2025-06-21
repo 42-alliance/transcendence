@@ -172,6 +172,43 @@ function renderWinLossStats(user: UserData, targetId = "win-loss-graphic") {
 	`;
 }
 
+function renderCommonFriends(user: UserData, targetId = "show-common-friend") {
+	const container = document.getElementById(targetId);
+	if (!container) return;
+
+	container.innerHTML = ""; // reset
+
+	if (!user.common_friends || user.common_friends.length === 0) {
+		container.innerHTML = `<div class="text-gray-500 italic">Aucun ami commun.</div>`;
+		return;
+	}
+
+	user.common_friends.forEach(friend => {
+		const div = document.createElement("div");
+		div.className =
+			"relative flex flex-col items-center bg-gradient-to-b from-[#232345] via-[#2e2e5e] to-[#191a2c] rounded-2xl shadow-xl p-0 min-h-[260px] w-[180px] max-w-[220px] transition-transform hover:-translate-y-1 hover:scale-105 duration-200 border border-[#35357a] group cursor-pointer overflow-hidden";
+
+		div.innerHTML = `
+			<div class="w-full h-24 bg-cover bg-center" style="background-image: url('${friend.banner || "/assets/default_banner.jpeg"}');"></div>
+			<div class="flex flex-col items-center -mt-8 w-full px-4 pb-4">
+				<img src="${friend.picture || "/assets/default.jpeg"}" alt="${friend.name}"
+					class="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg group-hover:border-purple-400 transition-all duration-200" />
+				<h4 class="mt-2 text-lg font-bold text-white truncate group-hover:text-purple-300 transition-colors w-full text-center">${friend.name}</h4>
+				<span class="mt-1 text-xs px-3 py-1 rounded bg-[#35357a]/60 text-gray-200 group-hover:bg-purple-500/70 transition-colors w-fit">${friend.status ? friend.status : ""}</span>
+			</div>
+			<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+				<svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm1 5h-2v6h6v-2h-4V7z"/></svg>
+			</div>
+		`;
+		div.onclick = () => {
+			setTimeout(() => {
+				navigateTo(`/${friend.name}`);
+			}, 100);
+		};
+		container.appendChild(div);
+	});
+}
+
 export async function showUserProfile(username?: string) {
 	if (!username) return;
 	const user = await GetUserByName(username);
@@ -184,34 +221,7 @@ export async function showUserProfile(username?: string) {
 
 	createUserCard(test, user);
 
-	const container = document.getElementById("show-common-friend");
-	if (!container) return;
-
-	const common_friends = user.common_friends!;
-
-	common_friends.forEach(friend => {
-		const div = document.createElement("div");
-		div.className =
-			"flex flex-col items-center bg-[#232345] rounded-xl shadow-lg p-3 min-w-[120px] max-w-[140px] transition-transform hover:-translate-y-1 hover:scale-105 duration-150";
-		div.innerHTML = `
-      <img src="${friend.picture || "/assets/default.jpeg"}" alt="${
-			friend.name
-		}" class="w-14 h-14 rounded-full object-cover border-2 border-[#191a2c] mb-2" />
-      <h4 class="text-sm font-semibold text-white mb-1 truncate w-full">${
-			friend.name
-		}</h4>
-      <span class="text-xs text-gray-400">${
-			friend.status ? friend.status : ""
-		}</span>
-    `;
-		div.onclick = () => {
-			setTimeout(() => {
-				navigateTo(`/${friend.name}`);
-			}
-			, 100); // Delay to allow the click event to propagate
-		};
-		container.appendChild(div);
-	});
+	renderCommonFriends(user, "show-common-friend");
 
 	const game_play_div = document.getElementById("user-match-count");
 	if (!game_play_div) return;

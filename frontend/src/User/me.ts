@@ -8,7 +8,7 @@ export let userInfos: UserData = {};
  * sinon fait un appel à `me()` pour les récupérer.
  */
 export async function getUserInfos(): Promise<UserData | null> {
-    if (userInfos.id && userInfos.name && userInfos.picture && userInfos.banner && userInfos.bio) {
+    if (userInfos.id && userInfos.name && userInfos.picture && userInfos.banner && userInfos.bio && userInfos.friends) {
         return userInfos; // 🔹 Déjà complet, pas besoin d'un nouvel appel
     }
 

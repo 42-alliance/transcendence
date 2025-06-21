@@ -66,7 +66,7 @@ export async function injectFriends() {
 			[
 				{
 					label: "See Profile",
-					onClick: async () => {},
+					onClick: async () => { navigateTo(`/${friend.name}`);},
 				},
 				{
 					label: "Send Message",
@@ -101,11 +101,12 @@ export async function injectFriends() {
 
 export async function SetUpNotifs(all : HTMLElement | null, pending : HTMLElement | null) {
 	const friends = await getAllFriends();
+	console.error("J'affiche les notifs => ", friends);
 	let all_notifs = document.createElement("span");
 	let pending_notifs = document.createElement("span");
 	if (friends) {
 		all_notifs.textContent = `${friends.length}`;
-		all_notifs.className = "ml-1 px-2 py-0.5 bg-orange-900/30 text-orange-400 rounded-full text-xs";
+		all_notifs.className = "all-notifs ml-1 px-2 py-0.5 bg-orange-900/30 text-orange-400 rounded-full text-xs";
 		pending_notifs.textContent = `${friends.filter(friend => friend.status === "pending").length}`;
 		pending_notifs.className = "ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-orange-500/20 group-hover:text-orange-300";
 	}
@@ -312,16 +313,19 @@ export async function displayAllFriendsDynamically() {
 	const onglet = document.getElementById("onglets-id");
 	
 	if (!onglet) return;
+	const friends = await getAllFriends();
+
 
 	onglet.innerHTML = `<button class="tab-btn relative pb-3 px-1 font-medium group" data-tab="all" id="all-button">
       <span class="text-orange-400 group-hover:text-yellow-400 transition-colors">All</span>
       <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
     </button>
     <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online" id="online-button">
-      Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">2</span>
+      Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.filter(friend => friend.status === "online").length}</span>
     </button>
     <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
-      Pending
+	 Pending
+	 <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.filter(friend => friend.status === "pending").length}</span>
     </button>`
 
 	document.getElementById("all-button")?.addEventListener('click', async () => {
@@ -359,7 +363,7 @@ export async function displayAllFriendsDynamically() {
 			[
 				{
 					label: "See Profile",
-					onClick: async () => {},
+					onClick: async () => { navigateTo(`/${friend.name}`);},
 				},
 				{
 					label: "Send Message",
@@ -419,16 +423,20 @@ export async function displayPendingFriendsDynamically() {
 	
 	if (!onglet) return;
 
+	const friends = await getAllFriends();
+
+
 	onglet.innerHTML = `<button class="tab-btn relative pb-3 px-1 font-medium group" data-tab="all" id="all-button">
-	All
-	</button>
-	<button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online">
-	Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">2</span>
-	</button>
-	<button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
-		<span class="text-orange-400 group-hover:text-yellow-400 transition-colors">Pending</span>
-		<div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
-	</button>`
+      <span class="text-orange-400 group-hover:text-yellow-400 transition-colors">All</span>
+	   <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.length}</span>
+      <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
+    </button>
+    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online" id="online-button">
+      Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.filter(friend => friend.status === "online").length}</span>
+    </button>
+    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
+      Pending
+    </button>`
 
 	
 	document.getElementById("all-button")?.addEventListener('click', async () => {
@@ -437,6 +445,10 @@ export async function displayPendingFriendsDynamically() {
 	});
 	document.getElementById("pending-button")?.addEventListener('click', async () => {
 		console.log("click on pending");
+		await displayPendingFriendsDynamically();
+	});
+	document.getElementById("online-button")?.addEventListener('click', async () => {
+		console.log("click on online");
 		await displayPendingFriendsDynamically();
 	});
 
@@ -509,7 +521,7 @@ export async function displayPendingFriendsDynamically() {
 			[
 				{
 					label: "See Profile",
-					onClick: async () => {},
+					onClick: async () => { navigateTo(`/${friend.user.name}`);},
 				},
 				{
 					label: "Send Message",

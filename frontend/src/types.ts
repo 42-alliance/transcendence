@@ -24,6 +24,7 @@ export interface UserData {
 	banner?: string;
 	status?: string; // "online", "offline", "away", "inGame"
 	email?: string;
+	friends?: UserData[];
 	common_friends?: UserData[];
 	games?: Games[];
 	bio?: string;

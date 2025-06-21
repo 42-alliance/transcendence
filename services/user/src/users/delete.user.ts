@@ -29,6 +29,23 @@ export async function deleteMediaFile(file_url: string) {
 	}
 }
 
+async function deleteUserInChatService(userId: number) {
+	try {
+		const response = await fetch(`http://${config.chat.host}:${config.chat.port}/chat/conversations/users`, {
+			method: "DELETE",
+			headers: {
+				"x-user-id": userId.toString(),
+			},
+		});
+		if (!response.ok) {
+			throw new Error(`Failed to delete user in chat service: ${response.statusText}`);
+		}
+	} catch (error) {
+		console.error("Error deleting user in chat service:", error);
+		throw new Error("Failed to delete user in chat service");
+	}
+}
+
 /**
  * Route DELETE `/users` - Supprime un utilisateur de la base de données.
  *
@@ -51,6 +68,8 @@ export async function deleteUserDatabase(request: FastifyRequest, reply: Fastify
 		deleteMediaFile(user.picture);
 		if (user.banner)
 			deleteMediaFile(user.banner);
+
+		await deleteUserInChatService(userId);
 
 		await prisma.users.delete({
 			where: { id: userId }

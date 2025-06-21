@@ -2,13 +2,12 @@ import { Type } from "@sinclair/typebox";
 import { connectedSockets, prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
 import { FastifyReply, FastifyRequest, FastifyInstance, FastifySchema } from "fastify";
-import { connect } from "http2";
 
 const StatusEnum = {
-	// pending: 'pending',
 	accepted: 'accepted',
 	rejected: 'rejected',
 	blocked: 'blocked',
+	unblocked: 'unblocked',
 };
 
 export const updateFriendStatusSchema: FastifySchema = {
@@ -60,7 +59,7 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
             return reply.status(404).send({ message: "Friendship relation not found" });
         }
 
-		if (status === StatusEnum.rejected) {
+		if (status === StatusEnum.rejected || (status === StatusEnum.unblocked && friendship.status === "blocked")) {
 			await prisma.friends.deleteMany({
 				where: {
 					senderId: friendship.senderId,
