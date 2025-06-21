@@ -130,6 +130,48 @@ async function renderGameHistory(
 	});
 }
 
+function renderWinLossStats(user: UserData, targetId = "win-loss-graphic") {
+	const container = document.getElementById(targetId);
+	if (!container) return;
+
+	const games = user.games || [];
+	const total = games.length;
+	const wins = games.filter(g => g.winner === user.id).length;
+	const losses = games.filter(
+		g => g.winner !== user.id && g.status !== "ragequit"
+	).length;
+	const ragequits = games.filter(
+		g => g.status === "ragequit" && g.winner !== user.id
+	).length;
+	const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+
+	container.innerHTML = `
+		<div class="flex flex-col items-center gap-2">
+			<div class="flex gap-4">
+				<div class="flex flex-col items-center">
+					<span class="text-green-400 font-bold text-lg">${wins}</span>
+					<span class="text-xs text-gray-400">Wins</span>
+				</div>
+				<div class="flex flex-col items-center">
+					<span class="text-red-400 font-bold text-lg">${losses}</span>
+					<span class="text-xs text-gray-400">Losses</span>
+				</div>
+				<div class="flex flex-col items-center">
+					<span class="text-gray-400 font-bold text-lg">${ragequits}</span>
+					<span class="text-xs text-gray-400">Ragequits</span>
+				</div>
+			</div>
+			<div class="w-full mt-2">
+				<div class="relative h-4 bg-gray-700 rounded-full overflow-hidden">
+					<div class="absolute left-0 top-0 h-4 bg-green-400" style="width: ${winrate}%;"></div>
+					<div class="absolute right-0 top-0 h-4 bg-red-400" style="width: ${100 - winrate}%;"></div>
+				</div>
+				<div class="text-center text-xs text-gray-300 mt-1">Winrate: <span class="font-bold">${winrate}%</span></div>
+			</div>
+		</div>
+	`;
+}
+
 export async function showUserProfile(username?: string) {
 	if (!username) return;
 	const user = await GetUserByName(username);
@@ -182,4 +224,5 @@ export async function showUserProfile(username?: string) {
 	).length.toString();
 
 	await renderGameHistory(user, user.games!, "game-history-list");
+	await renderWinLossStats(user);
 }

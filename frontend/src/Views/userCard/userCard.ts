@@ -1,13 +1,8 @@
-import { create } from "domain";
 import { getUserInfos, userInfos } from "../../User/me.js";
 import { updateUserInfos } from "../../User/updateUser.js";
 import { navigateTo } from "../viewManager.js";
 import { createConversation } from "../../Chat/createConversation.js";
-import { get } from "http";
-import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
-import { removeFriend } from "../../Friends/removeFriend.js";
 import { showToast } from "../triggerToast.js";
-import { write } from "fs";
 import { GetUserByName } from "../../User/getUserByName.js";
 import { UserData } from "../../types.js";
 
@@ -671,17 +666,17 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 
 function statusBadge(userInfos: UserData): HTMLDivElement {
 	// Badge de statut
-	const status = userInfos.status!;
-	let badgeColor = "bg-gray-500";
+	const user_status = userInfos.status!;
+	let badgeColor = status.offline;
 	let badgeText = "Hors-ligne";
-	if (status === "online") {
-		badgeColor = "bg-green-400";
+	if (user_status === "online") {
+		badgeColor = status.online;
 		badgeText = "En ligne";
-	} else if (status === "away") {
-		badgeColor = "bg-yellow-400";
+	} else if (user_status === "away") {
+		badgeColor = status.away;
 		badgeText = "Absent";
-	} else if (status === "inGame") {
-		badgeColor = "bg-blue-500";
+	} else if (user_status === "inGame") {
+		badgeColor = status.inGame;
 		badgeText = "En jeu";
 	}
 
@@ -689,7 +684,7 @@ function statusBadge(userInfos: UserData): HTMLDivElement {
 	const statusBadge = document.createElement("div");
 	statusBadge.className = `absolute bottom-4 right-6 flex items-center`;
 	statusBadge.innerHTML = `
-	<span class="w-6 h-6 rounded-full border-4 border-[#1a1826] ${badgeColor} flex items-center justify-center">
+	<span class="status-indicator-${userInfos.id!} w-6 h-6 rounded-full border-4 border-[#1a1826] ${badgeColor} flex items-center justify-center">
 		<span class="sr-only">${badgeText}</span>
 	</span>
 	<span class="ml-2 text-xs font-bold text-white bg-black/60 px-2 py-1 rounded hidden lg:inline">${badgeText}</span>

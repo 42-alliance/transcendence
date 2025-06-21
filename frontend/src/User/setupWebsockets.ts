@@ -180,7 +180,9 @@ export async function setupUserWebsocket() {
 				writeStatus(elem, status);
 			});
 		}
-	}	
+		sidebar_visibility();
+	}
+
 
 	console.log('Message from server:', event.data);
   };
