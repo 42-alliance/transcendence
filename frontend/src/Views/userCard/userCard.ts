@@ -669,6 +669,35 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 }
 
 
+function statusBadge(userInfos: UserData): HTMLDivElement {
+	// Badge de statut
+	const status = userInfos.status!;
+	let badgeColor = "bg-gray-500";
+	let badgeText = "Hors-ligne";
+	if (status === "online") {
+		badgeColor = "bg-green-400";
+		badgeText = "En ligne";
+	} else if (status === "away") {
+		badgeColor = "bg-yellow-400";
+		badgeText = "Absent";
+	} else if (status === "inGame") {
+		badgeColor = "bg-blue-500";
+		badgeText = "En jeu";
+	}
+
+	// Badge rond + tooltip
+	const statusBadge = document.createElement("div");
+	statusBadge.className = `absolute bottom-4 right-6 flex items-center`;
+	statusBadge.innerHTML = `
+	<span class="w-6 h-6 rounded-full border-4 border-[#1a1826] ${badgeColor} flex items-center justify-center">
+		<span class="sr-only">${badgeText}</span>
+	</span>
+	<span class="ml-2 text-xs font-bold text-white bg-black/60 px-2 py-1 rounded hidden lg:inline">${badgeText}</span>
+	`;
+
+	return statusBadge;
+}
+
 export function createUserCard(targetElement: HTMLElement, userInfos: UserData): void {
 	// Création du conteneur principal
 	const container = document.createElement("div");
@@ -704,8 +733,11 @@ export function createUserCard(targetElement: HTMLElement, userInfos: UserData):
 	profileImg.src = userInfos.picture	 || "assets/default.jpeg";
 	profileImg.alt = "Photo de profil";
 
+	const statusBadgeElement = statusBadge(userInfos);
+
 	profileWrapper.appendChild(profileBg);
 	profileWrapper.appendChild(profileImg);
+	profileWrapper.appendChild(statusBadgeElement);
 	bannerContainer.appendChild(profileWrapper);
 
 	// Infos utilisateur

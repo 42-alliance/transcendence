@@ -25,12 +25,13 @@ export async function getUserByName(
 				id: number;
 				name: string;
 				picture: string;
+				is_online: string;
 				banner: string | null;
 				bio: string | null;
 				created_at: Date;
 			}[]
 		>(`
-			SELECT id, name, picture, banner, bio, created_at
+			SELECT id, name, picture, banner, bio, is_online, created_at
 			FROM Users
 			WHERE LOWER(name) = LOWER(${JSON.stringify(name)})
 			LIMIT 1;
@@ -131,16 +132,17 @@ export async function getUserByName(
 			}
 		});
 
-		return {
+		return reply.status(200).send({
 			id: user.id,
     		name: user.name,
     		picture: user.picture,
     		banner: user.banner,
     		bio: user.bio,
     		created_at: user.created_at,
+			status: user.is_online,
 			common_friends: common_friends_users,
 			games: user_games
-		};
+		});
 	} catch (error) {
 		console.error("Unexpected error:", error);
 		return reply.status(500).send({ error: "Internal server error" });

@@ -67,8 +67,12 @@ class QueueManager {
     }
 
     public addPlayerToPendingQueue(player: Player): void {
-        this.pendingPlayers.push(player);
-        console.log(`Player ${player.username} added to pending queue`);
+        if  (!this.pendingPlayers.some(p => p === player)) {
+            this.pendingPlayers.push(player);
+            console.log(`Player ${player.username} added to pending queue`);
+        } else {
+            console.error("Player already in queue");
+        }
     }
 
     public processPlayerQueues(): void {
@@ -78,8 +82,13 @@ class QueueManager {
             const queue = this.queues.get(player.type);
 
             if (queue) {
-                queue.push(player);
-                console.log(`Player ${player.username} moved to ${player.type} queue`);
+                if (!queue.some(p => p.username === player.username)) {
+
+                    queue.push(player);
+                    console.log(`Player ${player.username} moved to ${player.type} queue`);
+                    return
+                }
+                console.log(`Player ${player.username} is already in ${player.type} queue, request aborted`);
             } else {
                 console.error(`Invalid game mode: ${player.type}`);
             }

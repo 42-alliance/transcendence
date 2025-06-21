@@ -113,7 +113,7 @@ async function renderGameHistory(
     </div>
     <a href="/${opponent.name}" 
        class="text-gray-400 flex items-center gap-2 hover:text-gray-200 transition-colors ml-4"
-    >vs 
+    data-link>vs 
       <b class="ml-1 text-white group-hover:text-gray-200 transition-colors">${
 			opponent.name
 		}</b>
@@ -163,7 +163,10 @@ export async function showUserProfile(username?: string) {
 		}</span>
     `;
 		div.onclick = () => {
-			navigateTo(`${friend.name}`);
+			setTimeout(() => {
+				navigateTo(`/${friend.name}`);
+			}
+			, 100); // Delay to allow the click event to propagate
 		};
 		container.appendChild(div);
 	});
