@@ -11,173 +11,238 @@ FontHelper.loadFonts().then(() => {
 
 
 export class GameRenderer {
+    private static readonly COLORS = {
+        background: '#091053',
+        paddle: '#b9d6f2',
+        ball: 'grey',
+        net: 'white',
+        text: 'white'
+    };
+
+    private static readonly CONSTANTS = {
+        cornerRadius: 40,
+        paddleRadius: 10,
+        netSegmentHeight: 15,
+        netRadius: 2
+    };
 
     static renderGame(gameState: any) {
+        const { gameCanvas, ctx } = this.initializeCanvas();
+        if (!gameCanvas || !ctx || !gameState) return;
+
+        const renderData = this.prepareRenderData(gameState);
+        
+        this.drawBackground(ctx, gameCanvas);
+        this.drawNet(ctx, gameCanvas);
+        this.drawPaddles(ctx, gameCanvas, renderData);
+        this.drawBall(ctx, gameCanvas, renderData);
+        this.drawScores(ctx, gameCanvas, renderData);
+    }
+
+    private static initializeCanvas() {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         GameUI.hideSpinner();
         GameUI.hideGameButtons();
         GameUI.hideDifficultyButtons();
         GameUI.hideGameArea();
 
-        if (!gameCanvas) return;
-        const ctx = gameCanvas.getContext('2d');
-        if (!ctx || !gameState) return;
-
-        // Clear the canvas
-        ctx.fillStyle = '#091053';
-        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-        const game = gameState;
-        console.log('GAME DATA:', game);
+        const ctx = gameCanvas?.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         
-        // Déterminer si le jeu est en ligne et si nous devons inverser l'affichage
+        return { gameCanvas, ctx };
+    }
+
+    private static prepareRenderData(gameState: any) {
+        console.log('GAME DATA:', gameState);
+        
         const gameInstance = (window as any).gameInstance;
-        const currentUser = GameRenderer.getCurrentUser(gameInstance);
-        const isOnlineMode = game.mode === 'random_adversaire' || game.mode === 'tournament';
-        const shouldFlip = isOnlineMode && game.score && game.score.p2_id === currentUser.id;
-        console.log( `Current user ID: ${currentUser.id} P2 user ID: ${game.score.p2_id} , Game mode: ${game.mode}, Should flip: ${shouldFlip}`);
+        const currentUser = this.getCurrentUser(gameInstance);
+        const isOnlineMode = ['random_adversaire', 'tournament'].includes(gameState.mode);
+        const shouldFlip = isOnlineMode && gameState.score && gameState.score.p2_id === currentUser.id;
         
-        // Draw the net (toujours au centre)
-        ctx.fillStyle = 'white';
+        console.log(`Current user ID: ${currentUser.id} P2 user ID: ${gameState.score?.p2_id}, Game mode: ${gameState.mode}, Should flip: ${shouldFlip}`);
+        
+        return { game: gameState, shouldFlip };
+    }
+
+    private static drawBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+        ctx.save();
+        ctx.beginPath();
+        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, this.CONSTANTS.cornerRadius);
+        ctx.fillStyle = this.COLORS.background;
+        ctx.fill();
+        ctx.restore();
+    }
+
+    private static drawNet(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+        ctx.fillStyle = this.COLORS.net;
         ctx.imageSmoothingQuality = 'high';
-        const netX = (gameCanvas.width - 2) / 2;
-        for (let i = 0; i <= gameCanvas.height; i += 15) {
-            ctx.fillRect(netX, i, 4, 20);
-        }
-
-        // Dessiner les paddles selon l'orientation
-        ctx.fillStyle = '#b9d6f2';
+        const netX = (canvas.width - 2) / 2;
         
-        // Premier paddle (à gauche ou à droite selon shouldFlip)
-        if (game.paddle1) {
-            if (!shouldFlip) {
-                // Normal: Paddle 1 à gauche
-                ctx.fillRect(
-                    game.paddle1.x,
-                    game.paddle1.y,
-                    game.paddle1.width,
-                    game.paddle1.height
-                );
-            } else {
-                // Inversé: Paddle 1 à droite
-                ctx.fillRect(
-                    gameCanvas.width - game.paddle1.x - game.paddle1.width,
-                    game.paddle1.y,
-                    game.paddle1.width,
-                    game.paddle1.height
-                );
-            }
-        }
-
-        // Deuxième paddle (à droite ou à gauche selon shouldFlip)
-        if (game.paddle2) {
-            if (!shouldFlip) {
-                // Normal: Paddle 2 à droite
-                ctx.fillRect(
-                    game.paddle2.x,
-                    game.paddle2.y,
-                    game.paddle2.width,
-                    game.paddle2.height
-                );
-            } else {
-                // Inversé: Paddle 2 à gauche
-                ctx.fillRect(
-                    gameCanvas.width - game.paddle2.x - game.paddle2.width,
-                    game.paddle2.y,
-                    game.paddle2.width,
-                    game.paddle2.height
-                );
-            }
-        }
-
-        // Dessiner la balle (inverser sa position si nécessaire)
-        if (game.ball) {
-            ctx.save();
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = '#CAFE48';
+        for (let i = 0; i <= canvas.height; i += this.CONSTANTS.netSegmentHeight) {
             ctx.beginPath();
-            
-            const ballX = shouldFlip ? gameCanvas.width - game.ball.x : game.ball.x;
-            
-            ctx.arc(
-                ballX,
-                game.ball.y,
-                game.ball.radius,
-                0,
-                Math.PI * 2
-            );
+            ctx.moveTo(netX + 2, i);
+            ctx.arc(netX + 2, i + 10, this.CONSTANTS.netRadius, Math.PI * 1.5, Math.PI * 0.5, false);
             ctx.closePath();
             ctx.fill();
-            ctx.restore();
         }
+    }
 
-        // Dessiner les scores (également inversés si nécessaire)
-        ctx.fillStyle = 'white';
+    private static drawPaddles(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, { game, shouldFlip }: any) {
+        ctx.fillStyle = this.COLORS.paddle;
+        
+        if (game.paddle1) {
+            this.drawPaddle(ctx, canvas, game.paddle1, shouldFlip);
+        }
+        if (game.paddle2) {
+            this.drawPaddle(ctx, canvas, game.paddle2, shouldFlip);
+        }
+    }
+
+    private static drawPaddle(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, paddle: any, shouldFlip: boolean) {
+        const x = shouldFlip ? canvas.width - paddle.x - paddle.width : paddle.x;
+        
+        ctx.beginPath();
+        this.drawRoundedRect(ctx, x, paddle.y, paddle.width, paddle.height, this.CONSTANTS.paddleRadius);
+        ctx.fill();
+    }
+
+    private static drawBall(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, { game, shouldFlip }: any) {
+        if (!game.ball) return;
+        
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = this.COLORS.ball;
+        ctx.beginPath();
+        
+        const ballX = shouldFlip ? canvas.width - game.ball.x : game.ball.x;
+        ctx.arc(ballX, game.ball.y, game.ball.radius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    private static drawScores(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, { game, shouldFlip }: any) {
+        if (!game.score) return;
+
+        ctx.fillStyle = this.COLORS.text;
         ctx.font = FontHelper.getScoreFont();
         ctx.textAlign = 'center';
 
-        if (game.score) {
-            // Noms des joueurs
-            if (!shouldFlip) {
-                // Affichage normal
-                ctx.fillText(game.score.p1_name, gameCanvas.width / 4, 50);
-                ctx.fillText(game.score.p2_name, (3 * gameCanvas.width) / 4, 50);
-                
-                ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
-                ctx.fillText(game.score.p1.toString(), gameCanvas.width / 4, 300, 200);
-                ctx.fillText(game.score.p2.toString(), (3 * gameCanvas.width) / 4, 300, 200);
-            } else {
-                // Affichage inversé
-                ctx.fillText(game.score.p2_name, gameCanvas.width / 4, 50);
-                ctx.fillText(game.score.p1_name, (3 * gameCanvas.width) / 4, 50);
-                
-                ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
-                ctx.fillText(game.score.p2.toString(), gameCanvas.width / 4, 300, 200);
-                ctx.fillText(game.score.p1.toString(), (3 * gameCanvas.width) / 4, 300, 200);
-            }
-        }
+        const [leftName, rightName] = shouldFlip 
+            ? [game.score.p2_name, game.score.p1_name]
+            : [game.score.p1_name, game.score.p2_name];
+            
+        const [leftScore, rightScore] = shouldFlip 
+            ? [game.score.p2, game.score.p1]
+            : [game.score.p1, game.score.p2];
+
+        // Player names
+        ctx.fillText(leftName, canvas.width / 4, 50);
+        ctx.fillText(rightName, (3 * canvas.width) / 4, 50);
+        
+        // Scores
+        ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
+        ctx.fillText(leftScore.toString(), canvas.width / 4, 300, 200);
+        ctx.fillText(rightScore.toString(), (3 * canvas.width) / 4, 300, 200);
+    }
+
+    private static drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
     }
 
 
     static showGameFinished(data: any) {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-        gameCanvas.innerHTML = '';
-        const resultContainer = GameRenderer.createResultContainer();
-
+        if (!gameCanvas) return;
+        
+        // Supprimer tout résultat précédent
+        const existingResult = document.getElementById('game-result');
+        if (existingResult) existingResult.remove();
+        
+        // Créer le conteneur de résultat
+        const resultContainer = this.createResultContainer();
+        
+        // Obtenir les informations de l'utilisateur
         const gameInstance = (window as any).gameInstance;
-        const currentUser = GameRenderer.getCurrentUser(gameInstance);
-
+        const currentUser = this.getCurrentUser(gameInstance);
         const userId = String(currentUser.id);
+        
         console.log("Current user ID:", userId);
         console.log("Winner user ID:", data.winner);
         console.log("Game mode:", data.mode);
 
+        // Afficher le résultat approprié
         if (data.mode === 'local' || data.mode === 'ia') {
-            GameRenderer.handleLocalOrAIMode(resultContainer, data);
+            this.handleLocalOrAIMode(resultContainer, data);
         } else {
-            GameRenderer.handleOnlineMode(resultContainer, data, userId);
+            this.handleOnlineMode(resultContainer, data, userId);
         }
 
+        // Positionner le conteneur au centre du canvas
+        this.positionResultContainer(resultContainer, gameCanvas);
+        
+        // Ajouter au DOM
         document.body.appendChild(resultContainer);
     }
 
     private static createResultContainer(): HTMLDivElement {
         const resultContainer = document.createElement('div');
         resultContainer.id = 'game-result';
-        resultContainer.style.position = 'fixed';
-        resultContainer.style.width = '300px';
-        resultContainer.style.height = '300px';
-        resultContainer.style.top = '50%';
-        resultContainer.style.left = '50%';
-        resultContainer.style.transform = 'translate(-50%, -50%)';
-        resultContainer.style.backgroundColor = '';
-        resultContainer.style.padding = '20px';
-        resultContainer.style.borderRadius = '10px';
-        resultContainer.style.textAlign = 'center';
-        resultContainer.style.color = 'white';
-        resultContainer.style.zIndex = '1000';
-        resultContainer.style.fontFamily = FontHelper.MIGHTY_SOULY_FONT;
+        
+        Object.assign(resultContainer.style, {
+            position: 'fixed',
+            width: '300px',
+            padding: '30px',
+            borderRadius: '15px',
+            textAlign: 'center',
+            color: 'white',
+            zIndex: '1000',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(9, 16, 83, 0.9)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(5px)',
+            fontFamily: FontHelper.MIGHTY_SOULY_FONT,
+            transition: 'all 0.3s ease'
+        });
+        
         return resultContainer;
+    }
+
+    private static positionResultContainer(container: HTMLDivElement, canvas: HTMLCanvasElement): void {
+        // Obtenir les dimensions et la position du canvas
+        const canvasRect = canvas.getBoundingClientRect();
+        
+        // Calculer la position pour centrer le conteneur sur le canvas
+        const left = canvasRect.left + (canvasRect.width / 2) - (parseInt(container.style.width) / 2);
+        const top = canvasRect.top + (canvasRect.height / 2) - (container.clientHeight / 2);
+        
+        // Appliquer la position
+        container.style.left = `${left}px`;
+        container.style.top = `${top}px`;
+        
+        // S'assurer que le conteneur reste centré lors du redimensionnement
+        window.addEventListener('resize', () => {
+            const updatedCanvasRect = canvas.getBoundingClientRect();
+            const newLeft = updatedCanvasRect.left + (updatedCanvasRect.width / 2) - (parseInt(container.style.width) / 2);
+            // Décale le centre un peu plus haut (par exemple, 60px plus haut)
+            const newTop = updatedCanvasRect.top + (updatedCanvasRect.height / 2) - (container.clientHeight / 2) - 60;
+            
+            container.style.left = `${newLeft}px`;
+            container.style.top = `${newTop}px`;
+        });
     }
 
     private static getCurrentUser(gameInstance: any): any {
@@ -222,7 +287,6 @@ export class GameRenderer {
                 message.textContent += ` | Gagnant: ${data.winner_name}`;
             }
         }
-        message.style.marginBottom = '60px';
         FontHelper.applyMightySoulyFont(message, FontHelper.TEXT_FONT_SIZE);
         resultContainer.appendChild(message);
 
@@ -235,7 +299,6 @@ export class GameRenderer {
         button.textContent = 'Retourner au lobby';
         button.style.width = '100%';
         button.style.padding = '20px';
-        button.style.marginTop = '20px';
 
         button.style.backgroundColor = '#B9D6F2';
         button.style.color = '#091053';

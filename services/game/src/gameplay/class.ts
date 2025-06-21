@@ -189,8 +189,8 @@ class Game {
         this.paddleHeight = 200; // Fixed paddle height
         this.ballRadius = 25; // Fixed ball radius
 
-        const paddleSpeed = 18; // Fixed paddle speed
-        const ballSpeed = 7; // Fixed ball speed
+        const paddleSpeed = 12; // Fixed paddle speed
+        const ballSpeed = 4; // Fixed ball speed
 
         // Create paddles and ball with scaling
         this.paddle_1 = new Paddle(10, (height - this.paddleHeight) / 2, this.paddleWidth, this.paddleHeight, paddleSpeed);
@@ -213,14 +213,13 @@ class Game {
     resetBall() {
         this.ball.x = this.width / 2;
         this.ball.y = this.height / 2;
-        this.ball.speed = 7; // Reset ball speed
+        this.ball.speed = 4; // Reset ball speed
         const angle = (Math.random() * Math.PI/4) - Math.PI/8; // Small random angle variation
         // Alternate ball direction based on who scored
         const direction = this.ball.dx > 0 ? -1 : 1;
-        const speed = Math.max(Math.abs(this.ball.dx), Math.abs(this.ball.dy));
         // Set new velocity based on original ball speed from constructor
-        this.ball.dx = direction * speed * Math.cos(angle);
-        this.ball.dy = speed * Math.sin(angle);
+        this.ball.dx = direction * 4 * Math.cos(angle);
+        this.ball.dy = 4 * Math.sin(angle);
     }
 
     update() {
@@ -331,7 +330,7 @@ class Game {
         if (winner) {
             this.endGame(winner);
         } else {
-            this.resetBall(); // Réinitialiser la balle si personne n'a encore gagné
+            this.resetBall(); // Réinitialiser la balle après un point marqué
         }
     }
     

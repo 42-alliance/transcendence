@@ -111,7 +111,6 @@ async function HandleMatch() {
                 game.uuid_room = all_sessions[0].match.uuid_room;
                 game.p1.ws = all_sessions[0].match.players[0].socket;
                 game.p1.user_id = all_sessions[0].match.players[0].user_id; // Ajouter l'ID utilisateur
-                console.log(`the uuid_room: ${all_sessions[0].match.uuid_room}`);
                 sessions.set(all_sessions[0].match.uuid_room, game);
                 if (game.p1.ws.readyState !== wss.close) {
                     game.p1.ws.send(JSON.stringify({
