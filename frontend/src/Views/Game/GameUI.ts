@@ -69,12 +69,12 @@ export class GameUI {
     });
     }
     
-    static hideGameButtons(): void {
+    static hideLobbyButtons(): void {
         this.toggleButtonVisibility(this.lobbyButtons, false);
     }
     
     static displayWaiting(): void {
-        this.hideGameButtons();
+        this.hideLobbyButtons();
         this.displaySpinner();
     }
     
@@ -141,7 +141,7 @@ export class GameUI {
         this.screens.forEach((screen, name) => {
             screen.hide();
         });
-        this.hideGameButtons();
+        this.hideLobbyButtons();
         this.hideSpinner();
         this.activeScreen = null;
     }

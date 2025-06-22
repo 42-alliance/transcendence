@@ -31,7 +31,7 @@ export async function setUserProfile() {
 
 	const profileLink = document.getElementById("profile-link") as HTMLAnchorElement;
 	if (profileLink)
-		profileLink.href = `/${user.name}`;
+		profileLink.href = `/me`;
 
 	if (profil_link_sidebar)
 		profil_link_sidebar.href = `/${user.name}`;

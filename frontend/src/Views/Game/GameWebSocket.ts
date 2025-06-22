@@ -4,6 +4,11 @@ import { WebSocketState } from "./WebSocketState.js";
 import { GameMessageHandler } from "./GameMessageHandler.js";
 import { TournamentMessageHandler } from "./TournamentMessageHandler.js";
 import { MessageSender } from "./MessageSender.js";
+import { gameWsClass, setGameWsClass, webSockets } from "../viewManager.js";
+
+export function setupGameWebSocket() {
+	webSockets.game = new WebSocket('ws://localhost:8000/gamews');
+}
 
 export class GameWebSocket {
     private state: WebSocketState;
@@ -17,6 +22,8 @@ export class GameWebSocket {
         this.tournamentMessageHandler = new TournamentMessageHandler();
         this.messageSender = new MessageSender(this.state);
         
+        setGameWsClass(this); // Store the instance globally for access in other parts of the app
+        this.state.setSocket(webSockets.game);
         this.setupEventListeners();
     }
     
@@ -41,7 +48,8 @@ export class GameWebSocket {
     
     initializeWebSocket(): void {
         try {
-            const socket = new WebSocket('ws://localhost:8000/gamews'); // 👈 via gateway
+            const socket = webSockets.game!; // 👈 via gateway
+
             this.state.setSocket(socket);
 
             socket.onopen = () => {

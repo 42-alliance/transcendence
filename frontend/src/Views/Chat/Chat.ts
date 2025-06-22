@@ -195,7 +195,7 @@ async function renderChat(conversation: Conversation, userInfos: UserData) {
 	let inviteBtnHTML = `
     <button id="invite-to-play-btn" 
         class="ml-6 flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 hover:bg-orange-500/90 transition text-sm font-bold text-white shadow focus:outline-none"
-        title="Invite to play">
+        title="Invite to play" data-conversation-id="${conversation.id}">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
@@ -205,20 +205,20 @@ async function renderChat(conversation: Conversation, userInfos: UserData) {
 
 	if (otherMembers.length === 1) {
     chatHeader.innerHTML = `
-    <a href="/${otherMembers[0].name}" class="flex items-center gap-3 w-full h-full group transition-colors data-link">
+	<a href="/${otherMembers[0].name}" data-link class="group transition-colors">
     <img src="${otherMembers[0].picture || "/assets/default.jpeg"}"
         class="w-11 h-11 rounded-full border border-orange-400/30 group-hover:border-orange-400 transition-all duration-200"
         alt="${otherMembers[0].name} avatar">
+	</a>
     <div>
-        <div class="font-semibold text-white text-lg group-hover:text-orange-400 transition-colors">
-            ${otherMembers[0].name}
-        </div>
-        <div class="text-xs text-gray-400">
-            En ligne
-        </div>
+		<a href="/${otherMembers[0].name}" data-link class="group transition-colors">
+
+    	    <div class="font-semibold text-white text-lg group-hover:text-orange-400 transition-colors">
+        	    ${otherMembers[0].name}
+        	</div>
+		</a>
     </div>
     ${inviteBtnHTML}
-</a>
 
     `;
 	} else {
@@ -230,7 +230,7 @@ async function renderChat(conversation: Conversation, userInfos: UserData) {
 			}</div>
             <div class="text-xs text-gray-400">${
 				otherMembers.length
-			} membres</div>
+			} members</div>
         </div>
         ${inviteBtnHTML}
     `;
@@ -298,6 +298,7 @@ async function renderChat(conversation: Conversation, userInfos: UserData) {
 
 			webSockets.chat?.send(
 				JSON.stringify({
+					type: "new_message",
 					conversationId: conversation.id,
 					content: value,
 				})

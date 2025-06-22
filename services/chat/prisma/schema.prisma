@@ -38,6 +38,8 @@ model ConversationMember {
 model Message {
   id             Int       @id @default(autoincrement())
   createdAt      DateTime  @default(now())
+  expiredAt      DateTime? @default(now())
+  isEphemeral   Boolean   @default(false)
   content        String
   conversationId Int
   userId         Int // Référence à l'ID d'utilisateur dans un service externe

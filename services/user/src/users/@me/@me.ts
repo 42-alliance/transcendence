@@ -9,11 +9,6 @@ export const meSchema: FastifySchema = {
 	})
 };
 
-
-export async function formatGame() {
-
-}
-
 export async function me(request: FastifyRequest, reply: FastifyReply): Promise<object[]> {
     const userId = extractUserId(request);
 

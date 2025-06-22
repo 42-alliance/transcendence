@@ -42,7 +42,7 @@ export class GameRenderer {
     private static initializeCanvas() {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         GameUI.hideSpinner();
-        GameUI.hideGameButtons();
+        GameUI.hideLobbyButtons();
         GameUI.hideDifficultyButtons();
         GameUI.hideGameArea();
 

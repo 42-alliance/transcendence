@@ -7,6 +7,7 @@ export interface User {
   };
 
 export interface WebSocketMessage {
+	type: "new_message" | "invitation_game";
     conversationId: number;
     content: string;
 }

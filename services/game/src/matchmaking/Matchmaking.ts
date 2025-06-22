@@ -55,7 +55,8 @@ class QueueManager {
             ['local', []],
             ['ia', []],
             ['tournament', []],
-            ['inv_game', []]
+            ['create_inv_game', []],
+			['join_inv_game', []]
         ]);
     }
 
@@ -220,6 +221,9 @@ class MatchManager {
 
         // Process invitation games
         const invQueue = queueManager.getQueueByType('create_inv_game');
+		if (invQueue.length !== 0) {
+			console.log(`Processing invitation games, found ${invQueue.length} creators`);
+		}
         const joinInvQueue = queueManager.getQueueByType('join_inv_game');
         
         // Process each join request
@@ -337,15 +341,19 @@ class WebSocketMessageHandler {
     }
 
     private handleInvitationGame(data: any): void {
+		console.log(`Handling invitation game of type: ${data.type}`);
         this.player.username = data.user.name;
         this.player.type = data.type;
         this.player.user_id = data.user.id;
-        
+        console.log(`data.type: ${data.type}`);
         if (data.type === 'create_inv_game') {
             this.player.uuid_room = uuidv4();
+			console.log(`Invitation game created with UUID: ${this.player.uuid_room}`);
             secureSend(this.socket, {
                 type: 'create_game_response',
-                uuid: this.player.uuid_room  // Fixed syntax error: = to :
+				userId: data.userId,
+                uuid: this.player.uuid_room, // Fixed syntax error: = to :
+				conversationId: data.conversationId,
             });
         } else if (data.type === 'join_inv_game') {
             // We need to set the player's room ID to the UUID provided in the join request

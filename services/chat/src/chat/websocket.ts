@@ -21,12 +21,20 @@ async function broadcastMessage(conversationId: number, message: any) {
 	
 		members.forEach(({ userId }) => {
 			const userSockets = clients.get(userId);
+			console.log("message: ", message);
 			if (userSockets) {
 				userSockets.forEach(socket => {
-					socket.send(JSON.stringify({
-						type: "new_message",
-						data: message,
-					}));
+					socket.send(
+						JSON.stringify({
+							type: message.type,
+							content: message.message.content,
+							conversationId: conversationId,
+							userId: message.message.userId,
+							name: message.message.name,
+							picture: message.message.picture,
+							expiredAt: message.message.expiredAt ? message.message.expiredAt.toISOString() : null,
+						})
+					);
 				});
 			}
 		});
@@ -48,6 +56,7 @@ export function setupWebsocket(socket: WebSocket.WebSocket, req: FastifyRequest)
 		socket.on("message", async (message: string) => {
 			try {
 				const data: WebSocketMessage = JSON.parse(message.toString());
+				console.log("📩 Nouveau message reçu:", data);
 				const messageInfos = await storeMessage(userId, data);
 	
 				await broadcastMessage(data.conversationId, messageInfos);

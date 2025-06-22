@@ -10,14 +10,14 @@ export enum AILevel {
 
 export class GameAI {
     private readonly REACTION_TIME = {
-        [AILevel.EASY]: 800,      // Temps de réaction plus lent (ms)
-        [AILevel.MEDIUM]: 440,
-        [AILevel.HARD]: 220,
-        [AILevel.IMPOSSIBLE]: 40  // Réaction quasi instantanée
+        [AILevel.EASY]: 1500,      // Temps de réaction plus lent (ms)
+        [AILevel.MEDIUM]: 840,
+        [AILevel.HARD]: 620,
+        [AILevel.IMPOSSIBLE]: 540  // Réaction quasi instantanée
     };
     
     private readonly PREDICTION_ACCURACY = {
-        [AILevel.EASY]: 0.5,      // 70% de précision
+        [AILevel.EASY]: 0.2,      // 70% de précision
         [AILevel.MEDIUM]: 0.75,
         [AILevel.HARD]: 0.85,
         [AILevel.IMPOSSIBLE]: 1.0 // 100% précis
@@ -159,9 +159,9 @@ export class GameAI {
         
        
         const time = this.REACTION_TIME[this.level];
+		await new Promise(resolve => setTimeout(resolve, time));
         // Mettre à jour les décisions selon le temps de réaction défini par le niveau
         if (true) {
-            console.log("IA START DETERMINE HIS MOVE")
             this.lastDecisionTime = now;
             
             // Déterminer si l'IA doit jouer agressivement ou défensivement
@@ -183,11 +183,7 @@ export class GameAI {
                     this.defensivePosition = height / 2 + (ball.y - height / 2) * 0.3;
                 }
             }
-            if (this.isAttacking = true)
-                    console.log("IA DECIDE TO ATACK");
-            else 
-                console.log("IA DONT DECIDE TO ATACK");
-            
+
             // Déterminer la direction de déplacement en fonction de la cible
             const targetY = this.targetY !== null ? this.targetY : this.defensivePosition;
             const paddleCenter = paddle.y + paddle.height / 2;
@@ -198,17 +194,15 @@ export class GameAI {
             
             // Si l'IA est en mode attaque ou défense, définir les flags de mouvement
             if (this.level === AILevel.EASY && Math.random() < 0.1) {
-                console.log("IA DEFINE MODE");
                 // Parfois faire des mouvements aléatoires pour l'IA facile
                 this.moveUp = Math.random() < 0.5;
                 this.moveDown = !this.moveUp;
             } else if (this.level === AILevel.IMPOSSIBLE && ball.dx > 0) {
                 // Pour le niveau impossible, suivre la balle presque parfaitement
                 if (paddleCenter < ball.y - 5) {
-                    console.log("IA MOVE DOWN");
                     this.moveDown = true;
                 } else if (paddleCenter > ball.y + 5) {
-                    console.log("IA MOVE UP");
+    
                     this.moveUp = true;
                 }
             } else {
@@ -230,13 +224,7 @@ export class GameAI {
             }
             this.move();
         }
-        else
-        {
-            console.log( "now : " ,now );
-            console.log("ths.lastime", this.lastDecisionTime);
-            console.log("reaction time", this.REACTION_TIME[this.level]);
 
-        }
     }
     
     check_end_game() {

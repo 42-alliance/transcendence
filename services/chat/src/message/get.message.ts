@@ -24,6 +24,15 @@ export async function getMessages(server: FastifyInstance, request: FastifyReque
 			return reply.status(403).send({ error: "Vous n'êtes pas membre de cette conversation." });
 		}
   
+		await prisma.message.deleteMany({
+			where: {
+				conversationId: Number(conversationId),
+				expiredAt: {
+					lte: new Date() // Supprimer les messages expirés
+				},
+				isEphemeral: true // Ne supprimer que les messages éphémères
+			}
+		});
 		
 	  // Récupérer les messages avec pagination
 		const messages = await prisma.message.findMany({

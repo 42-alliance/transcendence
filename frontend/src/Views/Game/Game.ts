@@ -15,6 +15,8 @@ export default class extends AView {
         this.initializeUserInfo();
     }
 
+	
+
     private async initializeUserInfo() {
         this.user_info = await getUserInfos();
         // this.user_info.id = Math.floor(Math.random() * 1000000);

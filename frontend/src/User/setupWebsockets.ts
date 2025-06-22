@@ -1,5 +1,3 @@
-import { write } from "fs";
-import { pendingFriendSidebarCard } from "../Friends/showPendingRequest.js";
 import { updateFriendStatus } from "../Friends/updateFriendStatus.js";
 import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 import { showToast } from "../Views/triggerToast.js";

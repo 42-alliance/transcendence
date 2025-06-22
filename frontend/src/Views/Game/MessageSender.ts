@@ -35,8 +35,8 @@ export class MessageSender {
                 ...messageData
             };
             
-            console.log(`Sending message with UUID ${message.uuid_room || 'none'}:`, type);
             socket.send(JSON.stringify(message));
+			console.log(`Message sent: ${message.type}`, messageData);
             return true;
         } else {
             console.error('WebSocket not connected');

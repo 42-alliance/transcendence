@@ -12,6 +12,8 @@ import Friends from "./Friends/Friends.js";
 import Chat from "./Chat/Chat.js";
 import AView from "./AView.js";
 import { setupUserWebsocket } from "../User/setupWebsockets.js";
+import { GameWebSocket, setupGameWebSocket } from "./Game/GameWebSocket.js";
+import Me from "./Me/Me.js";
 
 // Initialisation du WebSocket
 export const webSockets: WebSockets = {
@@ -19,6 +21,12 @@ export const webSockets: WebSockets = {
   user: null,
   game: null,
 };
+
+export function setGameWsClass(instance: GameWebSocket): void {
+	gameWsClass = instance;
+}
+
+export let gameWsClass: GameWebSocket | null = null;
 
 // Fonction de navigation
 export const navigateTo = (url: string): void => {
@@ -71,6 +79,7 @@ const routes: Route[] = [
 	{ path: "/friends", view: Friends },
 	{ path: "/auth-success", view: AuthSuccess },
 	{ path: "/auth", view: Auth },
+	{ path: "/me", view: Me },
 	{ path: "/:username", view: User },
 	// { path: "/selection", view: Selection },
 ];
@@ -115,19 +124,25 @@ const routes: Route[] = [
   if (isLogin && webSockets.user === null) {
     setupUserWebsocket();
   }
+  
+  // Setup websocket si loggé et pas encore fait
+  if (isLogin && webSockets.game === null) {
+    setupGameWebSocket();
+	const gameInstance = new Game();
+	await gameInstance.executeViewScript();
+}
+// Crée la vue (passe les params si besoin)
+const view = new matchedRoute.view();
 
-  // Crée la vue (passe les params si besoin)
-  const view = new matchedRoute.view();
+const appId = document.getElementById("app");
+if (appId) {
+	appId.innerHTML = await view.getHtml();
+}
 
-  const appId = document.getElementById("app");
-  if (appId) {
-    appId.innerHTML = await view.getHtml();
-  }
-
-  // Script supplémentaire si Game (exécution du JS de la vue)
-  if (view instanceof Game) {
-    await view.executeViewScript();
-  }
+// Script supplémentaire si Game (exécution du JS de la vue)
+// if (view instanceof Game) {
+// 	await view.executeViewScript();
+// }
 
   // Toujours passer les params à ta fonction dynamique
   await dynamicDisplay(routeParams);

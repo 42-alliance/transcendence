@@ -4,6 +4,7 @@ import { GameControls } from './GameControls.js';
 import { GameState } from './GameState.js';
 import { GameRenderer } from './GameRenderer.js';
 import { AnimationController } from './AnimationController.js';
+import { webSockets } from '../viewManager.js';
 
 export class GameMessageHandler {
     private state: WebSocketState;
@@ -44,7 +45,19 @@ export class GameMessageHandler {
                 console.log("Starting animation:", message.data);
                 GameUI.showAnimationMatch(message.player, message.opponent, message.mode);
                 break;
+			case 'create_game_response':
+				webSockets.chat?.send(JSON.stringify({
+					type: 'invitation_game',
+					userId: message.userId,
+					conversationId: message.conversationId,
+					content: message.uuid,
+				}));
+				setTimeout(() => {
+					GameUI.displayWaiting();
+				}, 500);
             default:
+				console.warn("Unknown game message type:", message.type);
+				console.warn("Message content:", message);
                 // Unknown game message type, let the parent handler decide
                 return;
         }
@@ -74,7 +87,7 @@ export class GameMessageHandler {
         
         this.animationController.startAnimation();
         
-        GameUI.hideGameButtons();
+        GameUI.hideLobbyButtons();
         GameUI.hideSpinner();
     }
     
