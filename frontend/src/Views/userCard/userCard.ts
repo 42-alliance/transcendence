@@ -675,6 +675,7 @@ function createDropdownButton(
 	onAddDelete_msg: string,
 	onAddDelete_color: string,
 	onBlock: () => void,
+	onBlock_msg: string,
 ): HTMLButtonElement {
 
 	// Bouton ... (dropdown) positionné en bas à droite de la bannière
@@ -705,7 +706,7 @@ function createDropdownButton(
 		<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm rounded-t-lg">Go chat</button>
 		<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-blue-400 text-sm">Invite to play</button>
 		<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 ${onAddDelete_color} text-sm ">${onAddDelete_msg}</button>
-			<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-red-400 text-sm">Block user</button>
+			<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-red-400 text-sm">${onBlock_msg}</button>
 		`;
 		bannerContainer.appendChild(dropdown);
 
@@ -770,6 +771,9 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 	if (!me) return;
 	if (userInfos.id !== me.id) {
 		const isFriend = me.friends?.some(friend => friend.id === userInfos.id);
+		const isblocked = me.blocked?.some(
+					blockedUser => blockedUser.id === userInfos.id!
+				);
 		const dropdownBtn = createDropdownButton(
 			bannerContainer, 
 			async () => {
@@ -778,18 +782,23 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 			() => {
 				alert("Inviter à jouer cliqué !");
 			}, 
-			() => {
+			async () => {
 				if (isFriend) {
-					removeFriend(userInfos.id!);
+					await removeFriend(userInfos.id!);
 				} else {
-					addFriend(userInfos.name!);
+					await addFriend(userInfos.name!);
 				}
 			},
 			isFriend ? "Remove Friend" : "Add to Friend",
 			isFriend ? "text-red-400" : "text-green-400",
-			() => {
-				updateFriendStatus(userInfos.id!, "blocked");
-			}
+			async () => {
+				if (isblocked) {
+					await updateFriendStatus(userInfos.id!, "unblocked");
+				} else {
+					await updateFriendStatus(userInfos.id!, "blocked");
+				}
+			},
+			isblocked ? "Unblock User" : "Block User",
 		);
 		bannerContainer.appendChild(dropdownBtn);
 	}

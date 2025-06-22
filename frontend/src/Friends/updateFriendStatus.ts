@@ -6,6 +6,7 @@ enum FriendState {
 	"accepted",
 	"blocked",
 	"rejected",
+	"unblocked",
 }
 
 function isValidFriendState(state: any): state is FriendState {
@@ -28,6 +29,8 @@ export async function updateFriendStatus(friendId: number, state: any): Promise<
 		});
 
 		const result = await response.json();
+
+		console.log("Friend status updated:", result);
 		await displayPendingFriendsDynamically();
 		await displayAllFriendsDynamically();
 		await sidebar_visibility();

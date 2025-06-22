@@ -25,6 +25,7 @@ export interface UserData {
 	status?: string; // "online", "offline", "away", "inGame"
 	email?: string;
 	friends?: UserData[];
+	blocked?: UserData[];
 	common_friends?: UserData[];
 	games?: Games[];
 	bio?: string;

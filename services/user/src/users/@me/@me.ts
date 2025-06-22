@@ -37,6 +37,22 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
             }
         });
 
+
+		const blockList = await prisma.friends.findMany({
+			where: {
+				status: "blocked",
+				whoBlockedId: userId,
+			},
+			select: {
+				sender: true,
+				receiver: true
+			}
+		});
+
+		const blockedUser = blockList.map(block => {
+			return block.sender.id === userId ? block.receiver : block.sender;
+		});
+
 		const games = await prisma.game.findMany({
 			where: {
 				OR: [
@@ -114,6 +130,7 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
 			status: me.is_online,
 			created_at: me.created_at,
 			friends: friends,
+			blocked: blockedUser,
 			games: games,
 			victories: victories,
 			defeats: defeats,

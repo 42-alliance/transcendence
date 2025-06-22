@@ -68,6 +68,17 @@ export function setupChatWebSocket() {
 				if (!conv_list) {
 					return;
 				}
+
+				const me = await getUserInfos();
+				if (!me) return;
+
+				const isblocked = me.blocked?.some(
+					blockedUser => blockedUser.id === msg.userId
+				);
+				if (isblocked) {
+					return;
+				}
+
 				const li = conv_list?.querySelector(
 					`li[data-conversation-id="${msg.conversationId}"]`
 				);

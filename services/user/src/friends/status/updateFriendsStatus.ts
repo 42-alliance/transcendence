@@ -75,6 +75,7 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 				},
 				data: {
 					status: status as keyof typeof StatusEnum,
+					whoBlockedId: status === StatusEnum.blocked ? userId : null,
 				}
 			});
 		}
