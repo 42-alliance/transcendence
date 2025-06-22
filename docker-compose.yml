@@ -1,0 +1,102 @@
+services:
+  frontend:
+    container_name: frontend
+    build: frontend/docker
+    ports:
+      - "8080:80"
+    restart: always
+    volumes:
+      - ./frontend:/var/www/html
+    env_file:
+      - ./.env
+  media:
+    container_name: media
+    build: services/media/docker
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./services/media/:/app
+    env_file:
+      - ./.env
+    restart: always
+    networks:
+      - services_network
+  user:
+      container_name: user
+      build: ./services/user
+      ports:
+        - "4000:4000"
+      volumes:
+        - ./services/user:/app
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - services_network
+  auth:
+      container_name: auth
+      build: ./services/auth
+      env_file:
+        - .env
+      volumes:
+        - ./services/auth:/app
+      restart: always
+      networks:
+        - services_network
+  tests:
+      container_name: tests
+      build: ./tests/docker/.
+      volumes:
+        - ./tests:/app
+      env_file:
+        - .env
+      networks:
+        - services_network
+      tty: true
+      depends_on:
+        - user
+        - auth
+  game:
+     container_name: game
+     build: ./services/game
+     ports:
+       - "8765:8765"
+       - "8790:8790"
+     env_file:
+       - .env
+     volumes:
+       - ./services/game:/app
+     restart: always
+     networks:
+       - services_network
+  gateway:
+      container_name: gateway
+      build: ./gateway/docker/
+      ports:
+        - "8000:8000"
+      volumes:
+        - ./gateway:/app
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - services_network
+      depends_on:
+        - user
+        - auth
+  chat:
+      container_name: chat
+      build: ./services/chat
+      ports:
+        - "5000:5000"
+      volumes:
+        - ./services/chat:/app
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - services_network
+      
+networks:
+  services_network:
+    driver: bridge

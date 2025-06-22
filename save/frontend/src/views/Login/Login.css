@@ -1,0 +1,115 @@
+:root {
+    --yellow-color: #fbbc42;
+    --orange-color: #e76a24;
+    --white-color: #e7e5e8;
+    --black-color: #01080a;
+    --blue-color: #1c4595;
+	--border-raduis: 15px;
+	--box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+}
+
+.login-container {
+	display: flex;
+	gap: 10rem;
+}
+
+.login-section {
+	width: 100%;
+	margin: 10% 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 50px;
+    height: -webkit-fill-available;
+}
+
+.login-form-left {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 50px;
+}
+
+.login-form-and-card {
+	display: flex;
+	justify-content: space-around;
+}
+
+.login-form {
+	--bg-light: #efefef;
+	--bg-dark: #e7e5e8;
+	--orange-color-alpha: #9c9c9c90;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+	max-width: 300px;
+}
+
+.login-form .input-span {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.login-form input[type="text"],
+.login-form input[type="file"] {
+	border-radius: 0.5rem;
+	padding: 1rem 0.75rem;
+	border: none;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background-color: #9c9c9c90;
+	outline: 2px solid #e7e5e8;
+	color: floralwhite;
+	cursor: pointer;
+	font-size: 15px;
+}
+
+.login-form input[type="text"]:focus,
+.login-form input[type="file"]:focus {
+	outline: 2px solid var(--orange-color);
+}
+
+.login-form input[type="file"]::file-selector-button {
+	background-color: var(--orange-color);
+	box-shadow: var(--box-shadow);
+	padding: 0.5rem 1rem;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.login-form input[type="file"]::file-selector-button:hover {
+	background-color: var(--white-color);
+	color: var(--orange-color);
+}
+
+.label {
+	align-self: flex-start;
+	color: var(--orange-color);
+	font-weight: 600;
+}
+
+.login-form .submit {
+	padding: 1rem 1.75rem;
+	border-radius: var(--border-raduis);
+	background-color: var(--orange-color);
+	box-shadow: var(--box-shadow);
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-weight: 600;
+	font-size: 1.2rem;
+	max-width: 17rem;
+}
+
+.login-form .submit:hover {
+	scale: 1.05;
+	background-color: var(--yellow-color);
+}
+

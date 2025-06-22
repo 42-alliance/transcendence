@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "sqlite"
+  url      = env("PRISMA_CHAT_DATABASE_PATH")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output   = "./node_modules/@prisma/client" // même que par défaut
+}
+
+model Conversation {
+  id        Int    @id @default(autoincrement())
+  name      String?
+  isGroup   Boolean   @default(false)
+  
+  messages   Message[]
+  members    ConversationMember[]
+}
+
+model ConversationMember {
+  userId         Int
+  name		   	String
+  picture    	String
+  conversationId Int
+  isAdmin        Boolean @default(false)
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conversationId])
+}
+model Message {
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  expiredAt      DateTime? @default(now())
+  isEphemeral   Boolean   @default(false)
+  content        String
+  conversationId Int
+  userId         Int // Référence à l'ID d'utilisateur dans un service externe
+  picture        String
+  name		   String
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  readBy        MessageRead[]
+}
+
+model MessageRead {
+  id             Int   @id @default(autoincrement())
+  messageId      Int
+  userId Int   // Référence à l'ID d'utilisateur dans le service utilisateur
+  readAt         DateTime @default(now())
+  
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  
+  @@unique([messageId, userId])
+}

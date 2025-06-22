@@ -1,0 +1,146 @@
+:root {
+    --yellow-color: #fbbc42;
+    --orange-color: #e76a24;
+    --white-color: #e7e5e8;
+    --black-color: #01080a;
+    --blue-color: #1c4595;
+	--border-raduis: 15px;
+}
+
+.game-section {
+	padding: 60px 50px;
+	overflow: hidden;
+}
+
+.carousel-container {
+	display: flex;
+	gap: 30px;
+	padding: 15px 0;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
+	scrollbar-width: none; /* Pour Firefox */
+}
+
+.carousel-container::-webkit-scrollbar {
+	display: none; /* Pour Chrome/Safari */
+}
+
+.game-card {
+	min-width: 320px;
+	height: 400px;
+	border-radius: 16px;
+	position: relative;
+	overflow: hidden;
+	transition: all 0.4s ease;
+	cursor: pointer;
+}
+
+.game-card.active {
+	min-width: 500px;
+	box-shadow: 12px 40px 40px rgba(0, 0, 0, 0.25);
+}
+
+.game-card::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1));
+}
+
+.card-content {
+	position: absolute;
+	bottom: 15px;
+	left: 0;
+	width: 100%;
+	padding: 24px;
+	color: var(--white-color);
+	z-index: 1;
+	transform: translateY(calc(100% - 54px));
+	transition: transform 0.4s ease;
+}
+
+.game-card.active .card-content {
+  	transform: translateY(0);
+}
+
+.card-title {
+	margin-bottom: 10px;
+	font-size: 28px;
+}
+
+.card-description {
+	opacity: 0;
+	transform: translateY(32px);
+	transition: all 0.4s ease 0.2s;
+}
+
+.game-card.active .play-button {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.game-card.active .card-description {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.play-button {
+	position: absolute;
+	bottom: 5px;
+	right: 24px;
+	padding: 12px 24px;
+	background: var(--orange-color);
+	color: var(--white-color);
+	border: none;
+	border-radius: 8px;
+	font-weight: bold;
+	cursor: pointer;
+	z-index: 2;
+	opacity: 0;
+	transform: translateY(20px);
+	transition: all 0.4s ease;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-size: 14px;
+	text-decoration: none;
+}
+  
+.play-button:hover {
+	background: var(--yellow-color);
+	transform: translateY(-2px) scale(1.05);
+	box-shadow: 0 5px 15px rgba(231, 55, 0, 0.3);
+	text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 1199px) {
+	.game-card { min-width: 260px; height: 360px; }
+	.game-card.active { min-width: 400px; }
+	.card-title { font-size: 24px; }
+}
+
+@media (max-width: 991px) {
+	.game-section { padding: 50px 30px; }
+	.game-card { min-width: 240px; height: 330px; }
+	.game-card.active { min-width: 360px; }
+}
+
+@media (max-width: 767px) {
+	.play-button {
+		bottom: 16px;
+		right: 16px;
+		padding: 8px 16px;
+		font-size: 12px;
+	}
+	.game-card.active .card-description {
+		padding-right: 90px;
+	  }
+	.game-section { padding: 30px 15px; }
+	.game-card { min-width: 200px; height: 280px; }
+	.game-card.active { min-width: 270px; }
+	.card-content { padding: 14px; }
+	.card-title { font-size: 19px; }
+}

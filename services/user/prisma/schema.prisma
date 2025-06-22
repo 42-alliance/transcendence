@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+    provider = "sqlite"
+    url      = env("PRISMA_USER_DATABASE_PATH")
+}
+
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+    output        = "./node_modules/@prisma/client" // même que par défaut
+}
+
+enum UserStatus {
+    online
+    offline
+    away
+    inGame
+}
+
+enum Status {
+	pending
+    accepted
+    rejected
+    blocked
+	unblocked
+}
+
+model Users {
+    id      Int     @id @default(autoincrement())
+    name    String  @unique
+    email   String  @unique
+    picture String
+    banner  String?
+    bio     String?
+
+    is_online        UserStatus @default(offline)
+    created_at       DateTime   @default(now())
+    sentRequests     Friends[]  @relation("SentRequests")
+    receivedRequests Friends[]  @relation("ReceivedRequests")
+    lastSeen         DateTime   @default(now())
+
+    gamesAsPlayer1 Game[] @relation("Player1")
+    gamesAsPlayer2 Game[] @relation("Player2")
+}
+
+model Game {
+    id     Int    @id @default(autoincrement())
+    mode   String // "classic", "ranked", ...
+    status String // "pending", "playing", "finished"
+    score1 Int // Score du joueur 1
+    score2 Int // Score du joueur 2
+
+    // Les deux joueurs de la partie (relations User)
+    player1Id    Int
+    player1_name String
+    player2Id    Int
+    player2_name String
+
+    player1 Users @relation("Player1", fields: [player1Id], references: [id])
+    player2 Users @relation("Player2", fields: [player2Id], references: [id])
+
+    // Optionnel : qui a gagné (1 ou 2 ou null)
+    winner Int? // 1 = player1, 2 = player2, null = égalité/abandonné
+
+    started_at  DateTime  @default(now())
+    finished_at DateTime
+}
+
+model Friends {
+    id         Int      @id @default(autoincrement())
+    senderId   Int
+    receiverId Int
+    status     Status   @default(pending)
+    created_at DateTime @default(now())
+
+	whoBlockedId Int? // Si le statut est "blocked", qui a bloqué qui
+    sender   Users @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+    receiver Users @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+    @@unique([senderId, receiverId])
+}

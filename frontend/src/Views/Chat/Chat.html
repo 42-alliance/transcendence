@@ -1,0 +1,48 @@
+<div class="flex h-full bg-gray-900">
+  <!-- SIDEBAR CONVOS -->
+  <aside class="w-80 min-w-[18rem] bg-gray-800 border-r border-gray-700 flex flex-col">
+    <!-- HEADER (normal) -->
+    <div id="chat-header-bar" class="px-6 py-5 border-b border-gray-700 flex items-center gap-3 transition-all duration-300">
+      <a href="/chat" class="text-2xl font-bold text-orange-400" data-link>Chats</a>
+      <button 
+        id="open-new-chat" 
+        class="ml-auto flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold shadow transition"
+        aria-label="Nouveau chat"
+        type="button"
+      >
+        <i class="fa fa-plus text-lg"></i>
+      </button>
+    </div>
+    <!-- BARRE DE RECHERCHE (masquée par défaut) -->
+    <div id="new-chat-search-bar" class="px-6 py-5 border-b border-gray-700 bg-gray-800 flex items-center gap-3 transition-all duration-300 hidden">
+      <input
+        id="search-new-chat-input"
+        type="text"
+        placeholder="Find or start a conversation"
+        class="flex-1 px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+        autocomplete="off"
+      />
+      <button
+        id="close-new-chat-search"
+        class="ml-2 flex items-center justify-center h-10 w-10 rounded-full bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-orange-400 transition"
+        aria-label="Fermer la recherche"
+        type="button"
+      >
+        <i class="fa fa-times text-lg"></i>
+      </button>
+    </div>
+    <!-- Conversations list -->
+    <ul id="conversation-list" class="flex-1 overflow-y-auto divide-y divide-gray-700"></ul>
+  </aside>
+
+  <!-- MAIN CHAT AREA -->
+  <main class="flex-1 flex flex-col relative">
+    <!-- Header du chat (chargé dynamiquement) -->
+    <div id="chat-header" class="h-20 min-h-[5rem] border-b border-gray-700 px-8 flex items-center gap-4 bg-gray-900"></div>
+    <!-- Chat historique -->
+    <section id="chat-history" class="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-gray-900"></section>
+    <!-- Saisie ou recherche d'amis -->
+    <div id="chat-input-area" class="p-6 border-t border-gray-800 bg-gray-900"></div>
+  </main>
+</div>
+

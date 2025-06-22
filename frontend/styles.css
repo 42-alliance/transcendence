@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-db-orange: #e76a24;
+  --color-db-blue: #1c4595;
+  --color-db-black: #01080a;
+  --color-db-grey: #e7e5e8;
+  --color-db-black: #fbbc42;
+}
+
+.online {
+	
+}

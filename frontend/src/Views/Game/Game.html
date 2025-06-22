@@ -1,0 +1,157 @@
+<div id="game-wrapper">
+    <div id="canvas-container" style="display: none;">
+        <canvas id="gameCanvas" width="1600" height="800">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+    </div>
+    
+    <div class="game-mode-grid">
+        <div id="randomAdversaireButton" class="game-mode-card large">
+            <div class="mode-icon">🌐</div>
+            <h2>Random Adversaire</h2>
+        </div>
+        
+        <div id="localButton" class="game-mode-card medium">
+            <div class="mode-icon">👥</div>
+            <h2>Local</h2>
+        </div>
+        
+        <div id="tournamentButton" class="game-mode-card medium">
+            <div class="mode-icon">🏆</div>
+            <h2>Tournament</h2>
+        </div>
+        
+        <div id="iaButton" class="game-mode-card large">
+            <div class="mode-icon">🤖</div>
+            <h2>IA</h2>
+        </div>
+    </div>
+</div>
+
+<style>
+    #game-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    #canvas-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    #gameCanvas {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+    }
+    
+    .game-mode-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 30px;
+        width: 95%;
+        max-width: 1200px;
+        height: 90vh;
+        max-height: 800px;
+    }
+    
+    .game-mode-card {
+        background-color: #0c1b63;
+        border-radius: 16px;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        border: 3px solid #B9D6F2;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .game-mode-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(185, 214, 242, 0.5);
+        border-color: #CAFE48;
+    }
+    
+    .game-mode-card:active {
+        transform: translateY(2px);
+    }
+    
+    .game-mode-card.large {
+        grid-column: span 2;
+    }
+    
+    .game-mode-card.medium {
+        grid-column: span 1;
+    }
+    
+    .mode-icon {
+        font-size: 64px;
+        margin-bottom: 30px;
+    }
+    
+    .game-mode-card h2 {
+        font-family: 'Mighty Souly', Arial, sans-serif;
+        font-size: 38px;
+        margin: 0 0 20px 0;
+        color: #ffffff;
+    }
+    
+
+    /* Unique styling for each mode */
+    #randomAdversaireButton {
+        background: linear-gradient(135deg, #0c1b63 0%, #1a3fa0 100%);
+    }
+    
+    #localButton {
+        background: linear-gradient(135deg, #0c1b63 0%, #3a2a8e 100%);
+    }
+    
+    #tournamentButton {
+        background: linear-gradient(135deg, #0c1b63 0%, #762a8e 100%);
+    }
+    
+    #iaButton {
+        background: linear-gradient(135deg, #0c1b63 0%, #1e6a88 100%);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .game-mode-grid {
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(4, 1fr);
+            height: auto;
+            gap: 25px;
+        }
+        
+        .game-mode-card.large,
+        .game-mode-card.medium {
+            grid-column: span 1;
+            padding: 30px;
+        }
+        
+        .mode-icon {
+            font-size: 48px;
+        }
+        
+        .game-mode-card h2 {
+            font-size: 44px;
+        }
+        
+        .game-mode-card p {
+            font-size: 24px;
+        }
+    }
+</style>
