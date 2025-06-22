@@ -1,6 +1,6 @@
 import { getUserInfos, userInfos } from "../../User/me.js";
 import { updateUserInfos } from "../../User/updateUser.js";
-import { navigateTo } from "../viewManager.js";
+import { gameWsClass, navigateTo } from "../viewManager.js";
 import { createConversation } from "../../Chat/createConversation.js";
 import { showToast } from "../triggerToast.js";
 import { GetUserByName } from "../../User/getUserByName.js";
@@ -250,11 +250,11 @@ type DropdownOption = {
     onClick: (user: UserData, card: HTMLDivElement) => void;
 };
 
-export function miniUserCard(
+export async function miniUserCard(
     targetElement: HTMLElement,
     userInfos: UserData,
     dropdownOptions: DropdownOption[] = []
-): void {
+) {
 	console.log("ok pas mal" );
 	console.log("dropdownOptions: ", dropdownOptions);
     // Création de la carte d'ami moderne
@@ -432,8 +432,17 @@ export function miniUserCard(
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
     `;
-    inviteBtn.onclick = () => {
-        alert(`Inviter ${userInfos.name || "cet utilisateur"} à une partie rapide`);
+
+	const me = await getUserInfos();
+	if (!me) return;
+    inviteBtn.onclick = async () => {
+		navigateTo(`/game`);
+						gameWsClass?.sendMessage("create_inv_game", {
+							user: userInfos,
+							type: "create_inv_game",
+							conversationId: await createConversation([me.name!, userInfos.name!]),
+						});
+
     };
 
     btnGroup.appendChild(chatBtn);
@@ -779,8 +788,13 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 			async () => {
 				await goChat(userInfos);
 			}, 
-			() => {
-				alert("Inviter à jouer cliqué !");
+			async () => {
+				navigateTo(`/game`);
+								gameWsClass?.sendMessage("create_inv_game", {
+									user: userInfos,
+									type: "create_inv_game",
+									conversationId: await createConversation([me.name!, userInfos.name!]),
+								});
 			}, 
 			async () => {
 				if (isFriend) {

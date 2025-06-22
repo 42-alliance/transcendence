@@ -43,19 +43,7 @@ services:
       restart: always
       networks:
         - services_network
-  tests:
-      container_name: tests
-      build: ./tests/docker/.
-      volumes:
-        - ./tests:/app
-      env_file:
-        - .env
-      networks:
-        - services_network
-      tty: true
-      depends_on:
-        - user
-        - auth
+
   game:
      container_name: game
      build: ./services/game

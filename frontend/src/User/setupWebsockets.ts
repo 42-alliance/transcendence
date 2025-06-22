@@ -2,11 +2,13 @@ import { updateFriendStatus } from "../Friends/updateFriendStatus.js";
 import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 import { showToast } from "../Views/triggerToast.js";
 import { addAttribute, goChat, miniPendingUserCard, writeStatus } from "../Views/userCard/userCard.js";
-import { webSockets } from "../Views/viewManager.js";
+import { gameWsClass, navigateTo, webSockets } from "../Views/viewManager.js";
 import { getAccessToken } from "../utils.js";
 import { sidebar_visibility } from "../sidebar.js";
+import { createConversation } from "../Chat/createConversation.js";
+import { getUserInfos } from "./me.js";
 
-function insertPendingFriendRequest(friend: any) {
+async function insertPendingFriendRequest(friend: any) {
 	const incoming_card = document.getElementById("friend-list-card-incoming");
 	if (!incoming_card) return;
 
@@ -15,13 +17,21 @@ function insertPendingFriendRequest(friend: any) {
 		return;
 	}
 
+	const me = await getUserInfos();
+	if (!me) return;
+
 	const card = miniPendingUserCard(
 		friend,
 		async () => { await updateFriendStatus(friend.id, "accepted"); removePendingFriendRequest(friend); },
 		async () => { await updateFriendStatus(friend.id, "rejected"); removePendingFriendRequest(friend); },
-		async () => {}, // TODO: invite to play
+		async () => { navigateTo(`/game`);
+				gameWsClass?.sendMessage("create_inv_game", {
+					user: friend,
+					type: "create_inv_game",
+					conversationId: await createConversation([me.name, friend.name]),
+				}); },
 		async () => { await goChat(friend); }, // go chat
-		async () => {}, // TODO: show profile
+		async () => { navigateTo(`/${friend.name}`)},
 	);
 
 	let incomingFriendLengthElem = document.getElementById("incoming-friend-length");
@@ -136,7 +146,7 @@ export async function setupUserWebsocket() {
 			],
 			duration: 8000 // 0 = ne s’enlève pas tant qu’on ferme pas
 		});
-		insertPendingFriendRequest(friend);
+		await insertPendingFriendRequest(friend);
 	}
 
 	else if (msg.type === "friend_removed") {

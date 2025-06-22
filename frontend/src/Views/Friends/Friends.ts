@@ -8,7 +8,7 @@ import { getPendingFriendRequest } from "../../Friends/getPendingFriendRequest.j
 import { showToast } from "../triggerToast.js";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 import { createConversation } from "../../Chat/createConversation.js";
-import { navigateTo } from "../viewManager.js";
+import { gameWsClass, navigateTo } from "../viewManager.js";
 import { removeFriendDiv, removePendingFriendRequest } from "../../User/setupWebsockets.js";
 import { removeFriend } from "../../Friends/removeFriend.js";
 
@@ -59,8 +59,8 @@ export async function injectFriends() {
 
 	console.error("JE PASSE PAR ICI");
 
-	friendsList.forEach(friend => {
-		miniUserCard(
+	friendsList.forEach(async friend => {
+		await miniUserCard(
 			test_card,
 			friend,
 			[
@@ -356,8 +356,8 @@ export async function displayAllFriendsDynamically() {
 
 	test_card.innerHTML = ""; // Clear previous content if needed
 
-	friendsList.forEach(friend => {
-		miniUserCard(
+	friendsList.forEach(async friend => {
+		await miniUserCard(
 			test_card,
 			friend,
 			[
@@ -491,19 +491,26 @@ export async function displayPendingFriendsDynamically() {
 	const outgoing_card = document.getElementById("friend-list-card-outgoing");
 	if (!incoming_card || !outgoing_card) return;
 
+	const me = await getUserInfos();
+	if (!me) return;
+
 	friendsList.incoming.forEach(friend => {
 		const card = miniPendingUserCard(
 				friend.user,
 				async () => { await updateFriendStatus(friend.user.id!, "accepted"); removePendingFriendRequest(friend); },
 				async () => { await updateFriendStatus(friend.user.id!, "rejected"); removePendingFriendRequest(friend); },
-				async () => {}, // invite to play
+				async () => { navigateTo(`/game`);
+								gameWsClass?.sendMessage("create_inv_game", {
+									user: friend,
+									type: "create_inv_game",
+									conversationId: await createConversation([me.name!, friend.user.name!]),
+								});}, // invite to play
 				async () => { await goChat(friend.user); }, // go chat
-				async () => {}, // show profile
+				async () => { navigateTo(`${friend.user.name!}`)}, // show profile
 			);
 		incoming_card.appendChild(card);
 	});
 
-	const me = await getUserInfos();
 	if (!me) {
 		showToast({
 			text: "You must be logged in to see your friends.",
@@ -514,8 +521,8 @@ export async function displayPendingFriendsDynamically() {
 		return;
 	}
 
-	friendsList.outgoing.forEach(friend => {
-		miniUserCard(
+	friendsList.outgoing.forEach(async friend => {
+		await miniUserCard(
 			outgoing_card,
 			friend.user,
 			[
