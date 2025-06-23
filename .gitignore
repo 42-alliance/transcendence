@@ -14,3 +14,7 @@ tests/node_modules/
 tests/.objs/
 services/media/upload/*
 services/user/prisma/node_modules/
+services/chat/prisma/database/
+services/chat/prisma/migrations/
+services/user/prisma/database/
+services/user/prisma/migrations/

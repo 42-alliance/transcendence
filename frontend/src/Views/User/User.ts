@@ -186,10 +186,10 @@ function renderCommonFriends(user: UserData, targetId = "show-common-friend") {
 	user.common_friends.forEach(friend => {
 		const div = document.createElement("div");
 		div.className =
-			"relative flex flex-col items-center bg-gradient-to-b from-[#232345] via-[#2e2e5e] to-[#191a2c] rounded-2xl shadow-xl p-0 min-h-[260px] w-[180px] max-w-[220px] transition-transform hover:-translate-y-1 hover:scale-105 duration-200 border border-[#35357a] group cursor-pointer overflow-hidden";
+			"relative flex flex-col items-center bg-gradient-to-b from-[#232345] via-[#2e2e5e] to-[#191a2c] rounded-2xl shadow-xl p-0 min-h-[260px] w-[180px] max-w-[220px] transition-transform hover:-translate-y-1 hover:scale-105 duration-200 border border-[#35357a] group cursor-pointer overflow-hidden parallax-card";
 
 		div.innerHTML = `
-			<div class="w-full h-24 bg-cover bg-center" style="background-image: url('${friend.banner || "/assets/default_banner.jpeg"}');"></div>
+			<div class="w-full h-24 bg-cover bg-center parallax-banner" style="background-image: url('${friend.banner || "/assets/default_banner.jpeg"}');"></div>
 			<div class="flex flex-col items-center -mt-8 w-full px-4 pb-4">
 				<img src="${friend.picture || "/assets/default.jpeg"}" alt="${friend.name}"
 					class="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg group-hover:border-purple-400 transition-all duration-200" />
@@ -205,6 +205,49 @@ function renderCommonFriends(user: UserData, targetId = "show-common-friend") {
 				navigateTo(`/${friend.name}`);
 			}, 100);
 		};
+
+		// Improved Parallax effect: smoother and banner stays in background
+		let animationFrame: number | null = null;
+		let lastX = 0, lastY = 0;
+
+		const handleParallax = (x: number, y: number) => {
+			const rect = div.getBoundingClientRect();
+			const centerX = rect.width / 2;
+			const centerY = rect.height / 2;
+			const rotateX = ((y - centerY) / centerY) * 10;
+			const rotateY = ((x - centerX) / centerX) * 10;
+			// Reduced scale from 1.04 to 1.02
+			div.style.transform = `perspective(600px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+
+			const banner = div.querySelector(".parallax-banner") as HTMLElement;
+			if (banner) {
+				// Only shift background position, do not use transform
+				const bannerMoveX = ((x - centerX) / centerX) * 8; // subtle
+				const bannerMoveY = ((y - centerY) / centerY) * 8;
+				banner.style.backgroundPosition = `calc(50% + ${bannerMoveX}px) calc(50% + ${bannerMoveY}px)`;
+			}
+		};
+
+		div.addEventListener("mousemove", (e) => {
+			const rect = div.getBoundingClientRect();
+			lastX = e.clientX - rect.left;
+			lastY = e.clientY - rect.top;
+			if (animationFrame === null) {
+				animationFrame = requestAnimationFrame(() => {
+					handleParallax(lastX, lastY);
+					animationFrame = null;
+				});
+			}
+		});
+
+		div.addEventListener("mouseleave", () => {
+			div.style.transform = "";
+			const banner = div.querySelector(".parallax-banner") as HTMLElement;
+			if (banner) {
+				banner.style.backgroundPosition = "";
+			}
+		});
+
 		container.appendChild(div);
 	});
 }
