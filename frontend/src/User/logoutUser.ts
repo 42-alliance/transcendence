@@ -1,4 +1,4 @@
-import { fetchApi, getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../fetchApi.js";
 import { navigateTo, webSockets } from "../Views/viewManager.js";
 
 /**
@@ -8,7 +8,7 @@ export async function logOutUser(): Promise<void> {
 	try {
 		const headers = getHeader();
 		
-		const response = await fetchApi('http://localhost:8000/auth/@me/logout', {
+		const response = await fetchApi('/auth/@me/logout', {
 			method: 'POST',
 			headers: headers,
 		});

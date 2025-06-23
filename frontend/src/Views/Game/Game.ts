@@ -3,6 +3,7 @@ import { getUserInfos } from "../../User/me.js";
 import { GameWebSocket } from "./GameWebSocket.js";
 import { GameUI } from "./GameUI.js";
 import AView from "../AView.js";
+import { fetchApi } from "../../fetchApi.js";
 
 export default class extends AView {
     private webSocket: GameWebSocket | null = null;
@@ -48,11 +49,9 @@ export default class extends AView {
         
         console.log("User info: --------", this.user_info);
         // Remplace l'URL vide par celle du gateway qui route vers le service game
-        fetch('http://localhost:8000/game/matchmaking', {
+        fetchApi('/game/matchmaking', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`,
-                'x-user-id': String(user_info?.id ?? ''),
                 'x-user-name': user_info?.name ?? ''
             }
         })

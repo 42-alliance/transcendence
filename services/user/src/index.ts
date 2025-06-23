@@ -42,7 +42,6 @@ server.register(async function (server) {
 	});
 });
 
-
 await setupRoutes(server);
 
 const port =  parseInt(process.env.USER_PORT!);

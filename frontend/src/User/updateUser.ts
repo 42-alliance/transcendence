@@ -1,4 +1,4 @@
-import { fetchApi, getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../fetchApi.js";
 
 /**
  * Adds a new user with the given username and profile picture.
@@ -20,7 +20,7 @@ export async function updateUserInfos(name?: string, picture?: File, banner?: Fi
 		if (name)
 			formData.append('name', name);
 
-		const response = await fetchApi('http://localhost:8000/users/@me', {
+		const response = await fetchApi('/users/@me', {
 			method: 'PUT',
 			headers: headers,
 			body: formData,

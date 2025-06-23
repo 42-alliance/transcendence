@@ -1,5 +1,5 @@
 import { UserData } from "../types.js";
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 export interface FriendUser {
 	user: UserData,
@@ -14,7 +14,7 @@ export async function getPendingFriendRequest(): Promise< PendingRequestUser | n
 	try {
 		const header = new Headers();
 
-		const response = await fetchApi("http://localhost:8000/friends/requests/pending", {
+		const response = await fetchApi("/friends/requests/pending", {
 			method: "GET",
 			headers: header,
 		});

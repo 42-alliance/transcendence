@@ -1,5 +1,6 @@
 import { getUserInfos } from "./me.js";
 import { userIsLogin } from "./userIsLogin.js";
+import { nbGames, nbWins } from "../utils.js";
 
 function ifUserIsNotLog() {
 	const userButton = document.getElementById("user-button-navbar");
@@ -8,48 +9,11 @@ function ifUserIsNotLog() {
 	userButton.innerHTML = "";
 }
 
-export async function setUserProfile() {
-	if (await userIsLogin() === false) {
-		ifUserIsNotLog();
-		return;
-	}
-
-	const userNameSpan = document.getElementById("username-navbar");
-	const profilePicture = document.getElementById("profile-picture-navbar") as HTMLImageElement;
-	const usernameDropdown = document.getElementById("username-dropdown");
-	const emailDropdown = document.getElementById("email-dropdown");
+function manageDropdownClick() {
 	const userButton = document.getElementById("user-button-navbar");
 	const dropDown = document.getElementById("dropdown-user");
-	const profil_link_sidebar = document.getElementById("profile-link-sidebar") as HTMLAnchorElement;
 
-	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !userButton || !dropDown || !profil_link_sidebar)
-		return;
-
-	const user = await getUserInfos();
-	if (!user || !user.name || !user.picture || !user.email)
-		return;
-
-	const profileLink = document.getElementById("profile-link") as HTMLAnchorElement;
-	if (profileLink)
-		profileLink.href = `/me`;
-
-	if (profil_link_sidebar)
-		profil_link_sidebar.href = `/${user.name}`;
-
-	const nb_wins = document.getElementById("nb-wins");
-	if (nb_wins) {
-		nb_wins.innerText = user.games?.filter(game => game.winner === user.id).length.toString() || "0";
-	}
-
-	const nb_games = document.getElementById("nb-games");
-	if (nb_games) {
-		nb_games.innerText = user.games?.length.toString() || "0";
-	}
-
-	userNameSpan.innerText = user.name;
-	profilePicture.src = user.picture;
-	usernameDropdown.innerText = user.name;
-	emailDropdown.innerText = user.email;
+	if (!userButton || !dropDown) return;
 
 	userButton.onclick = () => {
 		const expanded = userButton.ariaExpanded === "true";
@@ -63,10 +27,48 @@ export async function setUserProfile() {
 			dropDown.classList.add("hidden");
 			userButton.ariaExpanded = "false";
 		} else if (dropDown.contains(event.target as Node)) {
-			// Hide dropdown even if clicking inside dropdown
 			dropDown.classList.add("hidden");
 			userButton.ariaExpanded = "false";
 		}
 	});
+}
+
+export async function setUserProfile() {
+	if (await userIsLogin() === false) {
+		ifUserIsNotLog();
+		return;
+	}
+
+	const userNameSpan = document.getElementById("username-navbar");
+	const profilePicture = document.getElementById("profile-picture-navbar") as HTMLImageElement;
+	const usernameDropdown = document.getElementById("username-dropdown");
+	const emailDropdown = document.getElementById("email-dropdown");
+	const profil_link_sidebar = document.getElementById("profile-link-sidebar") as HTMLAnchorElement;
+
+	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !profil_link_sidebar)
+		return;
+
+	const user = await getUserInfos();
+	if (!user || !user.name || !user.picture || !user.email || !user.id || !user.games)
+		return;
+
+	profil_link_sidebar.href = `/${user.name}`;
+
+	const nb_wins = document.getElementById("nb-wins");
+	if (nb_wins) {
+		nb_wins.innerText = nbWins(user.games, user.id).toString();
+	}
+
+	const nb_games = document.getElementById("nb-games");
+	if (nb_games) {
+		nb_games.innerText = nbGames(user.games).toString();
+	}
+
+	userNameSpan.innerText = user.name;
+	profilePicture.src = user.picture;
+	usernameDropdown.innerText = user.name;
+	emailDropdown.innerText = user.email;
+
+	manageDropdownClick();
 }
 

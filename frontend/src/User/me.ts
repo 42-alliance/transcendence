@@ -1,5 +1,5 @@
 import { UserData } from "../types.js";
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 export let userInfos: UserData = {};
 
@@ -20,7 +20,8 @@ export async function getUserInfos(): Promise<UserData | null> {
         userInfos = { ...userInfos, ...data }; // 🔹 Met à jour les champs manquants
         console.log("✅ Informations utilisateur mises à jour :", userInfos);
     } else {
-        console.warn("⚠️ Impossible de récupérer les informations utilisateur.");
+		console.warn("⚠️ Impossible de récupérer les informations utilisateur.");
+		return null; // 🔹 Si l'appel échoue, retourne null
     }
 
     return userInfos;
@@ -35,7 +36,7 @@ export async function me(): Promise<UserData | null> {
 	const headers = new Headers();
 	headers.append('Content-Type', 'application/json');
 	try {
-		const response = await fetchApi('http://localhost:8000/users/@me', {
+		const response = await fetchApi('/users/@me', {
 			method: 'GET',
 			headers: headers,
 		});

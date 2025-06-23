@@ -8,12 +8,12 @@ import { updateLastSeen } from "./update_last_seen.js";
 
 
 export const server = Fastify({
-    // logger: {
-    //     transport: {
-    //         target: "pino-pretty",
-    //         options: { colorize: true },
-    //     },
-    // },
+    logger: {
+        transport: {
+            target: "pino-pretty",
+            options: { colorize: true },
+        },
+    },
 });
 
 server.register(cors, {

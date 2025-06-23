@@ -23,7 +23,7 @@ export const webSockets: WebSockets = {
 };
 
 export function setGameWsClass(instance: GameWebSocket): void {
-	gameWsClass = instance;
+  gameWsClass = instance;
 }
 
 export let gameWsClass: GameWebSocket | null = null;
@@ -36,21 +36,29 @@ export const navigateTo = (url: string): void => {
 
 // Fonction de vérification de l'authentification
 async function needToAuthenticate(currentPath: string): Promise<boolean> {
-  if ((currentPath != "/auth" && currentPath != "/auth-success") && (await userIsLogin()) === false)
+  if (
+    currentPath != "/auth" &&
+    currentPath != "/auth-success" &&
+    (await userIsLogin()) === false
+  )
     return true;
   return false;
 }
 
 let previousPage: string | undefined;
 
-function matchRoute(pathPattern: string, currentPath: string): { matched: boolean, params: Record<string, string> } {
-  const patternParts = pathPattern.split('/').filter(Boolean);
-  const pathParts = currentPath.split('/').filter(Boolean);
-  if (patternParts.length !== pathParts.length) return { matched: false, params: {} };
+function matchRoute(
+  pathPattern: string,
+  currentPath: string,
+): { matched: boolean; params: Record<string, string> } {
+  const patternParts = pathPattern.split("/").filter(Boolean);
+  const pathParts = currentPath.split("/").filter(Boolean);
+  if (patternParts.length !== pathParts.length)
+    return { matched: false, params: {} };
 
   let params: Record<string, string> = {};
   for (let i = 0; i < patternParts.length; i++) {
-    if (patternParts[i].startsWith(':')) {
+    if (patternParts[i].startsWith(":")) {
       params[patternParts[i].slice(1)] = decodeURIComponent(pathParts[i]);
     } else if (patternParts[i] !== pathParts[i]) {
       return { matched: false, params: {} };
@@ -61,9 +69,8 @@ function matchRoute(pathPattern: string, currentPath: string): { matched: boolea
 
 // Fonction principale du routeur
 export const router = async (): Promise<void> => {
-
   console.error("entre dans le router");
-  const existingResultModal = document.getElementById('game-result');
+  const existingResultModal = document.getElementById("game-result");
   if (existingResultModal) {
     existingResultModal.remove();
   }
@@ -83,7 +90,6 @@ export const router = async (): Promise<void> => {
     { path: "/auth", view: Auth },
     { path: "/me", view: Me },
     { path: "/:username", view: User },
-    // { path: "/selection", view: Selection },
   ];
 
   let matchedRoute = null;
@@ -99,34 +105,40 @@ export const router = async (): Promise<void> => {
   }
 
   if (!matchedRoute) {
-	  matchedRoute = { view: Dashboard, path: "/" };
-	  routeParams = {};
-	}
+    matchedRoute = { view: Dashboard, path: "/" };
+    routeParams = {};
+  }
 
   // Check si changement réel de page/params
   const currentKey = location.pathname + JSON.stringify(routeParams);
-  if (previousPage && previousPage === currentKey && matchedRoute.path !== "/game") return;
+  if (
+    previousPage &&
+    previousPage === currentKey &&
+    matchedRoute.path !== "/game"
+  )
+    return;
   previousPage = currentKey;
 
-  await getUserInfos();
+  const user = await getUserInfos();
 
   // Vérifie authentification si nécessaire
-  if (await needToAuthenticate(matchedRoute.path) === true) {
+  if ((await needToAuthenticate(matchedRoute.path)) === true) {
     navigateTo("/auth");
     return;
   }
 
   const isLogin = await userIsLogin();
+
   // Setup websocket si loggé et pas encore fait
   if (isLogin && webSockets.chat === null) {
     setupChatWebSocket();
   }
-  
+
   // Setup websocket si loggé et pas encore fait
   if (isLogin && webSockets.user === null) {
     setupUserWebsocket();
   }
-  
+
   // Setup websocket si loggé et pas encore fait
   if (isLogin && webSockets.game === null) {
     setupGameWebSocket();
@@ -135,20 +147,22 @@ export const router = async (): Promise<void> => {
     console.error("execution du script");
   }
   // console.error("si je passe ici sans voir le log d'avant c'est que la condition pu des pieds");
-// Crée la vue (passe les params si besoin)
-const view = new matchedRoute.view();
+  // Crée la vue (passe les params si besoin)
+  const view = new matchedRoute.view();
 
-const appId = document.getElementById("app");
-if (appId) {
-	appId.innerHTML = await view.getHtml();
-}
+  const appId = document.getElementById("app");
+  if (appId) {
+    appId.innerHTML = await view.getHtml();
+  }
 
-// Script supplémentaire si Game (exécution du JS de la vue)
-// if (view instanceof Game) {
-// 	await view.executeViewScript();
-// }
+  // Script supplémentaire si Game (exécution du JS de la vue)
+  // if (view instanceof Game) {
+  // 	await view.executeViewScript();
+  // }
 
   // Toujours passer les params à ta fonction dynamique
+
+  console.error("routeParams", routeParams);
   await dynamicDisplay(routeParams);
 };
 

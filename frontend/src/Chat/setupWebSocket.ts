@@ -1,5 +1,5 @@
 import { getUserInfos } from "../User/me.js";
-import { getAccessToken } from "../utils.js";
+import { getAccessToken } from "../fetchApi.js";
 import { showToast } from "../Views/triggerToast.js";
 import { gameWsClass, navigateTo, webSockets } from "../Views/viewManager.js";
 

@@ -1,4 +1,4 @@
-import { fetchApi, getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../fetchApi.js";
 import { navigateTo, webSockets } from "../Views/viewManager.js";
 
 /**
@@ -8,7 +8,7 @@ export async function deleteUser(): Promise<void> {
 	try {
 		const headers = getHeader();
 		
-		await fetchApi('http://localhost:8000/auth/@me/delete', {
+		await fetchApi('/auth/@me/delete', {
 			method: 'DELETE',
 			headers: headers,
 		});

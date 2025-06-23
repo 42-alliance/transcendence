@@ -1,9 +1,9 @@
 import { Message } from "../types.js";
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 export async function getAllMessages(conversationId: number): Promise<Message[]> {
 	try {
-		const response = await fetchApi(`http://localhost:8000/chat/conversations/${conversationId}`, {
+		const response = await fetchApi(`chat/conversations/${conversationId}`, {
 			method: "GET",
 		});
 

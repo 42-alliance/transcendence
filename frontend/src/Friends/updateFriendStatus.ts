@@ -1,5 +1,5 @@
 import { sidebar_visibility } from "../sidebar.js";
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 
 enum FriendState {
@@ -22,7 +22,7 @@ export async function updateFriendStatus(friendId: number, state: any): Promise<
 		const header = new Headers();
 		header.append('Content-Type', 'application/json');
 
-		const response = await fetchApi(`http://localhost:8000/friends/requests/${friendId}/status`, {
+		const response = await fetchApi(`/friends/requests/${friendId}/status`, {
 			method: "POST",
 			headers: header,
 			body: JSON.stringify({ status: state }),

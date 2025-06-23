@@ -1,4 +1,4 @@
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 /**
  * Creates a new conversation with the specified members.
@@ -7,7 +7,7 @@ import { fetchApi } from "../utils.js";
  * @throws {Error} - Throws an error if the conversation creation fails.
  */
 export async function createConversation(members: string[]): Promise<number> {
-	const response = await fetchApi("http://localhost:8000/chat/create", {
+	const response = await fetchApi("/chat/create", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",

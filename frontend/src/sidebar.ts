@@ -1,7 +1,5 @@
-import { lstat } from "fs";
 import { showOnlineFriends } from "./Friends/onlineFriends.js";
 import { showPendingFriends } from "./Friends/showPendingRequest.js";
-import { getUserInfos } from "./User/me.js";
 import { userIsLogin } from "./User/userIsLogin.js";
 
 export async function sidebar_visibility() {

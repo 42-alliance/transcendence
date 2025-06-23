@@ -7,6 +7,10 @@ const getEnv = (key: string, fallback?: string): string => {
 };
 
 export const config = {
+	protocol: {
+		http: getEnv("HTTP_PROTOCOL"),
+		ws: getEnv("WS_PROTOCOL"),
+	},
 	gateway: {
 		port: parseInt(getEnv("GATEWAY_PORT")),
 		host: getEnv("GATEWAY_HOST"),
@@ -37,8 +41,7 @@ export const config = {
 	},
 	api: {
 		path: "",
-	},
-	name_pattern: getEnv("NAME_PATTERN"),
+	}
 };
 
 config.api.path = `http://${config.gateway.host}:${config.gateway.port}`;

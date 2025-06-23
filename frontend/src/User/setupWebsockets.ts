@@ -3,7 +3,7 @@ import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "
 import { showToast } from "../Views/triggerToast.js";
 import { addAttribute, goChat, miniPendingUserCard, writeStatus } from "../Views/userCard/userCard.js";
 import { gameWsClass, navigateTo, webSockets } from "../Views/viewManager.js";
-import { getAccessToken } from "../utils.js";
+import { getAccessToken } from "../fetchApi.js";
 import { sidebar_visibility } from "../sidebar.js";
 import { createConversation } from "../Chat/createConversation.js";
 import { getUserInfos } from "./me.js";

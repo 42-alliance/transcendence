@@ -41,23 +41,10 @@ export async function injectFriends() {
 		return;
 	}
 
-	const friendsList = await getAllFriends();
-	if (!friendsList) {
-		return;
-	}
-
 	const me = await getUserInfos();
-	if (!me) {
-		showToast({
-			text: "You must be logged in to see your friends.",
-			img: "/assets/default.jpg",
-			buttons: [],
-			duration: 5000,
-		});
-		return;
-	}
+	if (!me || !me.friends) return;
 
-	console.error("JE PASSE PAR ICI");
+	const friendsList = me.friends;
 
 	friendsList.forEach(async friend => {
 		await miniUserCard(

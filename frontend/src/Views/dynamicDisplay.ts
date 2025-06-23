@@ -1,12 +1,10 @@
-import { conversationById } from "../Chat/conversationById.js";
 import { sidebar_visibility } from "../sidebar.js";
 import { setupSoundListener } from "../sounds/changeSound.js";
 import { getUserInfos } from "../User/me.js";
 import { setUserProfile } from "../User/setUserProfile.js";
-import Chat, { ChatViewListener } from "./Chat/Chat.js";
+import { ChatViewListener } from "./Chat/Chat.js";
 import { setupAddFriendSearchBar, injectFriends } from "./Friends/Friends.js";
 import Game from "./Game/Game.js";
-import { showToast } from "./triggerToast.js";
 import { showUserProfile } from "./User/User.js";
 import { injectExportUserCard, injectUserCard } from "./userCard/userCard.js";
 import { gameWsClass, navigateTo } from "./viewManager.js";

@@ -1,5 +1,5 @@
 import { sidebar_visibility } from "../sidebar.js";
-import { fetchApi, getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../fetchApi.js";
 import { displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 import { showToast } from "../Views/triggerToast.js";
 import { updateFriendStatus } from "./updateFriendStatus.js";
@@ -10,7 +10,7 @@ export async function addFriend(username: string) {
 		const header = getHeader();
 		header.append('Content-Type', 'application/json');
 
-		const response = await fetchApi("http://localhost:8000/friends/requests", {
+		const response = await fetchApi("/friends/requests", {
 			method: "POST",
 			headers: header,
 			body: JSON.stringify({
