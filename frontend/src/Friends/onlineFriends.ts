@@ -60,11 +60,31 @@ export async function showOnlineFriends() {
 		);
 		friendDiv.id = `friend${friend.id}`;
 
-		// Image de profil
+		// Image de profil imbriquée avec le point de statut
+		const profileWrapper = document.createElement("div");
+		profileWrapper.classList.add("relative", "w-10", "h-10", "flex-shrink-0");
+
 		const profileImg = document.createElement("img");
 		profileImg.classList.add("w-10", "h-10", "rounded-full");
 		profileImg.src = friend.picture!;
 		profileImg.alt = `${friend.name}'s profile picture`;
+
+		const f = await GetUserByName(friend.name!);
+		const onlineCircle = document.createElement("div");
+		onlineCircle.classList.add(
+			"absolute",
+			"bottom-0",
+			"right-0",
+			"w-3",
+			"h-3",
+			f?.status === "online" ? "bg-green-500" : f?.status === "away" ? "bg-yellow-500" : "bg-gray-500",
+			"rounded-full",
+			"border-2",
+			"border-[#645d59]"
+		);
+
+		profileWrapper.appendChild(profileImg);
+		profileWrapper.appendChild(onlineCircle);
 
 		// Nom (proche de l'image)
 		const profileText = document.createElement("span");
@@ -79,23 +99,12 @@ export async function showOnlineFriends() {
 		// Container gauche (image + nom)
 		const leftSection = document.createElement("div");
 		leftSection.classList.add("flex", "items-center", "gap-2");
-		leftSection.appendChild(profileImg);
+		leftSection.appendChild(profileWrapper);
 		leftSection.appendChild(profileText);
 
-		// Point vert
-		const f = await GetUserByName(friend.name!);
-		const onlineCircle = document.createElement("div");
-		onlineCircle.classList.add(
-			"w-3",
-			"h-3",
-			f?.status === "online" ? "bg-green-500" : f?.status === "away" ? "bg-yellow-500" : "bg-grey-500",
-			"rounded-full"
-		);
-
-		// Container droite (point vert + enveloppe)
+		// Container droite (peut contenir d'autres éléments à droite)
 		const rightSection = document.createElement("div");
 		rightSection.classList.add("flex", "items-center", "gap-3");
-		rightSection.appendChild(onlineCircle);
 
 		friendDiv.appendChild(leftSection);
 		friendDiv.appendChild(rightSection);
