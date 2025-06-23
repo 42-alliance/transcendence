@@ -5,7 +5,7 @@ import { GameUI } from "./GameUI.js";
 import AView from "../AView.js";
 
 export default class extends AView {
-    private webSocket: GameWebSocket | null = null;
+    public webSocket: GameWebSocket | null = null;
     private user_info: any;
     private routeChangeHandler: ((event: PopStateEvent | null) => void) | null = null;
     
@@ -21,8 +21,6 @@ export default class extends AView {
 
     private async initializeUserInfo() {
         this.user_info = await getUserInfos();
-        // this.user_info.id = Math.floor(Math.random() * 1000000);
-
     }
 
 

@@ -1,5 +1,6 @@
 import { GameUI } from './GameUI.js';
 import { FontHelper } from './FontHelper.js';
+import { BackButton } from './UI/components/BackButton.js';
 
 // Précharger la police
 FontHelper.loadFonts().then(() => {
@@ -29,6 +30,14 @@ export class GameRenderer {
     static renderGame(gameState: any) {
         const { gameCanvas, ctx } = this.initializeCanvas();
         if (!gameCanvas || !ctx || !gameState) return;
+
+        // check if back button is already present
+        const existingBackButton = document.getElementById('back-button-container');
+        if (!existingBackButton) {
+            // Create and append the back button
+            const backButton = new BackButton((window as any).gameInstance?.webSocket || null, (window as any).gameInstance?.getUser());
+            backButton.render();
+        }
 
         const renderData = this.prepareRenderData(gameState);
         

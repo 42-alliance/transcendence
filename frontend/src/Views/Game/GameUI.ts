@@ -1,15 +1,15 @@
 import { DifficultyScreen } from './UI/screens/DifficultyScreen.js';
-import { UISpinner, ReturnArrowButton } from './UI/components/Spinner.js';
+import { UISpinner } from './UI/components/Spinner.js';
 import { IScreen } from './UI/interfaces/IScreen.js';
 import { TournamentScreen } from './UI/screens/TournamentScreen.js';
 import { FontHelper } from './FontHelper.js';
 import { BackButton } from './UI/components/BackButton.js';
 import { GameWebSocket } from './GameWebSocket.js';
 
+
 export class GameUI {
     private static lobbyButtons = ['randomAdversaireButton', 'localButton', 'tournamentButton', 'iaButton'];
     private static spinner = new UISpinner();
-    private static returnButton = new ReturnArrowButton();
     private static screens: Map<string, IScreen> = new Map();
     private static activeScreen: string | null = null;
     private static backButton: BackButton | null = null;
@@ -22,6 +22,7 @@ export class GameUI {
     
     static displaySpinner(message = 'Waiting...'): void {
         // FontHelper.applyMightySoulyFont(document.body, "80px");
+        
         this.spinner.show(message);
     }
     
@@ -199,6 +200,12 @@ export class GameUI {
     }
     
     static showAnimationMatch(userName: string, opponentName: string, header: string): void {
+
+        // supp le bouton de retour
+        const backButton = document.getElementById('back-button-container');
+        if (backButton) {
+            backButton.remove();
+        }
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';
