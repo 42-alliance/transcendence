@@ -287,7 +287,7 @@ export class GameUI {
     
     static showGameCanvas(): void {
         const canvasContainer = document.getElementById('canvas-container');
-        const gameModeGrid = document.querySelector('.game-mode-grid');
+        const gameModeGrid = document.getElementById('selection-grid');
         
         if (canvasContainer) {
             canvasContainer.style.display = 'flex';

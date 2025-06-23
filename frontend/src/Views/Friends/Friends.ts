@@ -320,9 +320,6 @@ export async function displayAllFriendsDynamically() {
       <span class="text-orange-400 group-hover:text-yellow-400 transition-colors">All</span>
       <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
     </button>
-    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online" id="online-button">
-      Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.filter(friend => friend.status === "online").length}</span>
-    </button>
     <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
 	 Pending
 	 <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.filter(friend => friend.status === "pending").length}</span>
@@ -407,9 +404,6 @@ export async function ongletNbChange() {
 	All
 	${allFriend.length > 0 ? `<span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${allFriend.length}</span>` : ''}
 	</button>
-	<button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online">
-	Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">2</span>
-	</button>
 	<button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
 		<span class="text-orange-400 group-hover:text-yellow-400 transition-colors">Pending</span>
 		<div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
@@ -431,9 +425,6 @@ export async function displayPendingFriendsDynamically() {
 	   <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.length}</span>
       <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 w-full rounded-full"></div>
     </button>
-    <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-yellow-300 transition-colors group" data-tab="online" id="online-button">
-      Online <span class="ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-yellow-500/20 group-hover:text-yellow-300">${friends?.filter(friend => friend.status === "online").length}</span>
-    </button>
     <button class="tab-btn pb-3 px-1 text-gray-400 hover:text-orange-300 transition-colors group" data-tab="pending" id="pending-button">
       Pending
     </button>`
@@ -445,10 +436,6 @@ export async function displayPendingFriendsDynamically() {
 	});
 	document.getElementById("pending-button")?.addEventListener('click', async () => {
 		console.log("click on pending");
-		await displayPendingFriendsDynamically();
-	});
-	document.getElementById("online-button")?.addEventListener('click', async () => {
-		console.log("click on online");
 		await displayPendingFriendsDynamically();
 	});
 
