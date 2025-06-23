@@ -362,7 +362,7 @@ wss.on("connection", ws => {
 				if (session.mode === "local") {
 					// Apply continuous movement for player 1
 					if (data.key_state.ArrowUp) {
-						session.p1.paddle.move(
+						session.p2.paddle.move(
 							"up",
 							() =>
 								playerKeyStates.has(data.user_id) &&
@@ -370,7 +370,7 @@ wss.on("connection", ws => {
 						);
 					}
 					if (data.key_state.ArrowDown) {
-						session.p1.paddle.move(
+						session.p2.paddle.move(
 							"down",
 							() =>
 								playerKeyStates.has(data.user_id) &&
@@ -380,15 +380,15 @@ wss.on("connection", ws => {
 
 					// Apply continuous movement for player 2
 					if (data.key_state.w) {
-						session.p2.paddle.move(
+						session.p1.paddle.move(
 							"up",
 							() =>
 								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).z
+								playerKeyStates.get(data.user_id).w
 						);
 					}
 					if (data.key_state.s) {
-						session.p2.paddle.move(
+						session.p1.paddle.move(
 							"down",
 							() =>
 								playerKeyStates.has(data.user_id) &&
@@ -406,7 +406,7 @@ wss.on("connection", ws => {
 								"up",
 								() =>
 									playerKeyStates.has(data.user_id) &&
-									playerKeyStates.get(data.user_id).z
+									playerKeyStates.get(data.user_id).w
 							);
 						}
 						if (data.key_state.s) {
@@ -450,6 +450,22 @@ wss.on("connection", ws => {
 							() =>
 								playerKeyStates.has(data.user_id) &&
 								playerKeyStates.get(data.user_id).ArrowDown
+						);
+					}
+					if (data.key_state.w) {
+						session.p1.paddle.move(
+							"up",
+							() =>
+								playerKeyStates.has(data.user_id) &&
+								playerKeyStates.get(data.user_id).w
+						);
+					}
+					if (data.key_state.s) {
+						session.p1.paddle.move(
+							"down",
+							() =>
+								playerKeyStates.has(data.user_id) &&
+								playerKeyStates.get(data.user_id).s
 						);
 					}
 				} else {

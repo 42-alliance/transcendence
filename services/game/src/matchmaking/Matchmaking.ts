@@ -277,10 +277,14 @@ class WebSocketMessageHandler {
         console.log(`Handling message of type: ${data.type}`);
         // IMPORTANT: Réinitialiser l'UUID de la salle au début de chaque nouveau jeu
         if (data.type === 'random_adversaire' || data.type === 'local' ||
-            data.type === 'ia' || data.type === 'tournament' || data.type === 'inv_game') {
+            data.type === 'ia' || data.type === 'tournament' || data.type === 'inv_game' || data.type === 'create_inv_game' || data.type === 'join_inv_game' || data.type === 'leave_tournament') {
             // Réinitialiser l'UUID de salle pour les nouvelles demandes de jeu
-            this.player.uuid_room = '';
             playerRooms.delete(this.player.socket);
+            const queueManager = QueueManager.getInstance();
+            queueManager.removePlayerFromAllQueues(this.player);
+            this.player.uuid_room = '';
+            //delete player from all sessions
+            
         }
 
         switch (data.type) {
@@ -319,6 +323,10 @@ class WebSocketMessageHandler {
                 break;
             case 'join_inv_game':
                 this.handleInvitationGame(data);
+                break;
+            case 'leave':
+                this.handleLeavePlayer(data);
+                break;
 
             default:
                 console.error(`Unknown message type: ${data.type}`);
@@ -372,6 +380,95 @@ class WebSocketMessageHandler {
         queueManager.addPlayerToPendingQueue(this.player);
     }
 
+    private handleLeavePlayer(data: any): void {
+        console.log(`Player ${this.player.username} is leaving`);
+        
+        // 1. Supprimer le joueur de toutes les files d'attente
+        const queueManager = QueueManager.getInstance();
+        queueManager.removePlayerFromAllQueues(this.player);
+        
+        // 2. Vérifier si le joueur est dans un tournoi et le faire quitter
+        if (this.player.uuid_room) {
+            const tournament = GetTournamentById(this.player.uuid_room);
+            if (tournament) {
+                console.log(`Removing player ${this.player.username} from tournament ${this.player.uuid_room}`);
+                RemovePlayerFromTournament(this.player.uuid_room, this.player);
+                
+                // Si c'est l'hôte qui quitte, supprimer le tournoi
+                if (tournament.host.user_id === this.player.user_id) {
+                    console.log(`Host ${this.player.username} is leaving, deleting tournament ${this.player.uuid_room}`);
+                    // Notifier tous les joueurs du tournoi
+                    for (const player of tournament.players) {
+                        secureSend(player.socket, {
+                            type: 'tournament_deleted',
+                            tournament_id: this.player.uuid_room
+                        });
+                    }
+                    DeleteTournament(this.player.uuid_room);
+                } else {
+                    // Notifier les autres joueurs du tournoi
+                    this.broadcastTournamentUpdate(tournament);
+                }
+            }
+        }
+        
+        // 3. Vérifier si le joueur est dans une partie en cours et simuler une déconnexion
+        const gameRoom = playerRooms.get(this.player.socket);
+        if (gameRoom) {
+            console.log(`Player ${this.player.username} is leaving active game in room ${gameRoom}`);
+            
+            // Trouver la session de jeu correspondante
+            const gameSession = Array.from(sessions.values()).find(session => 
+                session.uuid_room === gameRoom
+            );
+            
+            if (gameSession) {
+                console.log(`Found active game session: ${gameRoom}`);
+                
+                // Déterminer si le joueur est p1 ou p2 et gérer la déconnexion
+                if (gameSession.p1 && gameSession.p1.user_id === this.player.user_id) {
+                    console.log(`Player disconnected as P1`);
+                    gameSession.handleDisconnection('p1');
+                } else if (gameSession.p2 && gameSession.p2.user_id === this.player.user_id) {
+                    console.log(`Player disconnected as P2`);
+                    gameSession.handleDisconnection('p2');
+                }
+            }
+        }
+        
+        // 4. Si le joueur est dans une invitation, annuler l'invitation
+        const createInvQueue = queueManager.getQueueByType('create_inv_game');
+        const joinInvQueue = queueManager.getQueueByType('join_inv_game');
+        
+        // Vérifier dans les files d'invitation
+        for (let i = 0; i < createInvQueue.length; i++) {
+            if (createInvQueue[i].user_id === this.player.user_id) {
+                createInvQueue.splice(i, 1);
+                console.log(`Player ${this.player.username} removed from create invitation queue`);
+                break;
+            }
+        }
+        
+        for (let i = 0; i < joinInvQueue.length; i++) {
+            if (joinInvQueue[i].user_id === this.player.user_id) {
+                joinInvQueue.splice(i, 1);
+                console.log(`Player ${this.player.username} removed from join invitation queue`);
+                break;
+            }
+        }
+        
+        // 5. Nettoyer les données associées au joueur
+        this.player.uuid_room = '';
+        playerRooms.delete(this.player.socket);
+        
+        // 6. Envoyer un message de confirmation au client
+        secureSend(this.player.socket, {
+            type: 'leave_confirmed',
+            message: 'Successfully left all games and queues'
+        });
+        
+        console.log(`Player ${this.player.username} has successfully left all games and queues`);
+    }
     private handleLocalGame(data: any): void {
         this.player.username = data.user.name;
         this.player.type = 'local';
