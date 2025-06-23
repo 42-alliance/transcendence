@@ -61,28 +61,30 @@ function matchRoute(pathPattern: string, currentPath: string): { matched: boolea
 
 // Fonction principale du routeur
 export const router = async (): Promise<void> => {
-const existingResultModal = document.getElementById('game-result');
-if (existingResultModal) {
-	existingResultModal.remove();
-}
 
-type Route = {
-	path: string;
-	view: new () => AView;
-};
+  console.error("entre dans le router");
+  const existingResultModal = document.getElementById('game-result');
+  if (existingResultModal) {
+    existingResultModal.remove();
+  }
 
-const routes: Route[] = [
-	{ path: "/", view: Dashboard },
-	{ path: "/game", view: Game },
-	{ path: "/chat", view: Chat },
-	{ path: "/chat/:conversationId", view: Chat },
-	{ path: "/friends", view: Friends },
-	{ path: "/auth-success", view: AuthSuccess },
-	{ path: "/auth", view: Auth },
-	{ path: "/me", view: Me },
-	{ path: "/:username", view: User },
-	// { path: "/selection", view: Selection },
-];
+  type Route = {
+    path: string;
+    view: new () => AView;
+  };
+
+  const routes: Route[] = [
+    { path: "/", view: Dashboard },
+    { path: "/game", view: Game },
+    { path: "/chat", view: Chat },
+    { path: "/chat/:conversationId", view: Chat },
+    { path: "/friends", view: Friends },
+    { path: "/auth-success", view: AuthSuccess },
+    { path: "/auth", view: Auth },
+    { path: "/me", view: Me },
+    { path: "/:username", view: User },
+    // { path: "/selection", view: Selection },
+  ];
 
   let matchedRoute = null;
   let routeParams: Record<string, string> = {};
@@ -128,9 +130,11 @@ const routes: Route[] = [
   // Setup websocket si loggé et pas encore fait
   if (isLogin && webSockets.game === null) {
     setupGameWebSocket();
-	const gameInstance = new Game();
-	await gameInstance.executeViewScript();
-}
+    const gameInstance = new Game();
+    await gameInstance.executeViewScript();
+    console.error("execution du script");
+  }
+  // console.error("si je passe ici sans voir le log d'avant c'est que la condition pu des pieds");
 // Crée la vue (passe les params si besoin)
 const view = new matchedRoute.view();
 

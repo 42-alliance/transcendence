@@ -59,6 +59,24 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
             return reply.status(404).send({ message: "Friendship relation not found" });
         }
 
+		if (status === StatusEnum.blocked) {
+			if (status === StatusEnum.blocked) {
+				await prisma.blockedId.create({
+					data: {
+						userId: userId,
+						blockedId: friend.id,
+					}
+				});
+			}
+		} else if (status === StatusEnum.unblocked) {
+			await prisma.blockedId.deleteMany({
+				where: {
+					userId: userId,
+					blockedId: friend.id,
+				}
+			});
+		}
+
 		if (status === StatusEnum.rejected || (status === StatusEnum.unblocked && friendship.status === "blocked")) {
 			await prisma.friends.deleteMany({
 				where: {
@@ -66,6 +84,7 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 					receiverId: friendship.receiverId
 				},
 			});
+			
 		}
 		else {
 			await prisma.friends.updateMany({

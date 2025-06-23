@@ -3,12 +3,13 @@ import { createConversation } from "../../Chat/createConversation.js";
 import { getAllConversations } from "../../Chat/getAllConversations.js";
 import { getAllMessages } from "../../Chat/getAllMessages.js";
 import { Conversation, Member, Message, UserData } from "../../types.js";
-import { getUserInfos } from "../../User/me.js";
+import { getUserInfos, me } from "../../User/me.js";
 import AView from "../AView.js";
 import { navigateTo, webSockets } from "../viewManager.js";
 import { conversationById } from "../../Chat/conversationById.js";
 import { getAllUsers } from "../../User/getAllUsers.js";
 import { showToast } from "../triggerToast.js";
+import { GetUserBlockedListByName } from "../../User/getUserByName.js";
 
 export default class extends AView {
 	constructor() {
@@ -77,6 +78,11 @@ async function renderConversations() {
 
 	conversations.forEach(conversation => {
 		// Création du <li>
+		// ici on check si l'utilisateur est bloquer
+		if (conversation.members.some(m => userInfos.blocked?.includes(m))) {
+			return
+		}
+		
 		const li = document.createElement("li");
 		li.className =
 			"flex items-center gap-3 px-6 py-4 cursor-pointer hover:bg-gray-700 transition group";
@@ -247,6 +253,12 @@ async function renderChat(conversation: Conversation, userInfos: UserData) {
 		chatHistory.innerHTML = `<div class="text-gray-500 text-center">Beginning of conversation.</div>`;
 	} else {
 		messages.forEach((msg: Message) => {
+			const isblocked = userInfos.blocked?.some(
+					blockedUser => blockedUser.id === msg.userId
+				);
+			if (isblocked) {
+				return;
+			}
 			const isMe = msg.userId === myId;
 			chatHistory.innerHTML += `
 				<div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
@@ -291,11 +303,46 @@ async function renderChat(conversation: Conversation, userInfos: UserData) {
 	) as HTMLFormElement;
 	const input = document.getElementById("chat-input") as HTMLInputElement;
 	if (form && input) {
-		form.onsubmit = e => {
+		form.onsubmit = async (e) => {
 			e.preventDefault();
 			const value = input.value.trim();
 			if (!value) return;
 
+			for (const m of conversation.members) {
+				if (m.userId == userInfos.id) {
+					continue;
+				}
+				const b: UserData[] = await GetUserBlockedListByName(m.userId);
+				if (b.some(b => b.id === userInfos.id)) {
+					// Change input border to red and shake
+					input.classList.add("border-red-700");
+
+					// Add shake animation using CSS class
+					input.classList.add("shake");
+					input.addEventListener("animationend", () => {
+						input.classList.remove("shake");
+					}, { once: true });
+
+					// Display message above the input, aligned left
+					let msg = document.getElementById("blocked-msg");
+					if (!msg) {
+						msg = document.createElement("div");
+						msg.id = "blocked-msg";
+						msg.textContent = "You have been blocked by this user.";
+						msg.className = "text-red-500 text-xs mb-1 text-left w-full";
+						input.parentElement?.parentElement?.insertBefore(msg, input.parentElement);
+					}
+
+					setTimeout(() => {
+						input.classList.remove("border-red-500");
+						msg?.remove();
+					}, 1500);
+					return;
+				}
+				console.warn(`not find [${userInfos.id}]in blocked list of ${m.userId} => `, b);
+			}
+
+			console.error("tu tes vraiment trompé");
 			webSockets.chat?.send(
 				JSON.stringify({
 					type: "new_message",
