@@ -24,6 +24,7 @@ export async function getUserByName(
 	console.log("body", request.body);
 
 
+	
 	try {
 		// Utilisation de $queryRawUnsafe pour insérer dynamiquement la valeur de name
 		const users = await prisma.$queryRawUnsafe<
