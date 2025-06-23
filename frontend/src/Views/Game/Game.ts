@@ -128,18 +128,22 @@ export default class extends AView {
         document.getElementById('randomAdversaireButton')?.addEventListener('click', () => {
             console.log("Random adversaire button clicked");
             GameUI.displayWaiting();
-            this.webSocket?.sendMessage('random_adversaire', { user: this.user_info
-                , type: 'random_adversaire'
-             });
+            // Passer les paramètres requis (webSocket et user_info)
+            GameUI.displayBackButton(this.webSocket, this.user_info);
+            this.webSocket?.sendMessage('random_adversaire', { 
+                user: this.user_info, 
+                type: 'random_adversaire'
+            });
         });
         
         document.getElementById('localButton')?.addEventListener('click', () => {
             console.log("Local button clicked");
             GameUI.displayWaiting();
-            
-            this.webSocket?.sendMessage('local', { user: this.user_info,
+            GameUI.displayBackButton(this.webSocket, this.user_info);
+            this.webSocket?.sendMessage('local', { 
+                user: this.user_info,
                 type: 'local'
-             });
+            });
             
         });
         

@@ -212,7 +212,7 @@ class Game {
     resetBall() {
         this.ball.x = this.width / 2;
         this.ball.y = this.height / 2;
-        this.ball.speed = 4; // Reset ball speed
+        this.ball.speed = 6; // Reset ball speed
         const angle = (Math.random() * Math.PI/4) - Math.PI/8; // Small random angle variation
         // Alternate ball direction based on who scored
         const direction = this.ball.dx > 0 ? -1 : 1;

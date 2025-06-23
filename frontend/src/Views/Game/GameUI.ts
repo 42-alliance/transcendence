@@ -1,14 +1,18 @@
 import { DifficultyScreen } from './UI/screens/DifficultyScreen.js';
-import { UISpinner } from './UI/components/Spinner.js';
+import { UISpinner, ReturnArrowButton } from './UI/components/Spinner.js';
 import { IScreen } from './UI/interfaces/IScreen.js';
 import { TournamentScreen } from './UI/screens/TournamentScreen.js';
 import { FontHelper } from './FontHelper.js';
+import { BackButton } from './UI/components/BackButton.js';
+import { GameWebSocket } from './GameWebSocket.js';
 
 export class GameUI {
     private static lobbyButtons = ['randomAdversaireButton', 'localButton', 'tournamentButton', 'iaButton'];
     private static spinner = new UISpinner();
+    private static returnButton = new ReturnArrowButton();
     private static screens: Map<string, IScreen> = new Map();
     private static activeScreen: string | null = null;
+    private static backButton: BackButton | null = null;
     
     static initialize(): void {
         // Initialize screens
@@ -77,6 +81,35 @@ export class GameUI {
         this.hideLobbyButtons();
         this.displaySpinner();
     }
+
+    static displayBackButton(webSocket: GameWebSocket | null, userInfo: any): void {
+        console.log('Displaying back button', webSocket, userInfo);
+        
+        try {
+            // Supprimer l'ancien bouton s'il existe
+            if (this.backButton) {
+                this.backButton.remove();
+                this.backButton = null;
+            }
+            
+            // Vérifier si le container existe déjà et le supprimer
+            const existingContainer = document.getElementById('back-button-container');
+            if (existingContainer) {
+                existingContainer.remove();
+            }
+            
+            // Créer et afficher le nouveau bouton
+            this.backButton = new BackButton(webSocket, userInfo);
+            
+            // Appeler directement render pour s'assurer que le bouton est ajouté au DOM
+            document.body.appendChild(this.backButton.container);
+            
+            console.log('Back button added to DOM');
+        } catch (error) {
+            console.error('Error displaying back button:', error);
+        }
+    }
+    
     
     static showScreen(screenName: string): Promise<string> {
         this.hideAll();

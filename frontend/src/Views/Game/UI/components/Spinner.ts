@@ -62,3 +62,59 @@ export class UISpinner {
         this.message.textContent = message;
     }
 }
+
+export class ReturnArrowButton {
+    private element: HTMLButtonElement;
+    private container: HTMLDivElement;
+
+    constructor() {
+        // Create container
+        this.container = document.createElement('div');
+        this.container.style.position = 'absolute';
+        this.container.style.top = '20px';
+        this.container.style.left = '20px';
+        this.container.style.zIndex = '1000';
+
+        // Create button element
+        this.element = document.createElement('button');
+        this.element.textContent = '← Back';
+        this.element.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+        this.element.style.color = 'white';
+        this.element.style.border = '2px solid #6e72ff';
+        this.element.style.borderRadius = '8px';
+        this.element.style.padding = '10px 15px';
+        this.element.style.cursor = 'pointer';
+        this.element.style.transition = 'all 0.2s ease';
+        this.element.style.backdropFilter = 'blur(4px)';
+        this.element.style.boxShadow = '0 0 10px rgba(110, 114, 255, 0.3)';
+
+        // Add hover effects
+        this.element.onmouseenter = () => {
+            this.element.style.backgroundColor = 'rgba(110, 114, 255, 0.3)';
+            this.element.style.transform = 'scale(1.05)';
+            this.element.style.boxShadow = '0 0 15px rgba(110, 114, 255, 0.5)';
+        };
+
+        this.element.onmouseleave = () => {
+            this.element.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+            this.element.style.transform = 'scale(1)';
+            this.element.style.boxShadow = '0 0 10px rgba(110, 114, 255, 0.3)';
+        };
+
+        // Add click event
+        this.element.onclick = () => {
+            window.history.back();
+        };
+
+        // Add button to container
+        this.container.appendChild(this.element);
+    }
+
+    public show(): void {
+        this.container.style.display = 'block';
+    }
+
+    public getElement(): HTMLDivElement {
+        return this.container;
+    }
+}
