@@ -1,56 +1,58 @@
-<div class="flex flex-col w-full h-full gap-6">
-	<!-- CARTE UTILISATEUR -->
+<div class="flex flex-col w-full h-full">
+  <!-- CARTE UTILISATEUR -->
 
-	<div class="flex gap-6 p-10">
-		<div id="user-card-panel" class="flex-shrink-0">
-			<!-- La carte utilisateur est injectée ici -->
-		</div>
+  <div class="flex gap-6 pb-10 pl-10 pr-10">
+    <div id="user-card-panel" class="flex-shrink-0">
+      <!-- La carte utilisateur est injectée ici -->
+    </div>
 
-		<!-- HISTORIQUE DES PARTIES -->
-		<div
-			id="game-history-panel"
-			class="poin flex-1 bg-[#191a2c] rounded-2xl border border-gray-700/40 shadow-lg p-6 overflow-y-auto max-h-[480px]">
-			<!-- Header Match History -->
-			<div class="flex items-center justify-between mb-4">
-				<div class="flex items-center gap-3">
-					<!-- Icone de match/jeu -->
-					<svg
-						class="w-6 h-6 text-orange-400"
-						fill="currentColor"
-						viewBox="0 0 24 24">
-						<path
-							d="M4 4h16v2H4V4zm1 8c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4zm2 0c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2zm7.5 3c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm2-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-					</svg>
-					<h3 class="text-2xl font-semibold text-white">
-						Match History
-					</h3>
-				</div>
-				<!-- Statistiques à droite -->
-				<div class="flex items-center gap-6">
-					<div class="flex flex-col items-center">
-						<span
-							class="text-xl font-bold text-orange-400"
-							id="user-match-count"
-							>0</span
-						>
-						<span class="text-xs text-gray-400">Games</span>
-					</div>
-				</div>
-			</div>
+    <!-- HISTORIQUE DES PARTIES -->
+    <div
+      id="game-history-panel"
+      class="poin flex-1 bg-[#191a2c] rounded-2xl border border-gray-700/40 shadow-lg p-6 overflow-y-auto max-h-[480px]"
+    >
+      <!-- Header Match History -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <!-- Icone de match/jeu -->
+          <svg
+            class="w-6 h-6 text-orange-400"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M4 4h16v2H4V4zm1 8c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4zm2 0c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2zm7.5 3c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm2-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+            />
+          </svg>
+          <h3 class="text-2xl font-semibold text-white">Match History</h3>
+        </div>
+        <!-- Statistiques à droite -->
+        <div class="flex items-center gap-6">
+          <div class="flex flex-col items-center">
+            <span
+              class="text-xl font-bold text-orange-400"
+              id="user-match-count"
+              >0</span
+            >
+            <span class="text-xs text-gray-400">Games</span>
+          </div>
+        </div>
+      </div>
 
-			<div id="win-loss-graphic"></div>
+      <div id="win-loss-graphic"></div>
 
-			<ul id="game-history-list" class="space-y-4 list-none"></ul>
-		</div>
-		<div id="win-loss-timeline"></div>
-	</div>
-	<div class="w-full max-w-5xl mx-auto mt-4">
-		<h3 class="text-lg font-semibold text-white mb-2">Amis en commun</h3>
-		<div
-			id="show-common-friend"
-			class="flex gap-4 overflow-x-auto rounded-xl p-4 bg-[#191a2c] border border-gray-700/40 shadow-inner min-h-[140px] max-w-full"
-			style="scrollbar-width: thin; scrollbar-color: #444 #222">
-			<!-- Ici, les amis seront injectés en JS -->
-		</div>
-	</div>
+      <ul id="game-history-list" class="space-y-4 list-none"></ul>
+    </div>
+    <div id="win-loss-timeline"></div>
+  </div>
+  <div class="flex flex-col self-baseline w-full max-w-5xl mx-auto">
+    <h3 class="text-lg font-semibold text-white mb-2">Amis en commun</h3>
+    <div
+      id="show-common-friend"
+      class="flex gap-4 overflow-x-auto rounded-xl p-4 bg-[#191a2c] border border-gray-700/40 shadow-inner min-h-[140px] max-w-full"
+      style="scrollbar-width: thin; scrollbar-color: #444 #222"
+    >
+      <!-- Ici, les amis seront injectés en JS -->
+    </div>
+  </div>
 </div>
