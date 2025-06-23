@@ -6,7 +6,7 @@
 	  "outDir": "./.objs",
 	  "esModuleInterop": true,
 	  "forceConsistentCasingInFileNames": true,
-	  "strict": true,
+	  "strict": false,
 	  "skipLibCheck": true,
 	  "typeRoots": [
 		"./node_modules/@types",

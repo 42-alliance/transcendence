@@ -35,6 +35,12 @@ model Users {
     banner  String?
     bio     String?
 
+  // Les utilisateurs que CE user a bloqués
+  blockedUsers    BlockedId[] @relation("UserBlocking")
+
+  // Les utilisateurs qui ONT bloqué CE user
+  blockedByUsers  BlockedId[] @relation("UserBlocked")
+
     is_online        UserStatus @default(offline)
     created_at       DateTime   @default(now())
     sentRequests     Friends[]  @relation("SentRequests")
@@ -43,6 +49,18 @@ model Users {
 
     gamesAsPlayer1 Game[] @relation("Player1")
     gamesAsPlayer2 Game[] @relation("Player2")
+}
+
+model BlockedId {
+  id         Int    @id @default(autoincrement())
+  userId     Int
+  blockedId  Int
+
+  // L'utilisateur qui bloque
+  blocker    Users  @relation("UserBlocking", fields: [userId], references: [id])
+
+  // L'utilisateur bloqué
+  blocked    Users  @relation("UserBlocked", fields: [blockedId], references: [id])
 }
 
 model Game {

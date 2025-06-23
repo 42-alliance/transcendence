@@ -13,6 +13,7 @@ import { addUserDatabase, addUserDatabaseSchema } from "./users/addUser.js";
 import { me, meSchema } from "./users/@me/@me.js";
 import { getSendFriendRequest, getSendFriendRequestSchema } from "./friends/pending/getSendFriendRequest.js";
 import { storeGameDatabase } from "./game/storeGameDatabase.js";
+import { getUserBlockedList } from "./users/getUserBlockedList.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -47,6 +48,10 @@ async function setupUsersRoute(server: FastifyInstance) {
 
 	server.get("/users/clock", async function handler(request, reply) {
 		return await updateLastSeen(request, reply);
+	});
+
+	server.get('/users/get-blocked/:id', async function handler(request, reply) {
+		return await getUserBlockedList(request, reply);
 	});
 }
 

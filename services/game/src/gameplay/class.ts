@@ -70,7 +70,6 @@ class Paddle {
             if (!condition()) {
                 return; // Stop moving if the condition is false
             }
-            console.log("mooving");
             if (direction === 'up' && this.y > 0) {
                 this.y -= this.speed;
             } else if (direction === 'down' && this.y + this.height < 800) {

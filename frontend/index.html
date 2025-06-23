@@ -101,14 +101,6 @@
 										href="#"
 										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
 										role="menuitem"
-										>Setting</a
-									>
-								</li>
-								<li>
-									<a
-										href="#"
-										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-										role="menuitem"
 										onclick="logOutUser()"
 										>Sign out</a
 									>
@@ -116,8 +108,9 @@
 								<li>
 									<a
 										href="#"
-										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										class="block px-4 py-2 text-sm text-red-700 hover:bg-gray-100 dark:text-red-700 dark:hover:bg-gray-600"
 										role="menuitem"
+										style="color: red;"
 										onclick="deleteUser()"
 										>Delete Account</a
 									>
@@ -137,10 +130,10 @@
 				class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 flex flex-col justify-between">
 				<div>
 					<ul class="space-y-2 font-medium">
-						<li>
+						<li class="transition-transform duration-200 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
 							<a id="profile-link-sidebar"
 								href="/"
-								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group"
 								data-link>
 								<svg
 									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -154,10 +147,10 @@
 								<span class="ms-3">My profile</span>
 							</a>
 						</li>
-						<li>
+						<li class="transition-transform duration-200 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
 							<a
 								href="/friends"
-								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" data-link>
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group" data-link>
 								<svg
 									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
 									aria-hidden="true"
@@ -172,10 +165,10 @@
 								>
 							</a>
 						</li>
-						<li>
+						<li class="transition-transform duration-200 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
 							<a
 								href="/chat"
-								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" data-link>
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group" data-link>
 								<svg
 									class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
 									xmlns="http://www.w3.org/2000/svg"
@@ -190,18 +183,15 @@
 								<span class="flex-1 ms-3 whitespace-nowrap">Chat</span>
 							</a>
 						</li>
-						<li>
-							<li>
-								<a
-									href="/game"
-									class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-									data-link>
-									<!-- Logo manette de jeu FontAwesome -->
-									<i class="fa-solid fa-gamepad shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i>
-									<span class="flex-1 ms-3 whitespace-nowrap">Game</span>
-								</a>
-							</li>
-
+						<li class="transition-transform duration-200 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+							<a
+								href="/game"
+								class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group"
+								data-link>
+								<!-- Logo manette de jeu FontAwesome -->
+								<i class="fa-solid fa-gamepad shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i>
+								<span class="flex-1 ms-3 whitespace-nowrap">Game</span>
+							</a>
 						</li>
 					</ul>
 
@@ -254,7 +244,8 @@
 			</div>
 		</aside>
 
-		<video autoplay loop muted playsinline class="absolute top-0 left-0 w-full h-full object-cover brightness-50 -z-40">
+		<video autoplay loop muted playsinline
+			class="absolute top-0 left-0 w-full h-full object-cover brightness-50 -z-10">
 			<source src="/assets/goku.mp4" type="video/mp4">
 			<span data-i18n="video-error"></span>
 		</video>

@@ -1,30 +1,39 @@
-<div id="game-wrapper">
+<div id="game-wrapper" class="h-full w-full flex items-center justify-center bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800 px-4 py-8">
+   <!-- Canvas container (hidden by default) -->
     <div id="canvas-container" style="display: none;">
         <canvas id="gameCanvas" width="1600" height="800">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
     </div>
-    
-    <div class="game-mode-grid">
-        <div id="randomAdversaireButton" class="game-mode-card large">
-            <div class="mode-icon">🌐</div>
-            <h2>Random Adversaire</h2>
+   
+    <div id="selection-grid" class="flex flex-col justify-center items-center w-full min-h-[80vh] max-w-5xl mx-auto relative">
+        <!-- Decorative blurred background shapes (subtle, consistent colors) -->
+        <div class="absolute -top-20 -left-20 w-72 h-72 bg-blue-900 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-blue-700 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+        <!-- Game Mode Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+            <div id="randomAdversaireButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-800 via-blue-700 to-blue-600 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
+                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">🌐</div>
+                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">Random Adversaire</h2>
+                <p class="text-blue-100 text-base mt-1">Play with a random online opponent</p>
+            </div>
+            <div id="localButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
+                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">👥</div>
+                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">Local</h2>
+                <p class="text-blue-100 text-base mt-1">Challenge a friend on your device</p>
+            </div>
+            <div id="tournamentButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-800 via-blue-700 to-blue-600 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
+                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">🏆</div>
+                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">Tournament</h2>
+                <p class="text-blue-100 text-base mt-1">Compete in a tournament bracket</p>
+            </div>
+            <div id="iaButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
+                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">🤖</div>
+                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">IA</h2>
+                <p class="text-blue-100 text-base mt-1">Play against the computer</p>
+            </div>
         </div>
         
-        <div id="localButton" class="game-mode-card medium">
-            <div class="mode-icon">👥</div>
-            <h2>Local</h2>
-        </div>
-        
-        <div id="tournamentButton" class="game-mode-card medium">
-            <div class="mode-icon">🏆</div>
-            <h2>Tournament</h2>
-        </div>
-        
-        <div id="iaButton" class="game-mode-card large">
-            <div class="mode-icon">🤖</div>
-            <h2>IA</h2>
-        </div>
     </div>
 </div>
 
