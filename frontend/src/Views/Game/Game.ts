@@ -103,7 +103,11 @@ export default class extends AView {
                 // Attendre que l'utilisateur sélectionne une difficulté
                 const difficultyMode = await GameUI.displayDifficultyButtons();
                 console.log("Selected difficulty:", difficultyMode);
-                
+                if (difficultyMode === 'back') {
+                    // Si l'utilisateur a choisi de revenir, rétablir les boutons du lobby
+                    GameUI.showLobbyButtons();
+                    return;
+                }
                 if (difficultyMode) {
                     // Afficher un spinner pendant la connexion
                     GameUI.displayWaiting();
@@ -114,9 +118,6 @@ export default class extends AView {
                         difficulty: difficultyMode,
                         type: 'ia',
                     });
-                } else {
-                    // L'utilisateur a annulé, rétablir les boutons du lobby
-                    GameUI.showLobbyButtons();
                 }
             } catch (error) {
                 console.error("Error selecting difficulty:", error);
