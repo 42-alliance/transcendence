@@ -11,6 +11,7 @@ import { createConversation } from "../../Chat/createConversation.js";
 import { gameWsClass, navigateTo } from "../viewManager.js";
 import { removeFriendDiv, removePendingFriendRequest } from "../../User/setupWebsockets.js";
 import { removeFriend } from "../../Friends/removeFriend.js";
+import { UserData } from "../../types.js";
 
 
 export default class extends AView {
@@ -83,21 +84,19 @@ export async function injectFriends() {
 
 	let all = document.getElementById("all-button");
 	let pending = document.getElementById("pending-button");
-	SetUpNotifs(all, pending);
+	SetUpNotifs(all, pending, friendsList);
 }
 
-export async function SetUpNotifs(all : HTMLElement | null, pending : HTMLElement | null) {
-	const friends = await getAllFriends();
-	console.error("J'affiche les notifs => ", friends);
-	let all_notifs = document.createElement("span");
-	let pending_notifs = document.createElement("span");
-	if (friends) {
-		all_notifs.textContent = `${friends.length}`;
-		all_notifs.className = "all-notifs ml-1 px-2 py-0.5 bg-orange-900/30 text-orange-400 rounded-full text-xs";
-		pending_notifs.textContent = `${friends.filter(friend => friend.status === "pending").length}`;
-		pending_notifs.className = "ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-orange-500/20 group-hover:text-orange-300";
-	}
+export async function SetUpNotifs(all : HTMLElement | null, pending : HTMLElement | null, friendsList: UserData[]) {
+	console.error("J'affiche les notifs => ", friendsList);
 	
+	let all_notifs = document.createElement("span");
+	all_notifs.className = "all-notifs ml-1 px-2 py-0.5 bg-orange-900/30 text-orange-400 rounded-full text-xs";
+	all_notifs.innerHTML = `${friendsList.length}`;
+	
+	let pending_notifs = document.createElement("span");
+	pending_notifs.className = "ml-1 px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full text-xs group-hover:bg-orange-500/20 group-hover:text-orange-300";
+	pending_notifs.innerHTML = `${friendsList.filter(friend => friend.status === "pending").length}`;
 
 	all?.appendChild(all_notifs);
 	pending?.appendChild(pending_notifs);
@@ -109,12 +108,13 @@ export async function setupAddFriendSearchBar() {
 	if (!all_users) return;
 
 	all_users.sort((a, b) => a.name!.localeCompare(b.name!));
-	const me = await getUserInfos();
-	if (!me) return;
-	const friendsList = await getAllFriends();
-	if (!friendsList) return;
 
-	const myFriends = friendsList.map(friend => friend.name);
+	const me = await getUserInfos();
+	if (!me || !me.friends) return;
+
+	const friendsList = me.friends;
+
+	const myFriends = friendsList.map(friend => friend.name!);
 
 	document.getElementById("add-friend-btn")?.addEventListener("click", function () {
 		const searchBar = document.getElementById("search-bar");
@@ -146,9 +146,13 @@ export async function setupAddFriendSearchBar() {
 			let matchCount = 0;
 
 			all_users.forEach(user => {
+				if (!user.name) {
+					console.error("User without name found:", user);
+					return;
+				}
 				if (
-					user.name!.toLowerCase().includes(searchValue) &&
-					user.name!.toLowerCase() !== me.name?.toLowerCase()
+					user.name.toLowerCase().includes(searchValue) &&
+					user.name.toLowerCase() !== me.name!.toLowerCase()
 				) {
 					const isFriend = myFriends.includes(user.name);
 					html += `
@@ -255,16 +259,14 @@ export async function setupAddFriendSearchBar() {
 
 		if (target.closest('.send-request-btn')) {
 			const name = (target.closest('.send-request-btn') as HTMLElement).getAttribute('data-name');
-			const id = (target.closest('.send-request-btn') as HTMLElement).getAttribute('data-id');
-			if (!name || !id) return;
+			if (!name) return;
 			await addFriend(name);
 			return;
 		}
 
 		if (target.closest('.chat-btn')) {
 			const name = (target.closest('.chat-btn') as HTMLElement).getAttribute('data-name');
-			const id = (target.closest('.chat-btn') as HTMLElement).getAttribute('data-id');
-			if (!name || !id) return;
+			if (!name) return;
 
 			const conv_id = await createConversation([me.name!, name]);
 			navigateTo(`/chat/${conv_id}`);
@@ -273,6 +275,7 @@ export async function setupAddFriendSearchBar() {
 
 		if (target.closest('.more-options-btn')) {
 			const name = (target.closest('.more-options-btn') as HTMLElement).getAttribute('data-name');
+			// TODO: Implement more options logic
 			console.log('Plus d’options pour', name);
 			return;
 		}
