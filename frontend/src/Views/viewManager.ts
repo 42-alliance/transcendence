@@ -155,14 +155,8 @@ export const router = async (): Promise<void> => {
     appId.innerHTML = await view.getHtml();
   }
 
-  // Script supplémentaire si Game (exécution du JS de la vue)
-  // if (view instanceof Game) {
-  // 	await view.executeViewScript();
-  // }
-
   // Toujours passer les params à ta fonction dynamique
 
-  console.error("routeParams", routeParams);
   await dynamicDisplay(routeParams);
 };
 

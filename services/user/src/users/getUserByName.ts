@@ -1,8 +1,9 @@
 import { Type } from "@sinclair/typebox";
 import { prisma } from "../index.js";
 import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
-import { extractUserId } from "../utils.js";
+import { extractUserId, getStatus } from "../utils.js";
 import { config } from "../config.js";
+import { get } from "http";
 
 export const getUserByNameSchema: FastifySchema = {
 	headers: Type.Object({
@@ -21,10 +22,6 @@ export async function getUserByName(
 
 	console.log("getUserByName called with name:", name);
 
-	console.log("body", request.body);
-
-
-	
 	try {
 		// Utilisation de $queryRawUnsafe pour insérer dynamiquement la valeur de name
 		const users = await prisma.$queryRawUnsafe<
@@ -196,7 +193,7 @@ export async function getUserByName(
     		banner: user.banner,
     		bio: user.bio,
     		created_at: user.created_at,
-			status: user.is_online === "online" && delta < 10 * 60 * 1000 ? "online" : user.is_online === "offline" ? "offline" : "away",
+			status: getStatus(user.is_online, user.lastSeen),
 			common_friends: common_friends_users,
 			games: user_games
 		});

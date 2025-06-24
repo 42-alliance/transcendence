@@ -3,7 +3,7 @@ import { fetchApi } from "../fetchApi.js";
 
 export async function getAllMessages(conversationId: number): Promise<Message[]> {
 	try {
-		const response = await fetchApi(`chat/conversations/${conversationId}`, {
+		const response = await fetchApi(`/chat/conversations/${conversationId}`, {
 			method: "GET",
 		});
 

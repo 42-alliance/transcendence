@@ -4,9 +4,7 @@ import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "
 
 enum FriendState {
 	"accepted",
-	"blocked",
 	"rejected",
-	"unblocked",
 }
 
 function isValidFriendState(state: any): state is FriendState {

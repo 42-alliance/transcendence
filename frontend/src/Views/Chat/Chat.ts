@@ -10,6 +10,8 @@ import { conversationById } from "../../Chat/conversationById.js";
 import { getAllUsers } from "../../User/getAllUsers.js";
 import { showToast } from "../triggerToast.js";
 import { GetUserBlockedListByName } from "../../User/getUserByName.js";
+import { createConversationNameNoClick } from "./ChatUtils.js";
+import { renderChat } from "./renderChat.js";
 
 export default class extends AView {
 	constructor() {
@@ -33,53 +35,29 @@ export default class extends AView {
 	}
 }
 
-function createConversationName(otherMembers: Member[]): string {
-	let str = "";
-	otherMembers.forEach(member => {
-		str += `<a href="/${member.name}"
-				 class="hover:underline hover:text-orange-400 transition-colors"
-				 data-link>${member.name}</a>, `;
-	});
-	if (str.length > 0) {
-		str = str.slice(0, -2); // Remove trailing comma and space
-	}
-	return str;
-}
 
-function createConversationNameNoClick(otherMembers: Member[]): string {
-	let str = "";
-	otherMembers.forEach(member => {
-		str += member.name + ", ";
-	});
-	if (str.length > 0) {
-		str = str.slice(0, -2); // Remove trailing comma and space
-	}
-	return str;
-}
 
 
 async function renderConversations() {
-	const conversations = await getAllConversations();
-	if (!conversations) return;
-
-	console.log("Rendering conversations:", conversations);
-
 	const conversationList = document.getElementById("conversation-list");
 	if (!conversationList) return;
 
-	const userInfos = await getUserInfos();
-	if (!userInfos) {
+	const conversations = await getAllConversations();
+	if (!conversations) return;
+
+	const me = await getUserInfos();
+	if (!me || !me.name) {
 		console.error("User information could not be retrieved.");
 		return;
 	}
-	const my_name = userInfos.name || "Unknown User";
+	const my_name = me.name;
 
 	conversationList.innerHTML = ""; // Clear existing conversations
 
 	conversations.forEach(conversation => {
 		// Création du <li>
 		// ici on check si l'utilisateur est bloquer
-		if (conversation.members.some(m => userInfos.blocked?.includes(m))) {
+		if (conversation.members.some(m => me.blocked?.includes(m))) {
 			return
 		}
 		
@@ -175,186 +153,7 @@ export function getUserPicture(
 	return userInfos.picture;
 }
 
-async function renderChat(conversation: Conversation, userInfos: UserData) {
-	const chatHeader = document.getElementById("chat-header");
-	const chatHistory = document.getElementById("chat-history");
-	const chatInputArea = document.getElementById("chat-input-area");
-	if (!chatHeader || !chatHistory || !chatInputArea) return;
 
-	// Trouver les autres membres pour le header
-	const my_name = userInfos.name || "Unknown User";
-	const otherMembers = (conversation.members || []).filter(
-		(m: any) => m.name !== my_name
-	);
-
-	document
-		.getElementById(`unread-badge-${conversation.id}`)
-		?.classList.add("hidden"); // Cacher le badge de non-lu
-
-	// HEADER
-	chatHeader.innerHTML = "";
-	chatHistory.setAttribute(
-		"data-conversation-id",
-		conversation.id.toString()
-	);
-
-	let inviteBtnHTML = `
-    <button id="invite-to-play-btn" 
-        class="ml-6 flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 hover:bg-orange-500/90 transition text-sm font-bold text-white shadow focus:outline-none"
-        title="Invite to play" data-conversation-id="${conversation.id}">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-        <span class="hidden sm:inline">Invite to play</span>
-    </button>
-`;
-
-	if (otherMembers.length === 1) {
-    chatHeader.innerHTML = `
-	<a href="/${otherMembers[0].name}" data-link class="group transition-colors">
-    <img src="${otherMembers[0].picture || "/assets/default.jpeg"}"
-        class="w-11 h-11 rounded-full border border-orange-400/30 group-hover:border-orange-400 transition-all duration-200"
-        alt="${otherMembers[0].name} avatar">
-	</a>
-    <div>
-		<a href="/${otherMembers[0].name}" data-link class="group transition-colors">
-
-    	    <div class="font-semibold text-white text-lg group-hover:text-orange-400 transition-colors">
-        	    ${otherMembers[0].name}
-        	</div>
-		</a>
-    </div>
-    ${inviteBtnHTML}
-
-    `;
-	} else {
-		chatHeader.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="w-11 h-11 rounded-full border border-orange-400/30 text-white" fill="currentColor" alt="Group conversation"><path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM609.3 512l-137.8 0c5.4-9.4 8.6-20.3 8.6-32l0-8c0-60.7-27.1-115.2-69.8-151.8c2.4-.1 4.7-.2 7.1-.2l61.4 0C567.8 320 640 392.2 640 481.3c0 17-13.8 30.7-30.7 30.7zM432 256c-31 0-59-12.6-79.3-32.9C372.4 196.5 384 163.6 384 128c0-26.8-6.6-52.1-18.3-74.3C384.3 40.1 407.2 32 432 32c61.9 0 112 50.1 112 112s-50.1 112-112 112z"/></svg>
-        <div>
-            <div class="font-semibold text-white text-lg">${
-				conversation.name || createConversationName(otherMembers)
-			}</div>
-            <div class="text-xs text-gray-400">${
-				otherMembers.length
-			} members</div>
-        </div>
-        ${inviteBtnHTML}
-    `;
-	}
-
-	// ... (le reste de la fonction inchangé)
-
-	// HISTORIQUE
-	chatHistory.innerHTML = "";
-	const myId = userInfos.id;
-
-	const messages = (await getAllMessages(conversation.id)).reverse(); // Récupère les messages et les inverse pour afficher les plus récents en bas`
-	if (messages.length === 0) {
-		chatHistory.innerHTML = `<div class="text-gray-500 text-center">Beginning of conversation.</div>`;
-	} else {
-		messages.forEach((msg: Message) => {
-			const isblocked = userInfos.blocked?.some(
-					blockedUser => blockedUser.id === msg.userId
-				);
-			if (isblocked) {
-				return;
-			}
-			const isMe = msg.userId === myId;
-			chatHistory.innerHTML += `
-				<div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
-					<img src="${getUserPicture(conversation, msg.userId)}" 
-						class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
-					<div>
-						<div class="${
-							isMe
-								? "bg-gradient-to-br from-orange-500 to-yellow-400 text-black"
-								: "bg-gray-800 text-white"
-						} px-4 py-2 rounded-2xl max-w-md break-words">${
-				msg.content || "[Pièce jointe]"
-			}</div>
-						<div class="text-xs text-gray-500 mt-1 ${isMe ? "text-right" : ""}">${
-				msg.createdAt || ""
-			}</div>
-					</div>
-				</div>
-			`;
-		});
-		// Scroll en bas
-		chatHistory.scrollTop = chatHistory.scrollHeight;
-	}
-
-	setTimeout(() => {
-		chatHistory.scrollTop = chatHistory.scrollHeight;
-	}, 0);
-
-	// ZONE DE SAISIE
-	chatInputArea.innerHTML = `
-		<form id="send-message-form" class="flex items-center gap-3">
-			<input type="text" id="chat-input" class="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30" placeholder="Écris ton message..." autocomplete="off" />
-			<button type="submit" class="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold px-6 py-2 rounded-lg shadow flex items-center gap-2">
-				<i class="fa fa-paper-plane"></i>
-			</button>
-		</form>
-	`;
-
-	// Handler pour l'envoi de message (mock ici)
-	const form = document.getElementById(
-		"send-message-form"
-	) as HTMLFormElement;
-	const input = document.getElementById("chat-input") as HTMLInputElement;
-	if (form && input) {
-		form.onsubmit = async (e) => {
-			e.preventDefault();
-			const value = input.value.trim();
-			if (!value) return;
-
-			for (const m of conversation.members) {
-				if (m.userId == userInfos.id) {
-					continue;
-				}
-				const b: UserData[] = await GetUserBlockedListByName(m.userId);
-				if (b.some(b => b.id === userInfos.id)) {
-					// Change input border to red and shake
-					input.classList.add("border-red-700");
-
-					// Add shake animation using CSS class
-					input.classList.add("shake");
-					input.addEventListener("animationend", () => {
-						input.classList.remove("shake");
-					}, { once: true });
-
-					// Display message above the input, aligned left
-					let msg = document.getElementById("blocked-msg");
-					if (!msg) {
-						msg = document.createElement("div");
-						msg.id = "blocked-msg";
-						msg.textContent = "You have been blocked by this user.";
-						msg.className = "text-red-500 text-xs mb-1 text-left w-full";
-						input.parentElement?.parentElement?.insertBefore(msg, input.parentElement);
-					}
-
-					setTimeout(() => {
-						input.classList.remove("border-red-500");
-						msg?.remove();
-					}, 1500);
-					return;
-				}
-				console.warn(`not find [${userInfos.id}]in blocked list of ${m.userId} => `, b);
-			}
-
-			console.error("tu tes vraiment trompé");
-			webSockets.chat?.send(
-				JSON.stringify({
-					type: "new_message",
-					conversationId: conversation.id,
-					content: value,
-				})
-			);
-
-			input.value = "";
-		};
-	}
-}
 
 export async function ChatViewListener(conversationId?: number) {
 	renderConversations();

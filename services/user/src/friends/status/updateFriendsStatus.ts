@@ -1,13 +1,12 @@
 import { Type } from "@sinclair/typebox";
 import { connectedSockets, prisma } from "../../index.js";
 import { extractUserId } from "../../utils.js";
-import { FastifyReply, FastifyRequest, FastifyInstance, FastifySchema } from "fastify";
+import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
+import { blockSomeone } from "./blockSomeone.js";
 
 const StatusEnum = {
 	accepted: 'accepted',
 	rejected: 'rejected',
-	blocked: 'blocked',
-	unblocked: 'unblocked',
 };
 
 export const updateFriendStatusSchema: FastifySchema = {
@@ -59,32 +58,13 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
             return reply.status(404).send({ message: "Friendship relation not found" });
         }
 
-		if (status === StatusEnum.blocked) {
-			if (status === StatusEnum.blocked) {
-				await prisma.blockedId.create({
-					data: {
-						userId: userId,
-						blockedId: friend.id,
-					}
-				});
-			}
-		} else if (status === StatusEnum.unblocked) {
-			await prisma.blockedId.deleteMany({
-				where: {
-					userId: userId,
-					blockedId: friend.id,
-				}
-			});
-		}
-
-		if (status === StatusEnum.rejected || (status === StatusEnum.unblocked && friendship.status === "blocked")) {
+		if (status === StatusEnum.rejected) {
 			await prisma.friends.deleteMany({
 				where: {
 					senderId: friendship.senderId,
 					receiverId: friendship.receiverId
 				},
 			});
-			
 		}
 		else {
 			await prisma.friends.updateMany({
@@ -94,7 +74,6 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 				},
 				data: {
 					status: status as keyof typeof StatusEnum,
-					whoBlockedId: status === StatusEnum.blocked ? userId : null,
 				}
 			});
 		}

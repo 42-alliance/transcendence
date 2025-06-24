@@ -6,7 +6,6 @@ import { addFriend, addFriendSchema } from "./friends/addFriend.js";
 import { removeFriend, removeFriendSchema } from "./friends/removeFriend.js";
 import { getFriends, getFriendsSchema } from "./friends/getFriends.js";
 import { updateFriendStatus, updateFriendStatusSchema } from "./friends/status/updateFriendsStatus.js";
-import { getPendingFriendRequest, getPendingFriendRequestSchema } from "./friends/pending/getPendingRequest.js";
 import { getAllUsers, getAllUsersSchema } from "./users/getAllUsers.js";
 import { getUserByName, getUserByNameSchema } from "./users/getUserByName.js";
 import { addUserDatabase, addUserDatabaseSchema } from "./users/addUser.js";
@@ -14,6 +13,8 @@ import { me, meSchema } from "./users/@me/@me.js";
 import { getSendFriendRequest, getSendFriendRequestSchema } from "./friends/pending/getSendFriendRequest.js";
 import { storeGameDatabase } from "./game/storeGameDatabase.js";
 import { getUserBlockedList } from "./users/getUserBlockedList.js";
+import { unblockSomeone } from "./friends/status/unblockSomeone.js";
+import { blockSomeone } from "./friends/status/blockSomeone.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -85,11 +86,7 @@ async function setupFriendsRoute(server: FastifyInstance) {
 	server.get<{ Params: { friendId: string } }>('/friends/status/:friendId', { schema: getFriendStatusSchema }, async function handler(request, reply) {
 		return await getFriendStatus(request, reply);
 	});
-	
-	// Obtenir les demandes d'amis en attente
-	server.get('/friends/requests/pending', { schema: getPendingFriendRequestSchema}, async function handler(request, reply) {
-	  return await getPendingFriendRequest(request, reply);
-	});
+
 	
 	// Obtenir les demandes d'amis envoye
 	server.get('/friends/requests/send', { schema: getSendFriendRequestSchema}, async function handler(request, reply) {
@@ -103,8 +100,19 @@ async function setupGameRoute(server: FastifyInstance) {
 	});
 }
 
+async function setupBlockRoute(server: FastifyInstance) {
+	server.post<{ Params: { friendId: string } }>('/users/block/:friendId', async function handler(request, reply) {
+		await blockSomeone(request, reply);
+	});
+
+	server.delete<{ Params: { friendId: string } }>('/users/unblock/:friendId', async function handler(request, reply) {
+		return await unblockSomeone(request, reply);
+	});
+}
+
 export async function setupRoutes(server: FastifyInstance) {
 	await setupUsersRoute(server);
 	await setupFriendsRoute(server);
+	await setupBlockRoute(server);
 	await setupGameRoute(server);
 }

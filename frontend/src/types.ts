@@ -17,6 +17,12 @@ export interface Games {
     finished_at: Date;
 }
 
+export interface PendingRequest {
+	type: "incoming" | "outgoing";
+	user: UserData;
+	request_since: Date;
+}
+
 export interface UserData {
 	id?: number;
 	name?: string;
@@ -25,6 +31,8 @@ export interface UserData {
 	status?: string; // "online", "offline", "away", "inGame"
 	email?: string;
 	friends?: UserData[];
+	incoming_friends?: PendingRequest[];
+	outgoing_friends?: PendingRequest[];
 	blocked?: UserData[];
 	common_friends?: UserData[];
 	games?: Games[];
@@ -48,7 +56,7 @@ export interface Member {
 
 export interface Message {
 	id: number;
-	createdAt: string;
+	createdAt: Date;
 	content: string;
 	conversationId: number;
 	userId: number;

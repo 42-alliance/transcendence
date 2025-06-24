@@ -44,6 +44,30 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 			return reply.status(400).send({ message: "You cannot add yourself as a friend" });
 		}
 
+		const blocked = await prisma.blockedId.findFirst({
+			where: {
+				userId: userId,
+				blockedId: friend.id,
+			}
+		});
+
+		if (blocked) {
+			console.error("You cannot add a blocked user as a friend");
+			return reply.status(400).send({ message: "You cannot add a blocked user as a friend" });
+		}
+
+		const blockedBy = await prisma.blockedId.findFirst({
+			where: {
+				userId: friend.id,
+				blockedId: userId,
+			}
+		});
+
+		if (blockedBy) {
+			console.error("You cannot add a user who blocked you as a friend");
+			return reply.status(400).send({ message: "You cannot add a user who blocked you as a friend" });
+		}
+
 		const existingFriendChip = await prisma.friends.findFirst({
 			where: {
 				OR: [

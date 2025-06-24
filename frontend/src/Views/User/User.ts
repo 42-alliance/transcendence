@@ -29,7 +29,7 @@ export default class extends AView {
 	}
 }
 
-function timeAgo(dateInput: string | Date, locale: string = "en"): string {
+export function timeAgo(dateInput: string | Date, locale: string = "en"): string {
 	const date =
 		typeof dateInput === "string" ? new Date(dateInput) : dateInput;
 	const now = new Date();

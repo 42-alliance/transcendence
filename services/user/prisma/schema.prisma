@@ -93,7 +93,6 @@ model Friends {
     status     Status   @default(pending)
     created_at DateTime @default(now())
 
-	whoBlockedId Int? // Si le statut est "blocked", qui a bloqué qui
     sender   Users @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
     receiver Users @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
 

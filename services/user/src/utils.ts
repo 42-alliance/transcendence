@@ -13,3 +13,8 @@ export function generateRandomString(length: number) {
 	}
 	return result;
 }
+
+export function getStatus(status: string, last_seen: Date): string {
+	const delta = Date.now() - new Date(last_seen).getTime();
+	return status === "online" && delta < 10 * 60 * 1000 ? "online" : status === "offline" ? "offline" : "away";
+}

@@ -1,7 +1,7 @@
 import { UserData } from "../types.js";
+import { getUserInfos } from "../User/me.js";
 import { removePendingFriendRequest } from "../User/setupWebsockets.js";
 import { navigateTo } from "../Views/viewManager.js";
-import { FriendUser, getPendingFriendRequest } from "./getPendingFriendRequest.js";
 import { updateFriendStatus } from "./updateFriendStatus.js";
 
 export function createPendingFriendLeftSection(friend: UserData): HTMLDivElement {
@@ -87,8 +87,14 @@ export async function showPendingFriends() {
 	const pendingFriendsDiv = document.getElementById("pending-requests");
 	if (!pendingFriendsDiv) return;
 
-	const friends = await getPendingFriendRequest();
-	if (!friends || friends.incoming.length === 0) return;
+	const me = await getUserInfos();
+	if (!me || !me.incoming_friends || !me.outgoing_friends) {
+		console.error("User data is incomplete or not loaded.");
+		return;
+	}
+
+	const incomingFriends = me.incoming_friends;
+	if (!incomingFriends || incomingFriends.length === 0) return;
 
 	pendingFriendsDiv.innerHTML = `
 		<div class="flex justify-around items-center p-2 rounded-lg">
@@ -96,7 +102,7 @@ export async function showPendingFriends() {
 		</div>
 	`;
 
-	friends.incoming.forEach(friend => {
+	incomingFriends.forEach(friend => {
 		const li = pendingFriendSidebarCard(friend.user);
 		pendingFriendsDiv.appendChild(li);
 	});

@@ -2,6 +2,7 @@ import { getUserInfos } from "../User/me.js";
 import { getAccessToken } from "../fetchApi.js";
 import { showToast } from "../Views/triggerToast.js";
 import { gameWsClass, navigateTo, webSockets } from "../Views/viewManager.js";
+import { timeAgo } from "../Views/User/User.js";
 
 interface ChatMessage {
 	type: "new_message" | "invitation_game";
@@ -12,6 +13,21 @@ interface ChatMessage {
 	userId: number;
 	picture: string;
 	name: string;
+}
+
+function callToast(msg: ChatMessage) {
+	showToast({
+		text: `${msg.name} send you a new message !`,
+		img: msg.picture,
+		buttons: [
+			{
+				label: "Go chat",
+				onClick: () =>
+					navigateTo(`/chat/${msg.conversationId}`),
+			},
+		],
+		duration: 5000, // 0 = ne s’enlève pas tant qu’on ferme pas
+	});
 }
 
 export function setupChatWebSocket() {
@@ -26,21 +42,6 @@ export function setupChatWebSocket() {
 	webSockets.chat.onopen = () => {
 		console.log(`✅ Connecté a la websocket de chat`);
 	};
-
-	function callToast(msg: ChatMessage) {
-		showToast({
-			text: `${msg.name} send you a new message !`,
-			img: msg.picture,
-			buttons: [
-				{
-					label: "Go chat",
-					onClick: () =>
-						navigateTo(`/chat/${msg.conversationId}`),
-				},
-			],
-			duration: 5000, // 0 = ne s’enlève pas tant qu’on ferme pas
-		});
-	}
 
 	webSockets.chat.onmessage = async event => {
 		const msg: ChatMessage = JSON.parse(event.data);
@@ -133,12 +134,8 @@ export function setupChatWebSocket() {
 								isMe
 									? "bg-gradient-to-br from-orange-500 to-yellow-400 text-black"
 									: "bg-gray-800 text-white"
-							} px-4 py-2 rounded-2xl max-w-md break-words">${
-						msg.content || "[Pièce jointe]"
-					}</div>
-							<div class="text-xs text-gray-500 mt-1 ${isMe ? "text-right" : ""}">${
-						msg.createdAt || ""
-					}</div>
+							} px-4 py-2 rounded-2xl max-w-md break-words">${msg.content}</div>
+							<div class="text-xs text-gray-500 mt-1 ${isMe ? "text-right" : ""}">${timeAgo(msg.createdAt)}</div>
 						</div>
 					</div>
 				`;
