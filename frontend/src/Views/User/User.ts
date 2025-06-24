@@ -163,21 +163,39 @@ function renderWinLossStats(user: UserData, targetId = "win-loss-graphic") {
 	`;
 }
 
-function renderCommonFriends(user: UserData, targetId = "show-common-friend") {
+async function renderCommonFriends(user: UserData, targetId = "show-common-friend") {
 	const container = document.getElementById(targetId);
 	if (!container) return;
-
 	container.innerHTML = ""; // reset
 
-	if (!user.common_friends || user.common_friends.length === 0) {
-		container.innerHTML = `<div class="text-gray-500 italic">Aucun ami commun.</div>`;
-		return;
-	}
+	const my_common_friends = document.getElementById("my-common-friends");
+	if (!my_common_friends) return;
 
-	user.common_friends.forEach(friend => {
-		const div = createFriendCard(friend);
-		container.appendChild(div);
-	});
+	const me = await getUserInfos();
+	if (!me || !me.id || !me.friends) return;
+
+	if (user.id === me.id) {
+		my_common_friends.innerHTML = "My Friends";
+
+		if (me.friends.length === 0) {
+			container.innerHTML = `<div class="text-gray-500 italic">You have no friends.</div>`;
+			return;
+		}
+		me.friends.forEach(friend => {
+			const div = createFriendCard(friend);
+			container.appendChild(div);
+		});
+	} else {
+		my_common_friends.innerHTML = `${user.name}'s Friends in Common`;
+		if (!user.common_friends || user.common_friends.length === 0) {
+			container.innerHTML = `<div class="text-gray-500 italic">No common friends.</div>`;
+			return;
+		}
+		user.common_friends.forEach(friend => {
+			const div = createFriendCard(friend);
+			container.appendChild(div);
+		});
+	}
 }
 
 function createFriendCard(friend: any): HTMLDivElement {
@@ -265,7 +283,7 @@ export async function showUserProfile(username?: string) {
 
 	createUserCard(test, user);
 
-	renderCommonFriends(user, "show-common-friend");
+	await renderCommonFriends(user, "show-common-friend");
 
 	const game_play_div = document.getElementById("user-match-count");
 	if (!game_play_div) return;

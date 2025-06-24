@@ -1,15 +1,15 @@
-<div class="flex flex-col w-full h-full">
+<div class="flex flex-col w-full h-full gap-6 xl:gap-8 overflow-y-auto">
   <!-- CARTE UTILISATEUR -->
 
-  <div class="flex gap-6 pb-10 pl-10 pr-10">
-    <div id="user-card-panel" class="flex-shrink-0">
+  <div class="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-center xl:gap-8">
+    <div id="user-card-panel" class="flex-shrink-0 basis-2/5">
       <!-- La carte utilisateur est injectée ici -->
     </div>
 
     <!-- HISTORIQUE DES PARTIES -->
     <div
       id="game-history-panel"
-      class="poin flex-1 bg-[#191a2c] rounded-2xl border border-gray-700/40 shadow-lg p-6 overflow-y-auto max-h-[480px]"
+      class="flex-1 bg-[#191a2c] rounded-2xl border border-gray-700/40 shadow-xl p-6 overflow-y-auto xl:h-full max-h-[480px] basis-3/5"
     >
       <!-- Header Match History -->
       <div class="flex items-center justify-between mb-4">
@@ -43,10 +43,9 @@
 
       <ul id="game-history-list" class="space-y-4 list-none"></ul>
     </div>
-    <div id="win-loss-timeline"></div>
   </div>
   <div class="flex flex-col self-baseline w-full max-w-5xl mx-auto">
-    <h3 class="text-lg font-semibold text-white mb-2">Amis en commun</h3>
+    <h3 id="my-common-friends" class="text-lg font-semibold text-white mb-2">Common friends</h3>
     <div
       id="show-common-friend"
       class="flex gap-4 overflow-x-auto rounded-xl p-4 bg-[#191a2c] border border-gray-700/40 shadow-inner min-h-[140px] max-w-full"

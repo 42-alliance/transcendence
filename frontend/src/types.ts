@@ -55,13 +55,15 @@ export interface Member {
 }
 
 export interface Message {
+	type: "new_message" | "invitation_game";
 	id: number;
 	createdAt: Date;
 	content: string;
 	conversationId: number;
 	userId: number;
+	picture: string;
+	name: string;
 	readBy: number[];
-	conversation: Conversation;
 }
 
 export interface Conversation {

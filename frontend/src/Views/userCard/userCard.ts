@@ -769,47 +769,25 @@ function createDropdownButton(
 }
 
 export async function createUserCard(targetElement: HTMLElement, userInfos: UserData): Promise<void> {
-	// Création du conteneur principal
-	const container = document.createElement("div");
-	container.className = "flex flex-col w-fit h-fit relative bg-[#1a1826] text-white p-8 rounded-2xl shadow-2xl";
-
-	// Bannière et image de profil
-	const bannerContainer = document.createElement("div");
-	bannerContainer.className = "h-[320px] relative";
-
-	// Conteneur de la bannière
-	const bannerWrapper = document.createElement("div");
-	bannerWrapper.className = "w-[700px] h-[250px] overflow-hidden relative rounded-lg shadow-xl";
-
-	const bannerImg = document.createElement("img");
-	bannerImg.id = "banner-card";
-	bannerImg.className = "bg-[#1a1826] w-[700px] h-[250px] object-cover";
-	bannerImg.src = userInfos.banner || "assets/default_banner.jpeg";
-	bannerImg.alt = "Bannière utilisateur";
-
-	bannerWrapper.appendChild(bannerImg);
-	bannerContainer.appendChild(bannerWrapper);
-
+	const container = createUserCardContainer();
+	const bannerContainer = createUserCardBanner(userInfos);
 	const me = await getUserInfos();
 	if (!me) return;
+
 	if (userInfos.id !== me.id) {
 		const isFriend = me.friends?.some(friend => friend.id === userInfos.id);
-		const isblocked = me.blocked?.some(
-					blockedUser => blockedUser.id === userInfos.id!
-				);
+		const isblocked = me.blocked?.some(blockedUser => blockedUser.id === userInfos.id!);
 		const dropdownBtn = createDropdownButton(
-			bannerContainer, 
-			async () => {
-				await goChat(userInfos);
-			}, 
+			bannerContainer,
+			async () => { await goChat(userInfos); },
 			async () => {
 				navigateTo(`/game`);
-								gameWsClass?.sendMessage("create_inv_game", {
-									user: userInfos,
-									type: "create_inv_game",
-									conversationId: await createConversation([me.name!, userInfos.name!]),
-								});
-			}, 
+				gameWsClass?.sendMessage("create_inv_game", {
+					user: userInfos,
+					type: "create_inv_game",
+					conversationId: await createConversation([me.name!, userInfos.name!]),
+				});
+			},
 			async () => {
 				if (isFriend) {
 					await removeFriend(userInfos.id!);
@@ -831,9 +809,46 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 		bannerContainer.appendChild(dropdownBtn);
 	}
 
-	// Conteneur de l'image de profil avec fond
+	const profileWrapper = createUserCardProfile(userInfos);
+	bannerContainer.appendChild(profileWrapper);
+
+	const userInfoContainer = createUserCardInfo(userInfos);
+
+	container.appendChild(bannerContainer);
+	container.appendChild(userInfoContainer);
+
+	targetElement.innerHTML = "";
+	targetElement.appendChild(container);
+}
+
+function createUserCardContainer(): HTMLDivElement {
+	const container = document.createElement("div");
+	container.className = "flex flex-col w-full h-120 relative bg-[#1a1826] text-white p-8 rounded-2xl shadow-2xl";
+	return container;
+}
+
+function createUserCardBanner(userInfos: UserData): HTMLDivElement {
+	const bannerContainer = document.createElement("div");
+	bannerContainer.className = "h-55 relative";
+
+	const bannerWrapper = document.createElement("div");
+	bannerWrapper.className = "w-full h-40 overflow-hidden relative rounded-lg shadow-xl place-self-center";
+
+	const bannerImg = document.createElement("img");
+	bannerImg.id = "banner-card";
+	bannerImg.className = "bg-[#1a1826] w-full h-full object-cover";
+	bannerImg.src = userInfos.banner || "assets/default_banner.jpeg";
+	bannerImg.alt = "Bannière utilisateur";
+
+	bannerWrapper.appendChild(bannerImg);
+	bannerContainer.appendChild(bannerWrapper);
+
+	return bannerContainer;
+}
+
+function createUserCardProfile(userInfos: UserData): HTMLDivElement {
 	const profileWrapper = document.createElement("div");
-	profileWrapper.className = "absolute top-[160px] left-[5%] w-[200px] h-[200px]";
+	profileWrapper.className = "absolute bottom-[1px] left-[5%] w-[120px] h-[120px]";
 
 	const profileBg = document.createElement("div");
 	profileBg.className = "absolute inset-0 bg-[#1a1826] rounded-full";
@@ -841,26 +856,24 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 	const profileImg = document.createElement("img");
 	profileImg.id = "profile-picture-card";
 	profileImg.className = "w-full h-full rounded-full border-8 border-[#1a1826] relative z-10";
-	profileImg.src = userInfos.picture || "assets/default.jpeg";
+	profileImg.src = userInfos.picture!;
 	profileImg.alt = "Photo de profil";
 
-	// Ajoute le badge de statut, plus gros et superposé à l'image de profil
 	const statusBadgeElement = document.createElement("span");
 	statusBadgeElement.className = `
 		status-indicator-${userInfos.id!}
 		absolute
-		bottom-2 right-2
-		w-12 h-12
+		bottom-[1px] right-[1px]
+		w-10 h-10
 		rounded-full
 		border-4 border-[#1a1826]
 		flex items-center justify-center
-		${status[userInfos.status || "offline"]}
+		${status[userInfos.status!]}
 		z-30
 		pointer-events-none
 		shadow-lg
 	`;
 
-	// Pour l'accessibilité (screen readers)
 	const srText = document.createElement("span");
 	srText.className = "sr-only";
 	srText.textContent = userStatusLabels[userInfos.status || "offline"];
@@ -869,32 +882,29 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 	profileWrapper.appendChild(profileBg);
 	profileWrapper.appendChild(profileImg);
 	profileWrapper.appendChild(statusBadgeElement);
-	bannerContainer.appendChild(profileWrapper);
 
-	// Infos utilisateur
+	return profileWrapper;
+}
+
+function createUserCardInfo(userInfos: UserData): HTMLDivElement {
 	const userInfoContainer = document.createElement("div");
-	userInfoContainer.className = "ml-16 mt-8";
+	userInfoContainer.className = "ml-12 mt-2";
 
 	const userName = document.createElement("h2");
 	userName.className = "text-3xl font-bold";
 	userName.id = "userCardName";
-	userName.textContent = userInfos.name || "Nom inconnu";
+	userName.textContent = userInfos.name!;
 
 	const userBio = document.createElement("p");
-	userBio.className = "text-gray-400 text-xl mt-2";
-	userBio.id = "userBio"
+	userBio.className = "text-gray-400 text-xl mt-2 break-words max-h-34 overflow-y-auto";
+	userBio.id = "userBio";
+	userBio.style.whiteSpace = "pre-line";
 	userBio.textContent = userInfos.bio || "Aucune biographie disponible.";
 
 	userInfoContainer.appendChild(userName);
 	userInfoContainer.appendChild(userBio);
 
-	// Assemblage final
-	container.appendChild(bannerContainer);
-	container.appendChild(userInfoContainer);
-
-	// Injection dans l'élément cible
-	targetElement.innerHTML = "";
-	targetElement.appendChild(container);
+	return userInfoContainer;
 }
 
 // 📌 Injecte la carte utilisateur dans l'élément cible
@@ -912,8 +922,6 @@ export async function injectUserCard(targetId: string): Promise<void> {
 export async function injectExportUserCard(targetId: string, username: string): Promise<void> {
     const targetElement = document.getElementById(targetId);
 
-
-    
     if (!targetElement) {
         return;
     }
@@ -925,20 +933,6 @@ export async function injectExportUserCard(targetId: string, username: string): 
 		return;
 	updateUserCardMaxi(targetElement, user, user);
 }
-
-// 📌 Met à jour les données utilisateur et réinjecte la carte
-// export function updateUserCardFromForm(formId: string, targetId: string): void {
-//     const form = document.getElementById(formId) as HTMLFormElement | null;
-    
-//     if (!form) {
-//         console.error(`Aucun formulaire trouvé avec l'ID "${formId}"`);
-//         return;
-//     }
-
-// 	NewuserData.name = (form.elements.namedItem("pseudo") as HTMLInputElement)?.value || "";
-
-//     injectUserCard(targetId);
-// }
 
 // 📌 Gère la prévisualisation des images et met à jour NewuserData
 export function previewImage(event: Event, targetId: string, otherTargetId: string, otherInputId: string): void {

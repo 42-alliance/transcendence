@@ -105,7 +105,7 @@ async function renderChatHistory(
 				return;
 			}
 			const isMe = msg.userId === myId;
-			chatHistory.innerHTML += renderMessage(msg, isMe, conversation);
+			chatHistory.innerHTML += renderMessage(msg, isMe);
 		});
 		chatHistory.scrollTop = chatHistory.scrollHeight;
 	}
@@ -115,24 +115,29 @@ async function renderChatHistory(
 	}, 0);
 }
 
-function renderBlockedMessage(createdAt: Date) {
+export function renderBlockedMessage(createdAt: Date) {
 	return `
 		<div class="flex items-end gap-3">
 			<img src="/assets/default.jpeg" 
 				class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
 			<div>
-				<div class="bg-gray-800 text-white" px-4 py-2 rounded-2xl max-w-md break-words">Blocked Message</div>
+				<div class="bg-gray-800 text-white italic px-4 py-2 rounded-2xl max-w-md break-words">
+					Blocked message
+				</div>
 				<div class="text-xs text-gray-500 mt-1">${timeAgo(createdAt)}</div>
+			</div>
 		</div>
-	</div>
 	`;
 }
 
-function renderMessage(msg: Message, isMe: boolean, conversation: Conversation) {
+export function renderMessage(msg: Message, isMe: boolean) {
 	return `
 		<div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
-			<img src="${getUserPicture(conversation, msg.userId)}" 
+			<a href="/${msg.name}" 
+				class="group transition-colors" data-link>
+			<img src="${msg.picture}" 
 				class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
+			</a>
 			<div>
 				<div class="${
 					isMe

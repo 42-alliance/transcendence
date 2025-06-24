@@ -8,14 +8,13 @@ export let userInfos: UserData = {};
  * sinon fait un appel à `me()` pour les récupérer.
  */
 export async function getUserInfos(): Promise<UserData | null> {
-    if (userInfos.id && userInfos.name && userInfos.picture && userInfos.banner && userInfos.bio && userInfos.friends) {
+    if (userInfos.id && userInfos.name && userInfos.picture && userInfos.friends) {
         return userInfos; // 🔹 Déjà complet, pas besoin d'un nouvel appel
     }
 
     console.log("🔄 Récupération des informations utilisateur...");
     const data = await me();
 
-	console.log("data: ", data);
     if (data) {
         userInfos = { ...userInfos, ...data }; // 🔹 Met à jour les champs manquants
         console.log("✅ Informations utilisateur mises à jour :", userInfos);
@@ -41,8 +40,6 @@ export async function me(): Promise<UserData | null> {
 			headers: headers,
 		});
 		const data: UserData = await response.json();
-		console.log("data: ", data);
-
 		userInfos = data;
 		return userInfos;
 	} catch (e) {

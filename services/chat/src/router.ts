@@ -22,7 +22,7 @@ export function setupChatRoutes(server: FastifyInstance) {
 	});
 
 	server.get<{Params: { conversationId: string }}>("/chat/conversations/:conversationId", async function handler(request, reply) {
-		await getMessages(server, request, reply);
+		await getMessages(request, reply);
 	});
 
 	server.get<{Params: { conversationId: string }}>("/chat/conversations/:conversationId/infos", async function handler(request, reply) {
