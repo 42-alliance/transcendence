@@ -12,7 +12,6 @@ export class BackButton {
         this.webSocket = webSocket;
         this.userInfo = userInfo;
         
-        // Create container that will be positioned at top-right
         this.container = document.createElement('div');
         this.container.id = 'back-button-container'; // Ajout d'un ID unique pour déboguer
         this.container.style.position = 'fixed'; // Changé à fixed pour être toujours visible

@@ -255,6 +255,14 @@ class MatchManager {
                     uuid_room: joiner.uuid_room
                 });
             }
+            else
+            {
+                console.log(`No matching creator found for joiner ${joiner.username} in room ${joiner.uuid_room}`);
+                secureSend(joiner.socket, {
+                    type: 'error_to_join',
+                    message: 'Invitation code not found or expired'
+                });
+            }
         }
     }
 

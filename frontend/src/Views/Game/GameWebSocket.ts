@@ -90,6 +90,20 @@ export class GameWebSocket {
         }
     }
     
+    public getWebSocket(): WebSocket | null {
+        const socket = this.state.getSocket();
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            return socket;
+        } else {
+            console.warn("WebSocket is not open or not initialized");
+            return null;
+        }
+    }
+
+    private getUserInfo(): any {
+        return this.state.getUserInfo();
+    }
+
     private handleMessage(event: MessageEvent): void {
         try {
             const message = JSON.parse(event.data);

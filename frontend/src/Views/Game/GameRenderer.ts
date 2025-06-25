@@ -35,7 +35,7 @@ export class GameRenderer {
         const existingBackButton = document.getElementById('back-button-container');
         if (!existingBackButton) {
             // Create and append the back button
-            const backButton = new BackButton((window as any).gameInstance?.webSocket || null, (window as any).gameInstance?.getUser());
+            const backButton = new BackButton((window as any).gameInstance?.webSocket || null, (window as any).user_info || null);
             backButton.render();
         }
 
@@ -175,6 +175,10 @@ export class GameRenderer {
         if (!gameCanvas) return;
         
         // Supprimer tout résultat précédent
+        const BackButton = document.getElementById('back-button-container');
+        if (BackButton) BackButton.remove();
+        else
+            console.warn("Back button not found, cannot remove it.");
         const existingResult = document.getElementById('game-result');
         if (existingResult) existingResult.remove();
         

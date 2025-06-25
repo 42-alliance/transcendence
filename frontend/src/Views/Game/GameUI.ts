@@ -46,7 +46,46 @@ export class GameUI {
     }
 
     
-    
+    static displayErrorToJoin(message : string)
+    {
+        // create error-container if it doesn't exist
+        const errorContainer = document.createElement('div');
+        errorContainer.id = 'error-container';
+        errorContainer.style.position = 'fixed';
+        errorContainer.style.top = '50%';
+        errorContainer.style.left = '50%';
+        errorContainer.style.transform = 'translate(-50%, -50%)';
+        errorContainer.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+        errorContainer.style.color = 'white';
+        if (errorContainer) {
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+        } else {
+            console.error('Error container not found');
+        }
+        
+        // Hide the spinner and lobby buttons
+        this.hideSpinner();
+        this.hideLobbyButtons();
+        
+        // Optionally, you can also hide the game canvas
+        this.hideGameCanvas();
+    }
+
+    static hideErrorToJoin()
+    {
+        const errorContainer = document.getElementById('error-container');
+        if (errorContainer) {
+            errorContainer.style.display = 'none';
+            errorContainer.textContent = ''; // Clear the message
+        } else {
+            console.error('Error container not found');
+        }
+        
+        // Show the spinner and lobby buttons again
+        this.showLobbyButtons();
+        this.hideSpinner();
+    }
     static showLobbyButtons(): void {
     
         this.toggleButtonVisibility(this.lobbyButtons, true);
@@ -184,6 +223,15 @@ export class GameUI {
         return this.showScreen('tournament');
     }
 
+    static clearScreens(): void {  
+        // Clear all screens
+        this.hideAll();
+        const tournamentScreen = document.getElementById('tournament-screen');
+        if (tournamentScreen) tournamentScreen.remove();
+
+        
+        // Reset active screen
+    }
 
     // Ajouter cette méthode à la classe GameUI
     static getScreen(screenName: string): IScreen | null {

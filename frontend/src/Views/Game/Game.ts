@@ -5,7 +5,7 @@ import { GameUI } from "./GameUI.js";
 import AView from "../AView.js";
 
 export default class extends AView {
-    public webSocket: GameWebSocket | null = null;
+    private webSocket: GameWebSocket | null = null;
     private user_info: any;
     private routeChangeHandler: ((event: PopStateEvent | null) => void) | null = null;
     
@@ -17,7 +17,9 @@ export default class extends AView {
         this.setupRouteChangeListener();
     }
 
-	
+	private getWsocket(): GameWebSocket | null {
+        return this.webSocket;
+    }
 
     private async initializeUserInfo() {
         this.user_info = await getUserInfos();
@@ -29,7 +31,9 @@ export default class extends AView {
         this.routeChangeHandler = (event: PopStateEvent | null) => {
             // Vérifier si nous quittons la page du jeu
             if (!window.location.pathname.includes('/game')) {
-                console.log('Quitting game page, sending leave_queue message');
+                // effacetr tout les element qui peuvent etre encore pressent
+                GameUI.clearScreens();
+                console.warn('Quitting game page, sending leave_queue message');
                 
                 // Informer le serveur que l'utilisateur quitte la page
                 this.webSocket?.sendMessage('leave', {
@@ -52,10 +56,10 @@ export default class extends AView {
             
             if (linkElement instanceof HTMLElement) {
                 const href = linkElement.getAttribute('href');
-                if (href ) {
-                    // Si on clique sur un lien qui nous fait quitter la page du jeu
+                if (href)  {
+                    event.preventDefault(); // Empêcher le comportement par défaut du lien
+                    GameUI.clearScreens();
                     console.log('Clicking link to leave game page, sending leave_queue message');
-                    
                     this.webSocket?.sendMessage('leave', {
                         user: this.user_info,
                         type: 'leave'
@@ -76,7 +80,7 @@ export default class extends AView {
     getUser(): { id: string,
                  name: string;
      } {
-        // Replace with actual logic to retrieve the current user's ID
+        // Replace with actual logic to retrieve the current user's I
         return { id: this.user_info.id,
                  name: this.user_info.name
                 };
@@ -89,8 +93,9 @@ export default class extends AView {
         }
         
         const user_info = await getUserInfos();
-        
+
         console.log("User info: --------", this.user_info);
+        (window as any).user_info = this.user_info; // Store user info globally for access in other parts of the app
         // Remplace l'URL vide par celle du gateway qui route vers le service game
         fetch('http://localhost:8000/game/matchmaking', {
             method: 'GET',
@@ -111,6 +116,8 @@ export default class extends AView {
             // Initialize WebSocket
             this.webSocket = new GameWebSocket(this.user_info);
             this.webSocket.initializeWebSocket();
+            // Store the WebSocket instance globally for access in other parts of the app
+            (window as any).gameWsClass = this.webSocket;
             
             // S'assurer que GameUI est initialisé pour charger les écrans
             GameUI.initialize();
