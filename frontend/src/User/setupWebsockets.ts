@@ -7,6 +7,7 @@ import { getAccessToken } from "../fetchApi.js";
 import { sidebar_visibility } from "../sidebar.js";
 import { createConversation } from "../Chat/createConversation.js";
 import { getUserInfos } from "./me.js";
+import { showPendingFriends } from "../Friends/showPendingRequest.js";
 
 async function insertPendingFriendRequest(friend: any) {
 	const incoming_card = document.getElementById("friend-list-card-incoming");
@@ -135,7 +136,7 @@ export async function setupUserWebsocket() {
 		console.log("📩 Friend request received => ", msg);
 		const friend = msg.friend;
 		console.log("Friend request from: ", friend);
-		await sidebar_visibility();
+		await showPendingFriends();
 
 		showToast({
 			text: `${friend.name} send you a friend request !`,

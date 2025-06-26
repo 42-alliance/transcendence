@@ -27,3 +27,4 @@ export async function getPendingFriendRequest(): Promise< PendingRequestUser | n
 		return null;
 	}
 }
+

@@ -95,6 +95,30 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 			}
 		});
 
+		if (status === StatusEnum.accepted) {
+			try {
+				const response = await fetch("http://chat:5000/chat/create", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"x-user-id": userId.toString(), // header attendu par le microservice
+					},
+					body: JSON.stringify({
+						members: [userId.toString(), friendID.toString()]
+					})
+				});
+
+				if (!response.ok) {
+					const errorBody = await response.text(); // au cas où l'erreur est informative
+					console.warn("⚠️ La création de la conversation a échoué :", response.status, errorBody);
+				} else {
+					console.log("✅ Conversation créée ou existante après acceptation d'amitié.");
+				}
+			} catch (err) {
+				console.error("❌ Erreur réseau lors de la création de la conversation :", err);
+			}
+		}
+
         console.log(`Friend request between ${friendship.senderId} and ${friendship.receiverId} is now ${status}.`);
 
         return reply.status(200).send({ message: `Friend request is now ${status}` });

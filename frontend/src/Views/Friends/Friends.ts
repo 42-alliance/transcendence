@@ -1,5 +1,5 @@
 import AView from "../AView.js";
-import { getUserInfos } from "../../User/me.js";
+import { getUserInfos, me } from "../../User/me.js";
 import { goChat, miniPendingUserCard, miniUserCard } from "../userCard/userCard.js";
 import { showToast } from "../triggerToast.js";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
@@ -67,8 +67,8 @@ export async function displayAllFriendsDynamically() {
 	const onglet = document.getElementById("onglets-id");
 	if (!onglet) return;
 
-	const me = await getUserInfos();
-	if (!me || !me.friends || !me.incoming_friends || !me.outgoing_friends) {
+	const myInfos = await me();
+	if (!myInfos || !myInfos.friends || !myInfos.incoming_friends || !myInfos.outgoing_friends) {
 		showToast({
 			text: "You must be logged in to see your friends.",
 			img: "/assets/default.jpg",
@@ -78,8 +78,8 @@ export async function displayAllFriendsDynamically() {
 		return;
 	}
 	
-	const friends = me.friends;
-	renderAllTabs(onglet, friends, me.incoming_friends.length + me.outgoing_friends.length);
+	const friends = myInfos.friends;
+	renderAllTabs(onglet, friends, myInfos.incoming_friends.length + myInfos.outgoing_friends.length);
 
 	document.getElementById("all-button")?.addEventListener('click', async () => {
 		console.log("click on all");
@@ -93,7 +93,7 @@ export async function displayAllFriendsDynamically() {
 	const test_card = document.getElementById("friend-list-card");
 	if (!test_card) return;
 
-	renderAllFriendsList(test_card, friends, me);
+	renderAllFriendsList(test_card, friends, myInfos);
 }
 
 function renderAllTabs(onglet: HTMLElement, friends: UserData[], pendingCount: number) {
@@ -153,8 +153,8 @@ export async function displayPendingFriendsDynamically() {
 	const onglet = document.getElementById("onglets-id");
 	if (!onglet) return;
 
-	const me = await getUserInfos();
-	if (!me || !me.friends || !me.incoming_friends || !me.outgoing_friends) {
+	const myInfos = await me();
+	if (!myInfos || !myInfos.friends || !myInfos.incoming_friends || !myInfos.outgoing_friends) {
 		showToast({
 			text: "You must be logged in to see your friends.",
 			img: "/assets/default.jpg",
@@ -164,15 +164,15 @@ export async function displayPendingFriendsDynamically() {
 		return;
 	}
 
-	const friends = me.friends;
-	renderPendingTabs(onglet, friends, me.incoming_friends.length + me.outgoing_friends.length);
+	const friends = myInfos.friends;
+	renderPendingTabs(onglet, friends, myInfos.incoming_friends.length + myInfos.outgoing_friends.length);
 
 	const test_card = document.getElementById("friend-list-card");
 	if (!test_card) return;
 
 	const pendingFriends = {
-		incoming: me.incoming_friends,
-		outgoing: me.outgoing_friends,
+		incoming: myInfos.incoming_friends,
+		outgoing: myInfos.outgoing_friends,
 	};
 
 
@@ -183,8 +183,8 @@ export async function displayPendingFriendsDynamically() {
 	if (!incoming_card || !outgoing_card) return;
 
 
-	renderIncomingRequests(incoming_card, pendingFriends.incoming, me);
-	renderOutgoingRequests(outgoing_card, pendingFriends.outgoing, me);
+	renderIncomingRequests(incoming_card, pendingFriends.incoming, myInfos);
+	renderOutgoingRequests(outgoing_card, pendingFriends.outgoing, myInfos);
 }
 
 // Renders the tabs for pending/all
