@@ -14,6 +14,7 @@ import AView from "./AView.js";
 import { setupUserWebsocket } from "../User/setupWebsockets.js";
 import { GameWebSocket, setupGameWebSocket } from "./Game/GameWebSocket.js";
 import Me from "./Me/Me.js";
+import Error404 from "./Error404/Error404.js";
 
 // Initialisation du WebSocket
 export const webSockets: WebSockets = {
@@ -105,7 +106,7 @@ export const router = async (): Promise<void> => {
   }
 
   if (!matchedRoute) {
-    matchedRoute = { view: Dashboard, path: "/" };
+    matchedRoute = { view: Error404, path: "/" };
     routeParams = {};
   }
 
