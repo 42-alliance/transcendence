@@ -88,6 +88,28 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 				}
 			});
 
+			try {
+				const response = await fetch("http://chat:5000/chat/create", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"x-user-id": userId.toString(), // header attendu par le microservice
+					},
+					body: JSON.stringify({
+						members: [me.name, friend.name]
+					})
+				});
+
+				if (!response.ok) {
+					const errorBody = await response.text(); // au cas où l'erreur est informative
+					console.warn("⚠️ La création de la conversation a échoué :", response.status, errorBody);
+				} else {
+					console.log("✅ Conversation créée ou existante après acceptation d'amitié.");
+				}
+			} catch (err) {
+				console.error("❌ Erreur réseau lors de la création de la conversation :", err);
+			}
+
 			connectedSockets.get(friend.id)?.forEach(socket => {
 			if (socket.readyState === socket.OPEN) {
 				socket.send(JSON.stringify({

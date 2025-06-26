@@ -104,7 +104,7 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 						"x-user-id": userId.toString(), // header attendu par le microservice
 					},
 					body: JSON.stringify({
-						members: [userId.toString(), friendID.toString()]
+						members: [me.name, friend.name],
 					})
 				});
 

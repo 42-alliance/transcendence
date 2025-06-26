@@ -1,5 +1,5 @@
 import { UserData } from "../types.js";
-import { getUserInfos } from "../User/me.js";
+import { getUserInfos, me } from "../User/me.js";
 import { removePendingFriendRequest } from "../User/setupWebsockets.js";
 import { navigateTo } from "../Views/viewManager.js";
 import { updateFriendStatus } from "./updateFriendStatus.js";
@@ -72,6 +72,11 @@ export function pendingFriendSidebarCard(friend: UserData): HTMLLIElement {
 	const leftSection = createPendingFriendLeftSection(friend);
 	const rightSection = createPendingFriendRightSection(friend);
 
+	// Prevent navigateTo when clicking on accept/reject buttons
+	rightSection.querySelectorAll("button").forEach(btn => {
+		btn.addEventListener("click", (e) => e.stopPropagation());
+	});
+
 	friendDiv.appendChild(leftSection);
 	friendDiv.appendChild(rightSection);
 
@@ -87,13 +92,13 @@ export async function showPendingFriends() {
 	const pendingFriendsDiv = document.getElementById("pending-requests");
 	if (!pendingFriendsDiv) return;
 
-	const me = await getUserInfos();
-	if (!me || !me.incoming_friends || !me.outgoing_friends) {
+	const my_infos = await me();
+	if (!my_infos || !my_infos.incoming_friends || !my_infos.outgoing_friends) {
 		console.error("User data is incomplete or not loaded.");
 		return;
 	}
 
-	const incomingFriends = me.incoming_friends;
+	const incomingFriends = my_infos.incoming_friends;
 	if (!incomingFriends || incomingFriends.length === 0) return;
 
 	pendingFriendsDiv.innerHTML = `

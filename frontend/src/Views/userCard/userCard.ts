@@ -71,9 +71,7 @@ export function miniPendingUserCard(
 		"shadow-lg",
 		"hover:shadow-xl",
 		"overflow-hidden",
-		"min-w-[220px]",
-		"max-w-full",
-		"sm:max-w-xs"
+		"w-full",
 	);
 	card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
 	card.style.backgroundSize = "cover";

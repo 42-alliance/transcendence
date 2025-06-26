@@ -1,6 +1,6 @@
 import { UserData } from "../types.js";
 import { GetUserByName } from "../User/getUserByName.js";
-import { getUserInfos } from "../User/me.js";
+import { getUserInfos, me } from "../User/me.js";
 import { navigateTo } from "../Views/viewManager.js";
 
 let isUpdatingFriendList = false;
@@ -17,14 +17,14 @@ export async function showOnlineFriends() {
 		return;
 	}
 
-	const me = await getUserInfos();
-	if (!me) {
+	const my_infos = await me();
+	if (!my_infos) {
 		console.warn("User is not logged in or user data is incomplete.");
 		isUpdatingFriendList = false;
 		return;
 	}
 
-	const friends = me.friends;
+	const friends = my_infos.friends;
 	if (!friends || friends.length === 0) {
 		clearOnlineFriendsList(onlineFriendsDiv);
 		isUpdatingFriendList = false;
