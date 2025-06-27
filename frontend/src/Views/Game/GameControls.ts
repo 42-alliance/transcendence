@@ -10,7 +10,7 @@ export class GameControls {
         const keyState = {
             ArrowUp: false,
             ArrowDown: false,
-            z: false,
+            w: false,
             s: false,
         };
 

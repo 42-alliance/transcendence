@@ -40,16 +40,18 @@ export class TournamentScreen extends BaseScreen {
             });
             
             // Add cancel button
-            const cancelButton = createButton('cancel', 'Cancel');
+            const cancelButton = createButton('cancel', 'Back to Lobby');
             cancelButton.onclick = () => {
                 this.clearContainer();
                 resolve('cancel');
             };
-            cancelButton.style.backgroundColor = '#8f4a4a';
             
             FontHelper.applyMightySoulyFont(cancelButton, '30px'); // Ajoute cette ligne
+            cancelButton.style.backgroundColor = '#ff6b6b';
             this.addElement(cancelButton);
             this.container.style.display = 'block';
+            this.container.style.display = 'flex';
+            this.container.style.flexDirection = 'column';
             this.isVisible = true;
         });
     }

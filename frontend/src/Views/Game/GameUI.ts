@@ -3,12 +3,16 @@ import { UISpinner } from './UI/components/Spinner.js';
 import { IScreen } from './UI/interfaces/IScreen.js';
 import { TournamentScreen } from './UI/screens/TournamentScreen.js';
 import { FontHelper } from './FontHelper.js';
+import { BackButton } from './UI/components/BackButton.js';
+import { GameWebSocket } from './GameWebSocket.js';
+
 
 export class GameUI {
     private static lobbyButtons = ['randomAdversaireButton', 'localButton', 'tournamentButton', 'iaButton'];
     private static spinner = new UISpinner();
     private static screens: Map<string, IScreen> = new Map();
     private static activeScreen: string | null = null;
+    private static backButton: BackButton | null = null;
     
     static initialize(): void {
         // Initialize screens
@@ -18,6 +22,7 @@ export class GameUI {
     
     static displaySpinner(message = 'Waiting...'): void {
         // FontHelper.applyMightySoulyFont(document.body, "80px");
+        
         this.spinner.show(message);
     }
     
@@ -41,7 +46,46 @@ export class GameUI {
     }
 
     
-    
+    static displayErrorToJoin(message : string)
+    {
+        // create error-container if it doesn't exist
+        const errorContainer = document.createElement('div');
+        errorContainer.id = 'error-container';
+        errorContainer.style.position = 'fixed';
+        errorContainer.style.top = '50%';
+        errorContainer.style.left = '50%';
+        errorContainer.style.transform = 'translate(-50%, -50%)';
+        errorContainer.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+        errorContainer.style.color = 'white';
+        if (errorContainer) {
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+        } else {
+            console.error('Error container not found');
+        }
+        
+        // Hide the spinner and lobby buttons
+        this.hideSpinner();
+        this.hideLobbyButtons();
+        
+        // Optionally, you can also hide the game canvas
+        this.hideGameCanvas();
+    }
+
+    static hideErrorToJoin()
+    {
+        const errorContainer = document.getElementById('error-container');
+        if (errorContainer) {
+            errorContainer.style.display = 'none';
+            errorContainer.textContent = ''; // Clear the message
+        } else {
+            console.error('Error container not found');
+        }
+        
+        // Show the spinner and lobby buttons again
+        this.showLobbyButtons();
+        this.hideSpinner();
+    }
     static showLobbyButtons(): void {
     
         this.toggleButtonVisibility(this.lobbyButtons, true);
@@ -77,6 +121,35 @@ export class GameUI {
         this.hideLobbyButtons();
         this.displaySpinner();
     }
+
+    static displayBackButton(webSocket: GameWebSocket | null, userInfo: any): void {
+        console.log('Displaying back button', webSocket, userInfo);
+        
+        try {
+            // Supprimer l'ancien bouton s'il existe
+            if (this.backButton) {
+                this.backButton.remove();
+                this.backButton = null;
+            }
+            
+            // Vérifier si le container existe déjà et le supprimer
+            const existingContainer = document.getElementById('back-button-container');
+            if (existingContainer) {
+                existingContainer.remove();
+            }
+            
+            // Créer et afficher le nouveau bouton
+            this.backButton = new BackButton(webSocket, userInfo);
+            
+            // Appeler directement render pour s'assurer que le bouton est ajouté au DOM
+            document.body.appendChild(this.backButton.container);
+            
+            console.log('Back button added to DOM');
+        } catch (error) {
+            console.error('Error displaying back button:', error);
+        }
+    }
+    
     
     static showScreen(screenName: string): Promise<string> {
         this.hideAll();
@@ -150,6 +223,15 @@ export class GameUI {
         return this.showScreen('tournament');
     }
 
+    static clearScreens(): void {  
+        // Clear all screens
+        this.hideAll();
+        const tournamentScreen = document.getElementById('tournament-screen');
+        if (tournamentScreen) tournamentScreen.remove();
+
+        
+        // Reset active screen
+    }
 
     // Ajouter cette méthode à la classe GameUI
     static getScreen(screenName: string): IScreen | null {
@@ -166,6 +248,12 @@ export class GameUI {
     }
     
     static showAnimationMatch(userName: string, opponentName: string, header: string): void {
+
+        // supp le bouton de retour
+        const backButton = document.getElementById('back-button-container');
+        if (backButton) {
+            backButton.remove();
+        }
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';

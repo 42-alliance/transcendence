@@ -5,6 +5,8 @@ import { GameState } from './GameState.js';
 import { GameRenderer } from './GameRenderer.js';
 import { AnimationController } from './AnimationController.js';
 import { webSockets } from '../viewManager.js';
+import {GameWebSocket} from './GameWebSocket.js';
+import { userInfo } from 'os';
 
 export class GameMessageHandler {
     private state: WebSocketState;
@@ -52,9 +54,20 @@ export class GameMessageHandler {
 					conversationId: message.conversationId,
 					content: message.uuid,
 				}));
+
 				setTimeout(() => {
 					GameUI.displayWaiting();
+                    GameUI.displayBackButton((window as any).gameWsClass, (window as any).user_info);
 				}, 500);
+            case 'error_to_join':
+                console.error("Error to join game:", message.data);
+                GameUI.displayErrorToJoin(message.data);
+                setTimeout(() => {
+                    GameUI.hideErrorToJoin();
+                    GameUI.hideSpinner();
+                    GameUI.showLobbyButtons();
+                }, 5000);                                              
+                break;
             default:
 				console.warn("Unknown game message type:", message.type);
 				console.warn("Message content:", message);
