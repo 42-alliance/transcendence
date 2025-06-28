@@ -51,8 +51,7 @@ export class GameRenderer {
     private static initializeCanvas() {
         const gameCanvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
         GameUI.hideSpinner();
-        GameUI.hideLobbyButtons();
-        GameUI.hideDifficultyButtons();
+        
         GameUI.hideGameArea();
 
         const ctx = gameCanvas?.getContext('2d');
@@ -62,14 +61,10 @@ export class GameRenderer {
     }
 
     private static prepareRenderData(gameState: any) {
-        console.log('GAME DATA:', gameState);
-        
         const gameInstance = (window as any).gameInstance;
         const currentUser = this.getCurrentUser(gameInstance);
         const isOnlineMode = ['random_adversaire', 'tournament'].includes(gameState.mode);
         const shouldFlip = isOnlineMode && gameState.score && gameState.score.p2_id === currentUser.id;
-        
-        console.log(`Current user ID: ${currentUser.id} P2 user ID: ${gameState.score?.p2_id}, Game mode: ${gameState.mode}, Should flip: ${shouldFlip}`);
         
         return { game: gameState, shouldFlip };
     }
@@ -260,7 +255,6 @@ export class GameRenderer {
 
     private static getCurrentUser(gameInstance: any): any {
         if (gameInstance && typeof gameInstance.getUser === 'function') {
-            console.log("Retrieved user from Game instance:", gameInstance.getUser());
             return gameInstance.getUser();
         } else {
             console.warn("Game instance not found, using default user");

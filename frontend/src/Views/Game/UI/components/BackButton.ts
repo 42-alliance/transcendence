@@ -77,6 +77,7 @@ export class BackButton {
         
         // Show lobby buttons
         GameUI.showLobbyButtons();
+        return;
         GameUI.hideSpinner(); // S'assurer que le spinner est masqué
         
         // Remove the back button from DOM

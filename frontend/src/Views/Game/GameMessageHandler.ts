@@ -59,6 +59,7 @@ export class GameMessageHandler {
 					GameUI.displayWaiting();
                     GameUI.displayBackButton((window as any).gameWsClass, (window as any).user_info);
 				}, 500);
+                break;
             case 'error_to_join':
                 console.error("Error to join game:", message.data);
                 GameUI.displayErrorToJoin(message.data);
@@ -100,6 +101,8 @@ export class GameMessageHandler {
         
         this.animationController.startAnimation();
         
+        console.log("handleGameStart");
+
         GameUI.hideLobbyButtons();
         GameUI.hideSpinner();
     }

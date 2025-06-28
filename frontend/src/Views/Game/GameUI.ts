@@ -32,15 +32,14 @@ export class GameUI {
     
     static toggleButtonVisibility(ids: string[], show: boolean): void {
 
+        console.log("show: ", show);
         ids.forEach(id => {
             const button = document.getElementById(id);
             if (button) {
-                button.style.display = show ? 'block' : 'none';
-                if (show) {
-                    button.removeAttribute('disabled');
-                } else {
-                    button.setAttribute('disabled', 'true');
-                }
+                const to_add = show ? 'block' : 'hidden';
+                const to_remove = show ? 'hidden' : 'block';
+                button.classList.add(to_add);
+                button.classList.remove(to_remove);
             }
         });
     }
@@ -66,6 +65,7 @@ export class GameUI {
         
         // Hide the spinner and lobby buttons
         this.hideSpinner();
+
         this.hideLobbyButtons();
         
         // Optionally, you can also hide the game canvas
@@ -92,25 +92,36 @@ export class GameUI {
         this.hideSpinner();
         
         const canvasContainer = document.getElementById('canvas-container');
-        const gameModeGrid = document.querySelector('.game-mode-grid');
+        const gameModeGrid = document.getElementById('selection-grid');
+        const r = document.getElementById('randomAdversaireButton');
+
         
         if (canvasContainer) {
             canvasContainer.style.display = 'none';
         }
         
-        if (gameModeGrid) {
+        console.warn("gamemode grid => ", gameModeGrid, " | r => ", r);
+        if (gameModeGrid &&  r) {
+            // Pour ajouter plusieurs classes en même temps :
+            gameModeGrid.removeAttribute('style');
+            r.removeAttribute('style');
+            gameModeGrid.className = '';
+            gameModeGrid.classList.add('flex', 'flex-col', 'justify-center', 'items-center', 'w-full', 'min-h-[80vh]', 'max-w-5xl', 'mx-auto', 'relative');
             (gameModeGrid as HTMLElement).style.display = 'grid';
+            console.error("JE REAFICHE LES BOUTONS");
+            console.warn("gamemode grid => ", gameModeGrid);
+
         }
         
         this.lobbyButtons.forEach(id => {
-        const button = document.getElementById(id);
-        if (button) {
-            // @ts-ignore
-            import('./FontHelper.js').then(({ FontHelper }) => {
-                FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
-            });
-        }
-    });
+            const button = document.getElementById(id);
+            if (button) {
+                // @ts-ignore
+                import('./FontHelper.js').then(({ FontHelper }) => {
+                    FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
+                    });
+                }
+        });
     }
     
     static hideLobbyButtons(): void {
@@ -214,6 +225,7 @@ export class GameUI {
         this.screens.forEach((screen, name) => {
             screen.hide();
         });
+        console.log("hideall");
         this.hideLobbyButtons();
         this.hideSpinner();
         this.activeScreen = null;
