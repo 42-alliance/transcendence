@@ -4,6 +4,9 @@ RESET = \033[0m
 
 all : up 
 
+d :
+	docker compose up --build -d
+
 up :
 	docker compose up --build
 

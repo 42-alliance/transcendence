@@ -5,6 +5,7 @@ import { verifyJWT, verifyJWT_WebSocket } from "./verify.js";
 import jwt from "@fastify/jwt";
 import cors from "@fastify/cors";
 import { updateLastSeen } from "./update_last_seen.js";
+import { read, readFileSync } from "fs";
 
 
 export const server = Fastify({
@@ -14,16 +15,17 @@ export const server = Fastify({
             options: { colorize: true },
         },
     },
+	https: {
+		key: readFileSync(config.gateway.ssl.key),  // Chemin vers la clé SSL
+		cert: readFileSync(config.gateway.ssl.cert),
+	},
 });
 
 server.register(cors, {
-    origin: ['http://localhost:8080', 'http://127.0.0.1:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
+    origin: ['https://localhost:8080', 'https://127.0.0.1:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Autorisez les méthodes nécessaires
     credentials: true,  // Si vous avez besoin de cookies ou d'autres informations de session
 });
-
-
-
 
 server.register(jwt, {
 	secret: config.jwt.secret,
@@ -105,6 +107,7 @@ server.register(proxy, {
 		await updateLastSeen(server, request, reply);
     }
 });
+
 server.register(proxy, {
 	upstream: `http://${config.auth.host}:${config.auth.port}`,
     prefix: '/auth',

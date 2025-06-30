@@ -1,4 +1,4 @@
-const HTTP_PROTOCOL = "http";
+const HTTP_PROTOCOL = "https";
 
 interface optionRequest {
 	method: string,

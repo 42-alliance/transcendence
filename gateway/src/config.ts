@@ -1,6 +1,10 @@
 export const config = {
 	gateway: {	// Configuration du service gateway
 		port: parseInt(process.env.GATEWAY_PORT!),	// Port d'écoute du service gateway
+		ssl: {	// Configuration SSL pour le service gateway
+			key: process.env.GATEWAY_KEY_PATH!,	// Chemin vers la clé SSL
+			cert: process.env.GATEWAY_CERT_PATH!,	// Chemin vers le certificat SSL
+		},
 	},
 	auth: {	// Configuration du service AUTH_PORT
 		host: process.env.AUTH_HOST!,	// Host du service auth
@@ -32,5 +36,4 @@ export const config = {
 		port: parseInt(process.env.GAME_PORT!),
 		ws_port: parseInt(process.env.GAME_WS_PORT!), // Port pour le websocket
 	},
-
 };
