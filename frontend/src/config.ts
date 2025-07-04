@@ -38,6 +38,10 @@ export const config = {
 	frontend: {
 		host: getEnv("FRONTEND_HOST"),
 		port: parseInt(getEnv("FRONTEND_PORT")),
+		ssl: {
+			key: getEnv("FRONTEND_SSL_KEY"),
+			cert: getEnv("FRONTEND_SSL_CERT"),
+		}
 	},
 	api: {
 		path: "",

@@ -43,7 +43,7 @@ export async function uploadFileLink(request: FastifyRequest, reply: FastifyRepl
 		return reply.status(201).send({
 			message: "Fichier uploadé avec succès",
 			filename: filename,
-			url: `http://${config.gateway.host}:${config.gateway.port}/media/files/${filename}`
+			url: `https://${config.gateway.host}:${config.gateway.port}/media/files/${filename}`
 		});
 	} catch (error) {
 		console.error("Error uploadFileLink: ", error);

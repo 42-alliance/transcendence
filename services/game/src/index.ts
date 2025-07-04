@@ -1,6 +1,8 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors'
 import { setUpRoutesGame } from './router.js';
+import fs from 'fs';
+import path from 'path';
 
 export const server = fastify({
     logger: {
@@ -9,6 +11,10 @@ export const server = fastify({
             options: { colorize: true },
         },
     },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/selfsigned.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/selfsigned.crt")),
+	}
 });
 
 

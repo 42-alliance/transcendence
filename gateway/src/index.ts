@@ -5,6 +5,7 @@ import { verifyJWT, verifyJWT_WebSocket } from "./verify.js";
 import jwt from "@fastify/jwt";
 import cors from "@fastify/cors";
 import { updateLastSeen } from "./update_last_seen.js";
+import fs from "fs";
 
 
 export const server = Fastify({
@@ -14,10 +15,14 @@ export const server = Fastify({
             options: { colorize: true },
         },
     },
+	https : {
+		key: fs.readFileSync(config.gateway.ssl.key),  // Chemin vers la clé SSL
+		cert: fs.readFileSync(config.gateway.ssl.cert), // Chemin vers le certificat SSL
+	},
 });
 
 server.register(cors, {
-    origin: ['http://localhost:8080', 'http://127.0.0.1:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
+    origin: ['https://localhost:8080', 'https://127.0.0.1:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Autorisez les méthodes nécessaires
     credentials: true,  // Si vous avez besoin de cookies ou d'autres informations de session
 });
@@ -30,7 +35,7 @@ server.register(jwt, {
 });
 
 server.register(proxy, {
-    upstream: `http://${config.users.host}:${config.users.port}`,
+    upstream: `https://${config.users.host}:${config.users.port}`,
     prefix: '/users',
     rewritePrefix: '/users',
     http2: false,
@@ -41,7 +46,7 @@ server.register(proxy, {
 
 // route pour game 
 server.register(proxy, {
-	upstream: `http://${config.game.host}:${config.game.port}`,
+	upstream: `https://${config.game.host}:${config.game.port}`,
 	prefix: '/game',
 	rewritePrefix: '/ws/game',
 	http2: false,
@@ -65,7 +70,7 @@ server.register(proxy, {
 
 
 server.register(proxy, {
-    upstream: `http://${config.users.host}:${config.users.port}`,
+    upstream: `https://${config.users.host}:${config.users.port}`,
     prefix: '/friends',
     rewritePrefix: '/friends',
     http2: false,
@@ -96,7 +101,7 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-	upstream: `http://${config.auth.host}:${config.auth.port}`,
+	upstream: `https://${config.auth.host}:${config.auth.port}`,
 	prefix: '/auth/@me',
 	rewritePrefix: '/auth/@me',
 	http2: false,
@@ -105,8 +110,9 @@ server.register(proxy, {
 		await updateLastSeen(server, request, reply);
     }
 });
+
 server.register(proxy, {
-	upstream: `http://${config.auth.host}:${config.auth.port}`,
+	upstream: `https://${config.auth.host}:${config.auth.port}`,
     prefix: '/auth',
 	rewritePrefix: '/auth',
     http2: false,
@@ -136,7 +142,7 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-	upstream: `http://${config.chat.host}:${config.chat.port}`,
+	upstream: `https://${config.chat.host}:${config.chat.port}`,
     prefix: '/chat',
 	rewritePrefix: '/chat',
     http2: false,
@@ -147,7 +153,7 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-	upstream: `http://${config.media.host}:${config.media.port}`,
+	upstream: `https://${config.media.host}:${config.media.port}`,
     prefix: '/media',
     http2: false,
 	preHandler: async (request, reply) => {

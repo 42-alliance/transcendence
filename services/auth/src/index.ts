@@ -3,6 +3,8 @@ import jwt from "@fastify/jwt";
 import { setAuthRoutes } from './router.js';
 import cookie from "@fastify/cookie";
 import { config } from './config.js';
+import fs from 'fs';
+import path from 'path';
 
 export const server = Fastify({
     logger: {
@@ -11,6 +13,10 @@ export const server = Fastify({
             options: { colorize: true },
         },
     },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/selfsigned.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/selfsigned.crt")),
+	},
 });
 
 server.register(cookie, {

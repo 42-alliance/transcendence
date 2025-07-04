@@ -56,7 +56,7 @@ export async function uploadFileCDN(request: FastifyRequest, reply: FastifyReply
 		return reply.code(201).send({ 
 			message: "Fichier uploadé avec succès",
 			filename: filename,
-			url: `http://${config.gateway.host}:${config.gateway.port}/media/files/${filename}`
+			url: `https://${config.gateway.host}:${config.gateway.port}/media/files/${filename}`
 		});
 	} catch (err) {
 		console.error("Erreur lors de l'upload du fichier:", err);

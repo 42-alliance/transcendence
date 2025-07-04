@@ -4,6 +4,7 @@ import fastifyStatic from "@fastify/static";
 import { config } from './config.js';
 import { setupMediaRoutes } from "./router.js";
 import path from "path";
+import fs from "fs";
 
 export const server = Fastify({
     logger: {
@@ -11,7 +12,11 @@ export const server = Fastify({
             target: "pino-pretty",
             options: { colorize: true },
         }
-    }
+    },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/selfsigned.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/selfsigned.crt")),
+	}
 });
 
 await server.register(multipart, {

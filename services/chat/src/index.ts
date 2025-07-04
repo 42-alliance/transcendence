@@ -5,6 +5,8 @@ import { PrismaClient } from '../prisma/node_modules/@prisma/client/client.js';
 import fastifyWebsocket from "@fastify/websocket";
 import { setupWebsocket } from "./chat/websocket.js";
 import { setupChatRoutes } from "./router.js";
+import fs from "fs";
+import path from "path";
 
 export const prisma = new PrismaClient();
 
@@ -14,7 +16,11 @@ export const server = Fastify({
             target: "pino-pretty",
             options: { colorize: true },
         }
-    }
+    },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/selfsigned.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/selfsigned.crt")),
+	}
 })
 
 server.register(fastifyWebsocket);

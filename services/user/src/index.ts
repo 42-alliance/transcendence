@@ -5,6 +5,8 @@ import multipart from "@fastify/multipart";
 import cookie from "@fastify/cookie";
 import { setupWebsocket } from './websocket/setupWebsocket.js';
 import websocket, { WebSocket } from '@fastify/websocket';
+import fs from "fs"
+import path from 'path';
 
 export const prisma = new PrismaClient(); // client prisma
 
@@ -15,6 +17,10 @@ export const server = fastify({
             options: { colorize: true },
         },
     },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/selfsigned.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/selfsigned.crt")),
+	}
 });
 
 server.register(cookie, {
