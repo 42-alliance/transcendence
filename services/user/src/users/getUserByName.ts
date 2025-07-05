@@ -3,7 +3,6 @@ import { prisma } from "../index.js";
 import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { extractUserId, getStatus } from "../utils.js";
 import { config } from "../config.js";
-import { get } from "http";
 
 export const getUserByNameSchema: FastifySchema = {
 	headers: Type.Object({

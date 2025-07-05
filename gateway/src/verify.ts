@@ -32,7 +32,8 @@ export async function verifyJWT_WebSocket(server: FastifyInstance, request: Fast
 			throw new Error("Missing WebSocket protocol header");
 		}
 
-		const token = protocolHeader.split(", ")[1]; // ✅ Récupère le token
+		console.log("✅ WebSocket protocol header:", protocolHeader);
+		const token = protocolHeader.split(" ")[1]; // ✅ Récupère le token
 		if (!token) {
 			throw new Error("Missing token");
 		}

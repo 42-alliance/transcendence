@@ -7,7 +7,7 @@ import { MessageSender } from "./MessageSender.js";
 import { gameWsClass, setGameWsClass, webSockets } from "../viewManager.js";
 
 export function setupGameWebSocket() {
-	webSockets.game = new WebSocket('ws://localhost:8000/gamews');
+	webSockets.game = new WebSocket('wss://localhost:8000/gamews');
 }
 
 export class GameWebSocket {

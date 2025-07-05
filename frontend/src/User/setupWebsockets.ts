@@ -187,7 +187,7 @@ function handleUserWebsocketMessage(event: MessageEvent) {
 }
 
 export async function setupUserWebsocket() {
-	const wsUrl = `ws://localhost:8000/ws/users`;
+	const wsUrl = `wss://localhost:8000/ws/users`;
 
 	const token = getAccessToken();
 	if (!token) return;

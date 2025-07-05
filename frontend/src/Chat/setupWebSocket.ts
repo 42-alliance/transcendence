@@ -23,7 +23,7 @@ function callToast(msg: Message) {
 }
 
 export function setupChatWebSocket() {
-	const wsUrl = `ws://localhost:8000/ws/chat`;
+	const wsUrl = `wss://localhost:8000/ws/chat`;
 	const token = getAccessToken();
 	if (!token) return;
 

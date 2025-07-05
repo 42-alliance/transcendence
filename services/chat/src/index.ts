@@ -18,8 +18,9 @@ export const server = Fastify({
         }
     },
 	https: {
-		key: fs.readFileSync(path.resolve("./ssl/selfsigned.key")),
-		cert: fs.readFileSync(path.resolve("./ssl/selfsigned.crt")),
+		key: fs.readFileSync(path.resolve("./ssl/chat.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/chat.crt")),
+		ca: fs.readFileSync(path.resolve("./ssl/ca.pem")),
 	}
 })
 
@@ -33,6 +34,7 @@ server.register(async function (server) {
 		setupWebsocket(socket, req);
 	});
 });
+
 
 setupChatRoutes(server);
 

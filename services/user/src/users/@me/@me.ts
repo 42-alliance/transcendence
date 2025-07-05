@@ -3,7 +3,6 @@ import { prisma } from "../../index.js";
 import { extractUserId, getStatus } from "../../utils.js"
 import { Type } from "@sinclair/typebox";
 import { getPendingFriendRequest } from "../../friends/pending/getPendingRequest.js";
-import { get } from "http";
 
 export const meSchema: FastifySchema = {
 	headers: Type.Object({

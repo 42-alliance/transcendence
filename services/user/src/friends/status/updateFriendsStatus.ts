@@ -97,7 +97,7 @@ export async function updateFriendStatus(request: FastifyRequest<{ Params: { fri
 
 		if (status === StatusEnum.accepted) {
 			try {
-				const response = await fetch("http://chat:5000/chat/create", {
+				const response = await fetch("https://chat:5000/chat/create", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

@@ -1,10 +1,9 @@
 import { WebSocket } from "@fastify/websocket";
 import { FastifyRequest } from "fastify";
-import { connect } from "http2";
 import { connectedSockets, connectedUsers, prisma } from "../index.js";
 
 export function extractUserIdParams(request: FastifyRequest) {
-    const url = new URL(request.url, `http://${request.headers.host}`);
+    const url = new URL(request.url, `https://${request.headers.host}`);
 	if (url.searchParams.get("userId") === null) {
 		throw new Error("No userId in params");
 	}

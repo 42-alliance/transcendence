@@ -2,7 +2,6 @@ import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { extractUserId } from "../../utils.js";
 import { Type } from "@sinclair/typebox";
 import { prisma } from "../../index.js";
-import { STATUS_CODES } from "http";
 
 export const getSendFriendRequestSchema: FastifySchema = {
 	headers: Type.Object({

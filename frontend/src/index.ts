@@ -2,7 +2,6 @@ import Fastify, { FastifyInstance } from "fastify";
 import path from "path";
 import fastifyStatic from "@fastify/static";
 import fs from "fs"; // Pour vérifier si un fichier existe
-import { config } from "./config.js";
 
 export const server: FastifyInstance = Fastify({
     logger: {
@@ -12,8 +11,9 @@ export const server: FastifyInstance = Fastify({
         },
     },
 	https: {
-		key: fs.readFileSync(config.frontend.ssl.key),
-		cert: fs.readFileSync(config.frontend.ssl.cert),
+		key: fs.readFileSync(path.resolve("./ssl/frontend.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/frontend.crt")),
+		ca: fs.readFileSync(path.resolve("./ssl/ca.pem")), // Si tu as un CA, sinon tu peux l'ignorer
 	},
 	
 });

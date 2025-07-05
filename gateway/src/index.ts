@@ -6,6 +6,7 @@ import jwt from "@fastify/jwt";
 import cors from "@fastify/cors";
 import { updateLastSeen } from "./update_last_seen.js";
 import fs from "fs";
+import path from "path";
 
 
 export const server = Fastify({
@@ -16,8 +17,9 @@ export const server = Fastify({
         },
     },
 	https : {
-		key: fs.readFileSync(config.gateway.ssl.key),  // Chemin vers la clé SSL
-		cert: fs.readFileSync(config.gateway.ssl.cert), // Chemin vers le certificat SSL
+		key: fs.readFileSync(path.resolve("./ssl/gateway.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/gateway.crt")),
+		ca: fs.readFileSync(path.resolve("./ssl/ca.pem")),
 	},
 });
 
@@ -26,6 +28,7 @@ server.register(cors, {
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Autorisez les méthodes nécessaires
     credentials: true,  // Si vous avez besoin de cookies ou d'autres informations de session
 });
+
 
 
 
@@ -62,7 +65,7 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-  upstream: `ws://${config.game.host}:${config.game.ws_port}`, // ws_port = 8790
+  upstream: `wss://${config.game.host}:${config.game.ws_port}`, // ws_port = 8790
   prefix: '/gamews', // endpoint exposé par le gateway
   websocket: true // 👈 important pour activer WebSocket proxy
 });
@@ -80,7 +83,7 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-    upstream: `ws://${config.users.host}:${config.users.port}`,
+    upstream: `wss://${config.users.host}:${config.users.port}`,
     websocket: true,
     prefix: "/ws/users",
     rewritePrefix: "/ws/users",
@@ -120,7 +123,7 @@ server.register(proxy, {
 
 
 server.register(proxy, {
-    upstream: `ws://${config.chat.host}:${config.chat.port}`,
+    upstream: `wss://${config.chat.host}:${config.chat.port}`,
     websocket: true,
     prefix: "/ws/chat",
     rewritePrefix: "/ws/chat",

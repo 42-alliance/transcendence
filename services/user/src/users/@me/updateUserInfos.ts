@@ -34,7 +34,7 @@ async function saveFile(part: MultipartFile): Promise<string | undefined> {
 		const headers = new Headers();
         formData.append("file", blob, part.filename);
 
-        const response = await fetch(`http://${config.media.host}:${config.media.port}/files`, {
+        const response = await fetch(`https://${config.media.host}:${config.media.port}/files`, {
             method: "POST",
             headers: headers,
             body: formData as any,

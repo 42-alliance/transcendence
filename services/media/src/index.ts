@@ -14,8 +14,9 @@ export const server = Fastify({
         }
     },
 	https: {
-		key: fs.readFileSync(path.resolve("./ssl/selfsigned.key")),
-		cert: fs.readFileSync(path.resolve("./ssl/selfsigned.crt")),
+		key: fs.readFileSync(path.resolve("./ssl/media.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/media.crt")),
+		ca: fs.readFileSync(path.resolve("./ssl/ca.pem"))
 	}
 });
 
