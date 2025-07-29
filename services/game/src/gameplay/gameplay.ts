@@ -1,4 +1,4 @@
-import { all_sessions, wss } from "../matchmaking/Matchmaking.js";
+import { all_sessions } from "../matchmaking/Matchmaking.js";
 import { Game, Paddle, Ball } from "./class.js";
 import { GameAI, AILevel } from "./ai.js";
 
@@ -75,8 +75,8 @@ async function HandleMatch() {
 					game.p2
 				);
 				if (
-					game.p1.ws.readyState !== wss.close &&
-					game.p2.ws.readyState !== wss.close
+					game.p1.ws.readyState !== game.p1.ws.close &&
+					game.p2.ws.readyState !== game.p2.ws.close
 				) {
 					game.p1.ws.send(
 						JSON.stringify({
@@ -99,8 +99,8 @@ async function HandleMatch() {
 				await delay(4000);
 				sessions.set(all_sessions[0].match.uuid_room, game);
 				if (
-					game.p1.ws.readyState !== wss.close &&
-					game.p2.ws.readyState !== wss.close
+					game.p1.ws.readyState !== game.p1.ws.close &&
+					game.p2.ws.readyState !== game.p2.ws.close
 				) {
 					console.log(
 						"Game start message sent to both players uuid_room: ",
@@ -155,7 +155,7 @@ async function HandleMatch() {
 				game.p1.ws = all_sessions[0].match.players[0].socket;
 				game.p1.user_id = all_sessions[0].match.players[0].user_id; // Ajouter l'ID utilisateur
 				sessions.set(all_sessions[0].match.uuid_room, game);
-				if (game.p1.ws.readyState !== wss.close) {
+				if (game.p1.ws.readyState !== game.p1.ws.close) {
 					game.p1.ws.send(
 						JSON.stringify({
 							type: "start",
@@ -206,7 +206,7 @@ async function HandleMatch() {
 				const ai = new GameAI(game, difficulty);
 				gameAIs.set(all_sessions[0].match.uuid_room, ai);
 
-				if (game.p1.ws.readyState !== wss.close) {
+				if (game.p1.ws.readyState !== game.p1.ws.close) {
 					game.p1.ws.send(
 						JSON.stringify({
 							type: "start",
@@ -254,8 +254,8 @@ async function HandleMatch() {
 				console.log("A game is setting up");
 				await delay(4000);
 				if (
-					game.p1.ws.readyState !== wss.close &&
-					game.p2.ws.readyState !== wss.close
+					game.p1.ws.readyState !== game.p1.ws.close &&
+					game.p2.ws.readyState !== game.p2.ws.close
 				) {
 					game.p1.ws.send(
 						JSON.stringify({
@@ -338,87 +338,35 @@ async function UpdateGame() {
 		console.log(`AI instance for game ${uuid} has been removed`);
 	});
 }
-wss.on("connection", ws => {
-	// Store key states for each player to track changes
-	const playerKeyStates = new Map<string, any>();
 
-	ws.on("message", (message: string) => {
-		// console.log("Received message from client:", message);
-		try {
-			let data = JSON.parse(message);
-			console.log(data.type);
-			if (
-				data.type === "key_command" &&
-				data.uuid_room &&
-				sessions.has(data.uuid_room)
-			) {
-				const session = sessions.get(data.uuid_room);
-				console.log("Received key state:", data.key_state);
-				if (!session) return;
+const playerKeyStates = new Map<string, any>();
 
-				// Store current key states for this player
-				playerKeyStates.set(data.user_id, data.key_state);
 
-				if (session.mode === "local") {
-					// Apply continuous movement for player 1
-					if (data.key_state.ArrowUp) {
-						session.p2.paddle.move(
-							"up",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).ArrowUp
-						);
-					}
-					if (data.key_state.ArrowDown) {
-						session.p2.paddle.move(
-							"down",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).ArrowDown
-						);
-					}
+export async function setupGameWebsocket(ws: WebSocket.WebSocket) {
+	// wss.on("connection", (ws: any)  => {
+	// 	// Store key states for each player to track changes
 
-					// Apply continuous movement for player 2
-					if (data.key_state.w) {
-						session.p1.paddle.move(
-							"up",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).w
-						);
-					}
-					if (data.key_state.s) {
-						session.p1.paddle.move(
-							"down",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).s
-						);
-					}
-				} else if (
-					session.mode === "random_adversaire" ||
-					session.mode === "tournament"
+		ws.on("message", (message: string) => {
+			// console.log("Received message from client:", message);
+			try {
+				let data = JSON.parse(message);
+				console.log(data.type);
+				if (
+					data.type === "key_command" &&
+					data.uuid_room &&
+					sessions.has(data.uuid_room)
 				) {
-					const player = session.mapPlayers.get(data.user_id);
-					if (player) {
-						if (data.key_state.w) {
-							player.paddle.move(
-								"up",
-								() =>
-									playerKeyStates.has(data.user_id) &&
-									playerKeyStates.get(data.user_id).w
-							);
-						}
-						if (data.key_state.s) {
-							player.paddle.move(
-								"down",
-								() =>
-									playerKeyStates.has(data.user_id) &&
-									playerKeyStates.get(data.user_id).s
-							);
-						}
+					const session = sessions.get(data.uuid_room);
+					console.log("Received key state:", data.key_state);
+					if (!session) return;
+
+					// Store current key states for this player
+					playerKeyStates.set(data.user_id, data.key_state);
+
+					if (session.mode === "local") {
+						// Apply continuous movement for player 1
 						if (data.key_state.ArrowUp) {
-							player.paddle.move(
+							session.p2.paddle.move(
 								"up",
 								() =>
 									playerKeyStates.has(data.user_id) &&
@@ -426,65 +374,122 @@ wss.on("connection", ws => {
 							);
 						}
 						if (data.key_state.ArrowDown) {
-							player.paddle.move(
+							session.p2.paddle.move(
 								"down",
 								() =>
 									playerKeyStates.has(data.user_id) &&
 									playerKeyStates.get(data.user_id).ArrowDown
 							);
 						}
-						console.log("Player paddle moved:", player.username);
-					}
-				} else if (session.mode === "ia") {
-					if (data.key_state.ArrowUp) {
-						session.p1.paddle.move(
-							"up",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).ArrowUp
-						);
-					}
-					if (data.key_state.ArrowDown) {
-						session.p1.paddle.move(
-							"down",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).ArrowDown
-						);
-					}
-					if (data.key_state.w) {
-						session.p1.paddle.move(
-							"up",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).w
-						);
-					}
-					if (data.key_state.s) {
-						session.p1.paddle.move(
-							"down",
-							() =>
-								playerKeyStates.has(data.user_id) &&
-								playerKeyStates.get(data.user_id).s
-						);
-					}
-				} else {
-					console.error("Unknown game mode:", session.mode);
-				}
-			}
-		} catch (error) {
-			console.error("Erreur de traitement du message:", error);
-		}
-	});
 
-	// Clean up key states when connection closes
-	ws.on("close", () => {
-		// Find and remove any key states for this connection
-		playerKeyStates.forEach((_, userId) => {
-			playerKeyStates.delete(userId);
+						// Apply continuous movement for player 2
+						if (data.key_state.w) {
+							session.p1.paddle.move(
+								"up",
+								() =>
+									playerKeyStates.has(data.user_id) &&
+									playerKeyStates.get(data.user_id).w
+							);
+						}
+						if (data.key_state.s) {
+							session.p1.paddle.move(
+								"down",
+								() =>
+									playerKeyStates.has(data.user_id) &&
+									playerKeyStates.get(data.user_id).s
+							);
+						}
+					} else if (
+						session.mode === "random_adversaire" ||
+						session.mode === "tournament"
+					) {
+						const player = session.mapPlayers.get(data.user_id);
+						if (player) {
+							if (data.key_state.w) {
+								player.paddle.move(
+									"up",
+									() =>
+										playerKeyStates.has(data.user_id) &&
+										playerKeyStates.get(data.user_id).w
+								);
+							}
+							if (data.key_state.s) {
+								player.paddle.move(
+									"down",
+									() =>
+										playerKeyStates.has(data.user_id) &&
+										playerKeyStates.get(data.user_id).s
+								);
+							}
+							if (data.key_state.ArrowUp) {
+								player.paddle.move(
+									"up",
+									() =>
+										playerKeyStates.has(data.user_id) &&
+										playerKeyStates.get(data.user_id).ArrowUp
+								);
+							}
+							if (data.key_state.ArrowDown) {
+								player.paddle.move(
+									"down",
+									() =>
+										playerKeyStates.has(data.user_id) &&
+										playerKeyStates.get(data.user_id).ArrowDown
+								);
+							}
+							console.log("Player paddle moved:", player.username);
+						}
+					} else if (session.mode === "ia") {
+						if (data.key_state.ArrowUp) {
+							session.p1.paddle.move(
+								"up",
+								() =>
+									playerKeyStates.has(data.user_id) &&
+									playerKeyStates.get(data.user_id).ArrowUp
+							);
+						}
+						if (data.key_state.ArrowDown) {
+							session.p1.paddle.move(
+								"down",
+								() =>
+									playerKeyStates.has(data.user_id) &&
+									playerKeyStates.get(data.user_id).ArrowDown
+							);
+						}
+						if (data.key_state.w) {
+							session.p1.paddle.move(
+								"up",
+								() =>
+									playerKeyStates.has(data.user_id) &&
+									playerKeyStates.get(data.user_id).w
+							);
+						}
+						if (data.key_state.s) {
+							session.p1.paddle.move(
+								"down",
+								() =>
+									playerKeyStates.has(data.user_id) &&
+									playerKeyStates.get(data.user_id).s
+							);
+						}
+					} else {
+						console.error("Unknown game mode:", session.mode);
+					}
+				}
+			} catch (error) {
+				console.error("Erreur de traitement du message:", error);
+			}
 		});
-	});
-});
+
+		// Clean up key states when connection closes
+		ws.on("close", () => {
+			// Find and remove any key states for this connection
+			playerKeyStates.forEach((_, userId) => {
+				playerKeyStates.delete(userId);
+			});
+		});
+	// });
+}
 
 // Remplacer la fonction foreachIaGame par une version qui utilise notre nouvelle IA
 async function updateAI() {

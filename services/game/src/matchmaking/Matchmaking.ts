@@ -1,4 +1,3 @@
-import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import {
     CreateTournament,
@@ -15,6 +14,7 @@ import {
     DeleteTournament
 } from './TournamentHandling.js';
 import { sessions } from '../gameplay/gameplay.js';
+import { WebSocket } from '@fastify/websocket';
 
 // Ajouter au début du fichier, après les imports
 const playerRooms = new Map<WebSocket, string>();
@@ -662,17 +662,17 @@ class WebSocketMessageHandler {
 
 // Classes et variables globales
 export const all_sessions: Session[] = [];
-export const wss = new WebSocketServer({ port: 8790 });
+// export const wss = new WebSocketServer({ port: 8790 });
 
 // Initialisation du matchmaking
-export async function setupMatchmaking() {
+export async function setupMatchmaking(wss: WebSocket) {
 
     // Configuration du serveur WebSocket
     wss.on('connection', function connection(ws) {
         let connectedPlayer: Player | null = null;
         let gameRoom: string | null = null;
 
-        ws.on('message', function incoming(message) {
+        ws.on('message', function incoming(message: string) {
             try {
                 const data = JSON.parse(message.toString());
 

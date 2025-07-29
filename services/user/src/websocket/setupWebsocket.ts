@@ -24,6 +24,7 @@ async function sendMessageToAllSockets(message: any) {
 	}
 }
 
+
 export async function setupWebsocket(socket: WebSocket, req: FastifyRequest) {
 	// Ici, vous pouvez gérer les événements WebSocket
 

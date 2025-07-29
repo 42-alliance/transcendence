@@ -5,9 +5,16 @@ import { GameMessageHandler } from "./GameMessageHandler.js";
 import { TournamentMessageHandler } from "./TournamentMessageHandler.js";
 import { MessageSender } from "./MessageSender.js";
 import { gameWsClass, setGameWsClass, webSockets } from "../viewManager.js";
+import { getAccessToken } from "../../fetchApi.js";
 
-export function setupGameWebSocket() {
-	webSockets.game = new WebSocket('wss://localhost:8000/gamews');
+export async function setupGameWebSocket() {
+
+	const wsUrl = `wss://localhost:8000/gamews`;
+
+	const token = await getAccessToken();
+	if (!token) return;
+
+	webSockets.game = new WebSocket(wsUrl, ["Authorization", token]);
 }
 
 export class GameWebSocket {
@@ -106,6 +113,7 @@ export class GameWebSocket {
 
     private handleMessage(event: MessageEvent): void {
         try {
+			console.log("event jer suis cheff", event.data);
             const message = JSON.parse(event.data);
             
             // First check if it's a tournament message

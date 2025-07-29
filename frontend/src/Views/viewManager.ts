@@ -132,17 +132,17 @@ export const router = async (): Promise<void> => {
 
   // Setup websocket si loggé et pas encore fait
   if (isLogin && webSockets.chat === null) {
-    setupChatWebSocket();
+    await setupChatWebSocket();
   }
 
   // Setup websocket si loggé et pas encore fait
   if (isLogin && webSockets.user === null) {
-    setupUserWebsocket();
+    await setupUserWebsocket();
   }
 
   // Setup websocket si loggé et pas encore fait
   if (isLogin && webSockets.game === null) {
-    setupGameWebSocket();
+    await setupGameWebSocket();
     const gameInstance = new Game();
     await gameInstance.executeViewScript();
     console.error("execution du script");

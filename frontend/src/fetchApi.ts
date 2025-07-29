@@ -40,9 +40,10 @@ export async function fetchApi(url: string, options: optionRequest, retry: boole
     return response;
 }
 
-export function getAccessToken() {
+export async function getAccessToken() {
+	await refreshToken();
 	const token = localStorage.getItem("access_token");
-	return token;
+	return token!;
 }
 
 export function getHeader(): Headers {
@@ -54,8 +55,15 @@ export function getHeader(): Headers {
 	return headers;
 }
 
+
+export function getAccessTokenLocalstorage() {
+	const token = localStorage.getItem("access_token");
+	return token;
+}
+
+
 async function refreshToken() {
-    const token = getAccessToken();
+    const token = getAccessTokenLocalstorage();
 
 	if (!token)
 		throw new Error("No token found");
@@ -63,7 +71,7 @@ async function refreshToken() {
 	const headers = getHeader();
     headers.append('Content-Type', 'application/json');
 
-	const response = await fetch("auth/token/refresh", {
+	const response = await fetch(`${HTTP_PROTOCOL}://localhost:8000/auth/token/refresh`, {
 		method: "POST",
 		headers: headers,
 		credentials: "include",

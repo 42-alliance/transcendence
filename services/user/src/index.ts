@@ -3,10 +3,12 @@ import { setupRoutes } from './router.js';
 import { PrismaClient } from '../prisma/node_modules/@prisma/client/client.js';
 import multipart from "@fastify/multipart";
 import cookie from "@fastify/cookie";
+
 import { setupWebsocket } from './websocket/setupWebsocket.js';
 import websocket, { WebSocket } from '@fastify/websocket';
 import fs from "fs"
 import path from 'path';
+
 
 export const prisma = new PrismaClient(); // client prisma
 

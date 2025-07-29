@@ -23,6 +23,7 @@ export const server = Fastify({
 	},
 });
 
+
 server.register(cors, {
     origin: ['https://localhost:8080', 'https://127.0.0.1:8080', 'https://accounts.google.com'],  // Vous pouvez aussi ajouter Google ici si nécessaire
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Autorisez les méthodes nécessaires
@@ -65,10 +66,27 @@ server.register(proxy, {
 });
 
 server.register(proxy, {
-  upstream: `wss://${config.game.host}:${config.game.ws_port}`, // ws_port = 8790
+  upstream: `wss://${config.game.host}:${config.game.port}`, // ws_port = 8790
   prefix: '/gamews', // endpoint exposé par le gateway
-  websocket: true // 👈 important pour activer WebSocket proxy
+	rewritePrefix: '/gamews',
+  websocket: true, // 👈 important pour activer WebSocket proxy
+  http2: false,
+  preHandler: async (request, reply) => {    
+        await verifyJWT_WebSocket(server, request, reply);
+
+		console.log("la verif s'est bien passe");
+        // const userId = request.headers["x-user-id"];  // JWT extrait ici
+        // const url = new URL(request.url, `http://${request.headers.host}`);
+
+        // // Ajoute `userId` dans la query string avant de proxyfier
+        // url.searchParams.set("userId", userId as string);
+
+        // // 🔥 Modifie directement `request.raw.url` avant que Fastify Proxy ne traite la requête
+        // request.raw.url = url.pathname + url.search;
+        // console.log("🚀 Nouvelle URL proxyfiée:", request.raw.url);
+    }
 });
+
 
 
 

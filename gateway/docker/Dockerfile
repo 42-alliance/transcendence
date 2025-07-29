@@ -17,6 +17,6 @@ RUN openssl req -newkey rsa:2048 -nodes -x509 -days 365 \
     -out /app/ssl/selfsigned.crt \
     -subj "/C=FR/ST=France/L=Paris/O=42-Alliance/OU=Department/CN=localhost"
 
-EXPOSE 3000
+EXPOSE 8000
 
 CMD ["sh", "/app/docker/script.sh"]
