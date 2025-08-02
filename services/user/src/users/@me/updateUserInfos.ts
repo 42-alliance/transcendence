@@ -113,6 +113,47 @@ export async function updateUserInfos(
   }
 }
 
+export async function setTwoFa(request: FastifyRequest, reply: FastifyReply) {
+  const userId = extractUserId(request);
+  const body = request.body as { enabled?: boolean };
+
+  if (!body || typeof body.enabled !== "boolean") {
+    reply.status(400).send({
+      error:
+        "Invalid request body , mais juste avant de d'essayer de le mettre dans prisma",
+    });
+    return;
+  }
+
+  const { enabled } = body;
+
+  try {
+    await prisma.users.update({
+      where: { id: userId },
+      data: {
+        twoFactorEnabled: enabled,
+        twoFactorSetupCompleted: enabled ? true : false,
+        // Vous pouvez ajouter la logique pour twoFactorSecret et twoFactorBackupCodes ici si nécessaire
+      },
+    });
+    console.log(
+      "status de l'user maintenant",
+      await prisma.users.findUnique({
+        where: { id: userId },
+      })
+    );
+    return reply.status(200).send({
+      message: "Two-factor authentication mis à jour avec succès",
+    });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la mise à jour de la vérification en deux étapes :",
+      error
+    );
+    return reply.status(500).send({ message: "Erreur interne du serveur." });
+  }
+}
+
 export async function updateLastSeen(
   request: FastifyRequest,
   reply: FastifyReply

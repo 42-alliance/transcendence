@@ -180,8 +180,21 @@
                         setTimeout(() => {
                           toast.remove();
                         }, 5000);
+                        setTwoFa(true);
                       } else {
                         // Disable 2FA
+                        const toastContainer =
+                          document.getElementById("toast-container");
+                        const toast = document.createElement("div");
+                        toast.className =
+                          "bg-red-500 text-white p-4 rounded-lg shadow-lg";
+                        toast.innerHTML = `<p>2FA is disabled.</p>`;
+                        toastContainer.appendChild(toast);
+                        setTimeout(() => {
+                          toast.remove();
+                        }, 5000);
+                        // Call the function to disable 2FA
+                        setTwoFa(false);
                       }
                     });
                 </script>
