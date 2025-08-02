@@ -16,11 +16,19 @@ import { logOutUser } from "./User/logoutUser.js";
 import { setTwoFa } from "./User/TwoFa/setTwoFa.js";
 import { closeChangeImage, openChangeImage } from "./User/updateUser.js";
 import { formSubmit } from "./Views/Login/Login.js";
+import { check2faEnabled } from "./User/TwoFa/setTwoFa.js";
+// ... autres imports ...
+import { initTwoFaToggle } from "./User/TwoFa/initTwoFaToggle.js";
+
+// ... autres code ...
+
+// Exécuter l'initialisation quand le DOM est chargé
 
 // Ajoutez la fonction au contexte global
 (window as any).getAuthUrl = getAuthUrl;
 (window as any).changeLanguage = changeLanguage;
 (window as any).setTwoFa = setTwoFa;
+(window as any).check2faEnabled = check2faEnabled;
 
 (window as any).formSubmit = formSubmit;
 (window as any).openFriendSearch = openFriendSearch;
@@ -36,3 +44,6 @@ import { formSubmit } from "./Views/Login/Login.js";
 (window as any).getFriendStatus = getFriendStatus; // for test in navigator
 (window as any).updateFriendStatus = updateFriendStatus; // for test in navigator
 (window as any).GetUserByName = GetUserByName; // for test in navigator
+document.addEventListener("DOMContentLoaded", () => {
+  initTwoFaToggle();
+});

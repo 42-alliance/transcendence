@@ -21,7 +21,8 @@ import {
 import { getAllUsers, getAllUsersSchema } from "./users/getAllUsers.js";
 import { getUserByName, getUserByNameSchema } from "./users/getUserByName.js";
 import { addUserDatabase, addUserDatabaseSchema } from "./users/addUser.js";
-import { setTwoFa } from "./users/@me/updateUserInfos.js";
+import { UpdateTwoFa } from "./users/@me/updateUserInfos.js";
+import { setupTwoFa } from "./users/@me/setupTwoFa.js";
 import { me, meSchema } from "./users/@me/@me.js";
 import {
   getSendFriendRequest,
@@ -31,6 +32,10 @@ import { storeGameDatabase } from "./game/storeGameDatabase.js";
 import { getUserBlockedList } from "./users/getUserBlockedList.js";
 import { unblockSomeone } from "./friends/status/unblockSomeone.js";
 import { blockSomeone } from "./friends/status/blockSomeone.js";
+import { verifyTwoFaSetup } from "./users/@me/verifyTwoFaSetup.js";
+// import { check2faEnabled } from "./users/@me/check2faEnabled.js";
+// FIX: Update the path or create the file if missing
+import { check2faEnabled } from "./users/@me/check2faEnabled.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -78,6 +83,69 @@ async function setupUsersRoute(server: FastifyInstance) {
     }
   );
 
+  // Dans setupUsersRoute, ajoutez cette nouvelle route
+  server.get(
+    "/users/@me/twofa/setup",
+    {
+      schema: {
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              qrCodeUrl: { type: "string" },
+              secret: { type: "string" },
+              backupCodes: {
+                type: "array",
+                items: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+    },
+    async function handler(request, reply) {
+      try {
+        return await setupTwoFa(request, reply);
+      } catch (error) {
+        console.error("Error setting up 2FA:", error);
+        reply.status(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  server.post<{
+    Body: { code: string };
+  }>(
+    "/users/@me/twofa/verify",
+    {
+      schema: {
+        body: {
+          type: "object",
+          required: ["code"],
+          properties: {
+            code: { type: "string" },
+          },
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+          },
+        },
+      },
+    },
+    async function handler(request, reply) {
+      try {
+        return await verifyTwoFaSetup(request, reply);
+      } catch (error) {
+        console.error("Error verifying 2FA setup:", error);
+        reply.status(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
   server.put<{
     Body: { enabled: boolean };
   }>(
@@ -100,13 +168,22 @@ async function setupUsersRoute(server: FastifyInstance) {
         const { enabled } = request.body;
         console.log("Received two-factor authentication request:", { enabled });
 
-        return await setTwoFa(request, reply);
+        return await UpdateTwoFa(request, reply);
       } catch (error) {
         console.error("Error processing twofa request:", error);
         reply.status(500).send({ error: "Internal server error" });
       }
     }
   );
+  server.get("/users/@me/twofa", async function handler(request, reply) {
+    try {
+      const isEnabled = await check2faEnabled(request, reply);
+      reply.send({ enabled: isEnabled });
+    } catch (error) {
+      console.error("Error checking 2FA status:", error);
+      reply.status(500).send({ error: "Internal server error" });
+    }
+  });
 }
 
 /**

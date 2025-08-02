@@ -113,7 +113,10 @@ export async function updateUserInfos(
   }
 }
 
-export async function setTwoFa(request: FastifyRequest, reply: FastifyReply) {
+export async function UpdateTwoFa(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
   const userId = extractUserId(request);
   const body = request.body as { enabled?: boolean };
 

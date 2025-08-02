@@ -162,42 +162,6 @@
                     </label>
                   </div>
                 </li>
-                <script>
-                  document.getElementById("toggle-2fa").checked = false;
-                  document
-                    .getElementById("toggle-2fa")
-                    .addEventListener("change", function (e) {
-                      // Add your logic to enable/disable 2FA here
-                      if (e.target.checked) {
-                        // Enable 2FA
-                        const toastContainer =
-                          document.getElementById("toast-container");
-                        const toast = document.createElement("div");
-                        toast.className =
-                          "bg-blue-500 text-white p-4 rounded-lg shadow-lg";
-                        toast.innerHTML = `<p>2FA is enabled.</p>`;
-                        toastContainer.appendChild(toast);
-                        setTimeout(() => {
-                          toast.remove();
-                        }, 5000);
-                        setTwoFa(true);
-                      } else {
-                        // Disable 2FA
-                        const toastContainer =
-                          document.getElementById("toast-container");
-                        const toast = document.createElement("div");
-                        toast.className =
-                          "bg-red-500 text-white p-4 rounded-lg shadow-lg";
-                        toast.innerHTML = `<p>2FA is disabled.</p>`;
-                        toastContainer.appendChild(toast);
-                        setTimeout(() => {
-                          toast.remove();
-                        }, 5000);
-                        // Call the function to disable 2FA
-                        setTwoFa(false);
-                      }
-                    });
-                </script>
                 <li>
                   <a
                     href="#"
@@ -401,6 +365,65 @@
       id="toast-container"
       class="fixed bottom-8 right-8 flex flex-col gap-4 z-50"
     ></div>
+
+    <!-- Modal 2FA Setup -->
+    <div id="twofa-setup-modal" class="hidden fixed inset-0 z-50">
+      <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+      <div
+        class="relative bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-auto mt-20"
+      >
+        <h2 class="text-xl font-semibold mb-4">
+          Set up Two-Factor Authentication
+        </h2>
+
+        <!-- QR Code Container -->
+        <div class="flex justify-center mb-4">
+          <img id="qrcode-image" alt="QR Code" class="border p-2" />
+        </div>
+
+        <!-- Instructions -->
+        <p class="mb-4">1. Scan this QR code with your authenticator app</p>
+
+        <!-- Verification Code Input -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2"
+            >2. Enter the verification code:</label
+          >
+          <input
+            type="text"
+            id="verification-code"
+            class="w-full p-2 border rounded"
+          />
+        </div>
+
+        <!-- Backup Codes -->
+        <div class="mb-4">
+          <p class="font-medium mb-2 text-red-500">
+            Backup Codes (save these somewhere safe):
+          </p>
+          <div
+            id="backup-codes"
+            class="bg-black text-orange-500 p-2 rounded"
+          ></div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-2">
+          <button
+            id="cancel-2fa"
+            class="px-4 py-2v text-black bg-gray-200 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            id="verify-2fa"
+            class="px-4 py-2 bg-orange-500 text-white rounded"
+          >
+            Verify
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="/.objs/lang/langManager.js"></script>
     <script type="module" src="/.objs/Views/viewManager.js"></script>
