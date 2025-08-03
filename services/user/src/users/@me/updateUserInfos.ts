@@ -135,12 +135,12 @@ export async function UpdateTwoFa(
       // Vérifier que le secret existe avant d'activer le 2FA
       const user = await prisma.users.findUnique({
         where: { id: userId },
-        select: { twoFactorSecret: true }
+        select: { twoFactorSecret: true },
       });
 
       if (!user?.twoFactorSecret) {
         reply.status(400).send({
-          error: "2FA setup not completed. Please setup 2FA first."
+          error: "2FA setup not completed. Please setup 2FA first.",
         });
         return;
       }
@@ -150,7 +150,7 @@ export async function UpdateTwoFa(
         where: { id: userId },
         data: {
           twoFactorEnabled: true,
-          twoFactorSetupCompleted: true
+          twoFactorSetupCompleted: true,
         },
       });
     } else {
@@ -161,7 +161,7 @@ export async function UpdateTwoFa(
           twoFactorEnabled: false,
           twoFactorSetupCompleted: false,
           twoFactorSecret: null,
-          twoFactorBackupCodes: null
+          twoFactorBackupCodes: null,
         },
       });
     }

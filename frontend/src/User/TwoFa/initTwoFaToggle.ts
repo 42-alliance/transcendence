@@ -10,6 +10,7 @@ export async function initTwoFaToggle() {
 
     // Récupérer l'état initial du 2FA
     const isEnabled = await check2faEnabled();
+    console.log("2FA is currently enabled:", isEnabled);
     toggleElement.checked = isEnabled;
 
     // Ajouter l'écouteur d'événements
@@ -31,6 +32,9 @@ export async function initTwoFaToggle() {
           showToast("2FA is disabled.", "red");
         }
       }
+      const isEnabled = await check2faEnabled();
+      console.log("2FA is currently enabled:", isEnabled);
+      toggleElement.checked = isEnabled;
     });
   } catch (error) {
     console.error("Error initializing 2FA toggle:", error);
