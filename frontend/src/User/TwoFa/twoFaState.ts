@@ -11,14 +11,29 @@ export function isPending2FAVerification(): boolean {
   return getStoredPendingState();
 }
 
-// Routes protégées qui nécessitent une vérification 2FA complète
-export const PROTECTED_ROUTES = ["/", "/game", "/chat", "/friends", "/me"];
+// Routes publiques qui ne nécessitent pas de 2FA
+export const PUBLIC_ROUTES = ["/auth", "/auth-success"];
+
+function normalizePath(path: string): string {
+  // Supprimer les slashes multiples consécutifs et normaliser le chemin
+  // Convertir en minuscules pour ignorer la casse
+  return "/" + path.split("/").filter(Boolean).join("/").toLowerCase();
+}
 
 export function isProtectedRoute(path: string): boolean {
-  // Vérifie si le chemin correspond à une route protégée
-  // Gestion spéciale pour /chat/:conversationId
-  if (path.startsWith("/chat/")) return true;
-  return PROTECTED_ROUTES.includes(path);
+  // Si pas de chemin, considérer comme protégé
+  if (!path) return true;
+
+  // Normaliser le chemin d'entrée (gère la casse et les slashes)
+  const normalizedPath = normalizePath(path);
+
+  // Si c'est une route publique, ne pas protéger
+  if (PUBLIC_ROUTES.some((route) => normalizedPath === normalizePath(route))) {
+    return false;
+  }
+
+  // Par défaut, toutes les autres routes sont protégées
+  return true;
 }
 
 // Fonction pour vérifier l'état initial du 2FA au chargement
