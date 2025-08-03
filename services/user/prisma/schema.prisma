@@ -38,8 +38,8 @@ model Users {
     // Nouveaux champs 2FA
     twoFactorEnabled    Boolean   @default(false)
     twoFactorSecret     String?   // Secret TOTP
-    twoFactorBackupCodes String?  // Codes de récupération (JSON array)
     twoFactorSetupCompleted Boolean @default(false)
+    twoFactorBackupCodes String?  // Codes de récupération (JSON array)
 
   // Les utilisateurs que CE user a bloqués
   blockedUsers    BlockedId[] @relation("UserBlocking")

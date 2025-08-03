@@ -131,14 +131,40 @@ export async function UpdateTwoFa(
   const { enabled } = body;
 
   try {
-    await prisma.users.update({
-      where: { id: userId },
-      data: {
-        twoFactorEnabled: enabled,
-        twoFactorSetupCompleted: enabled ? true : false,
-        // Vous pouvez ajouter la logique pour twoFactorSecret et twoFactorBackupCodes ici si nécessaire
-      },
-    });
+    if (enabled) {
+      // Vérifier que le secret existe avant d'activer le 2FA
+      const user = await prisma.users.findUnique({
+        where: { id: userId },
+        select: { twoFactorSecret: true }
+      });
+
+      if (!user?.twoFactorSecret) {
+        reply.status(400).send({
+          error: "2FA setup not completed. Please setup 2FA first."
+        });
+        return;
+      }
+
+      // Si le secret existe, on peut activer le 2FA
+      await prisma.users.update({
+        where: { id: userId },
+        data: {
+          twoFactorEnabled: true,
+          twoFactorSetupCompleted: true
+        },
+      });
+    } else {
+      // Désactivation du 2FA
+      await prisma.users.update({
+        where: { id: userId },
+        data: {
+          twoFactorEnabled: false,
+          twoFactorSetupCompleted: false,
+          twoFactorSecret: null,
+          twoFactorBackupCodes: null
+        },
+      });
+    }
     console.log(
       "status de l'user maintenant",
       await prisma.users.findUnique({
