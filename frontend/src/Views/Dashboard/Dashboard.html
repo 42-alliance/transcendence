@@ -2,62 +2,6 @@
   class="w-full h-screen flex flex-col items-center justify-center gap-8 p-6"
 >
   <!-- Container principal -->
-  <div
-    class="flex flex-col lg:flex-row items-center justify-center gap-12 w-full max-w-6xl"
-  >
-    <!-- Section bouton et informations -->
-    <div class="flex flex-col items-center gap-8">
-      <!-- Statistiques ou infos -->
-      <div class="grid grid-cols-2 gap-4 text-center">
-        <div
-          class="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700"
-        >
-          <div id="nb-games" class="text-2xl font-bold text-orange-400">42</div>
-          <div class="text-sm text-gray-400">Games Played</div>
-        </div>
-        <div
-          class="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700"
-        >
-          <div id="nb-wins" class="text-2xl font-bold text-green-400">28</div>
-          <div class="text-sm text-gray-400">Wins</div>
-        </div>
-      </div>
-
-      <!-- Bouton Play -->
-      <a
-        href="/game"
-        class="group relative overflow-hidden bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold text-2xl px-12 py-6 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50 active:scale-95 flex items-center gap-4"
-        data-link
-      >
-        <!-- Effet de brillance -->
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"
-        ></div>
-        <span class="tracking-wider z-10">PLAY PONG</span>
-        <div
-          class="absolute -top-1 -left-1 w-3 h-3 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
-        ></div>
-        <div
-          class="absolute -top-1 -right-1 w-3 h-3 bg-orange-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
-          style="animation-delay: 0.2s"
-        ></div>
-        <div
-          class="absolute -bottom-1 -left-1 w-3 h-3 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
-          style="animation-delay: 0.4s"
-        ></div>
-        <div
-          class="absolute -bottom-1 -right-1 w-3 h-3 bg-orange-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
-          style="animation-delay: 0.6s"
-        ></div>
-      </a>
-
-      <!-- Texte d'accroche -->
-      <p class="text-center text-gray-300 text-lg max-w-md">
-        Entrez dans l'arène et prouvez votre maîtrise du
-        <span class="text-orange-400 font-bold">Pong classique</span> !
-      </p>
-    </div>
-  </div>
 
   <!-- Section Credits -->
   <div class="w-full max-w-7xl mt-16">
@@ -179,17 +123,19 @@
           <div
             class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-700/50 to-gray-800/50 border-2 border-dashed border-gray-600 flex items-center justify-center group-hover:border-blue-500/50 transition-all duration-300"
           >
-            <i
-              class="fas fa-plus text-2xl text-gray-500 group-hover:text-blue-400 transition-colors duration-300"
-            ></i>
+            <img
+              src="assets/broken_team/ibaby-babybu.gif"
+              alt="Ibaby"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 rounded-full"
+            />
           </div>
           <h3
             class="text-lg font-bold text-gray-500 mb-1 group-hover:text-blue-400 transition-colors duration-300"
           >
-            Coming Soon
+            Ibaby
           </h3>
-          <p class="text-sm text-gray-600 font-semibold">Mystery Fighter</p>
-          <p class="text-xs text-gray-500 mt-2">Stay tuned...</p>
+          <p class="text-sm text-red-400 font-semibold">Baby Buu</p>
+          <p class="text-xs text-gray-500 mt-2">The madman of the cluster</p>
         </div>
       </div>
 
@@ -226,6 +172,40 @@
         </p>
         <p class="text-orange-400 font-semibold">- Broken Team Philosophy</p>
       </div>
+    </div>
+  </div>
+  <div
+    class="flex flex-col lg:flex-row items-center justify-center gap-12 w-full max-w-6xl"
+  >
+    <!-- Section bouton et informations -->
+    <div class="flex flex-col items-center gap-8">
+      <!-- Statistiques ou infos -->
+      <a
+        href="/game"
+        class="group relative overflow-hidden bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-black font-bold text-2xl px-12 py-6 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50 active:scale-95 flex items-center gap-4"
+        data-link
+      >
+        <!-- Effet de brillance -->
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"
+        ></div>
+        <span class="tracking-wider z-10">PLAY PONG</span>
+        <div
+          class="absolute -top-1 -left-1 w-3 h-3 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
+        ></div>
+        <div
+          class="absolute -top-1 -right-1 w-3 h-3 bg-orange-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
+          style="animation-delay: 0.2s"
+        ></div>
+        <div
+          class="absolute -bottom-1 -left-1 w-3 h-3 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
+          style="animation-delay: 0.4s"
+        ></div>
+        <div
+          class="absolute -bottom-1 -right-1 w-3 h-3 bg-orange-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping"
+          style="animation-delay: 0.6s"
+        ></div>
+      </a>
     </div>
   </div>
 
