@@ -16,7 +16,7 @@ export async function setTwoFa(val: boolean): Promise<void> {
       showTwoFaModal(setupData);
 
       // 3. Attendre la vérification
-      const verified = await handleVerification(setupData.secret);
+      const verified = await handleVerification();
 
       // 4. Si vérifié, activer le 2FA
       if (verified) {
@@ -80,7 +80,7 @@ function showTwoFaModal(setupData: {
   }
 }
 
-async function handleVerification(secret: string): Promise<boolean> {
+async function handleVerification(): Promise<boolean> {
   return new Promise((resolve) => {
     const verifyButton = document.getElementById("verify-2fa");
     const cancelButton = document.getElementById("cancel-2fa");

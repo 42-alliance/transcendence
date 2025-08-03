@@ -1,24 +1,30 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyRequest, FastifyReply, FastifySchema } from "fastify";
 import { authenticator } from "otplib";
 import { prisma } from "../../index.js";
-import { verifyToken } from "../../verify.js";
+import { extractUserId } from "../../utils.js";
+import { Type } from "@sinclair/typebox";
 
-// Définition du type pour le body de la requête
-interface IVerifyTwoFaBody {
-  code: string;
-}
+export const verify_2fa_code_setupSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+	body: Type.Object({
+		code: Type.String({pattern: "^[0-9]{6}$"})
+	}),
+};
 
-export async function verifyTwoFaSetup(
-  request: FastifyRequest<{
-    Body: IVerifyTwoFaBody;
-  }>,
+export async function verify_2fa_code_setup(
+  request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> {
   try {
     // 1. Vérifier le token JWT et obtenir l'utilisateur
-    const userId = await verifyToken(request);
+    const userId = extractUserId(request);
     const user = await prisma.users.findUnique({
       where: { id: userId },
+	  select: {
+		twoFactorSecret: true
+	  }
     });
 
     if (!user) {
@@ -31,9 +37,13 @@ export async function verifyTwoFaSetup(
       return;
     }
 
+	const { code } = request.body as {
+		code: string
+	};
+
     // 2. Vérifier le code TOTP
     const isValid = authenticator.verify({
-      token: request.body.code,
+      token: code,
       secret: user.twoFactorSecret,
     });
 

@@ -27,6 +27,7 @@ export async function showOnlineFriends() {
 	const friends = my_infos.friends;
 	if (!friends || friends.length === 0) {
 		clearOnlineFriendsList(onlineFriendsDiv);
+		renderOnlineFriendsHeader(onlineFriendsDiv);
 		isUpdatingFriendList = false;
 		return;
 	}

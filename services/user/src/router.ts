@@ -22,10 +22,10 @@ import { getAllUsers, getAllUsersSchema } from "./users/getAllUsers.js";
 import { getUserByName, getUserByNameSchema } from "./users/getUserByName.js";
 import { addUserDatabase, addUserDatabaseSchema } from "./users/addUser.js";
 import { UpdateTwoFa } from "./users/@me/updateUserInfos.js";
-import { setupTwoFa } from "./users/@me/setupTwoFa.js";
+import { setup2Fa, setup2FaSchema } from "./users/@me/setupTwoFa.js";
 import { me, meSchema } from "./users/@me/@me.js";
-import { verifyTwoFaSetup } from "./users/@me/verifyTwoFaSetup.js";
-import { verifyTwoFaLogin } from "./users/@me/verifyTwoFaLogin.js";
+import { verify_2fa_code_setup, verify_2fa_code_setupSchema } from "./users/@me/verifyTwoFaSetup.js";
+import { verify_2fa_codeSchema, verify_2fa_code,  } from "./users/@me/verifyTwoFaLogin.js";
 import {
   getSendFriendRequest,
   getSendFriendRequestSchema,
@@ -86,97 +86,30 @@ async function setupUsersRoute(server: FastifyInstance) {
 
   // Dans setupUsersRoute, ajoutez cette nouvelle route
   server.get(
-    "/users/@me/twofa/setup",
-    {
-      schema: {
-        response: {
-          200: {
-            type: "object",
-            properties: {
-              qrCodeUrl: { type: "string" },
-              secret: { type: "string" },
-              backupCodes: {
-                type: "array",
-                items: { type: "string" },
-              },
-            },
-          },
-        },
-      },
-    },
+    "/users/@me/2fa/setup",
+    { schema: setup2FaSchema },
     async function handler(request, reply) {
-      try {
-        return await setupTwoFa(request, reply);
-      } catch (error) {
-        console.error("Error setting up 2FA:", error);
-        reply.status(500).send({ error: "Internal server error" });
-      }
+        return await setup2Fa(request, reply);
     }
   );
 
   server.post<{
     Body: { code: string };
   }>(
-    "/users/@me/twofa/verify",
-    {
-      schema: {
-        body: {
-          type: "object",
-          required: ["code"],
-          properties: {
-            code: { type: "string" },
-          },
-        },
-        response: {
-          200: {
-            type: "object",
-            properties: {
-              success: { type: "boolean" },
-            },
-          },
-        },
-      },
-    },
+    "/users/@me/2fa/setup/verify",
+    { schema: verify_2fa_code_setupSchema },
     async function handler(request, reply) {
-      try {
-        return await verifyTwoFaSetup(request, reply);
-      } catch (error) {
-        console.error("Error verifying 2FA setup:", error);
-        reply.status(500).send({ error: "Internal server error" });
-      }
+        return await verify_2fa_code_setup(request, reply);
     }
   );
 
   server.post<{
     Body: { code: string };
   }>(
-    "/users/@me/twofa/login-verify",
-    {
-      schema: {
-        body: {
-          type: "object",
-          required: ["code"],
-          properties: {
-            code: { type: "string" },
-          },
-        },
-        response: {
-          200: {
-            type: "object",
-            properties: {
-              success: { type: "boolean" },
-            },
-          },
-        },
-      },
-    },
+    "/users/@me/2fa/verify",
+    { schema: verify_2fa_codeSchema },
     async function handler(request, reply) {
-      try {
-        return await verifyTwoFaLogin(request, reply);
-      } catch (error) {
-        console.error("Error verifying 2FA login:", error);
-        reply.status(500).send({ error: "Internal server error" });
-      }
+        return await verify_2fa_code(request, reply);
     }
   );
 

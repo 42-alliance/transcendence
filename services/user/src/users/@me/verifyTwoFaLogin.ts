@@ -1,23 +1,30 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyRequest, FastifyReply, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
-import { verifyToken } from "../../verify.js";
 import { authenticator } from "otplib";
+import { extractUserId } from "../../utils.js";
+import { Type } from "@sinclair/typebox";
 
-export async function verifyTwoFaLogin(
-  request: FastifyRequest<{ Body: { code: string } }>,
+export const verify_2fa_codeSchema: FastifySchema = {
+	headers: Type.Object({
+		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
+	}),
+	body: Type.Object({
+		code: Type.String({pattern: "^[0-9]{6}$"})
+	}),
+}
+
+export async function verify_2fa_code(
+  request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> {
   try {
-    const userId = await verifyToken(request);
-    if (!userId) {
-      reply.status(401).send({ error: "Unauthorized" });
-      return;
-    }
+    const userId = extractUserId(request);
 
     const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         twoFactorSecret: true,
+        twoFactorSetupCompleted: true,
         twoFactorEnabled: true,
       },
     });
@@ -27,7 +34,10 @@ export async function verifyTwoFaLogin(
       return;
     }
 
-    const { code } = request.body;
+    const { code } = request.body as {
+		code: string
+	};
+
     const isValid = authenticator.verify({
       token: code,
       secret: user.twoFactorSecret,
@@ -39,6 +49,17 @@ export async function verifyTwoFaLogin(
         .send({ error: "Invalid 2FA code, le code n'est pas bon chackal !!!" });
       return;
     }
+
+	if (user.twoFactorSetupCompleted === false) {
+		await prisma.users.update({
+			where: { id: userId },
+			data: {
+				twoFactorSetupCompleted: true,
+				twoFactorEnabled: true,
+			},
+		});
+	}
+
     console.log("2FA code verified successfully for user:", userId);
     reply.send({ success: true }).status(200);
   } catch (error) {

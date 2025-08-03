@@ -10,6 +10,7 @@ import { addFriend } from "../../Friends/addFriend.js";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 import { on } from "events";
 import { blockUser, unblockUser } from "../../User/blockFunctions.js";
+import { enable_2fa_modal } from "../Auth/2FA/2fa.js";
 
 // Définition de plusieurs constantes utiles pour la réutilisation (comme des "define")
 export const status: Record<string, string> = {
@@ -471,6 +472,17 @@ function createMiniUserCardBtnGroup(userInfos: UserData): HTMLDivElement {
 	return btnGroup;
 }
 
+function create_button_2FA() {
+	const enable2FAButton = document.createElement("button");
+	enable2FAButton.textContent = "Enable 2FA";
+	enable2FAButton.className = "bg-yellow-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow cursor-pointer";
+
+	enable2FAButton.addEventListener("click", async () => {
+		await enable_2fa_modal();
+	});
+	
+	return enable2FAButton;
+}
 
 function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void {
 	// Fonction pour créer une icône stylo Font Awesome
@@ -486,7 +498,7 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 	const container = document.createElement("div");
 	container.className = "flex flex-col w-full h-full relative";
 
-	// ========== INPUTS CACHÉS (pour les images) ==========
+	// ========== INPUTS CACHÉS ==========
 	const bannerInput = document.createElement("input");
 	bannerInput.type = "file";
 	bannerInput.accept = "image/*";
@@ -574,7 +586,6 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 	userName.textContent = NewuserData.name || userInfos.name || "Nom inconnu";
 
 	const editNameIcon = createEditIcon();
-
 	userNameWrapper.appendChild(userName);
 	userNameWrapper.appendChild(editNameIcon);
 
@@ -598,7 +609,6 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 
 	userInfoContainer.appendChild(pseudoTitle);
 	userInfoContainer.appendChild(userNameWrapper);
-
 	userInfoContainer.appendChild(bioTitle);
 	userInfoContainer.appendChild(userBioWrapper);
 
@@ -618,15 +628,14 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 		}
 
 		inputEl.value = currentText;
-		element.style.display = "none"; // cacher le texte d’origine
+		element.style.display = "none";
 		element.parentElement?.insertBefore(inputEl, element.nextSibling);
 		inputEl.focus();
 
 		function save() {
 			const newText = inputEl.value.trim() || (isTextArea ? "Aucune biographie disponible." : "Nom inconnu");
-
 			element.textContent = newText;
-			element.style.display = "";  // montrer à nouveau l’élément texte
+			element.style.display = "";
 			inputEl.remove();
 		}
 
@@ -653,10 +662,15 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 		enableEditingText(userBio, true);
 	});
 
+	// ========== BOUTON 2FA PROFILE ==========
+
+	const enable2FAButton = create_button_2FA();
+
+
 	// ========== BOUTON UPDATE PROFILE ==========
 	const updateBtn = document.createElement("button");
 	updateBtn.textContent = "Update Profile";
-	updateBtn.className = "absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow cursor-pointer";
+	updateBtn.className = "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow cursor-pointer";
 
 	updateBtn.addEventListener("click", async () => {
 		const name = (document.getElementById("userCardName")?.textContent || "").trim();
@@ -677,6 +691,12 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 		}
 	});
 
+	const button_div = document.createElement("div");
+	button_div.className = "absolute bottom-4 right-4 flex flex-col gap-2";
+
+	button_div.appendChild(enable2FAButton);
+	button_div.appendChild(updateBtn);
+
 	// ========== ASSEMBLAGE FINAL ==========
 	targetElement.innerHTML = "";
 	container.appendChild(bannerInput);
@@ -684,10 +704,12 @@ function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, u
 	container.appendChild(bannerContainer);
 	container.appendChild(profileWrapper);
 	container.appendChild(userInfoContainer);
-	container.appendChild(updateBtn);
+	// container.appendChild(updateBtn);
+	container.appendChild(button_div);
+
 	targetElement.appendChild(container);
 }
-
+	
 function createDropdownButton(
 	bannerContainer: HTMLElement,
 	onChat: () => void,

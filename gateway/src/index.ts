@@ -69,19 +69,7 @@ server.register(proxy, {
   websocket: true, // 👈 important pour activer WebSocket proxy
   http2: false,
   preHandler: async (request, reply) => {
-    console.log("[GATEWAY] WebSocket demandé sur /gamews");
     await verifyJWT_WebSocket(server, request, reply);
-
-    console.log("la verif s'est bien passe");
-    // const userId = request.headers["x-user-id"];  // JWT extrait ici
-    // const url = new URL(request.url, `http://${request.headers.host}`);
-
-    // // Ajoute `userId` dans la query string avant de proxyfier
-    // url.searchParams.set("userId", userId as string);
-
-    // // 🔥 Modifie directement `request.raw.url` avant que Fastify Proxy ne traite la requête
-    // request.raw.url = url.pathname + url.search;
-    // console.log("🚀 Nouvelle URL proxyfiée:", request.raw.url);
   },
 });
 
