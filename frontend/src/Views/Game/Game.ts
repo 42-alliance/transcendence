@@ -5,9 +5,159 @@ import { GameUI } from "./GameUI.js";
 import AView from "../AView.js";
 import { fetchApi } from "../../fetchApi.js";
 
+// Classe pour gérer le carrousel linéaire
+class CarouselManager {
+  private currentIndex: number = 0;
+  private cards: NodeListOf<HTMLElement>;
+  private carousel: HTMLElement;
+  private indicators: NodeListOf<HTMLElement>;
+  private totalCards: number;
+
+  constructor() {
+    this.carousel = document.getElementById("carousel") as HTMLElement;
+    this.cards = document.querySelectorAll(".card");
+    this.indicators = document.querySelectorAll(".indicator");
+    this.totalCards = this.cards.length;
+    this.setupEventListeners();
+    this.updateCarousel();
+  }
+
+  private setupEventListeners() {
+    // Navigation buttons
+    const prevBtn = document.getElementById("previous");
+    const nextBtn = document.getElementById("next");
+
+    prevBtn?.addEventListener("click", () => this.previous());
+    nextBtn?.addEventListener("click", () => this.next());
+
+    // Indicators
+    this.indicators.forEach((indicator, index) => {
+      indicator.addEventListener("click", () => this.goToSlide(index));
+    });
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") this.previous();
+      if (e.key === "ArrowRight") this.next();
+    });
+
+    // Card click events (pour navigation seulement, pas pour jouer)
+    this.cards.forEach((card, index) => {
+      card.addEventListener("click", (e) => {
+        // Vérifier si le clic n'est pas sur le bouton play
+        const target = e.target as HTMLElement;
+        if (!target.closest(".play-button")) {
+          if (index !== this.currentIndex) {
+            this.goToSlide(index);
+          }
+        }
+      });
+    });
+  }
+
+  private updateCarousel() {
+    // Positions : 0=gauche, 1=centre(active), 2=droite, 3=caché
+    const positions = [
+      "position-left",
+      "position-center",
+      "position-right",
+      "position-hidden",
+    ];
+
+    this.cards.forEach((card, index) => {
+      // Calculer la position relative de chaque carte par rapport à l'index actuel
+      let relativePosition =
+        (index - this.currentIndex + this.totalCards) % this.totalCards;
+
+      // Ajuster pour notre système de 4 positions (0,1,2,3)
+      if (relativePosition >= 3) {
+        relativePosition = 3; // Toutes les autres cartes sont cachées
+      }
+
+      // Supprimer toutes les classes de position
+      card.classList.remove(
+        "position-left",
+        "position-center",
+        "position-right",
+        "position-hidden"
+      );
+
+      // Ajouter la nouvelle classe de position
+      card.classList.add(positions[relativePosition]);
+
+      // La carte au centre est active
+      card.classList.toggle("active", relativePosition === 1);
+    });
+
+    // Mise à jour des indicateurs
+    this.indicators.forEach((indicator, index) => {
+      indicator.classList.toggle("active", index === this.currentIndex);
+    });
+  }
+
+  public next() {
+    this.currentIndex = (this.currentIndex + 1) % this.totalCards;
+    this.updateCarousel();
+  }
+
+  public previous() {
+    this.currentIndex =
+      (this.currentIndex - 1 + this.totalCards) % this.totalCards;
+    this.updateCarousel();
+  }
+
+  public goToSlide(index: number) {
+    if (index >= 0 && index < this.totalCards) {
+      this.currentIndex = index;
+      this.updateCarousel();
+    }
+  }
+
+  public getCurrentIndex(): number {
+    return this.currentIndex;
+  }
+
+  public destroy() {
+    // Supprimer tous les event listeners
+    const prevBtn = document.getElementById("previous");
+    const nextBtn = document.getElementById("next");
+
+    prevBtn?.removeEventListener("click", () => this.previous());
+    nextBtn?.removeEventListener("click", () => this.next());
+
+    this.indicators.forEach((indicator) => {
+      indicator.removeEventListener("click", () => {});
+    });
+
+    this.cards.forEach((card) => {
+      card.removeEventListener("click", () => {});
+    });
+
+    document.removeEventListener("keydown", () => {});
+  }
+
+  // Méthodes supplémentaires
+  public addPulseToCard(index: number) {
+    if (index >= 0 && index < this.totalCards) {
+      this.cards[index].classList.add("pulse");
+    }
+  }
+
+  public removePulseFromCard(index: number) {
+    if (index >= 0 && index < this.totalCards) {
+      this.cards[index].classList.remove("pulse");
+    }
+  }
+
+  public getActiveCard(): HTMLElement | null {
+    return this.cards[this.currentIndex] || null;
+  }
+}
+
 export default class extends AView {
   private webSocket: GameWebSocket | null = null;
   private user_info: any;
+  private carouselManager: CarouselManager | null = null;
   private routeChangeHandler: ((event: PopStateEvent | null) => void) | null =
     null;
 
@@ -114,6 +264,9 @@ export default class extends AView {
           // S'assurer que GameUI est initialisé pour charger les écrans
           GameUI.initialize();
 
+          // Initialiser le carrousel 3D
+          this.initializeCarousel();
+
           // Set up event listeners for buttons
           this.setupButtonEventListeners();
         }
@@ -122,21 +275,30 @@ export default class extends AView {
   }
 
   private setupButtonEventListeners() {
-    document
-      .getElementById("randomAdversaireButton")
-      ?.addEventListener("click", () => {
-        console.log("Random adversaire button clicked");
-        GameUI.displayWaiting();
-        // Passer les paramètres requis (webSocket et user_info)
-        GameUI.displayBackButton(this.webSocket, this.user_info);
-        this.webSocket?.sendMessage("random_adversaire", {
-          user: this.user_info,
-          type: "random_adversaire",
-        });
-      });
+    // Écouter les clics sur les boutons play des cartes
+    const randomPlayBtn = document.querySelector(
+      "#randomAdversaireButton .play-button"
+    );
+    const localPlayBtn = document.querySelector("#localButton .play-button");
+    const tournamentPlayBtn = document.querySelector(
+      "#tournamentButton .play-button"
+    );
+    const iaPlayBtn = document.querySelector("#iaButton .play-button");
 
-    document.getElementById("localButton")?.addEventListener("click", () => {
-      console.log("Local button clicked");
+    randomPlayBtn?.addEventListener("click", (e) => {
+      e.stopPropagation(); // Empêcher le clic de remonter à la carte
+      console.log("Random adversaire play button clicked");
+      GameUI.displayWaiting();
+      GameUI.displayBackButton(this.webSocket, this.user_info);
+      this.webSocket?.sendMessage("random_adversaire", {
+        user: this.user_info,
+        type: "random_adversaire",
+      });
+    });
+
+    localPlayBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      console.log("Local play button clicked");
       GameUI.displayWaiting();
       GameUI.displayBackButton(this.webSocket, this.user_info);
       this.webSocket?.sendMessage("local", {
@@ -145,21 +307,17 @@ export default class extends AView {
       });
     });
 
-    document.getElementById("iaButton")?.addEventListener("click", async () => {
+    iaPlayBtn?.addEventListener("click", async (e) => {
+      e.stopPropagation();
       try {
-        // Attendre que l'utilisateur sélectionne une difficulté
         const difficultyMode = await GameUI.displayDifficultyButtons();
         console.log("Selected difficulty:", difficultyMode);
         if (difficultyMode === "back") {
-          // Si l'utilisateur a choisi de revenir, rétablir les boutons du lobby
           GameUI.showLobbyButtons();
           return;
         }
         if (difficultyMode) {
-          // Afficher un spinner pendant la connexion
           GameUI.displayWaiting();
-
-          // Envoyer le message avec la difficulté sélectionnée
           this.webSocket?.sendMessage("ia", {
             user: this.user_info,
             difficulty: difficultyMode,
@@ -168,107 +326,95 @@ export default class extends AView {
         }
       } catch (error) {
         console.error("Error selecting difficulty:", error);
-        // En cas d'erreur, rétablir les boutons du lobby
         GameUI.showLobbyButtons();
       }
     });
 
-    document
-      .getElementById("tournamentButton")
-      ?.addEventListener("click", async () => {
-        console.log("Tournament button clicked");
-        try {
-          // Vérifier d'abord si l'écran de tournoi existe
-          if (!GameUI.hasScreen("tournament")) {
-            console.error("Tournament screen not found");
-            return;
-          }
+    tournamentPlayBtn?.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      console.log("Tournament play button clicked");
+      try {
+        if (!GameUI.hasScreen("tournament")) {
+          console.error("Tournament screen not found");
+          return;
+        }
 
-          // Afficher les options de tournoi
-          const optionSelect = await GameUI.showScreen("tournament");
+        const optionSelect = await GameUI.showScreen("tournament");
 
-          if (optionSelect) {
-            console.log("Tournament option selected:", optionSelect);
+        if (optionSelect) {
+          console.log("Tournament option selected:", optionSelect);
 
-            if (optionSelect === "create") {
-              try {
-                // Utiliser la méthode du TournamentScreen pour afficher le modal de création
-                const tournamentScreen = GameUI.getScreen("tournament");
-                if (
-                  tournamentScreen &&
-                  "showCreateTournament" in tournamentScreen
-                ) {
-                  const tournamentName = await (
-                    tournamentScreen as {
-                      showCreateTournament: () => Promise<string | null>;
-                    }
-                  ).showCreateTournament();
-
-                  if (tournamentName) {
-                    console.log("Tournament name:", tournamentName);
-                    GameUI.displayWaiting();
-
-                    this.webSocket?.sendMessage("create_tournament", {
-                      user: this.user_info,
-                      tournament_name: tournamentName,
-                      type: "create_tournament",
-                    });
-                    // Note: Ne pas revenir au lobby ici, l'affichage sera géré par la
-                    // réponse 'tournament_created' du serveur
-                  } else {
-                    // Annulation, revenir aux options du tournoi
-                    GameUI.showScreen("tournament");
-                  }
-                }
-              } catch (error) {
-                console.error("Error creating tournament:", error);
-                GameUI.showLobbyButtons();
-              }
-            } else if (optionSelect === "join") {
-              // Utiliser la méthode du TournamentScreen pour afficher le modal de rejoindre
+          if (optionSelect === "create") {
+            try {
               const tournamentScreen = GameUI.getScreen("tournament");
               if (
                 tournamentScreen &&
-                "showJoinTournament" in tournamentScreen
+                "showCreateTournament" in tournamentScreen
               ) {
-                const tournamentId = await (
+                const tournamentName = await (
                   tournamentScreen as {
-                    showJoinTournament: () => Promise<string | null>;
+                    showCreateTournament: () => Promise<string | null>;
                   }
-                ).showJoinTournament();
+                ).showCreateTournament();
 
-                if (tournamentId) {
-                  console.log("Tournament ID:", tournamentId);
+                if (tournamentName) {
+                  console.log("Tournament name:", tournamentName);
                   GameUI.displayWaiting();
 
-                  this.webSocket?.sendMessage("join_tournament", {
+                  this.webSocket?.sendMessage("create_tournament", {
                     user: this.user_info,
-                    tournament_id: tournamentId,
-                    type: "join_tournament",
+                    tournament_name: tournamentName,
+                    type: "create_tournament",
                   });
                 } else {
-                  // Annulation, revenir aux options du tournoi
                   GameUI.showScreen("tournament");
                 }
               }
-            } else if (optionSelect === "cancel") {
-              // L'utilisateur a annulé, rétablir les boutons du lobby
-              //hide Tournament screen
-              GameUI.hideScreen("tournament");
+            } catch (error) {
+              console.error("Error creating tournament:", error);
               GameUI.showLobbyButtons();
             }
-          } else {
-            // Si pas de sélection, rétablir les boutons du lobby
+          } else if (optionSelect === "join") {
+            const tournamentScreen = GameUI.getScreen("tournament");
+            if (tournamentScreen && "showJoinTournament" in tournamentScreen) {
+              const tournamentId = await (
+                tournamentScreen as {
+                  showJoinTournament: () => Promise<string | null>;
+                }
+              ).showJoinTournament();
+
+              if (tournamentId) {
+                console.log("Tournament ID:", tournamentId);
+                GameUI.displayWaiting();
+
+                this.webSocket?.sendMessage("join_tournament", {
+                  user: this.user_info,
+                  tournament_id: tournamentId,
+                  type: "join_tournament",
+                });
+              } else {
+                GameUI.showScreen("tournament");
+              }
+            }
+          } else if (optionSelect === "cancel") {
+            GameUI.hideScreen("tournament");
             GameUI.showLobbyButtons();
           }
-        } catch (error) {
-          console.error("Error with tournament selection:", error);
-          // En cas d'erreur, rétablir les boutons du lobby
-          // enlever gameCanvas
-
+        } else {
           GameUI.showLobbyButtons();
         }
-      });
+      } catch (error) {
+        console.error("Error with tournament selection:", error);
+        GameUI.showLobbyButtons();
+      }
+    });
+  }
+
+  private initializeCarousel() {
+    // Attendre que le DOM soit prêt avant d'initialiser le carrousel
+    setTimeout(() => {
+      this.carouselManager = new CarouselManager();
+    }, 100);
   }
 
   disconnect() {
@@ -279,6 +425,13 @@ export default class extends AView {
   }
   destroy() {
     console.log("Destroying Game view...");
+
+    // Nettoyer le carrousel
+    if (this.carouselManager) {
+      this.carouselManager.destroy();
+      this.carouselManager = null;
+    }
+
     this.disconnect();
     // Supprimer l'instance de jeu de la variable globale
     (window as any).gameInstance = null;
@@ -288,6 +441,17 @@ export default class extends AView {
       this.routeChangeHandler = null;
     }
     // Appeler la méthode destroy de la classe parente
+  }
+
+  // Méthodes publiques pour accéder au carrousel depuis l'extérieur
+  public getCarouselManager(): CarouselManager | null {
+    return this.carouselManager;
+  }
+
+  public goToGameMode(index: number) {
+    if (this.carouselManager) {
+      this.carouselManager.goToSlide(index);
+    }
   }
 
   async getHtml() {
