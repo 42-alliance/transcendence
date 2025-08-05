@@ -310,6 +310,7 @@ export default class extends AView {
     iaPlayBtn?.addEventListener("click", async (e) => {
       e.stopPropagation();
       try {
+        console.log("button ia clicked");
         const difficultyMode = await GameUI.displayDifficultyButtons();
         console.log("Selected difficulty:", difficultyMode);
         if (difficultyMode === "back") {
