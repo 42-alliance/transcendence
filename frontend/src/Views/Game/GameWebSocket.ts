@@ -108,7 +108,6 @@ export class GameWebSocket {
 
   private handleMessage(event: MessageEvent): void {
     try {
-      console.log("event jer suis cheff", event.data);
       const message = JSON.parse(event.data);
 
       // First check if it's a tournament message

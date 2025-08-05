@@ -300,21 +300,26 @@ export default class extends AView {
       e.stopPropagation();
       console.log("Local play button clicked");
       GameUI.displayWaiting();
-      GameUI.displayBackButton(this.webSocket, this.user_info);
-      this.webSocket?.sendMessage("local", {
-        user: this.user_info,
-        type: "local",
-      });
+      this.hideCarousel();
+      setTimeout(() => {
+        // GameUI.displayBackButton(this.webSocket, this.user_info);
+        console.log("Sending local play message");
+        this.webSocket?.sendMessage("local", {
+          user: this.user_info,
+          type: "local",
+        });
+      }, 1000);
     });
 
     iaPlayBtn?.addEventListener("click", async (e) => {
       e.stopPropagation();
       try {
         console.log("button ia clicked");
+        this.hideCarousel();
         const difficultyMode = await GameUI.displayDifficultyButtons();
         console.log("Selected difficulty:", difficultyMode);
         if (difficultyMode === "back") {
-          GameUI.showLobbyButtons();
+          this.showCarousel();
           return;
         }
         if (difficultyMode) {
@@ -327,7 +332,7 @@ export default class extends AView {
         }
       } catch (error) {
         console.error("Error selecting difficulty:", error);
-        GameUI.showLobbyButtons();
+        this.showCarousel();
       }
     });
 
@@ -369,11 +374,12 @@ export default class extends AView {
                   });
                 } else {
                   GameUI.showScreen("tournament");
+                  this.showCarousel();
                 }
               }
             } catch (error) {
               console.error("Error creating tournament:", error);
-              GameUI.showLobbyButtons();
+              this.showCarousel();
             }
           } else if (optionSelect === "join") {
             const tournamentScreen = GameUI.getScreen("tournament");
@@ -399,14 +405,14 @@ export default class extends AView {
             }
           } else if (optionSelect === "cancel") {
             GameUI.hideScreen("tournament");
-            GameUI.showLobbyButtons();
+            this.showCarousel();
           }
         } else {
-          GameUI.showLobbyButtons();
+          this.showCarousel();
         }
       } catch (error) {
         console.error("Error with tournament selection:", error);
-        GameUI.showLobbyButtons();
+        this.showCarousel();
       }
     });
   }
@@ -466,6 +472,38 @@ export default class extends AView {
     } catch (error) {
       console.error(error);
       return `<p>Erreur lors du chargement du formulaire</p>`;
+    }
+  }
+
+  private hideCarousel(): void {
+    const carousel = document.getElementById("carousel");
+    if (carousel) {
+      carousel.style.display = "none";
+    }
+    // hide arrow buttons
+    const prevBtn = document.getElementById("previous");
+    const nextBtn = document.getElementById("next");
+    if (prevBtn) {
+      prevBtn.style.display = "none";
+    }
+    if (nextBtn) {
+      nextBtn.style.display = "none";
+    }
+  }
+
+  private showCarousel(): void {
+    const carousel = document.getElementById("carousel");
+    if (carousel) {
+      carousel.style.display = "block";
+    }
+    // show arrow buttons
+    const prevBtn = document.getElementById("previous");
+    const nextBtn = document.getElementById("next");
+    if (prevBtn) {
+      prevBtn.style.display = "block";
+    }
+    if (nextBtn) {
+      nextBtn.style.display = "block";
     }
   }
 }

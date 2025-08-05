@@ -7,12 +7,6 @@ import { BackButton } from "./UI/components/BackButton.js";
 import { GameWebSocket } from "./GameWebSocket.js";
 
 export class GameUI {
-  private static lobbyButtons = [
-    "randomAdversaireButton",
-    "localButton",
-    "tournamentButton",
-    "iaButton",
-  ];
   private static spinner = new UISpinner();
   private static screens: Map<string, IScreen> = new Map();
   private static activeScreen: string | null = null;
@@ -34,21 +28,7 @@ export class GameUI {
     this.spinner.hide();
   }
 
-  static toggleButtonVisibility(ids: string[], show: boolean): void {
-    console.log("show: ", show);
-    ids.forEach((id) => {
-      const button = document.getElementById(id);
-      if (button) {
-        const to_add = show ? "block" : "hidden";
-        const to_remove = show ? "hidden" : "block";
-        button.classList.add(to_add);
-        button.classList.remove(to_remove);
-      }
-    });
-  }
-
-  static displayErrorToJoin(message: string) {
-    // create error-container if it doesn't exist
+  static displayErrorMessage(message: string) {
     const errorContainer = document.createElement("div");
     errorContainer.id = "error-container";
     errorContainer.style.position = "fixed";
@@ -57,82 +37,18 @@ export class GameUI {
     errorContainer.style.transform = "translate(-50%, -50%)";
     errorContainer.style.backgroundColor = "rgba(255, 0, 0, 0.8)";
     errorContainer.style.color = "white";
-    if (errorContainer) {
-      errorContainer.textContent = message;
-      errorContainer.style.display = "block";
-    } else {
-      console.error("Error container not found");
-    }
+    errorContainer.style.padding = "1rem";
+    errorContainer.style.borderRadius = "8px";
+    errorContainer.style.zIndex = "9999";
 
-    // Hide the spinner and lobby buttons
+    errorContainer.textContent = message;
+    document.body.appendChild(errorContainer);
+
     this.hideSpinner();
 
-    this.hideLobbyButtons();
-
-    // Optionally, you can also hide the game canvas
-    this.hideGameCanvas();
-  }
-
-  static hideErrorToJoin() {
-    const errorContainer = document.getElementById("error-container");
-    if (errorContainer) {
-      errorContainer.style.display = "none";
-      errorContainer.textContent = ""; // Clear the message
-    } else {
-      console.error("Error container not found");
-    }
-
-    // Show the spinner and lobby buttons again
-    this.showLobbyButtons();
-    this.hideSpinner();
-  }
-  static showLobbyButtons(): void {
-    this.toggleButtonVisibility(this.lobbyButtons, true);
-    this.hideSpinner();
-
-    const canvasContainer = document.getElementById("canvas-container");
-    const gameModeGrid = document.getElementById("selection-grid");
-    const r = document.getElementById("randomAdversaireButton");
-
-    if (canvasContainer) {
-      canvasContainer.style.display = "none";
-    }
-
-    console.warn("gamemode grid => ", gameModeGrid, " | r => ", r);
-    if (gameModeGrid && r) {
-      // Pour ajouter plusieurs classes en même temps :
-      gameModeGrid.removeAttribute("style");
-      r.removeAttribute("style");
-      gameModeGrid.className = "";
-      gameModeGrid.classList.add(
-        "flex",
-        "flex-col",
-        "justify-center",
-        "items-center",
-        "w-full",
-        "min-h-[80vh]",
-        "max-w-5xl",
-        "mx-auto",
-        "relative"
-      );
-      (gameModeGrid as HTMLElement).style.display = "grid";
-      console.error("JE REAFICHE LES BOUTONS");
-      console.warn("gamemode grid => ", gameModeGrid);
-    }
-
-    this.lobbyButtons.forEach((id) => {
-      const button = document.getElementById(id);
-      if (button) {
-        // @ts-ignore
-        import("./FontHelper.js").then(({ FontHelper }) => {
-          FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
-        });
-      }
-    });
-  }
-
-  static hideLobbyButtons(): void {
-    this.toggleButtonVisibility(this.lobbyButtons, false);
+    setTimeout(() => {
+      errorContainer.remove();
+    }, 3000);
   }
 
   static displayWaiting(): void {
@@ -231,45 +147,20 @@ export class GameUI {
   static hideDifficultyButtons(): void {
     this.hideScreen("difficulty");
   }
-  static hideGameArea(): void {
-    const gameArea = document.getElementById("gameArea");
-    if (gameArea) {
-      gameArea.style.display = "none";
-    }
-  }
-
   static hideAll(): void {
-    // Hide all screens
-    this.screens.forEach((screen, name) => {
-      screen.hide();
-    });
-    console.log("hideall");
-    this.hideLobbyButtons();
+    this.screens.forEach((screen) => screen.hide());
     this.hideSpinner();
     this.activeScreen = null;
   }
 
-  static showTournamentButtons(): Promise<string> {
-    return this.showScreen("tournament");
-  }
-
   static clearScreens(): void {
-    // Clear all screens
     this.hideAll();
-    const tournamentScreen = document.getElementById("tournament-screen");
-    if (tournamentScreen) tournamentScreen.remove();
-
-    // Reset active screen
+    this.screens.forEach((_, name) => this.screens.delete(name));
+    this.initialize();
   }
 
-  // Ajouter cette méthode à la classe GameUI
-  static getScreen(screenName: string): IScreen | null {
-    if (!this.screens.has(screenName)) {
-      console.error(`Screen ${screenName} not found`);
-      return null;
-    }
-
-    return this.screens.get(screenName)!;
+  static getScreen(screenName: string): IScreen | undefined {
+    return this.screens.get(screenName);
   }
 
   static hasScreen(screenName: string): boolean {
@@ -405,22 +296,75 @@ export class GameUI {
     }, 4000);
   }
 
+  // Méthodes de compatibilité pour la transition
+  static showLobbyButtons(): void {
+    const gameInstance = (window as any).gameInstance;
+    if (gameInstance && typeof gameInstance.showCarousel === "function") {
+      gameInstance.showCarousel();
+    }
+    this.hideSpinner();
+  }
+
+  static hideLobbyButtons(): void {
+    const gameInstance = (window as any).gameInstance;
+    if (gameInstance && typeof gameInstance.hideCarousel === "function") {
+      gameInstance.hideCarousel();
+    }
+  }
+
+  static displayErrorToJoin(message: string): void {
+    this.displayErrorMessage(message);
+  }
+
+  static hideErrorToJoin(): void {
+    const errorContainer = document.getElementById("error-container");
+    if (errorContainer) {
+      errorContainer.remove();
+    }
+  }
+
+  static hideGameArea(): void {
+    // Cette méthode ne devrait plus être utilisée pendant le jeu actif
+    console.warn(
+      "hideGameArea called - this should only happen when cleaning up the game"
+    );
+  }
+
   static showGameCanvas(): void {
     const canvasContainer = document.getElementById("canvas-container");
-    const gameModeGrid = document.getElementById("selection-grid");
+    const gameCanvas = document.getElementById("gameCanvas");
 
+    // Afficher d'abord le conteneur
     if (canvasContainer) {
+      canvasContainer.style.display = "block";
+      canvasContainer.style.position = "fixed";
+      canvasContainer.style.top = "0";
+      canvasContainer.style.left = "0";
+      canvasContainer.style.width = "100%";
+      canvasContainer.style.height = "100%";
+      canvasContainer.style.zIndex = "1000";
       canvasContainer.style.display = "flex";
+      canvasContainer.style.alignItems = "center";
+      canvasContainer.style.justifyContent = "center";
     }
 
-    if (gameModeGrid) {
-      (gameModeGrid as HTMLElement).style.display = "none";
+    // Puis configurer le canvas
+    if (gameCanvas) {
+      gameCanvas.style.position = "relative"; // Changed to relative since parent is handling positioning
+      gameCanvas.style.display = "block";
+      gameCanvas.style.maxWidth = "100%";
+      gameCanvas.style.maxHeight = "100%";
+      gameCanvas.style.aspectRatio = "800/600";
+
+      // Force un reflow pour s'assurer que le canvas est visible
+      gameCanvas.style.visibility = "hidden";
+      gameCanvas.offsetHeight;
+      gameCanvas.style.visibility = "visible";
     }
   }
 
   static hideGameCanvas(): void {
     const canvasContainer = document.getElementById("canvas-container");
-
     if (canvasContainer) {
       canvasContainer.style.display = "none";
     }
