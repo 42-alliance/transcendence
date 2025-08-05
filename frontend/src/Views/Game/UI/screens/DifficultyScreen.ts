@@ -1,5 +1,4 @@
 import { BaseScreen } from "../components/Screen.js";
-import { FontHelper } from "../../FontHelper.js";
 
 export class DifficultyScreen extends BaseScreen {
   private template!: string;
@@ -23,19 +22,6 @@ export class DifficultyScreen extends BaseScreen {
 
       this.clearContainer();
       this.container.innerHTML = this.template;
-
-      // Apply fonts
-      const title = this.container.querySelector(
-        ".screen-title"
-      ) as HTMLElement;
-      const cardTitles = this.container.querySelectorAll(
-        ".card-title"
-      ) as NodeListOf<HTMLElement>;
-
-      FontHelper.applyMightySoulyFont(title);
-      cardTitles.forEach((cardTitle) => {
-        FontHelper.applyMightySoulyFont(cardTitle);
-      });
 
       // Add click handlers
       const cards = this.container.querySelectorAll(
