@@ -118,6 +118,7 @@
   font-size: 1.6rem;
   text-align: center;
   max-width: 80%;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   opacity: 1;
   margin-top: 0.5rem;
   font-weight: 600;
