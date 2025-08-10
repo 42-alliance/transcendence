@@ -299,8 +299,8 @@ export default class extends AView {
     localPlayBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
       console.log("Local play button clicked");
-      GameUI.displayWaiting();
       this.hideCarousel();
+      GameUI.displayWaiting();
       setTimeout(() => {
         // GameUI.displayBackButton(this.webSocket, this.user_info);
         console.log("Sending local play message");

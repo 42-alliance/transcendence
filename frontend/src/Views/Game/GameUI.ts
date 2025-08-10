@@ -2,6 +2,7 @@ import { DifficultyScreen } from "./UI/screens/DifficultyScreen.js";
 import { UISpinner } from "./UI/components/Spinner.js";
 import { IScreen } from "./UI/interfaces/IScreen.js";
 import { TournamentScreen } from "./UI/screens/TournamentScreen.js";
+import { GameScreen } from "./UI/screens/GameScreen.js";
 import { FontHelper } from "./FontHelper.js";
 import { BackButton } from "./UI/components/BackButton.js";
 import { GameWebSocket } from "./GameWebSocket.js";
@@ -16,6 +17,7 @@ export class GameUI {
     // Initialize screens
     this.screens.set("difficulty", new DifficultyScreen());
     this.screens.set("tournament", new TournamentScreen());
+    this.screens.set("game", new GameScreen());
   }
 
   static displaySpinner(message = "Waiting..."): void {
@@ -328,46 +330,6 @@ export class GameUI {
     console.warn(
       "hideGameArea called - this should only happen when cleaning up the game"
     );
-  }
-
-  static showGameCanvas(): void {
-    const canvasContainer = document.getElementById("canvas-container");
-    const gameCanvas = document.getElementById("gameCanvas");
-
-    // Afficher d'abord le conteneur
-    if (canvasContainer) {
-      canvasContainer.style.display = "block";
-      canvasContainer.style.position = "fixed";
-      canvasContainer.style.top = "0";
-      canvasContainer.style.left = "0";
-      canvasContainer.style.width = "100%";
-      canvasContainer.style.height = "100%";
-      canvasContainer.style.zIndex = "1000";
-      canvasContainer.style.display = "flex";
-      canvasContainer.style.alignItems = "center";
-      canvasContainer.style.justifyContent = "center";
-    }
-
-    // Puis configurer le canvas
-    if (gameCanvas) {
-      gameCanvas.style.position = "relative"; // Changed to relative since parent is handling positioning
-      gameCanvas.style.display = "block";
-      gameCanvas.style.maxWidth = "100%";
-      gameCanvas.style.maxHeight = "100%";
-      gameCanvas.style.aspectRatio = "800/600";
-
-      // Force un reflow pour s'assurer que le canvas est visible
-      gameCanvas.style.visibility = "hidden";
-      gameCanvas.offsetHeight;
-      gameCanvas.style.visibility = "visible";
-    }
-  }
-
-  static hideGameCanvas(): void {
-    const canvasContainer = document.getElementById("canvas-container");
-    if (canvasContainer) {
-      canvasContainer.style.display = "none";
-    }
   }
 
   static hideScreen(screenName: string): void {

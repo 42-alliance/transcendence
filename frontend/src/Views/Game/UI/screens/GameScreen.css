@@ -1,0 +1,34 @@
+/* Reset minimal pour cet écran uniquement */
+.game-screen-root,
+.game-screen-root * {
+  box-sizing: border-box;
+}
+
+/* Conteneur plein écran superposable comme DifficultyScreen */
+#game-screen.game-screen-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  z-index: 1000;
+}
+
+.game-screen-inner {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1920px; /* Largeur du canvas */
+  height: 1080px; /* Hauteur du canvas */
+}
+
+#gameCanvas {
+  margin-top: 60px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border-radius: 8px;
+}

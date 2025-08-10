@@ -1,23 +1,12 @@
-import { GameUI } from "./GameUI.js";
 import { FontHelper } from "./FontHelper.js";
+import { GameUI } from "./GameUI.js";
 import { BackButton } from "./UI/components/BackButton.js";
 import { title } from "process";
 
-// Précharger la police
-FontHelper.loadFonts()
-  .then(() => {
-    console.log("Police Mighty Souly chargée avec succès");
-  })
-  .catch((err) => {
-    console.warn("Échec du chargement de la police Mighty Souly:", err);
-  });
-
 export class GameRenderer {
   private static readonly COLORS = {
-    background: "#091053",
     paddle: "#b9d6f2",
     ball: "grey",
-    net: "white",
     text: "white",
   };
 
@@ -36,12 +25,12 @@ export class GameRenderer {
   static {
     // Précharger l'image de fond
     const img = new Image();
+    img.src = "assets/game/pong_background.png";
     img.onload = () => {
       this.backgroundImage = img;
       this.isBackgroundLoading = false;
       this.initializeBackgroundCanvas();
     };
-    img.src = "assets/game/pong_background.png";
     this.isBackgroundLoading = true;
   }
 
@@ -62,7 +51,10 @@ export class GameRenderer {
         gameCanvas.style.position = "absolute";
         gameCanvas.style.zIndex = "2";
         gameCanvas.style.background = "transparent";
-        gameCanvas.parentElement?.insertBefore(this.backgroundCanvas, gameCanvas);
+        gameCanvas.parentElement?.insertBefore(
+          this.backgroundCanvas,
+          gameCanvas
+        );
       }
     }
 
@@ -97,7 +89,6 @@ export class GameRenderer {
     const renderData = this.prepareRenderData(gameState);
 
     this.drawBackground(ctx, gameCanvas);
-    this.drawNet(ctx, gameCanvas);
     this.drawPaddles(ctx, gameCanvas, renderData);
     this.drawBall(ctx, gameCanvas, renderData);
     this.drawScores(ctx, gameCanvas, renderData);
@@ -110,7 +101,6 @@ export class GameRenderer {
     GameUI.hideSpinner();
 
     // S'assurer que le canvas est visible
-    GameUI.showGameCanvas();
 
     // Initialiser le canvas de fond si ce n'est pas déjà fait
     if (!this.backgroundCanvas && this.backgroundImage) {
@@ -145,30 +135,6 @@ export class GameRenderer {
   ) {
     // Simplement effacer le canvas de jeu pour le prochain frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  private static drawNet(
-    ctx: CanvasRenderingContext2D,
-    canvas: HTMLCanvasElement
-  ) {
-    ctx.fillStyle = this.COLORS.net;
-    ctx.imageSmoothingQuality = "high";
-    const netX = (canvas.width - 2) / 2;
-
-    for (let i = 0; i <= canvas.height; i += this.CONSTANTS.netSegmentHeight) {
-      ctx.beginPath();
-      ctx.moveTo(netX + 2, i);
-      ctx.arc(
-        netX + 2,
-        i + 10,
-        this.CONSTANTS.netRadius,
-        Math.PI * 1.5,
-        Math.PI * 0.5,
-        false
-      );
-      ctx.closePath();
-      ctx.fill();
-    }
   }
 
   private static drawPaddles(
@@ -444,7 +410,7 @@ export class GameRenderer {
           gameContext.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         }
       }
-
+      gameCanvas.style.display = "none";
       resultContainer.remove();
       GameUI.showLobbyButtons();
     };

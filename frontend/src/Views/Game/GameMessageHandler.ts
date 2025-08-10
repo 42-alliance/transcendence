@@ -28,15 +28,30 @@ export class GameMessageHandler {
         break;
 
       case "waiting":
+        // carousel hide
+
         GameUI.displayWaiting();
         break;
 
       case "start":
-        this.handleGameStart(message);
+        console.log("Game start message received:", message);
+        GameUI.hideSpinner();
+        const existingCanvas = document.getElementById("gameCanvas");
+        if (existingCanvas) {
+          existingCanvas.remove();
+        }
+        GameUI.showScreen("game");
         break;
 
       case "game_state":
-        this.state.setGameState(message.data);
+        // Dispatch direct du state brut pour GameScreen
+        console.log("game state format:", message.data);
+        if (message.data && message.data.paddle1 && message.data.paddle2) {
+          const evt = new CustomEvent("game_state_update", {
+            detail: message.data,
+          });
+          document.dispatchEvent(evt);
+        }
         break;
 
       case "game_finished":
@@ -108,7 +123,6 @@ export class GameMessageHandler {
     GameState.initializeGame(gameCanvas);
 
     // Show the game canvas
-    GameUI.showGameCanvas();
 
     this.animationController.startAnimation();
 
