@@ -173,15 +173,6 @@ export class GameScreen extends BaseScreen {
       this.ballPos = { x: cx, y: cy, r: cr };
       this.ballReady = true;
     }
-    if (++this.debugCount % 30 === 0) {
-      console.log("[GameScreen] State sample", {
-        sfw: this.serverFieldWidth,
-        sfh: this.serverFieldHeight,
-        lp: this.leftPlayer?.y,
-        rp: this.rightPlayer?.y,
-        ball: this.ballPos,
-      });
-    }
   };
 
   constructor() {

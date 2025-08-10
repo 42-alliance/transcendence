@@ -60,15 +60,6 @@ export class GameWebSocket {
 
       socket.onopen = () => {
         console.log("WebSocket connection established");
-        // Setup keyboard controls after connection
-        GameControls.setupKeyboardControls(
-          socket,
-          this.state.getRunningState(),
-          this.state.getUserInfo(),
-          this.state.getRoomUUID(),
-          this.state.getGlobalUUID()
-        );
-
         // Send authentication
         this.messageSender.sendAuthMessage();
       };

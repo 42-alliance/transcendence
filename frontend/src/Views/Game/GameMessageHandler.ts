@@ -41,11 +41,30 @@ export class GameMessageHandler {
           existingCanvas.remove();
         }
         GameUI.showScreen("game");
+        // Active l'état running et configure les contrôles si pas déjà faits
+        if (!this.state.getRunningState()) {
+          // Met à jour les UUID depuis le message start (si fournis)
+          if (message.uuid_room) this.state.setRoomUUID(message.uuid_room);
+          if (message.global_uuid) this.state.setGlobalUUID(message.global_uuid);
+          this.state.setRunningState(true);
+          try {
+            GameControls.setupKeyboardControls(
+              this.state.getSocket(),
+              this.state.getRunningState(),
+              this.state.getUserInfo(),
+              this.state.getRoomUUID(),
+              this.state.getGlobalUUID()
+            );
+            console.log("[GameControls] Keyboard listeners attached on start");
+          } catch (err) {
+            console.error("Failed to setup keyboard controls", err);
+          }
+        }
         break;
 
       case "game_state":
         // Dispatch direct du state brut pour GameScreen
-        console.log("game state format:", message.data);
+        // console.log("game state format:", message.data);
         if (message.data && message.data.paddle1 && message.data.paddle2) {
           const evt = new CustomEvent("game_state_update", {
             detail: message.data,
