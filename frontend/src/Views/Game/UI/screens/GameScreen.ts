@@ -92,7 +92,7 @@ class Player {
     }
     // Debug outline + size text
     ctx.save();
-    ctx.strokeStyle = "#948f8fff";
+    ctx.strokeStyle = "#000000ff";
     ctx.lineWidth = 4;
     ctx.strokeRect(this.x, this.y, this.width, this.height);
     ctx.restore();
@@ -137,7 +137,7 @@ export class GameScreen extends BaseScreen {
   private ballPos: { x: number; y: number; r: number } | null = null;
   private debugCount = 0;
   private overlayEnabled = true;
-  private overlayAlpha = 0.15; // intensité de l'assombrissement
+  private overlayAlpha = 0.1; // intensité de l'assombrissement
   // Ajout pour gestion du résultat
   public showGameFinished(data: any) {
     const resultDiv = document.getElementById("game-result");
@@ -305,7 +305,7 @@ export class GameScreen extends BaseScreen {
       Promise.all([
         loadImage(
           this.assets.background,
-          "/src/Views/Game/pong_assets/pong_background3.png"
+          "/src/Views/Game/pong_assets/shenron.webp"
         ),
         loadImage(this.assets.pong1, "/src/Views/Game/pong_assets/pong.png"),
         loadImage(this.assets.pong2, "/src/Views/Game/pong_assets/pong.png"),
