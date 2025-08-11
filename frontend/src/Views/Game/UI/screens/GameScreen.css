@@ -32,3 +32,49 @@
   background: transparent;
   border-radius: 8px;
 }
+
+#game-result {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 340px;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(9, 16, 83, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  font-family: 'MightySouly', sans-serif;
+  transition: all 0.3s ease;
+}
+
+#game-result h2 {
+  margin-bottom: 40px;
+  font-size: 2rem;
+  color: #4CAF50;
+}
+
+#game-result p {
+  margin-bottom: 30px;
+  font-size: 1.2rem;
+}
+
+#game-result button {
+  width: 100%;
+  padding: 18px;
+  background-color: #B9D6F2;
+  color: #091053;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: 'MightySouly', sans-serif;
+  margin-top: 10px;
+}

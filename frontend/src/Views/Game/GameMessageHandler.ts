@@ -161,7 +161,11 @@ export class GameMessageHandler {
       (gameModeGrid as HTMLElement).style.display = "none";
     }
 
-    GameRenderer.showGameFinished(message.data);
+    // Affiche le résultat via GameScreen
+    const gameScreen = (window as any).GameUI?.getScreen?.("game");
+    if (gameScreen && typeof gameScreen.showGameFinished === "function") {
+      gameScreen.showGameFinished(message.data);
+    }
   }
 
   disconnect(): void {

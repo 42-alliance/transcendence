@@ -101,6 +101,12 @@ async function setupUsersRoute(server: FastifyInstance) {
               },
             },
           },
+          500: {
+            type: "object",
+            properties: {
+              error: { type: "string" },
+            },
+          },
         },
       },
     },

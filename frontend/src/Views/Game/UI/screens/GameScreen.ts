@@ -138,6 +138,58 @@ export class GameScreen extends BaseScreen {
   private debugCount = 0;
   private overlayEnabled = true;
   private overlayAlpha = 0.35; // intensité de l'assombrissement
+  // Ajout pour gestion du résultat
+  public showGameFinished(data: any) {
+    const resultDiv = document.getElementById("game-result");
+    if (!resultDiv) return;
+    // Nettoyage
+    resultDiv.innerHTML = "";
+    resultDiv.style.display = "flex";
+    if (this.canvas) {
+      this.canvas.style.display = "none";
+    }
+    // Titre
+    const title = document.createElement("h2");
+    if (data.mode === "local" || data.mode === "ia") {
+      title.textContent = `${data.winner_name || "Joueur"} wins!`;
+      title.style.color = "#4CAF50";
+    } else {
+      const userId = (window as any).gameInstance?.getUser?.()?.id?.toString() || "";
+      const isWinner = data.winner?.toString() === userId;
+      title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
+      title.style.color = isWinner ? "#4CAF50" : "#F44336";
+    }
+    resultDiv.appendChild(title);
+    // Message
+    const message = document.createElement("p");
+    if (data.disconnection) {
+      message.textContent = `Votre adversaire (${data.disconnected_player}) s'est déconnecté !`;
+      message.style.color = "#FFC107";
+    } else if (data.score) {
+      message.textContent = `Score final: ${data.score.p1} - ${data.score.p2}`;
+      if (data.winner_name) {
+        message.textContent += ` | Gagnant: ${data.winner_name}`;
+      }
+    }
+    resultDiv.appendChild(message);
+    // Bouton retour lobby
+    const button = document.createElement("button");
+    button.textContent = "Retourner au lobby";
+    button.onclick = () => {
+      if (this.canvas) {
+        this.canvas.style.display = "block";
+        const ctx = this.canvas.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+      resultDiv.style.display = "none";
+      resultDiv.innerHTML = "";
+      // Affiche les boutons du lobby si GameUI existe
+      if ((window as any).GameUI?.showLobbyButtons) {
+        (window as any).GameUI.showLobbyButtons();
+      }
+    };
+    resultDiv.appendChild(button);
+  }
   private handleServerState = (e: Event) => {
     if (!this.playersReady || !this.canvas) return;
     const data = (e as CustomEvent).detail;
