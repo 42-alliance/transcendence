@@ -1,4 +1,4 @@
-import { FontHelper } from "./FontHelper.js";
+
 import { GameUI } from "./GameUI.js";
 import { BackButton } from "./UI/components/BackButton.js";
 import { title } from "process";
@@ -199,7 +199,7 @@ export class GameRenderer {
     if (!game.score) return;
 
     ctx.fillStyle = this.COLORS.text;
-    ctx.font = FontHelper.getScoreFont();
+   
     ctx.textAlign = "center";
 
     const [leftName, rightName] = shouldFlip
@@ -215,7 +215,6 @@ export class GameRenderer {
     ctx.fillText(rightName, (3 * canvas.width) / 4, 50);
 
     // Scores
-    ctx.font = `180px ${FontHelper.MIGHTY_SOULY_FONT}`;
     ctx.fillText(leftScore.toString(), canvas.width / 4, 300, 200);
     ctx.fillText(rightScore.toString(), (3 * canvas.width) / 4, 300, 200);
   }
@@ -299,7 +298,7 @@ export class GameRenderer {
       backgroundColor: "rgba(9, 16, 83, 0.9)",
       boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)",
       backdropFilter: "blur(5px)",
-      fontFamily: FontHelper.MIGHTY_SOULY_FONT,
+      fontFamily: 'Poppins, sans-serif',
       transition: "all 0.3s ease",
     });
 
@@ -351,7 +350,6 @@ export class GameRenderer {
     title.textContent = `${data.winner_name} wins!`;
     title.style.color = "#4CAF50";
     title.style.marginBottom = "60px";
-    FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE);
     resultContainer.appendChild(title);
 
     const button = GameRenderer.createReturnToLobbyButton(resultContainer);
@@ -368,7 +366,6 @@ export class GameRenderer {
     const title = document.createElement("h2");
     title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
     title.style.color = isWinner ? "#4CAF50" : "#F44336";
-    FontHelper.applyMightySoulyFont(title, FontHelper.TITLE_FONT_SIZE);
     resultContainer.appendChild(title);
 
     const message = document.createElement("p");
@@ -381,7 +378,6 @@ export class GameRenderer {
         message.textContent += ` | Gagnant: ${data.winner_name}`;
       }
     }
-    FontHelper.applyMightySoulyFont(message, FontHelper.TEXT_FONT_SIZE);
     resultContainer.appendChild(message);
 
     const button = GameRenderer.createReturnToLobbyButton(resultContainer);
@@ -399,7 +395,6 @@ export class GameRenderer {
     button.style.backgroundColor = "#B9D6F2";
     button.style.color = "#091053";
     button.style.cursor = "pointer";
-    FontHelper.applyMightySoulyFont(button, FontHelper.BUTTON_FONT_SIZE);
     button.onclick = () => {
       const gameCanvas = document.getElementById(
         "gameCanvas"

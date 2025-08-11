@@ -1,5 +1,4 @@
 import { GameUI } from '../../GameUI.js';
-import { FontHelper } from '../../FontHelper.js';
 import { GameWebSocket } from '../../GameWebSocket.js';
 
 export class BackButton {
@@ -77,11 +76,11 @@ export class BackButton {
         
         // Show lobby buttons
         GameUI.showLobbyButtons();
-        return;
         GameUI.hideSpinner(); // S'assurer que le spinner est masqué
         
         // Remove the back button from DOM
         this.remove();
+        return;
     }
     
     public render(): void {

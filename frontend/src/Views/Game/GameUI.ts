@@ -3,7 +3,6 @@ import { UISpinner } from "./UI/components/Spinner.js";
 import { IScreen } from "./UI/interfaces/IScreen.js";
 import { TournamentScreen } from "./UI/screens/TournamentScreen.js";
 import { GameScreen } from "./UI/screens/GameScreen.js";
-import { FontHelper } from "./FontHelper.js";
 import { BackButton } from "./UI/components/BackButton.js";
 import { GameWebSocket } from "./GameWebSocket.js";
 
@@ -191,7 +190,6 @@ export class GameUI {
     overlay.style.flexDirection = "column";
     overlay.style.alignItems = "center";
     overlay.style.justifyContent = "center";
-    FontHelper.applyMightySoulyFont(overlay, FontHelper.TEXT_FONT_SIZE); // Ajoute cette ligne
     // Créer le conteneur d'animation
     const animContainer = document.createElement("div");
     animContainer.style.position = "relative";
@@ -302,7 +300,11 @@ export class GameUI {
   static showLobbyButtons(): void {
     const gameInstance = (window as any).gameInstance;
     if (gameInstance && typeof gameInstance.showCarousel === "function") {
+      console.log("[GameUI] showLobbyButtons: calling showCarousel");
       gameInstance.showCarousel();
+    }
+    else {
+      console.warn("Game instance or showCarousel method not found", gameInstance);
     }
     this.hideSpinner();
   }

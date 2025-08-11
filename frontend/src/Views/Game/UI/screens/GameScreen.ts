@@ -137,12 +137,16 @@ export class GameScreen extends BaseScreen {
   private ballPos: { x: number; y: number; r: number } | null = null;
   private debugCount = 0;
   private overlayEnabled = true;
-  private overlayAlpha = 0.35; // intensité de l'assombrissement
+  private overlayAlpha = 0.15; // intensité de l'assombrissement
   // Ajout pour gestion du résultat
   public showGameFinished(data: any) {
     const resultDiv = document.getElementById("game-result");
-    if (!resultDiv) return;
+    if (!resultDiv) {
+      console.error("Game result div not found");
+      return;
+    }
     // Nettoyage
+    console.log("Showing game result:", data);
     resultDiv.innerHTML = "";
     resultDiv.style.display = "flex";
     if (this.canvas) {
@@ -176,17 +180,34 @@ export class GameScreen extends BaseScreen {
     const button = document.createElement("button");
     button.textContent = "Retourner au lobby";
     button.onclick = () => {
-      if (this.canvas) {
-        this.canvas.style.display = "block";
-        const ctx = this.canvas.getContext("2d");
-        if (ctx) ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      }
-      resultDiv.style.display = "none";
-      resultDiv.innerHTML = "";
-      // Affiche les boutons du lobby si GameUI existe
-      if ((window as any).GameUI?.showLobbyButtons) {
-        (window as any).GameUI.showLobbyButtons();
-      }
+      console.log("[GameScreen] Retourner au lobby cliqué");
+      // Animation de sortie pour le résultat
+      resultDiv.style.transition = "opacity 0.3s ease";
+      resultDiv.style.opacity = "0";
+      setTimeout(() => {
+        // Masquer le canvas et nettoyer
+        if (this.canvas) {
+          this.canvas.style.display = "none";
+          const ctx = this.canvas.getContext("2d");
+          if (ctx) ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        resultDiv.style.display = "none";
+        resultDiv.innerHTML = "";
+        // Réinitialise l'écran et affiche le lobby
+        console.log("[GameScreen] Appel direct GameUI.showLobbyButtons()");
+        import("../../GameUI.js").then(({ GameUI }) => {
+          GameUI.showLobbyButtons();
+        });
+        // Optionnel: reset l'état du GameScreen si besoin
+        this.playersReady = false;
+        this.ballReady = false;
+        this.leftPlayer = null;
+        this.rightPlayer = null;
+        this.ballPos = null;
+        // Masquer le container principal du GameScreen
+        this.container.style.display = "none";
+        this.container.innerHTML = "";
+      }, 300);
     };
     resultDiv.appendChild(button);
   }

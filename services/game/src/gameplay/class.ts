@@ -270,7 +270,7 @@ class Game {
     checkWinner() {
         console.log("user_id p1:", this.p1.user_id + " | user_id p2:", this.p2.user_id);
         console.log("Score Player 1:", this.score_p1 + " | Score Player 2:", this.score_p2);
-        if (this.score_p2 == 5) {
+        if (this.score_p2 == 2) {
             console.log(this.p2.user_id);
             if (this.mode === 'local')
                 return 'PLAYER_B';
@@ -278,7 +278,7 @@ class Game {
                 return 'Computer';
             return this.p2.user_id; // Retourner l'ID du gagnant
         } 
-        else if (this.score_p1 == 5) {
+        else if (this.score_p1 == 2) {
             console.log(this.p1.user_id);
             if (this.mode === 'local')
                 return 'PLAYER_A';

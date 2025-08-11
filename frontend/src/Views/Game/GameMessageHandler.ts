@@ -152,19 +152,17 @@ export class GameMessageHandler {
   }
 
   private handleGameFinished(message: any): void {
-    this.state.setRunningState(false);
     this.animationController.stopAnimation();
-
-    // Ensure game-mode-grid stays hidden
-    const gameModeGrid = document.querySelector(".game-mode-grid");
-    if (gameModeGrid) {
-      (gameModeGrid as HTMLElement).style.display = "none";
-    }
-
-    // Affiche le résultat via GameScreen
-    const gameScreen = (window as any).GameUI?.getScreen?.("game");
-    if (gameScreen && typeof gameScreen.showGameFinished === "function") {
-      gameScreen.showGameFinished(message.data);
+    this.state.setRunningState(false);
+    console.log("Handling game finished message:", message);
+    // Utiliser l'import direct GameUI
+    const gameScreen = GameUI.getScreen("game");
+    console.log("[DEBUG] GameUI.getScreen('game'):", gameScreen);
+    if (gameScreen && typeof (gameScreen as any).showGameFinished === "function") {
+      console.log("Showing game finished screen with data:", message.data);
+      (gameScreen as any).showGameFinished(message.data);
+    } else {
+      console.error("GameScreen not found ou showGameFinished manquant", gameScreen);
     }
   }
 
