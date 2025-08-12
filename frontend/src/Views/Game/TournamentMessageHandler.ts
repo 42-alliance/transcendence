@@ -21,6 +21,11 @@ export class TournamentMessageHandler {
 
             case 'tournament_joined':
                 this.handleTournamentJoined(message);
+                // trigger immediate player list refresh using joined payload
+                this.handleTournamentPlayersUpdate({
+                    tournament_id: message.tournament.id,
+                    players: message.tournament.players
+                });
                 return true;
 
             case 'tournament_match_update':
@@ -58,7 +63,15 @@ export class TournamentMessageHandler {
     private handleTournamentCreated(message: any): void {
         GameUI.hideSpinner();
         const tournamentScreen = GameUI.getScreen('tournament');
-        if (tournamentScreen && 'showTournamentWaiting' in tournamentScreen) {
+        if (tournamentScreen && 'showTournamentLobby' in tournamentScreen) {
+            (tournamentScreen as any).showTournamentLobby(
+                message.id || message.tournament.id,
+                message.name || message.tournament.name,
+                message.players || message.tournament.players || [],
+                (message.tournament && message.tournament.host && (message.tournament.host.id || message.tournament.host.user_id)) || message.host_id
+            );
+        } else if (tournamentScreen && 'showTournamentWaiting' in tournamentScreen) {
+            // fallback legacy
             (tournamentScreen as any).showTournamentWaiting(
                 message.id || message.tournament.id,
                 message.name || message.tournament.name,
@@ -109,7 +122,14 @@ export class TournamentMessageHandler {
     private handleTournamentJoined(message: any): void {
         GameUI.hideSpinner();
         const joinedTournamentScreen = GameUI.getScreen('tournament');
-        if (joinedTournamentScreen && 'showTournamentWaiting' in joinedTournamentScreen) {
+        if (joinedTournamentScreen && 'showTournamentLobby' in joinedTournamentScreen) {
+            (joinedTournamentScreen as any).showTournamentLobby(
+                message.tournament.id,
+                message.tournament.name,
+                message.tournament.players || [],
+                (message.tournament.host && (message.tournament.host.id || message.tournament.host.user_id))
+            );
+        } else if (joinedTournamentScreen && 'showTournamentWaiting' in joinedTournamentScreen) {
             (joinedTournamentScreen as any).showTournamentWaiting(
                 message.tournament.id,
                 message.tournament.name,
@@ -117,7 +137,7 @@ export class TournamentMessageHandler {
             );
         } else {
             console.error("Tournament waiting screen not available");
-            GameUI.showLobbyButtons();
+            GameUI.showLobbyButtons?.();
         }
     }
 

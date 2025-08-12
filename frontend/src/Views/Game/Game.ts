@@ -367,15 +367,15 @@ export default class extends AView {
 
                 if (tournamentName) {
                   console.log("Tournament name:", tournamentName);
-                  GameUI.displayWaiting();
-
+                  // Removed GameUI.displayWaiting(); use in-card lobby after server response
                   this.webSocket?.sendMessage("create_tournament", {
                     user: this.user_info,
                     tournament_name: tournamentName,
                     type: "create_tournament",
                   });
                 } else {
-                  GameUI.showScreen("tournament");
+                  // User backed out from create (null). Keep tournament screen in inline mode
+                  // GameUI.showScreen("tournament"); // removed
                   this.showCarousel();
                 }
               }
@@ -394,15 +394,15 @@ export default class extends AView {
 
               if (tournamentId) {
                 console.log("Tournament ID:", tournamentId);
-                GameUI.displayWaiting();
-
+                // Removed GameUI.displayWaiting(); lobby will appear on tournament_joined
                 this.webSocket?.sendMessage("join_tournament", {
                   user: this.user_info,
                   tournament_id: tournamentId,
                   type: "join_tournament",
                 });
               } else {
-                GameUI.showScreen("tournament");
+                // User backed out from join (null). Keep tournament screen in inline mode
+                // GameUI.showScreen("tournament"); // removed
               }
             }
           } else if (optionSelect === "cancel") {
