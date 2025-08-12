@@ -33,6 +33,10 @@ export class GameWebSocket {
   }
 
   private setupEventListeners(): void {
+    // Prevent attaching multiple identical listeners (causes duplicate sends)
+    if ((window as any)._gwReqListenerAttached) {
+      return; // already attached by a previous instance
+    }
     document.addEventListener("websocket_request", (event: Event) => {
       const customEvent = event as CustomEvent;
       if (this.state.isSocketOpen()) {
@@ -50,6 +54,7 @@ export class GameWebSocket {
         console.error("WebSocket not ready");
       }
     });
+    (window as any)._gwReqListenerAttached = true;
   }
 
   initializeWebSocket(): void {

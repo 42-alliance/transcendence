@@ -16,7 +16,6 @@ export class TournamentScreen extends BaseScreen {
   private lobbyStatusEl: HTMLElement | null = null;
 
   private initialCycleActive = false;
-  private justExitedInitialSelection = false;
 
   constructor() { super('tournament-screen'); }
 
@@ -62,11 +61,9 @@ export class TournamentScreen extends BaseScreen {
 
       const finalize = (val: string) => {
         if (this.resolving) return; this.resolving = true;
-        this.initialCycleActive = false; // switch to inline mode
-        this.justExitedInitialSelection = true; // first sub-flow right after selection should not self-send WS
-        // Resolve WITHOUT hiding the screen (keeps context alive)
+        this.initialCycleActive = false; // switch to inline mode after first selection
         resolve(val);
-        this.resolving = false; // allow future inline actions
+        this.resolving = false;
       };
 
       // Store finalize for use in renderRootOptions when initialCycleActive
@@ -151,15 +148,18 @@ export class TournamentScreen extends BaseScreen {
       const validate = () => { const v = input.value.trim(); if(!v){ btnConfirm.style.opacity='.6'; btnConfirm.style.pointerEvents='none'; } else { btnConfirm.style.opacity='1'; btnConfirm.style.pointerEvents='auto'; } };
       input.addEventListener('input', validate);
       input.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && input.value.trim()) btnConfirm.click(); else if(e.key==='Escape') btnBack.click(); });
-      btnConfirm.addEventListener('click', () => { const name = input.value.trim(); if(!name){ error.textContent='Name required'; return; }
-        if (!this.initialCycleActive && !this.justExitedInitialSelection) {
-          const currentUser: any = (window as any).user_info || getUserInfo?.();
-          const ev = new CustomEvent('websocket_request', { detail: { type: 'create_tournament', tournament_name: name, user: currentUser }, bubbles: true });
-          document.dispatchEvent(ev);
-        }
-        this.justExitedInitialSelection = false; // consume flag
-        finish(name); });
-      btnBack.addEventListener('click', () => { finish(null); this.initialCycleActive = false; this.justExitedInitialSelection = false; this.renderRootOptions(); });
+      btnConfirm.addEventListener('click', () => {
+        const name = input.value.trim(); if(!name){ error.textContent='Name required'; return; }
+        const currentUser: any = (window as any).user_info || getUserInfo?.();
+        // Send create_tournament ALWAYS from here (initial & inline)
+        const ev = new CustomEvent('websocket_request', { detail: { type: 'create_tournament', tournament_name: name, user: currentUser }, bubbles: true });
+        document.dispatchEvent(ev);
+        // Optimistic lobby: show user as host immediately
+        const hostPlayer = currentUser ? [{ username: currentUser.name || currentUser.username, id: currentUser.id, user_id: currentUser.id }] : [];
+        this.showTournamentLobby('pending', name, hostPlayer, currentUser?.id);
+        finish(name);
+      });
+      btnBack.addEventListener('click', () => { finish(null); this.initialCycleActive = false; this.renderRootOptions(); });
       setTimeout(()=>input.focus(),20); validate();
     });
   }
@@ -194,20 +194,15 @@ export class TournamentScreen extends BaseScreen {
         tournaments.forEach(t => {
           const btn = document.createElement('button');
           btn.className='t-btn secondary'; btn.style.textAlign='left';
-          btn.innerHTML = `<strong>${t.name || 'Unnamed'} </strong><span style="opacity:.8;font-size:.75rem;margin-left:.35rem;">(${(t.players||[]).length}/4)</span>`;
+            btn.innerHTML = `<strong>${t.name || 'Unnamed'} </strong><span style="opacity:.8;font-size:.75rem;margin-left:.35rem;">(${(t.players||[]).length}/4)</span>`;
           btn.addEventListener('click', () => {
             const currentUser: any = (window as any).user_info || getUserInfo?.();
             let playersSnapshot = t.players || [];
             if(currentUser && !playersSnapshot.some((p:any)=>p.id===currentUser.id || p.user_id===currentUser.id)){
               playersSnapshot = [...playersSnapshot, { username: currentUser.name || currentUser.username, id: currentUser.id, user_id: currentUser.id }];
             }
-            // Inline mode: send join_tournament directly (initial cycle join handled by Game.ts)
-            if (!this.initialCycleActive && !this.justExitedInitialSelection) {
-              const currentUser: any = (window as any).user_info || getUserInfo?.();
-              const ev = new CustomEvent('websocket_request', { detail: { type: 'join_tournament', tournament_id: t.id, user: currentUser }, bubbles: true });
-              document.dispatchEvent(ev);
-            }
-            this.justExitedInitialSelection = false; // consume flag
+            const ev = new CustomEvent('websocket_request', { detail: { type: 'join_tournament', tournament_id: t.id, user: currentUser }, bubbles: true });
+            document.dispatchEvent(ev);
             this.showTournamentLobby(t.id, t.name || 'Tournament', playersSnapshot , t.host && (t.host.id || t.host.user_id));
             finish(t.id);
           });
