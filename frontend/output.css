@@ -844,6 +844,12 @@
   .flex-shrink-0 {
     flex-shrink: 0;
   }
+  .shrink {
+    flex-shrink: 1;
+  }
+  .grow {
+    flex-grow: 1;
+  }
   .basis-2\/5 {
     flex-basis: calc(2/5 * 100%);
   }

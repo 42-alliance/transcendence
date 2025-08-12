@@ -565,12 +565,14 @@ class WebSocketMessageHandler {
 
       AddPlayerToTournament(tournament.id, this.player);
 
+      const safe = toSafeTournament(tournament);
       secureSend(this.socket, {
         type: "tournament_created",
-        tournament: tournament,
-        name: tournament.name,
-        id: tournament.id,
-        players: tournament.players,
+        id: safe.id,
+        name: safe.name,
+        status: safe.status,
+        players: safe.players,
+        host: safe.host,
       });
 
       console.log(`Tournament created: ${tournament.name} (${tournament.id})`);
@@ -592,10 +594,14 @@ class WebSocketMessageHandler {
       }
       this.player.uuid_room = tournamentId;
       AddPlayerToTournament(tournamentId, this.player);
+      const safe = toSafeTournament(tournament);
       secureSend(this.socket, {
         type: "tournament_joined",
-        tournament: tournament,
-        players: tournament.players,
+        id: safe.id,
+        name: safe.name,
+        status: safe.status,
+        players: safe.players,
+        host: safe.host,
       });
       // Notifier tous les joueurs du tournoi
       this.broadcastTournamentUpdate(tournament);
@@ -609,11 +615,12 @@ class WebSocketMessageHandler {
 
   private handleGetAllTournaments(data: any): void {
     console.log("Get all tournaments request received");
-
+    console.log(data);
+    const safe = GetAllTournaments().map(toSafeTournament);
     secureSend(this.socket, {
       type: "all_tournaments",
       request_id: data.request_id,
-      tournaments: GetAllTournaments(),
+      tournaments: safe,
     });
   }
 
@@ -703,6 +710,7 @@ class WebSocketMessageHandler {
   }
 
   private broadcastTournamentUpdate(tournament: Tournament): void {
+    const safe = toSafeTournament(tournament); // une seule conversion
     tournament.players.forEach((player: Player) => {
       if (player.socket && player.socket !== this.socket) {
         console.log(
@@ -710,15 +718,11 @@ class WebSocketMessageHandler {
         );
         secureSend(player.socket, {
           type: "tournament_players_update",
-          tournament_id: tournament.id,
-          players: tournament.players.map(
-            ({ username, user_id, type, uuid_room }) => ({
-              username,
-              user_id,
-              type,
-              uuid_room,
-            })
-          ),
+          tournament_id: safe.id,
+          players: safe.players,
+          host: safe.host,
+          status: safe.status,
+          name: safe.name,
         });
       }
     });
@@ -890,7 +894,9 @@ function secureSend(ws: WebSocket, message: any): void {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(message));
     }
+    console.log("Message sent successfully:", message);
   } catch (error) {
+    console.log("Message send not successful, trying to reconnect");
     console.error("Error sending message:", error);
   }
 }
@@ -1050,4 +1056,24 @@ export function handleTournamentMatchEnd(
       UpdateMatchStatus(tournamentId, finalMatch.id, "active");
     }
   }
+}
+
+// Helpers de sanitization pour éviter les références circulaires
+interface SafePlayer { username: string; user_id: string }
+interface SafeTournament {
+  id: string;
+  name: string;
+  status: string;
+  players: SafePlayer[];
+  host: SafePlayer | null;
+}
+function toSafePlayer(p: any): SafePlayer { return { username: p.username, user_id: p.user_id }; }
+function toSafeTournament(t: Tournament): SafeTournament {
+  return {
+    id: t.id,
+    name: t.name,
+    status: t.status,
+    players: t.players.map(toSafePlayer),
+    host: t.host ? toSafePlayer(t.host) : null,
+  };
 }

@@ -339,6 +339,8 @@ export default class extends AView {
     tournamentPlayBtn?.addEventListener("click", async (e) => {
       e.stopPropagation();
       console.log("Tournament play button clicked");
+      // Hide lobby/carousel when opening tournament options
+      this.hideCarousel();
       try {
         if (!GameUI.hasScreen("tournament")) {
           console.error("Tournament screen not found");

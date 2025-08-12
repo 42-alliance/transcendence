@@ -2,6 +2,7 @@ import { BaseScreen } from "../components/Screen.js";
 
 export class DifficultyScreen extends BaseScreen {
   private template!: string;
+  private hasResolved = false; // Prevent multiple resolutions
 
   constructor() {
     super("difficulty-screen");
@@ -22,37 +23,45 @@ export class DifficultyScreen extends BaseScreen {
 
       this.clearContainer();
       this.container.innerHTML = this.template;
+      this.hasResolved = false;
 
-      // Add click handlers
-      const cards = this.container.querySelectorAll(
-        ".card"
-      ) as NodeListOf<HTMLElement>;
-      cards.forEach((card) => {
-        card.addEventListener("click", () => {
-          // Animation de sortie
-          this.container.style.opacity = "0";
-          this.container.style.transition = "all 0.3s ease";
-
-          setTimeout(() => {
-            this.hide();
-            resolve(card.id);
-          }, 300);
-        });
-      });
-
-      // Add back button handler
-      const backButton = this.container.querySelector(
-        ".back-button"
-      ) as HTMLElement;
-      backButton.addEventListener("click", () => {
+      const finalize = (value: string) => {
+        if (this.hasResolved) return;
+        this.hasResolved = true;
         // Animation de sortie
         this.container.style.opacity = "0";
         this.container.style.transition = "all 0.3s ease";
-
         setTimeout(() => {
           this.hide();
-          resolve("back");
+          resolve(value);
         }, 300);
+      };
+
+      // Cibles: sections de difficulté
+      const sections = this.container.querySelectorAll(
+        ".difficulty-section"
+      ) as NodeListOf<HTMLElement>;
+
+      sections.forEach((section) => {
+        section.addEventListener("click", () => finalize(section.id));
+        section.addEventListener("keydown", (e: KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            finalize(section.id);
+          }
+        });
+      });
+
+      // Back button
+      const backButton = this.container.querySelector(
+        ".back-button"
+      ) as HTMLElement | null;
+      backButton?.addEventListener("click", () => finalize("back"));
+      backButton?.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          finalize("back");
+        }
       });
 
       // Animation d'entrée
