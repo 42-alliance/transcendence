@@ -138,6 +138,14 @@ export class GameScreen extends BaseScreen {
   private debugCount = 0;
   private overlayEnabled = true;
   private overlayAlpha = 0.1; // intensité de l'assombrissement
+  // Score / names state (rendered directly in canvas)
+  private scoreData: {
+    p1?: number;
+    p2?: number;
+    p1_name?: string;
+    p2_name?: string;
+  } = {};
+  private scoreAnim: { t: number; p1?: number; p2?: number } = { t: 0 };
   // Ajout pour gestion du résultat
   public showGameFinished(data: any) {
     const resultDiv = document.getElementById("game-result");
@@ -158,7 +166,8 @@ export class GameScreen extends BaseScreen {
       title.textContent = `${data.winner_name || "Joueur"} wins!`;
       title.style.color = "#4CAF50";
     } else {
-      const userId = (window as any).gameInstance?.getUser?.()?.id?.toString() || "";
+      const userId =
+        (window as any).gameInstance?.getUser?.()?.id?.toString() || "";
       const isWinner = data.winner?.toString() === userId;
       title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
       title.style.color = isWinner ? "#4CAF50" : "#F44336";
@@ -218,6 +227,27 @@ export class GameScreen extends BaseScreen {
     if (data.width && data.height) {
       this.serverFieldWidth = data.width;
       this.serverFieldHeight = data.height;
+    }
+    if (data.score) {
+      // Detect score changes for animation scaling
+      if (
+        typeof data.score.p1 === "number" &&
+        data.score.p1 !== this.scoreData.p1
+      ) {
+        this.scoreAnim.p1 = Date.now();
+      }
+      if (
+        typeof data.score.p2 === "number" &&
+        data.score.p2 !== this.scoreData.p2
+      ) {
+        this.scoreAnim.p2 = Date.now();
+      }
+      this.scoreData = {
+        p1: data.score.p1,
+        p2: data.score.p2,
+        p1_name: data.score.p1_name || this.scoreData.p1_name,
+        p2_name: data.score.p2_name || this.scoreData.p2_name,
+      };
     }
     if (this.leftPlayer && data.paddle1?.y != null) {
       this.leftPlayer.setTopFromServer(
@@ -340,6 +370,18 @@ export class GameScreen extends BaseScreen {
             "game_state_update",
             this.handleServerState as EventListener
           );
+          // Initial names from global gameInstance if available
+          try {
+            const gameInstance: any = (window as any).gameInstance;
+            if (gameInstance?.players) {
+              const p1 = gameInstance.players[0];
+              const p2 = gameInstance.players[1];
+              this.scoreData.p1_name = p1?.name || this.scoreData.p1_name;
+              this.scoreData.p2_name = p2?.name || this.scoreData.p2_name;
+            }
+          } catch {
+            /* noop */
+          }
         })
         .catch((e) => {
           console.error(e);
@@ -411,6 +453,8 @@ export class GameScreen extends BaseScreen {
         }
         this.ctx.restore();
       }
+      // Scores & names (render lower in canvas)
+      this.drawScores();
     };
     step();
   }
@@ -422,5 +466,99 @@ export class GameScreen extends BaseScreen {
     this.ctx.fillStyle = "#fff";
     this.ctx.font = "16px sans-serif";
     this.ctx.fillText("Assets load failed", 20, 30);
+  }
+
+  private drawScores() {
+    if (!this.ctx || !this.canvas) return;
+    const { p1, p2, p1_name, p2_name } = this.scoreData;
+    if (p1 == null && p2 == null && !p1_name && !p2_name) return;
+
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.font = "700 52px Poppins, sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+
+    const baseYNames = this.canvas.height - 220; // lowered placement
+    const baseYScores = this.canvas.height - 120; // scores below names
+
+    // Shadow / glow style for DBZ effect
+    const drawGlowText = (
+      text: string,
+      x: number,
+      y: number,
+      opts: { gradient?: CanvasGradient; color?: string; scale?: number }
+    ) => {
+      ctx.save();
+      if (opts.scale && opts.scale !== 1) {
+        ctx.translate(x, y);
+        ctx.scale(opts.scale, opts.scale);
+        ctx.translate(-x, -y);
+      }
+      ctx.fillStyle = opts.color || "#fef9c3";
+      if (opts.gradient) ctx.fillStyle = opts.gradient;
+      ctx.shadowColor = "rgba(255,180,0,0.8)";
+      ctx.shadowBlur = 22;
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(0,0,0,0.55)";
+      ctx.strokeText(text, x, y);
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    };
+
+    // Names
+    ctx.font = "600 40px Poppins, sans-serif";
+    if (p1_name)
+      drawGlowText(
+        p1_name.toUpperCase(),
+        this.canvas.width * 0.25,
+        baseYNames,
+        { color: "#fef9c3" }
+      );
+    if (p2_name)
+      drawGlowText(
+        p2_name.toUpperCase(),
+        this.canvas.width * 0.75,
+        baseYNames,
+        { color: "#fef9c3" }
+      );
+
+    // Scores with gradient and scale animation when changed
+    ctx.font = "800 100px Poppins, sans-serif";
+    const gradLeft = ctx.createLinearGradient(0, 0, 200, 0);
+    gradLeft.addColorStop(0, "#f97316");
+    gradLeft.addColorStop(0.55, "#facc15");
+    gradLeft.addColorStop(1, "#fde047");
+    const gradRight = ctx.createLinearGradient(0, 0, 200, 0);
+    gradRight.addColorStop(0, "#f97316");
+    gradRight.addColorStop(0.55, "#facc15");
+    gradRight.addColorStop(1, "#fde047");
+
+    const now = Date.now();
+    const scaleFor = (ts?: number) => {
+      if (!ts) return 1;
+      const dt = (now - ts) / 500; // 0.5s anim
+      if (dt >= 1) return 1;
+      // simple ease out overshoot
+      const peak = 0.3; // 30% bigger
+      if (dt < 0.35) return 1 + peak * (dt / 0.35); // grow
+      if (dt < 0.55) return 1 + peak * (1 - (dt - 0.35) / 0.2); // shrink back
+      return 1; // settle
+    };
+
+    if (p1 != null) {
+      drawGlowText(String(p1), this.canvas.width * 0.25, baseYScores, {
+        gradient: gradLeft,
+        scale: scaleFor(this.scoreAnim.p1),
+      });
+    }
+    if (p2 != null) {
+      drawGlowText(String(p2), this.canvas.width * 0.75, baseYScores, {
+        gradient: gradRight,
+        scale: scaleFor(this.scoreAnim.p2),
+      });
+    }
+
+    ctx.restore();
   }
 }

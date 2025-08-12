@@ -51,14 +51,14 @@
   background-color: rgba(9, 16, 83, 0.95);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
-  font-family: 'MightySouly', sans-serif;
+  font-family: "MightySouly", sans-serif;
   transition: all 0.3s ease;
 }
 
 #game-result h2 {
   margin-bottom: 40px;
   font-size: 2rem;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 #game-result p {
@@ -69,12 +69,12 @@
 #game-result button {
   width: 100%;
   padding: 18px;
-  background-color: #B9D6F2;
+  background-color: #b9d6f2;
   color: #091053;
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
   cursor: pointer;
-  font-family: 'MightySouly', sans-serif;
+  font-family: "MightySouly", sans-serif;
   margin-top: 10px;
 }
