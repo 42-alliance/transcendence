@@ -153,72 +153,118 @@ export class GameScreen extends BaseScreen {
       console.error("Game result div not found");
       return;
     }
-    // Nettoyage
-    console.log("Showing game result:", data);
+
+    // Reset container
     resultDiv.innerHTML = "";
     resultDiv.style.display = "flex";
-    if (this.canvas) {
-      this.canvas.style.display = "none";
-    }
-    // Titre
+    resultDiv.classList.add('result-card');
+    resultDiv.classList.remove('result-win','result-lose');
+    resultDiv.setAttribute('aria-live','polite');
+
+    if (this.canvas) this.canvas.style.display = "none";
+
+    // Current user / outcome
+    const gameInstance = (window as any).gameInstance;
+    const currentUser = gameInstance?.getUser?.() || {};
+    const userId = String(currentUser.id || '');
+    const localOrAI = data.mode === 'local' || data.mode === 'ia';
+    const isWinner = localOrAI ? false : (String(data.winner) === userId);
+
+    // Background layer
+    const bg = document.createElement('div');
+    bg.className = 'result-bg';
+    resultDiv.appendChild(bg);
+
+    // Overlay layer
+    const overlay = document.createElement('div');
+    overlay.className = 'result-overlay';
+    resultDiv.appendChild(overlay);
+
+    // Content wrapper
+    const content = document.createElement('div');
+    content.className = 'result-content';
+    resultDiv.appendChild(content);
+
+    // Apply variant
+    resultDiv.classList.add(isWinner || localOrAI ? 'result-win' : 'result-lose');
+
+    // Title
     const title = document.createElement("h2");
-    if (data.mode === "local" || data.mode === "ia") {
-      title.textContent = `${data.winner_name || "Joueur"} wins!`;
-      title.style.color = "#4CAF50";
+    title.className = 'result-title';
+    if (localOrAI) {
+      title.textContent = `${data.winner_name || 'Joueur'} wins!`;
     } else {
-      const userId =
-        (window as any).gameInstance?.getUser?.()?.id?.toString() || "";
-      const isWinner = data.winner?.toString() === userId;
       title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
-      title.style.color = isWinner ? "#4CAF50" : "#F44336";
     }
-    resultDiv.appendChild(title);
-    // Message
+    content.appendChild(title);
+
+    // Subtitle (mode / tournament)
+    const subtitleParts: string[] = [];
+    if (data.mode) subtitleParts.push(String(data.mode).toUpperCase());
+    if (data.tournament_name) subtitleParts.push(`Tournoi: ${data.tournament_name}`);
+    if (subtitleParts.length) {
+      const subtitle = document.createElement('div');
+      subtitle.className = 'result-subtitle';
+      subtitle.textContent = subtitleParts.join(' • ');
+      content.appendChild(subtitle);
+    }
+
+    // Message (score + winner name only)
     const message = document.createElement("p");
     if (data.disconnection) {
       message.textContent = `Votre adversaire (${data.disconnected_player}) s'est déconnecté !`;
-      message.style.color = "#FFC107";
     } else if (data.score) {
-      message.textContent = `Score final: ${data.score.p1} - ${data.score.p2}`;
-      if (data.winner_name) {
-        message.textContent += ` | Gagnant: ${data.winner_name}`;
-      }
+      let base = `Score final: ${data.score.p1} - ${data.score.p2}`;
+      if (data.winner_name) base += ` | Gagnant: ${data.winner_name}`;
+      message.textContent = base;
     }
-    resultDiv.appendChild(message);
-    // Bouton retour lobby
+    content.appendChild(message);
+
+    // Button
     const button = document.createElement("button");
     button.textContent = "Retourner au lobby";
     button.onclick = () => {
-      console.log("[GameScreen] Retourner au lobby cliqué");
-      // Animation de sortie pour le résultat
-      resultDiv.style.transition = "opacity 0.3s ease";
+      resultDiv.style.transition = "opacity 0.25s ease";
       resultDiv.style.opacity = "0";
       setTimeout(() => {
-        // Masquer le canvas et nettoyer
         if (this.canvas) {
           this.canvas.style.display = "none";
           const ctx = this.canvas.getContext("2d");
-          if (ctx) ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          if (ctx) { ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); }
         }
         resultDiv.style.display = "none";
         resultDiv.innerHTML = "";
-        // Réinitialise l'écran et affiche le lobby
-        console.log("[GameScreen] Appel direct GameUI.showLobbyButtons()");
-        import("../../GameUI.js").then(({ GameUI }) => {
-          GameUI.showLobbyButtons();
-        });
-        // Optionnel: reset l'état du GameScreen si besoin
+        import("../../GameUI.js").then(({ GameUI }) => GameUI.showLobbyButtons());
         this.playersReady = false;
         this.ballReady = false;
         this.leftPlayer = null;
         this.rightPlayer = null;
         this.ballPos = null;
-        // Masquer le container principal du GameScreen
         this.container.style.display = "none";
         this.container.innerHTML = "";
-      }, 300);
+      }, 250);
     };
-    resultDiv.appendChild(button);
+    content.appendChild(button);
+
+    // Preload and apply background image on bg layer
+    const bgUrl = isWinner
+      ? "/src/Views/Game/pong_assets/win.jpeg"
+      : "/src/Views/Game/pong_assets/loose.jpg";
+
+    const img = new Image();
+    img.onload = () => {
+      bg.style.backgroundImage = `url('${bgUrl}')`;
+      bg.style.backgroundSize = 'cover';
+      bg.style.backgroundPosition = 'center';
+    };
+    img.onerror = () => {
+      bg.style.background = isWinner || localOrAI
+        ? 'linear-gradient(135deg, rgba(16,185,129,.25), rgba(6,95,70,.35))'
+        : 'linear-gradient(135deg, rgba(239,68,68,.25), rgba(127,29,29,.35))';
+    };
+    img.src = bgUrl;
+
+    setTimeout(() => button.focus(), 50);
   }
   private handleServerState = (e: Event) => {
     if (!this.playersReady || !this.canvas) return;
