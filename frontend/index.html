@@ -194,13 +194,33 @@
 
           <!-- Navigation Links -->
           <div class="flex items-center gap-16 ml-12">
-            <!-- Home icon -->
-            <a href="/" class="nav-link group" data-link>
+            <a href="/game" class="nav-link group" data-link>
               <div
-                class="transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-1 items-center"
+                class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1"
               >
                 <svg
                   class="w-12 h-12 text-orange-400 mb-1 mx-auto transition-colors duration-300"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <title>controller</title>
+                  <path
+                    d="M7.97,16L5,19C4.67,19.3 4.23,19.5 3.75,19.5A1.75,1.75 0 0,1 2,17.75V17.5L3,10.12C3.21,7.81 5.14,6 7.5,6H16.5C18.86,6 20.79,7.81 21,10.12L22,17.5V17.75A1.75,1.75 0 0,1 20.25,19.5C19.77,19.5 19.33,19.3 19,19L16.03,16H7.97M7,8V10H5V11H7V13H8V11H10V10H8V8H7M16.5,8A0.75,0.75 0 0,0 15.75,8.75A0.75,0.75 0 0,0 16.5,9.5A0.75,0.75 0 0,0 17.25,8.75A0.75,0.75 0 0,0 16.5,8M14.75,9.75A0.75,0.75 0 0,0 14,10.5A0.75,0.75 0 0,0 14.75,11.25A0.75,0.75 0 0,0 15.5,10.5A0.75,0.75 0 0,0 14.75,9.75M18.25,9.75A0.75,0.75 0 0,0 17.5,10.5A0.75,0.75 0 0,0 18.25,11.25A0.75,0.75 0 0,0 19,10.5A0.75,0.75 0 0,0 18.25,9.75M16.5,11.5A0.75,0.75 0 0,0 15.75,12.25A0.75,0.75 0 0,0 16.5,13A0.75,0.75 0 0,0 17.25,12.25A0.75,0.75 0 0,0 16.5,11.5Z"
+                  />
+                </svg>
+                <span
+                  class="text-xs font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  >Game</span
+                >
+              </div>
+            </a>
+            <a href="/" class="nav-link group" data-link>
+              <div
+                class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-1"
+              >
+                <svg
+                  class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
                   fill="currentColor"
                   viewBox="0 0 18 18"
                 >
@@ -208,16 +228,18 @@
                     d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"
                   />
                 </svg>
+                <span
+                  class="text-xs font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  >Home</span
+                >
               </div>
             </a>
-
-            <!-- Friends icon -->
             <a href="/friends" class="nav-link group" data-link>
               <div
-                class="transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20 hover:-translate-y-1"
+                class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20 hover:-translate-y-1"
               >
                 <svg
-                  class="w-12 h-12 text-orange-400 mb-1 mx-auto transition-colors duration-300"
+                  class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
                   fill="currentColor"
                   viewBox="0 0 20 18"
                 >
@@ -225,13 +247,15 @@
                     d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"
                   />
                 </svg>
+                <span
+                  class="text-xs font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  >Friends</span
+                >
               </div>
             </a>
-
-            <!-- Chat icon -->
             <a href="/chat" class="nav-link group" data-link>
               <div
-                class="transition-all duration-300 hover:shadow-yellow-500/20 hover:-translate-y-1"
+                class="flex flex-col items-center transition-all duration-300 hover:shadow-yellow-500/20 hover:-translate-y-1"
               >
                 <svg
                   class="w-12 h-12 text-orange-400 mb-1 mx-auto transition-colors duration-300"
@@ -242,23 +266,10 @@
                     d="M12,3C17.5,3 22,6.58 22,11C22,15.42 17.5,19 12,19C10.76,19 9.57,18.82 8.47,18.5C5.55,21 2,21 2,21C4.33,18.67 4.7,17.1 4.75,16.5C3.05,15.07 2,13.13 2,11C2,6.58 6.5,3 12,3Z"
                   />
                 </svg>
-              </div>
-            </a>
-
-            <!-- Game icon -->
-            <a href="/game" class="nav-link group" data-link>
-              <div
-                class="transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 hover:-translate-y-1"
-              >
-                <svg
-                  class="w-12 h-12 text-orange-400 mb-1 mx-auto transition-colors duration-300"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
+                <span
+                  class="text-xs font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  >Chat</span
                 >
-                  <path
-                    d="M6,7H18A5,5 0 0,1 23,12A5,5 0 0,1 18,17C16.36,17 14.91,16.21 14,15H10C9.09,16.21 7.64,17 6,17A5,5 0 0,1 1,12A5,5 0 0,1 6,7M19.75,9.5A1.25,1.25 0 0,0 18.5,10.75A1.25,1.25 0 0,0 19.75,12A1.25,1.25 0 0,0 21,10.75A1.25,1.25 0 0,0 19.75,9.5M17.25,12A1.25,1.25 0 0,0 16,13.25A1.25,1.25 0 0,0 17.25,14.5A1.25,1.25 0 0,0 18.5,13.25A1.25,1.25 0 0,0 17.25,12M5,9V11H3V13H5V15H7V13H9V11H7V9H5Z"
-                  />
-                </svg>
               </div>
             </a>
           </div>
