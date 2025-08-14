@@ -118,7 +118,50 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
+
+      /* Hide nav links and profile/settings on /auth, but keep the logo visible */
+      .auth-page #user-button-navbar,
+      .auth-page #settings-button-navbar,
+      .auth-page #dropdown-user,
+      .auth-page nav .nav-link,
+      .auth-page nav .ml-auto {
+        display: none !important;
+      }
     </style>
+    <script>
+      // Add/remove a class on <html>/<body> to hide navbar on /auth (works with SPA navigation)
+      (function () {
+        function syncAuthClass() {
+          const isAuth = location.pathname.startsWith("/auth");
+          const root = document.documentElement;
+          if (isAuth) root.classList.add("auth-page");
+          else root.classList.remove("auth-page");
+          const b = document.body;
+          if (b) {
+            if (isAuth) b.classList.add("auth-page");
+            else b.classList.remove("auth-page");
+          }
+        }
+        // Initial detection
+        syncAuthClass();
+        // Patch history to emit a custom event on navigation
+        const _push = history.pushState;
+        history.pushState = function () {
+          _push.apply(this, arguments);
+          window.dispatchEvent(new Event("locationchange"));
+        };
+        const _replace = history.replaceState;
+        history.replaceState = function () {
+          _replace.apply(this, arguments);
+          window.dispatchEvent(new Event("locationchange"));
+        };
+        window.addEventListener("popstate", () =>
+          window.dispatchEvent(new Event("locationchange"))
+        );
+        window.addEventListener("locationchange", syncAuthClass);
+        document.addEventListener("DOMContentLoaded", syncAuthClass);
+      })();
+    </script>
   </head>
 
   <body

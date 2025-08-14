@@ -3,6 +3,11 @@ import { fetchApi } from "../fetchApi.js";
 
 export let userInfos: UserData = {};
 
+// Reset cached user info (used on logout)
+export function resetUserInfos(): void {
+	userInfos = {} as UserData;
+}
+
 /**
  * Vérifie si les informations de l'utilisateur sont complètes,
  * sinon fait un appel à `me()` pour les récupérer.
