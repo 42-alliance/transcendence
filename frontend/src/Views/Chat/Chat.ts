@@ -220,20 +220,32 @@ export async function ChatViewListener(conversationId?: number) {
 				if (searchValue) {
 					// Logique pour démarrer une nouvelle conversation avec le nom recherché
 
-					const members = searchValue
-						.split(" ")
+					const tokens = searchValue
+						.split(/[\s,;]+/)
 						.map(name => name.trim())
-						.filter(name => name !== "")
+						.filter(name => name !== "");
+
+					const matched = tokens
 						.map(name => {
 							const found = allUsers.find(
 								user => user.name!.toLowerCase() === name.toLowerCase()
 							);
-							return found ? found.name : name;
+							return found?.name || null;
 						})
-						.filter((name, idx, arr) => arr.indexOf(name) === idx) // éviter les doublons
-						.filter((name): name is string => typeof name === "string" && name !== undefined); // filter out undefined
+						.filter((n): n is string => !!n);
 
-					if (members.length === 0) return;
+					const notFound = tokens.filter(
+						name => !matched.some(m => m.toLowerCase() === name.toLowerCase())
+					);
+					if (notFound.length > 0) {
+						showToast({
+							text: `User(s) not found: ${notFound.join(", ")}`,
+							buttons: [],
+							duration: 4000,
+						});
+					}
+
+					const uniqueMatched = Array.from(new Set(matched));
 
 					const userInfos = await getUserInfos();
 					if (!userInfos || !userInfos.name) {
@@ -243,27 +255,37 @@ export async function ChatViewListener(conversationId?: number) {
 						return;
 					}
 
-					members.push(userInfos.name);
+					// Exclure mon propre nom s'il a été tapé, on l'ajoute après
+					const others = uniqueMatched.filter(
+						name => name.toLowerCase() !== userInfos.name!.toLowerCase()
+					);
+
+					if (others.length === 0) {
+						showToast({
+							text: "Select at least one valid user.",
+							buttons: [],
+							duration: 3000,
+						});
+						return;
+					}
+
+					const members = [...others, userInfos.name];
 
 					try {
-						const conversationId = await createConversation(
-							members
-						);
+						const conversationId = await createConversation(members);
 						// Une fois la conversation créée, on peut rediriger vers la nouvelle conversation
 
 						console.log(
 							"Conversation created with ID:",
 							conversationId
 						);
-						navigateTo(
-							`/chat/${conversationId}`
-						);
+						navigateTo(`/chat/${conversationId}`);
 					} catch (error) {
 						showToast({
 							text: "Error creating conversation.",
 							buttons: [],
 							duration: 5000,
-						})
+						});
 						console.error("Error creating conversation:", error);
 					}
 

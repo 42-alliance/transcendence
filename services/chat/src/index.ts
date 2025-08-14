@@ -8,6 +8,9 @@ import { setupChatRoutes } from "./router.js";
 import fs from "fs";
 import path from "path";
 
+// Ensure CA is trusted for outbound HTTPS fetches (Docker env may also export it)
+process.env.NODE_EXTRA_CA_CERTS = process.env.NODE_EXTRA_CA_CERTS || path.resolve("./ssl/ca.pem");
+
 export const prisma = new PrismaClient();
 
 export const server = Fastify({
