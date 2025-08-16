@@ -44,18 +44,12 @@ export async function setUserProfile() {
 	const usernameDropdown = document.getElementById("username-dropdown");
 	const emailDropdown = document.getElementById("email-dropdown");
 
-	console.error("je passe par ici1");
-
 	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown)
 		return;
-
-	console.error("je passe par ici2");
 
 	const user = await getUserInfos();
 	if (!user || !user.name || !user.picture || !user.email || !user.id || !user.games)
 		return;
-
-	console.error("je passe par ici3");
 
 	const nb_wins = document.getElementById("nb-wins");
 	if (nb_wins) {

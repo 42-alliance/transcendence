@@ -18,7 +18,7 @@
     "@fastify/cookie": "^11.0.2",
     "@fastify/multipart": "^9.0.3",
     "@fastify/websocket": "^11.1.0",
-    "@prisma/client": "^6.13.0",
+    "@prisma/client": "^6.14.0",
     "@sinclair/typebox": "^0.34.30",
     "axios": "^1.8.3",
     "crypto": "^1.0.1",

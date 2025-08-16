@@ -117,6 +117,8 @@ export function initLanguageDropdown(): void {
   const dd = document.getElementById("dropdown-language");
   if (!btn || !dd) return;
 
+
+  console.error("ouais la team");
   // Init UI selon la langue stockée
   const initial = getStoredLang();
   updateFlagUI(initial);
@@ -190,6 +192,7 @@ export async function language_manager() {
     const langData = await fetchLanguageData(userPreferredLanguage);
     updateContent(langData, userPreferredLanguage);
 
+    console.error("je passe par ici imad");
 	initLanguageDropdown();
 }
 
