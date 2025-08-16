@@ -81,14 +81,12 @@ export async function updateUserInfos(
           updateUser.banner = await saveFile(part);
         }
       } else if (part.type === "field") {
-        if (part.fieldname in updateUser) {
           const key = part.fieldname as keyof userBody;
           if (key === "TwofaEnabled") {
             updateUser[key] = part.value === "true";
           } else {
             updateUser[key] = part.value as string;
           }
-        }
       }
     }
 

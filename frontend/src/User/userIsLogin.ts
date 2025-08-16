@@ -1,4 +1,4 @@
-import { getUserInfos } from "./me.js";
+import { me } from "./me.js";
 
 /**
  * Checks if the user is logged in by calling the `getUserInfo` function.
@@ -6,7 +6,7 @@ import { getUserInfos } from "./me.js";
  * @returns A boolean indicating whether the user is logged in.
  */
 export async function userIsLogin(): Promise<Boolean> {
-	const result = await getUserInfos();
+	const result = await me();
 	
 	if (result)
 		return true;

@@ -43,16 +43,13 @@ export async function setUserProfile() {
 	const profilePicture = document.getElementById("profile-picture-navbar") as HTMLImageElement;
 	const usernameDropdown = document.getElementById("username-dropdown");
 	const emailDropdown = document.getElementById("email-dropdown");
-	const profil_link_sidebar = document.getElementById("profile-link-sidebar") as HTMLAnchorElement;
 
-	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown || !profil_link_sidebar)
+	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown)
 		return;
 
 	const user = await getUserInfos();
 	if (!user || !user.name || !user.picture || !user.email || !user.id || !user.games)
 		return;
-
-	profil_link_sidebar.href = `/${user.name}`;
 
 	const nb_wins = document.getElementById("nb-wins");
 	if (nb_wins) {

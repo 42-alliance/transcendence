@@ -60,6 +60,10 @@ async function setupUsersRoute(server: FastifyInstance) {
     }
   );
 
+  server.put("/users/@me", async function handler(request, reply) {
+	return await updateUserInfos(request, reply);
+  })
+
   server.delete(
     "/users",
     { schema: deleteUserDatabaseSchema },
