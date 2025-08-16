@@ -401,6 +401,14 @@ export class GameUI {
       console.warn("Game instance or showCarousel method not found", gameInstance);
     }
     this.hideSpinner();
+
+    // Re-show header/nav
+    try {
+      const nav = document.querySelector('nav');
+      if (nav) {
+        nav.classList.remove('hidden');
+      }
+    } catch {}
   }
 
   static hideLobbyButtons(): void {
@@ -408,6 +416,14 @@ export class GameUI {
     if (gameInstance && typeof gameInstance.hideCarousel === "function") {
       gameInstance.hideCarousel();
     }
+
+    // Hide header/nav during gameplay screens
+    try {
+      const nav = document.querySelector('nav');
+      if (nav) {
+        nav.classList.add('hidden');
+      }
+    } catch {}
   }
 
   static displayErrorToJoin(message: string): void {
