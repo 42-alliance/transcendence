@@ -31,6 +31,7 @@ model Users {
     id      Int     @id @default(autoincrement())
     name    String  @unique
     email   String  @unique
+    password String? 
     picture String
     banner  String?
     bio     String?

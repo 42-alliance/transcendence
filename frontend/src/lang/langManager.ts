@@ -1,5 +1,5 @@
 
-type Lang = "en" | "fr";
+type Lang = "en" | "fr" | "es";
 
 const LANGUAGE_STORAGE_KEY = "language";
 const DEFAULT_LANG: Lang = "en";
@@ -14,6 +14,11 @@ const FLAG_BY_LANG: Record<Lang, { src: string; alt: string; aria: string }> = {
     src: "/assets/flags/fr.svg",
     alt: "Langue actuelle : Français",
     aria: "Changer de langue (actuelle : Français)",
+  },
+  es: {
+    src: "/assets/flags/es.svg",
+    alt: "Idioma actual: Español",
+    aria: "Cambiar idioma (actual: Español)",
   },
 };
 
@@ -195,12 +200,3 @@ export async function language_manager() {
     console.error("je passe par ici imad");
 	initLanguageDropdown();
 }
-
-// window.addEventListener('DOMContentLoaded', async () => {
-
-// 	// TODO: changer ca par un appel api qui connait la langue de l'user
-//     const userPreferredLanguage = localStorage.getItem('language') || 'fr';
-	
-//     const langData = await fetchLanguageData(userPreferredLanguage);
-//     updateContent(langData, userPreferredLanguage);
-// });

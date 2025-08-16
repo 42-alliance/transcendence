@@ -15,7 +15,7 @@ export async function fetchApi(url: string, options: optionRequest, retry: boole
 
 	if (!(options.headers instanceof Headers)) {
 		options.headers = new Headers(options.headers); // Convertit en Headers si ce n'est pas déjà le cas
-	}
+	} 
 	
 	if (token) {
 		options.headers.set("Authorization", `Bearer ${token}`); // Ajoute l'Authorization correctement

@@ -1,0 +1,135 @@
+{
+  "app-title": "Dragon Pong - Juego Moderno",
+
+  "noscript-title": "Se requiere JavaScript",
+  "noscript-desc": "Por favor, habilita JavaScript para usar esta aplicación.",
+
+  "nav-game": "Juego",
+  "nav-home": "Inicio",
+  "nav-friends": "Amigos",
+  "nav-chat": "Chat",
+
+  "settings-update-profile": "Actualizar perfil",
+  "settings-twofa": "Autenticación en dos pasos",
+  "settings-signout": "Cerrar sesión",
+  "settings-delete": "Eliminar cuenta",
+
+  "search-friend-title": "Buscar amigos",
+  "search-friend-placeholder": "Introduce el nombre o correo del amigo",
+  "common-cancel": "Cancelar",
+  "common-search": "Buscar",
+
+  "video-error": "Tu navegador no soporta la reproducción de video.",
+
+  "2fa-login-title": "Autenticación en dos pasos",
+  "2fa-login-desc": "Introduce tu código de 6 dígitos para continuar.",
+  "2fa-login-placeholder": "000000",
+  "2fa-login-verify": "Verificar e iniciar sesión",
+
+  "2fa-setup-title": "Configurar autenticación en dos pasos",
+  "2fa-step1": "Escanea este código QR con tu aplicación de autenticación (Google Authenticator, Authy, etc.)",
+  "2fa-step2-label": "Introduce el código de verificación de tu aplicación:",
+  "2fa-setup-placeholder": "000000",
+  "2fa-backup-title": "Códigos de recuperación",
+  "2fa-backup-desc": "Guarda estos códigos en un lugar seguro. Podrás usarlos para acceder a tu cuenta si pierdes tu dispositivo de autenticación.",
+  "2fa-enable": "Activar 2FA",
+  "2fa-cancel": "Cancelar",
+
+  "username-label": "Nombre de usuario",
+  "email-label": "Correo electrónico",
+
+  "hero-title": "Juego Pong, Dragon Ball y más",
+  "hero-subtitle": "Juega en cualquier momento y lugar",
+  "cta-leadin": "¿Listo para jugar? Haz clic aquí para entrar en la arena",
+  "cta-google": "Iniciar sesión con Google",
+  "cta-google-aria": "Iniciar sesión con Google",
+  "google-logo-alt": "Logo de Google",
+
+  "chat-header": "Chats",
+  "new-chat-aria": "Nuevo chat",
+  "chat-search-placeholder": "Buscar o iniciar una conversación",
+  "close-search-aria": "Cerrar búsqueda",
+
+  "credits-title": "BROKEN TEAM",
+
+  "member-mdembele-alt": "Mdembele - Broly",
+  "member-mdembele-tagline": "El desarrollador legendario",
+
+  "member-ithari-alt": "Ithari - Piccolo",
+  "member-ithari-tagline": "El estratega maestro",
+
+  "member-rabouzia-alt": "Rabouzia - Yajirobe",
+  "member-rabouzia-tagline": "El guerrero oculto",
+
+  "member-ibaby-alt": "Ibaby",
+  "member-ibaby-role": "Baby Buu",
+  "member-ibaby-tagline": "El loco del equipo",
+
+  "member-madamou-role": "Luchador misterioso",
+  "member-madamou-tagline": "Mobuntu",
+
+  "team-quote": "\"Individualmente somos una gota. Juntos somos un océano.\"",
+  "team-philosophy": "- Filosofía Broken Team",
+
+  "play-pong-btn": "JUGAR PONG",
+  "play-pong-aria": "Jugar Pong",
+
+  "notfound-img-alt": "Usuario no encontrado",
+  "notfound-title": "Usuario no encontrado",
+  "notfound-desc": "No pudimos encontrar a este usuario.<br>Pueden no existir o su perfil fue eliminado.",
+  "notfound-back": "Volver al inicio",
+  "notfound-back-aria": "Volver al inicio",
+
+  "friends-title": "Centro de Amigos",
+  "friends-subtitle": "Conéctate con tu comunidad transcendence",
+  "friends-add-btn": "Añadir amigo",
+  "friends-add-aria": "Añadir un nuevo amigo",
+  "friends-search-placeholder": "Buscar usuario por nombre...",
+  "friends-close-search-aria": "Cerrar búsqueda",
+
+  "pong-bg-alt": "Fondo Pong",
+
+  "ranked-img-alt": "Modo clasificado",
+  "ranked-title": "Clasificado",
+  "ranked-desc": "Pon a prueba tus habilidades contra guerreros aleatorios de todo el universo. ¡Enfréntate a oponentes impredecibles y sube en la clasificación para convertirte en el campeón definitivo de Pong!",
+
+  "local-img-alt": "Juego local",
+  "local-title": "Batalla local",
+  "local-desc": "¡Reta a tus amigos en duelos épicos locales! Perfecto para entrenar o resolver disputas como verdaderos guerreros. ¡Dos jugadores, una pantalla, rivalidad infinita!",
+  "local-badge-coop": "Cooperativo local",
+  "local-badge-players": "2 Jugadores",
+
+  "tournament-img-alt": "Torneo",
+  "tournament-title": "Arco del torneo",
+  "tournament-desc": "¡Entra en el legendario sistema de brackets! Compite en varias rondas contra los luchadores más fuertes. ¡Solo los más hábiles llegarán a la final!",
+  "tournament-badge-bracket": "Modo brackets",
+  "tournament-badge-rounds": "Múltiples rondas",
+
+  "ai-img-alt": "Juego IA",
+  "ai-title": "Campo de entrenamiento IA",
+  "ai-desc": "¡Entrena contra la inteligencia artificial definitiva! Domina tus técnicas contra oponentes cada vez más difíciles. ¡Perfecciona tus habilidades antes de enfrentarte a guerreros reales!",
+  "ai-badge-opponent": "Oponente IA",
+  "ai-badge-training": "Modo entrenamiento",
+
+  "play-btn": "¡LUCHA!",
+
+  "carousel-prev-aria": "Anterior",
+  "carousel-next-aria": "Siguiente",
+
+  "auth-section-aria": "Sección de autenticación",
+  "login-card-desktop-aria": "Tarjeta de inicio de sesión (escritorio)",
+  "login-card-mobile-aria": "Tarjeta de inicio de sesión (móvil)",
+
+  "game-history-aria": "Panel de historial de partidas",
+  "match-history-title": "Historial de partidas",
+  "match-history-games": "Partidas",
+  "common-friends-title": "Amigos en común",
+  "common-friends-aria": "Lista de amigos en común",
+
+  "language-menu-aria": "Cambiar idioma",
+  "language-menu-title": "Idioma",
+  "language-menu-sub": "Elige tu idioma",
+  "lang-en": "Inglés",
+  "lang-fr": "Francés",
+  "lang-es": "Español"
+}
