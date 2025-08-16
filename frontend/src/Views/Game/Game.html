@@ -7,7 +7,12 @@
   <!-- Canvas container (hidden by default) -->
   <div id="canvas-container" style="display: none">
     <canvas id="gameCanvas" width="1600" height="800">
-      <img src="assets/game/pong_background.webp" alt="Pong Background" />
+      <img
+        src="assets/game/pong_background.webp"
+        alt="Pong Background"
+        data-i18n="pong-bg-alt"
+        data-i18n-attr="alt"
+      />
     </canvas>
   </div>
 
@@ -18,110 +23,137 @@
     <!-- Carousel Container -->
     <div id="carousel-container" class="carousel-container">
       <div id="carousel" class="carousel">
+
+        <!-- Ranked -->
         <div class="card active" id="randomAdversaireButton" data-index="0">
           <div class="card-image">
             <img
               src="assets/game/ranked_play.webp"
-              alt="Random Adversaire"
+              alt="Ranked mode"
               class="game-mode-image"
+              data-i18n="ranked-img-alt"
+              data-i18n-attr="alt"
             />
           </div>
           <div class="card-content">
-            <h3 class="card-title">Ranked</h3>
-            <p class="card-description">
+            <h3 class="card-title" data-i18n="ranked-title">Ranked</h3>
+            <p class="card-description" data-i18n="ranked-desc">
               Test your skills against random warriors from across the universe.
               Face unpredictable opponents and climb the power rankings to
               become the ultimate Pong champion!
             </p>
             <div class="card-features"></div>
-            <button class="play-button">FIGHT!</button>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
           </div>
         </div>
+
+        <!-- Local Battle -->
         <div class="card" id="localButton" data-index="1">
           <div class="card-image">
             <img
               src="assets/game/local_game.webp"
-              alt="Local Game"
+              alt="Local game"
               class="game-mode-image"
+              data-i18n="local-img-alt"
+              data-i18n-attr="alt"
             />
           </div>
           <div class="card-content">
-            <h3 class="card-title">Local Battle</h3>
-            <p class="card-description">
+            <h3 class="card-title" data-i18n="local-title">Local Battle</h3>
+            <p class="card-description" data-i18n="local-desc">
               Challenge your friends in epic local duels! Perfect for training
               sessions or settling disputes the warrior way. Two players, one
               screen, infinite rivalry!
             </p>
             <div class="card-features">
-              <span class="feature-badge">Local Co-op</span>
-              <span class="feature-badge">2 Players</span>
+              <span class="feature-badge" data-i18n="local-badge-coop">Local Co-op</span>
+              <span class="feature-badge" data-i18n="local-badge-players">2 Players</span>
             </div>
-            <button class="play-button">FIGHT!</button>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
           </div>
         </div>
+
+        <!-- Tournament -->
         <div class="card" id="tournamentButton" data-index="2">
           <div class="card-image">
             <img
               src="assets/game/tournament.webp"
               alt="Tournament"
               class="game-mode-image"
+              data-i18n="tournament-img-alt"
+              data-i18n-attr="alt"
             />
           </div>
           <div class="card-content">
-            <h3 class="card-title">Tournament Arc</h3>
-            <p class="card-description">
+            <h3 class="card-title" data-i18n="tournament-title">Tournament Arc</h3>
+            <p class="card-description" data-i18n="tournament-desc">
               Enter the legendary tournament bracket system! Battle through
               multiple rounds against the strongest fighters. Only the most
               skilled warriors will reach the finals!
             </p>
             <div class="card-features">
-              <span class="feature-badge">Bracket Mode</span>
-              <span class="feature-badge">Multiple Rounds</span>
+              <span class="feature-badge" data-i18n="tournament-badge-bracket">Bracket Mode</span>
+              <span class="feature-badge" data-i18n="tournament-badge-rounds">Multiple Rounds</span>
             </div>
-            <button class="play-button">FIGHT!</button>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
           </div>
         </div>
+
+        <!-- AI -->
         <div class="card" id="iaButton" data-index="3">
           <div class="card-image">
             <img
               src="assets/game/cops_vs_ia.jpg"
-              alt="IA Game"
+              alt="AI game"
               class="game-mode-image"
+              data-i18n="ai-img-alt"
+              data-i18n-attr="alt"
             />
           </div>
           <div class="card-content">
-            <h3 class="card-title">AI Training Grounds</h3>
-            <p class="card-description">
+            <h3 class="card-title" data-i18n="ai-title">AI Training Grounds</h3>
+            <p class="card-description" data-i18n="ai-desc">
               Train against the ultimate artificial intelligence! Master your
               techniques against increasingly difficult AI opponents. Perfect
               your skills before facing real warriors!
             </p>
             <div class="card-features">
-              <span class="feature-badge">AI Opponent</span>
-              <span class="feature-badge">Training Mode</span>
+              <span class="feature-badge" data-i18n="ai-badge-opponent">AI Opponent</span>
+              <span class="feature-badge" data-i18n="ai-badge-training">Training Mode</span>
             </div>
-            <button class="play-button">FIGHT!</button>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
           </div>
         </div>
+
       </div>
     </div>
 
     <!-- Navigation buttons -->
     <div class="carousel-nav">
-      <button id="previous" class="nav-btn prev-btn">
-        <span>‹</span>
+      <button
+        id="previous"
+        class="nav-btn prev-btn"
+        data-i18n-attr="aria-label:carousel-prev-aria"
+        aria-label="Previous"
+      >
+        <span aria-hidden="true">‹</span>
       </button>
-      <button id="next" class="nav-btn next-btn">
-        <span>›</span>
+      <button
+        id="next"
+        class="nav-btn next-btn"
+        data-i18n-attr="aria-label:carousel-next-aria"
+        aria-label="Next"
+      >
+        <span aria-hidden="true">›</span>
       </button>
     </div>
 
     <!-- Indicators -->
-    <div class="carousel-indicators">
-      <div class="indicator active" data-index="0"></div>
-      <div class="indicator" data-index="1"></div>
-      <div class="indicator" data-index="2"></div>
-      <div class="indicator" data-index="3"></div>
+    <div class="carousel-indicators" role="tablist" aria-label="Carousel indicators">
+      <div class="indicator active" data-index="0" role="tab" aria-selected="true"></div>
+      <div class="indicator" data-index="1" role="tab" aria-selected="false"></div>
+      <div class="indicator" data-index="2" role="tab" aria-selected="false"></div>
+      <div class="indicator" data-index="3" role="tab" aria-selected="false"></div>
     </div>
   </div>
 </div>

@@ -10,6 +10,8 @@
     <div
       id="game-history-panel"
       class="flex-1 bg-[#191a2c] rounded-2xl border border-gray-700/40 shadow-xl p-6 overflow-y-auto xl:h-full max-h-[480px] basis-3/5"
+      data-i18n-attr="aria-label:game-history-aria"
+      aria-label="Match history panel"
     >
       <!-- Header Match History -->
       <div class="flex items-center justify-between mb-4">
@@ -19,12 +21,18 @@
             class="w-6 h-6 text-orange-400"
             fill="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               d="M4 4h16v2H4V4zm1 8c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4zm2 0c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2zm7.5 3c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm2-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
             />
           </svg>
-          <h3 class="text-2xl font-semibold text-white">Match History</h3>
+          <h3 
+            class="text-2xl font-semibold text-white"
+            data-i18n="match-history-title"
+          >
+            Match History
+          </h3>
         </div>
         <!-- Statistiques à droite -->
         <div class="flex items-center gap-6">
@@ -32,9 +40,13 @@
             <span
               class="text-xl font-bold text-orange-400"
               id="user-match-count"
-              >0</span
+            >0</span>
+            <span 
+              class="text-xs text-gray-400"
+              data-i18n="match-history-games"
             >
-            <span class="text-xs text-gray-400">Games</span>
+              Games
+            </span>
           </div>
         </div>
       </div>
@@ -45,11 +57,19 @@
     </div>
   </div>
   <div class="flex flex-col self-baseline w-full max-w-5xl mx-auto">
-    <h3 id="my-common-friends" class="text-lg font-semibold text-white mb-2">Common friends</h3>
+    <h3 
+      id="my-common-friends" 
+      class="text-lg font-semibold text-white mb-2"
+      data-i18n="common-friends-title"
+    >
+      Common friends
+    </h3>
     <div
       id="show-common-friend"
       class="flex gap-4 overflow-x-auto rounded-xl p-4 bg-[#191a2c] border border-gray-700/40 shadow-inner min-h-[140px] max-w-full"
       style="scrollbar-width: thin; scrollbar-color: #444 #222"
+      data-i18n-attr="aria-label:common-friends-aria"
+      aria-label="List of common friends"
     >
       <!-- Ici, les amis seront injectés en JS -->
     </div>

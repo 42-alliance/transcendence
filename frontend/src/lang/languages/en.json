@@ -1,6 +1,136 @@
 {
-	"javasrcipt-error" : "We're sorry but frontend doesn't work properly without JavaScript enabled. Please enable it to continue.",
-	"video-error" : "Your browser does not support the video tag.",
-	"made-by" : "Created with ❤️ by the ",
-	"language-succesfully-changed" : "Language changed to English."
+  "app-title": "Dragon Pong - Modern Gaming",
+
+  "noscript-title": "JavaScript Required",
+  "noscript-desc": "Please enable JavaScript to use this application.",
+
+  "nav-game": "Game",
+  "nav-home": "Home",
+  "nav-friends": "Friends",
+  "nav-chat": "Chat",
+
+  "settings-update-profile": "Update Profile",
+  "settings-twofa": "Two-Factor Auth",
+  "settings-signout": "Sign Out",
+  "settings-delete": "Delete Account",
+
+  "search-friend-title": "Search Friends",
+  "search-friend-placeholder": "Enter friend's name or email",
+  "common-cancel": "Cancel",
+  "common-search": "Search",
+
+  "video-error": "Your browser does not support video playback.",
+
+  "2fa-login-title": "Two-Factor Authentication",
+  "2fa-login-desc": "Please enter your 6-digit authentication code to continue.",
+  "2fa-login-placeholder": "000000",
+  "2fa-login-verify": "Verify & Login",
+
+  "2fa-setup-title": "Setup Two-Factor Authentication",
+  "2fa-step1": "Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)",
+  "2fa-step2-label": "Enter the verification code from your app:",
+  "2fa-setup-placeholder": "000000",
+  "2fa-backup-title": "Backup Recovery Codes",
+  "2fa-backup-desc": "Save these codes in a secure location. You can use them to access your account if you lose your authenticator device.",
+  "2fa-enable": "Enable 2FA",
+  "2fa-cancel": "Cancel",
+
+  "username-label": "Username",
+  "email-label": "Email",
+
+  "hero-title": "Pong game, Dragon Ball, and more",
+  "hero-subtitle": "Play anytime, anywhere",
+  "cta-leadin": "Ready to play? Click here to enter the arena",
+  "cta-google": "Login with Google",
+  "cta-google-aria": "Login with Google",
+  "google-logo-alt": "Google Logo",
+
+  "chat-header": "Chats",
+  "new-chat-aria": "New chat",
+  "chat-search-placeholder": "Find or start a conversation",
+  "close-search-aria": "Close search",
+
+  "credits-title": "BROKEN TEAM",
+
+  "member-mdembele-alt": "Mdembele - Broly",
+  "member-mdembele-tagline": "The Legendary Developer",
+
+  "member-ithari-alt": "Ithari - Piccolo",
+  "member-ithari-tagline": "The Strategic Mastermind",
+
+  "member-rabouzia-alt": "Rabouzia - Yajirobe",
+  "member-rabouzia-tagline": "The Hidden Warrior",
+
+  "member-ibaby-alt": "Ibaby",
+  "member-ibaby-role": "Baby Buu",
+  "member-ibaby-tagline": "The madman of the cluster",
+
+  "member-madamou-role": "Mystery Fighter",
+  "member-madamou-tagline": "Mobuntu",
+
+  "team-quote": "\"Individually we are one drop. Together we are an ocean.\"",
+  "team-philosophy": "- Broken Team Philosophy",
+
+  "play-pong-btn": "PLAY PONG",
+  "play-pong-aria": "Play Pong",
+
+  "notfound-img-alt": "User Not Found",
+  "notfound-title": "User not found",
+  "notfound-desc": "We couldn't find this user.<br>They may not exist or their profile was deleted.",
+  "notfound-back": "Back to home",
+  "notfound-back-aria": "Back to home",
+
+  "friends-title": "Friends Hub",
+  "friends-subtitle": "Connect with your transcendence community",
+  "friends-add-btn": "Add Friend",
+  "friends-add-aria": "Add a new friend",
+  "friends-search-placeholder": "Search user by name...",
+  "friends-close-search-aria": "Close search",
+
+  "pong-bg-alt": "Pong Background",
+
+  "ranked-img-alt": "Ranked mode",
+  "ranked-title": "Ranked",
+  "ranked-desc": "Test your skills against random warriors from across the universe. Face unpredictable opponents and climb the power rankings to become the ultimate Pong champion!",
+
+  "local-img-alt": "Local game",
+  "local-title": "Local Battle",
+  "local-desc": "Challenge your friends in epic local duels! Perfect for training sessions or settling disputes the warrior way. Two players, one screen, infinite rivalry!",
+  "local-badge-coop": "Local Co-op",
+  "local-badge-players": "2 Players",
+
+  "tournament-img-alt": "Tournament",
+  "tournament-title": "Tournament Arc",
+  "tournament-desc": "Enter the legendary tournament bracket system! Battle through multiple rounds against the strongest fighters. Only the most skilled warriors will reach the finals!",
+  "tournament-badge-bracket": "Bracket Mode",
+  "tournament-badge-rounds": "Multiple Rounds",
+
+  "ai-img-alt": "AI game",
+  "ai-title": "AI Training Grounds",
+  "ai-desc": "Train against the ultimate artificial intelligence! Master your techniques against increasingly difficult AI opponents. Perfect your skills before facing real warriors!",
+  "ai-badge-opponent": "AI Opponent",
+  "ai-badge-training": "Training Mode",
+
+  "play-btn": "FIGHT!",
+
+  "carousel-prev-aria": "Previous",
+  "carousel-next-aria": "Next",
+
+  "auth-section-aria": "Authentication section",
+  "login-card-desktop-aria": "Login card (desktop)",
+  "login-card-mobile-aria": "Login card (mobile)",
+
+  "game-history-aria": "Match history panel",
+  "match-history-title": "Match History",
+  "match-history-games": "Games",
+  "common-friends-title": "Common friends",
+  "common-friends-aria": "List of common friends",
+
+  "language-menu-aria": "Change language",
+  "language-menu-title": "Language",
+  "language-menu-sub": "Choose your language",
+  "lang-en": "English",
+  "lang-fr": "Français",
+  "lang-es": "Español",
+  "lang-de": "Deutsch"
 }

@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dragon Pong - Modern Gaming</title>
+    <title data-i18n="app-title">Dragon Pong - Modern Gaming</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Fonts - Loading Poppins properly -->
+    <!-- Fonts - Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -65,7 +65,6 @@
           opacity: 1;
         }
       }
-
       @keyframes slideUp {
         from {
           opacity: 0;
@@ -76,7 +75,6 @@
           transform: translateY(0);
         }
       }
-
       @keyframes scaleIn {
         from {
           opacity: 0;
@@ -87,39 +85,32 @@
           transform: scale(1);
         }
       }
-
       .glass-effect {
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.2);
       }
-
       .glass-dark {
         background: rgba(0, 0, 0, 0.3);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.1);
       }
-
       .gradient-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
-
       .gradient-secondary {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
       }
-
       .gradient-accent {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       }
-
       .text-gradient {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
-
-      /* Hide nav links and profile/settings on /auth, but keep the logo visible */
+      /* Hide nav links and profile/settings on /auth, keep logo */
       .auth-page #user-button-navbar,
       .auth-page #settings-button-navbar,
       .auth-page #dropdown-user,
@@ -128,8 +119,9 @@
         display: none !important;
       }
     </style>
+
     <script>
-      // Add/remove a class on <html>/<body> to hide navbar on /auth (works with SPA navigation)
+      // Toggle .auth-page class on SPA navigation to hide navbar on /auth
       (function () {
         function syncAuthClass() {
           const isAuth = location.pathname.startsWith("/auth");
@@ -142,9 +134,7 @@
             else b.classList.remove("auth-page");
           }
         }
-        // Initial detection
         syncAuthClass();
-        // Patch history to emit a custom event on navigation
         const _push = history.pushState;
         history.pushState = function () {
           _push.apply(this, arguments);
@@ -156,7 +146,7 @@
           window.dispatchEvent(new Event("locationchange"));
         };
         window.addEventListener("popstate", () =>
-          window.dispatchEvent(new Event("locationchange"))
+          window.dispatchEvent(new Event("locationchange")),
         );
         window.addEventListener("locationchange", syncAuthClass);
         document.addEventListener("DOMContentLoaded", syncAuthClass);
@@ -172,10 +162,13 @@
         class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
       >
         <div class="glass-effect rounded-2xl p-8 text-center max-w-md">
-          <h2 class="text-2xl font-bold text-gradient mb-4">
+          <h2
+            class="text-2xl font-bold text-gradient mb-4"
+            data-i18n="noscript-title"
+          >
             JavaScript Required
           </h2>
-          <p class="text-gray-300">
+          <p class="text-gray-300" data-i18n="noscript-desc">
             Please enable JavaScript to use this application.
           </p>
         </div>
@@ -200,16 +193,20 @@
           type="text"
           id="search-friend-input"
           class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
+          data-i18n="search-friend-placeholder"
+          data-i18n-attr="placeholder"
           placeholder="Enter friend's name or email"
         />
         <div class="flex gap-3 mt-6">
           <button
             class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
+            data-i18n="common-cancel"
           >
             Cancel
           </button>
           <button
             class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
+            data-i18n="common-search"
           >
             Search
           </button>
@@ -217,7 +214,7 @@
       </div>
     </div>
 
-    <!-- Modern Navbar -->
+    <!-- Navbar -->
     <nav class="fixed top-0 z-50 w-full">
       <div class="mx-auto">
         <div class="flex items-center">
@@ -254,10 +251,12 @@
                 </svg>
                 <span
                   class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  data-i18n="nav-game"
                   >Game</span
                 >
               </div>
             </a>
+
             <a href="/" class="nav-link group" data-link>
               <div
                 class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1"
@@ -273,10 +272,12 @@
                 </svg>
                 <span
                   class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  data-i18n="nav-home"
                   >Home</span
                 >
               </div>
             </a>
+
             <a href="/friends" class="nav-link group" data-link>
               <div
                 class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1"
@@ -292,10 +293,12 @@
                 </svg>
                 <span
                   class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  data-i18n="nav-friends"
                   >Friends</span
                 >
               </div>
             </a>
+
             <a href="/chat" class="nav-link group" data-link>
               <div
                 class="flex flex-col items-center transition-all duration-300 hover:shadow hover:-translate-y-1"
@@ -311,14 +314,15 @@
                 </svg>
                 <span
                   class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+                  data-i18n="nav-chat"
                   >Chat</span
                 >
               </div>
             </a>
           </div>
 
-          <!-- User Profile & Settings Section -->
-          <div class="flex items-center gap-16 ml-auto mr-12">
+          <!-- User Profile & Settings -->
+          <div class="flex items-center gap-10 ml-auto mr-12">
             <!-- User Profile -->
             <div class="relative">
               <button
@@ -338,29 +342,137 @@
             </div>
 
             <!-- Settings -->
-            <div class="relative">
+            <!-- Language switcher -->
+            <div class="relative flex">
               <button
-                id="settings-button-navbar"
+                id="language-button-navbar"
                 type="button"
-                class="transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1 group"
+                class="transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1 group rounded-full"
+                data-i18n-attr="aria-label:language-menu-aria"
+                aria-label="Change language"
               >
-                <svg
-                  class="w-12 h-12 text-orange-400 mb-1 mx-auto transition-colors duration-300 group-hover:text-blue-200"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"
-                  />
-                </svg>
+                <img
+                  id="current-language-flag"
+                  src="/assets/flags/en.svg"
+                  alt="Current language: English"
+                  class="w-12 h-12 mb-1 mx-auto rounded-full border border-white/30 group-hover:border-white/60 shadow group-hover:scale-110 object-cover transition-transform duration-300"
+                />
               </button>
 
-              <!-- Settings Dropdown Menu (ancien dropdown déplacé ici) -->
+              <!-- Dropdown -->
+              <div
+                id="dropdown-language"
+                class="hidden absolute right-0 mt-3 w-56 glass-dark rounded-2xl shadow-2xl shadow-black/50 animate-slide-up overflow-hidden"
+                role="menu"
+                aria-labelledby="language-button-navbar"
+              >
+                <!-- Header -->
+                <div class="gradient-primary p-4">
+                  <p
+                    class="text-lg font-bold text-white"
+                    data-i18n="language-menu-title"
+                  >
+                    Language
+                  </p>
+                  <p
+                    class="text-blue-100 text-xs opacity-90"
+                    data-i18n="language-menu-sub"
+                  >
+                    Choose your language
+                  </p>
+                </div>
+
+                <!-- Options -->
+                <ul class="p-2 max-h-[50vh] overflow-auto" role="none">
+                  <!-- EN -->
+                  <li role="none">
+                    <button
+                      type="button"
+                      class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
+                      data-lang="en"
+                      role="menuitemradio"
+                      aria-checked="false"
+                    >
+                      <img
+                        src="/assets/flags/en.svg"
+                        alt=""
+                        class="w-5 h-5 rounded-full"
+                      />
+                      <span class="flex-1" data-i18n="lang-en">English</span>
+                      <i
+                        class="check hidden fa-solid fa-check text-green-400"
+                      ></i>
+                    </button>
+                  </li>
+                  <!-- FR -->
+                  <li role="none">
+                    <button
+                      type="button"
+                      class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
+                      data-lang="fr"
+                      role="menuitemradio"
+                      aria-checked="false"
+                    >
+                      <img
+                        src="/assets/flags/fr.svg"
+                        alt=""
+                        class="w-5 h-5 rounded-full"
+                      />
+                      <span class="flex-1" data-i18n="lang-fr">Français</span>
+                      <i
+                        class="check hidden fa-solid fa-check text-green-400"
+                      ></i>
+                    </button>
+                  </li>
+                  <!-- ES -->
+                  <li role="none">
+                    <button
+                      type="button"
+                      class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
+                      data-lang="es"
+                      role="menuitemradio"
+                      aria-checked="false"
+                    >
+                      <img
+                        src="/assets/flags/es.svg"
+                        alt=""
+                        class="w-5 h-5 rounded-full"
+                      />
+                      <span class="flex-1" data-i18n="lang-es">Español</span>
+                      <i
+                        class="check hidden fa-solid fa-check text-green-400"
+                      ></i>
+                    </button>
+                  </li>
+                  <!-- DE -->
+                  <li role="none">
+                    <button
+                      type="button"
+                      class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
+                      data-lang="de"
+                      role="menuitemradio"
+                      aria-checked="false"
+                    >
+                      <img
+                        src="/assets/flags/de.svg"
+                        alt=""
+                        class="w-5 h-5 rounded-full"
+                      />
+                      <span class="flex-1" data-i18n="lang-de">Deutsch</span>
+                      <i
+                        class="check hidden fa-solid fa-check text-green-400"
+                      ></i>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Settings Dropdown -->
               <div
                 id="dropdown-user"
                 class="hidden absolute right-0 mt-3 w-80 glass-dark rounded-2xl shadow-2xl shadow-black/50 animate-slide-up overflow-hidden"
               >
-                <!-- Header with gradient -->
+                <!-- Header -->
                 <div class="gradient-primary p-6">
                   <p
                     id="username-dropdown"
@@ -383,7 +495,11 @@
                     <i
                       class="fas fa-user-edit text-blue-400 group-hover:text-blue-300"
                     ></i>
-                    <span class="font-medium">Update Profile</span>
+                    <span
+                      class="font-medium"
+                      data-i18n="settings-update-profile"
+                      >Update Profile</span
+                    >
                   </a>
 
                   <!-- 2FA Toggle -->
@@ -392,7 +508,9 @@
                   >
                     <div class="flex items-center gap-3">
                       <i class="fas fa-shield-alt text-green-400"></i>
-                      <span class="font-medium">Two-Factor Auth</span>
+                      <span class="font-medium" data-i18n="settings-twofa"
+                        >Two-Factor Auth</span
+                      >
                     </div>
                     <label
                       class="relative inline-flex items-center cursor-pointer"
@@ -416,7 +534,9 @@
                     <i
                       class="fas fa-sign-out-alt text-yellow-400 group-hover:text-yellow-300"
                     ></i>
-                    <span class="font-medium">Sign Out</span>
+                    <span class="font-medium" data-i18n="settings-signout"
+                      >Sign Out</span
+                    >
                   </a>
 
                   <a
@@ -425,12 +545,15 @@
                     onclick="deleteUser()"
                   >
                     <i class="fas fa-trash-alt group-hover:text-red-300"></i>
-                    <span class="font-medium">Delete Account</span>
+                    <span class="font-medium" data-i18n="settings-delete"
+                      >Delete Account</span
+                    >
                   </a>
                 </div>
               </div>
             </div>
           </div>
+          <!-- /User Profile & Settings -->
         </div>
       </div>
     </nav>
@@ -475,29 +598,39 @@
       <div
         class="glass-dark rounded-3xl p-8 w-full max-w-md mx-4 animate-scale-in"
       >
-        <h2 class="text-2xl font-bold text-gradient mb-4">
+        <h2
+          class="text-2xl font-bold text-gradient mb-4"
+          data-i18n="2fa-login-title"
+        >
           Two-Factor Authentication
         </h2>
-        <p class="text-gray-300 mb-6 leading-relaxed">
+        <p
+          class="text-gray-300 mb-6 leading-relaxed"
+          data-i18n="2fa-login-desc"
+        >
           Please enter your 6-digit authentication code to continue.
         </p>
         <input
           type="text"
           id="login-verification-code"
           class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300 text-center text-2xl font-mono tracking-widest mb-6"
-          placeholder="000000"
           maxlength="6"
+          data-i18n="2fa-login-placeholder"
+          data-i18n-attr="placeholder"
+          placeholder="000000"
         />
         <div class="flex gap-3">
           <button
             id="cancel-login-2fa"
             class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
+            data-i18n="2fa-cancel"
           >
             Cancel
           </button>
           <button
             id="verify-login-2fa"
             class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
+            data-i18n="2fa-login-verify"
           >
             Verify & Login
           </button>
@@ -513,7 +646,10 @@
       <div
         class="glass-dark rounded-3xl p-8 w-full max-w-lg mx-4 animate-scale-in"
       >
-        <h2 class="text-2xl font-bold text-gradient mb-6">
+        <h2
+          class="text-2xl font-bold text-gradient mb-6"
+          data-i18n="2fa-setup-title"
+        >
           Setup Two-Factor Authentication
         </h2>
 
@@ -534,7 +670,7 @@
             >
               1
             </div>
-            <p class="text-gray-300">
+            <p class="text-gray-300" data-i18n="2fa-step1">
               Scan this QR code with your authenticator app (Google
               Authenticator, Authy, etc.)
             </p>
@@ -546,15 +682,17 @@
               2
             </div>
             <div class="flex-1">
-              <p class="text-gray-300 mb-2">
+              <p class="text-gray-300 mb-2" data-i18n="2fa-step2-label">
                 Enter the verification code from your app:
               </p>
               <input
                 type="text"
                 id="verification-code"
                 class="w-full p-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300 text-center font-mono tracking-widest"
-                placeholder="000000"
                 maxlength="6"
+                data-i18n="2fa-setup-placeholder"
+                data-i18n-attr="placeholder"
+                placeholder="000000"
               />
             </div>
           </div>
@@ -564,9 +702,14 @@
         <div class="mb-6">
           <div class="flex items-center gap-2 mb-3">
             <i class="fas fa-key text-orange-400"></i>
-            <h3 class="font-semibold text-orange-400">Backup Recovery Codes</h3>
+            <h3
+              class="font-semibold text-orange-400"
+              data-i18n="2fa-backup-title"
+            >
+              Backup Recovery Codes
+            </h3>
           </div>
-          <p class="text-sm text-gray-400 mb-3">
+          <p class="text-sm text-gray-400 mb-3" data-i18n="2fa-backup-desc">
             Save these codes in a secure location. You can use them to access
             your account if you lose your authenticator device.
           </p>
@@ -581,12 +724,14 @@
           <button
             id="cancel-2fa"
             class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
+            data-i18n="2fa-cancel"
           >
             Cancel
           </button>
           <button
             id="verify-2fa"
             class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
+            data-i18n="2fa-enable"
           >
             Enable 2FA
           </button>
@@ -600,24 +745,24 @@
     <script type="module" src="/.objs/include.js"></script>
 
     <script>
-      // Gestion du dropdown pour le profil et les paramètres
+      // Profile/settings dropdown logic
       const userButton = document.getElementById("user-button-navbar");
       const settingsButton = document.getElementById("settings-button-navbar");
       const dropdown = document.getElementById("dropdown-user");
 
-      // Function to toggle dropdown
       function toggleDropdown(event) {
         event.stopPropagation();
         dropdown.classList.toggle("hidden");
       }
+      userButton && userButton.addEventListener("click", toggleDropdown);
+      settingsButton &&
+        settingsButton.addEventListener("click", toggleDropdown);
 
-      // Add click listeners to both buttons
-      userButton.addEventListener("click", toggleDropdown);
-      settingsButton.addEventListener("click", toggleDropdown);
-
-      // Close dropdown when clicking outside
       document.addEventListener("click", function (event) {
         if (
+          userButton &&
+          settingsButton &&
+          dropdown &&
           !userButton.contains(event.target) &&
           !settingsButton.contains(event.target) &&
           !dropdown.contains(event.target)
@@ -626,22 +771,24 @@
         }
       });
 
-      // Modal functionality
+      // Modal helpers
       function showModal(modalId) {
         const modal = document.getElementById(modalId);
+        if (!modal) return;
         modal.classList.remove("hidden");
         modal.classList.add("show");
       }
 
       function hideModal(modalId) {
         const modal = document.getElementById(modalId);
+        if (!modal) return;
         modal.classList.remove("show");
         setTimeout(() => {
           modal.classList.add("hidden");
         }, 300);
       }
 
-      // Close modals when clicking outside
+      // Click outside to close any "...-modal"
       document.querySelectorAll('[id$="-modal"]').forEach((modal) => {
         modal.addEventListener("click", function (e) {
           if (e.target === this) {

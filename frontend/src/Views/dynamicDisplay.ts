@@ -1,3 +1,4 @@
+import { language_manager } from "../lang/langManager.js";
 import { sidebar_visibility } from "../sidebar.js";
 import { setupSoundListener } from "../sounds/changeSound.js";
 import { getUserInfos } from "../User/me.js";
@@ -55,4 +56,5 @@ export async function dynamicDisplay(params: {
 	await gameInstance.executeViewScript();
 
 	await handleInviteToPlay();
+	await language_manager()
 }
