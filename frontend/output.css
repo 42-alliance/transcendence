@@ -1114,6 +1114,12 @@
       border-color: color-mix(in oklab, var(--color-orange-500) 30%, transparent);
     }
   }
+  .border-red-500 {
+    border-color: var(--color-red-500);
+  }
+  .border-red-700 {
+    border-color: var(--color-red-700);
+  }
   .border-white {
     border-color: var(--color-white);
   }
@@ -1764,10 +1770,6 @@
   }
   .blur-3xl {
     --tw-blur: blur(var(--blur-3xl));
-    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
-  .blur-\[64px\] {
-    --tw-blur: blur(64px);
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
   .blur-xl {
@@ -2983,13 +2985,4 @@
       --tw-scale-z: 1;
     }
   }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-.shake {
-  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }

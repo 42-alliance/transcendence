@@ -68,7 +68,7 @@ Crée un nouvel utilisateur et génère un JWT qui est renvoyé dans les cookies
 {
   "username": "madamou",
   "profile_picture": "upload/profile/madamou.png",
-  "password": "test"
+  "password": "test123"
 }
 ```
 
