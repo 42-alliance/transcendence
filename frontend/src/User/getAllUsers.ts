@@ -1,11 +1,11 @@
 import { UserData } from "../types.js";
-import { fetchApi, getHeader } from "../utils.js";
+import { fetchApi, getHeader } from "../fetchApi.js";
 
 export async function getAllUsers(): Promise< UserData[] | null> {
 	try {
 		const header = getHeader();
 
-		const response = await fetchApi("http://localhost:8000/users", {
+		const response = await fetchApi("/users", {
 			method: "GET",
 			headers: header,
 		});

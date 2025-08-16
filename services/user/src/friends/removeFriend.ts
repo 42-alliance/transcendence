@@ -2,7 +2,6 @@ import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fa
 import { connectedSockets, prisma } from "../index.js";
 import { extractUserId } from "../utils.js"
 import { Type } from '@sinclair/typebox'
-import { connect } from "http2";
 
 export const removeFriendSchema: FastifySchema = {
 	headers: Type.Object({

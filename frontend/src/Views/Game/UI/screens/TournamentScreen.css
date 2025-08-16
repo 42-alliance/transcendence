@@ -1,0 +1,170 @@
+.tournament-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    z-index: 1100;
+    font-family: 'Poppins', sans-serif;
+    background: transparent;
+    backdrop-filter: none;
+}
+
+.tournament-card {
+    position: relative;
+    width: min(640px, 90vw);
+    max-width: 640px;
+    min-height: 420px;
+    border-radius: 26px;
+    overflow: hidden;
+    box-shadow: 0 12px 38px -8px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .08) inset;
+    display: flex;
+    align-items: stretch;
+}
+
+.tournament-card-bg {
+    position: absolute;
+    inset: 0;
+    background: url('../../pong_assets/tournament_mode.webp') center/cover no-repeat;
+    filter: brightness(.8) saturate(1.05);
+    transform: scale(1.05);
+}
+
+.tournament-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(155deg, rgba(0, 0, 0, .38) 0%, rgba(24, 24, 42, .28) 55%, rgba(0, 0, 0, .42) 100%);
+}
+
+.tournament-card-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2.5rem 2.75rem;
+    gap: 1.75rem;
+}
+
+.tournament-title {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ffdf6b, #ffb347, #ffdf6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 6px rgba(255, 180, 70, .4));
+    text-align: center;
+}
+
+.tournament-subtitle {
+    margin: 0;
+    font-size: .9rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .78);
+    font-weight: 500;
+    text-align: center;
+}
+
+.tournament-buttons {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+}
+
+.t-btn {
+    position: relative;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+    background: rgba(255, 255, 255, .06);
+    color: #fff;
+    backdrop-filter: blur(4px);
+    transition: all .25s ease;
+}
+
+.t-btn.primary {
+    background: linear-gradient(135deg, #ffb347 0%, #ff8c42 50%, #ffb347 100%);
+    color: #1a1205;
+    box-shadow: 0 4px 18px -4px rgba(255, 140, 66, .55);
+}
+
+.t-btn.secondary {
+    background: linear-gradient(135deg, #6b8bff 0%, #4e64d9 50%, #6b8bff 100%);
+    color: #0e1424;
+    box-shadow: 0 4px 18px -4px rgba(107, 139, 255, .55);
+}
+
+.t-btn.ghost {
+    background: rgba(255, 255, 255, .07);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .18);
+    margin-top: .25rem;
+}
+
+.t-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, .18));
+    opacity: 0;
+    transition: opacity .35s ease;
+}
+
+.t-btn:hover::before {
+    opacity: 1;
+}
+
+.t-btn:hover {
+    transform: translateY(-3px) scale(1.015);
+    box-shadow: 0 6px 22px -5px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .08) inset;
+}
+
+.t-btn:active {
+    transform: translateY(0) scale(.985);
+}
+
+.t-btn.primary:hover {
+    box-shadow: 0 6px 26px -5px rgba(255, 140, 66, .7);
+}
+
+.t-btn.secondary:hover {
+    box-shadow: 0 6px 26px -5px rgba(107, 139, 255, .7);
+}
+
+.t-btn.ghost:hover {
+    border-color: rgba(255, 255, 255, .35);
+}
+
+@media (min-width: 640px) {
+    .tournament-buttons {
+        flex-direction: row;
+    }
+    .t-btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 520px) {
+    .tournament-card-content {
+        padding: 2.25rem 1.6rem 2.25rem;
+    }
+    .tournament-title {
+        font-size: 1.9rem;
+    }
+}

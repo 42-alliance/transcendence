@@ -1,4 +1,4 @@
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 interface SendRequestUser {
 	receiver: {
@@ -16,7 +16,7 @@ export async function getSendFriendRequest(): Promise< SendRequestUser[] | null 
 	try {
 		const header = new Headers();
 
-		const response = await fetchApi("http://localhost:8000/friends/requests/send", {
+		const response = await fetchApi("/friends/requests/send", {
 			method: "GET",
 			headers: header,
 		});
@@ -29,3 +29,4 @@ export async function getSendFriendRequest(): Promise< SendRequestUser[] | null 
 		return null;
 	}
 }
+

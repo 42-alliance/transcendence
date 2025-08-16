@@ -5,6 +5,11 @@ import { PrismaClient } from '../prisma/node_modules/@prisma/client/client.js';
 import fastifyWebsocket from "@fastify/websocket";
 import { setupWebsocket } from "./chat/websocket.js";
 import { setupChatRoutes } from "./router.js";
+import fs from "fs";
+import path from "path";
+
+// Ensure CA is trusted for outbound HTTPS fetches (Docker env may also export it)
+process.env.NODE_EXTRA_CA_CERTS = process.env.NODE_EXTRA_CA_CERTS || path.resolve("./ssl/ca.pem");
 
 export const prisma = new PrismaClient();
 
@@ -14,7 +19,12 @@ export const server = Fastify({
             target: "pino-pretty",
             options: { colorize: true },
         }
-    }
+    },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/chat.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/chat.crt")),
+		ca: fs.readFileSync(path.resolve("./ssl/ca.pem")),
+	}
 })
 
 server.register(fastifyWebsocket);
@@ -27,6 +37,7 @@ server.register(async function (server) {
 		setupWebsocket(socket, req);
 	});
 });
+
 
 setupChatRoutes(server);
 

@@ -1,10 +1,10 @@
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 export async function getFriendStatus(friendId: number) {
 	try {
 		const header = new Headers();
 		
-		const response = await fetchApi(`http://localhost:8000/friends/status/${friendId}`, {
+		const response = await fetchApi(`friends/status/${friendId}`, {
 			method: "GET",
 			headers: header,
 		});

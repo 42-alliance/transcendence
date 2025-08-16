@@ -1,81 +1,30 @@
-import { logOutUser } from "./User/logoutUser.js";
+import { Games } from "./types.js";
 
-interface optionRequest {
-	method: string,
-	headers?: HeadersInit | undefined,
-	body?: BodyInit | null | undefined,
-};
 
-export async function fetchApi(url: string, options: optionRequest, retry: boolean = true): Promise<Response> {
-    const token = localStorage.getItem("access_token");
-    let newOptions: RequestInit = {
-        ...options,
-        method: options.method
-    };
-
-	if (!(options.headers instanceof Headers)) {
-		options.headers = new Headers(options.headers); // Convertit en Headers si ce n'est pas déjà le cas
+export function nbGames(games: Games[]): number {
+    if (!games || !Array.isArray(games)) {
+		return 0;
 	}
-	
-	if (token) {
-		options.headers.set("Authorization", `Bearer ${token}`); // Ajoute l'Authorization correctement
-	}
-	
-	newOptions.headers = options.headers; // ✅ Garde les headers sans perte
-    newOptions.credentials = "include";
-    newOptions.body = options.body;
-
-    const response = await fetch(url, newOptions);
-
-    if (response.status === 401 && retry) {
-        await refreshToken();
-        return await fetchApi(url, options, false); // Ne réessaie qu'une seule fois
-    }
-
-    if (!response.ok) {
-        console.error("Failed to fetch data from server: ", await response.json());
-        throw new Error("Failed to fetch data from server: " + response.statusText);
-    }
-
-    return response;
+	return games.length;
 }
 
-export function getAccessToken() {
-	const token = localStorage.getItem("access_token");
-	return token;
-}
-
-export function getHeader(): Headers {
-	const headers = new Headers();
-    const token = localStorage.getItem("access_token");
-	if (token) {
-		headers.append("Authorization", `Bearer ${token}`);
+export function nbWins(games: Games[], userId: number): number {
+	if (!games || !Array.isArray(games)) {
+		return 0;
 	}
-	return headers;
+	return games.filter(game => game.winner === userId).length;
 }
 
-async function refreshToken() {
-    const token = getAccessToken();
+export function nbLosses(games: Games[], userId: number): number {
+	if (!games || !Array.isArray(games)) {
+		return 0;
+	}
+	return games.filter(game => game.winner !== userId).length;
+}
 
-	if (!token)
-		throw new Error("No token found");
-
-	const headers = getHeader();
-    headers.append('Content-Type', 'application/json');
-
-	const response = await fetch("http://localhost:8000/auth/token/refresh", {
-		method: "POST",
-		headers: headers,
-		credentials: "include",
-		body: JSON.stringify({
-            token: token,
-		})
-	});
-
-	if (!response.ok)
-		throw new Error("Fail to refresh token");
-
-	const data = await response.json();
-	if (data.access_token)
-		localStorage.setItem("access_token", data.access_token);
+export function nbRagequits(games: Games[], userId: number): number {
+	if (!games || !Array.isArray(games)) {
+		return 0;
+	}
+	return games.filter(game => game.winner !== userId && game.status === "ragequit").length;
 }

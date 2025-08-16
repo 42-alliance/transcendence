@@ -37,7 +37,8 @@ export const config = {
 	},
 	api: {
 		path: "",
-	}
+	},
+	name_pattern: getEnv("NAME_PATTERN"),
 };
 
-config.api.path = `http://${config.gateway.host}:${config.gateway.port}`;
+config.api.path = `https://${config.gateway.host}:${config.gateway.port}`;

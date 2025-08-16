@@ -5,14 +5,14 @@ import { FastifyRequest } from "fastify";
 // Fonction utilitaire pour vérifier si un utilisateur existe
 export async function checkIfUserExist(username: string, userId: number) {
 	const headers = new Headers();
-
 	headers.set("x-user-id", userId.toString());
-	const response = await fetch(`http://${config.users.host}:${config.users.port}/users/${username}`, {
-	  method: "GET",
-	  headers: headers,
-	});
+
+	const url = `https://${config.users.host}:${config.users.port}/users/${encodeURIComponent(username)}`;
+	const response = await fetch(url, { method: "GET", headers });
 	if (!response.ok) {
-	  throw new Error("Error when check If User Exist");
+		let body = "";
+		try { body = await response.text(); } catch {}
+		throw new Error(`User lookup failed for '${username}': ${response.status} ${response.statusText} ${body}`);
 	}
 	const user: User = await response.json();
 	return user;
@@ -22,17 +22,16 @@ export async function getUserById(userId: number) {
 	const headers = new Headers();
 	headers.append("x-user-id", userId.toString());
 
-	const response = await fetch(`http://${config.users.host}:${config.users.port}/users/@me`, {
-	  method: "GET",
-	  headers: headers,
-	});
+	const url = `https://${config.users.host}:${config.users.port}/users/@me`;
+	const response = await fetch(url, { method: "GET", headers });
 	if (!response.ok) {
-	  throw new Error("Error when get user Info");
+		let body = "";
+		try { body = await response.text(); } catch {}
+		throw new Error(`Error when get user Info: ${response.status} ${response.statusText} ${body}`);
 	}
 	const user: User = await response.json();
 	return user;
 }
-
 
 export function extractUserIdHeader(request: FastifyRequest) {
 	return Number(request.headers["x-user-id"] as string);

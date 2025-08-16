@@ -1,16 +1,6 @@
-import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
-import { extractUserId } from "../../utils.js";
-import { Type } from '@sinclair/typebox'
 
-export const getPendingFriendRequestSchema: FastifySchema = {
-	headers: Type.Object({
-		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
-	}),
-};
-
-export async function getPendingFriendRequest(request: FastifyRequest, reply: FastifyReply) {
-	const userId = extractUserId(request);
+export async function getPendingFriendRequest(userId: number) {
 
 	console.log("Getting pending requests for user:", userId);
 
@@ -69,13 +59,12 @@ export async function getPendingFriendRequest(request: FastifyRequest, reply: Fa
 
 		outgoing.sort((a, b) => new Date(a.request_since).getTime() - new Date(b.request_since).getTime());
 
-
-		return reply.status(200).send({
+		return {
 			incoming,
 			outgoing
-		});
+		};
 	} catch (error) {
 		console.error("Error server:", error);
-		return reply.status(500).send({ error: "Erreur serveur." });
+		throw error; // Propagate the error to be handled by the caller
 	}
 }

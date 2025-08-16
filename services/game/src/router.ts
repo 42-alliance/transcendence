@@ -31,10 +31,8 @@ export async function setupModeRoute(server: FastifyInstance) {
     });
 }; 
 
-
-
 export async function setUpRoutesGame(serverGame: FastifyInstance) {
     await setupModeRoute(serverGame);
-    await setupMatchmaking();
+    // await setupMatchmaking();
     await GameLoop();
 }

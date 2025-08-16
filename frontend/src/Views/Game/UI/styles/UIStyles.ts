@@ -1,4 +1,3 @@
-import { FontHelper } from '../../FontHelper.js';
 
 export const UIStyles = {
     container: {
@@ -21,7 +20,7 @@ export const UIStyles = {
     title: {
         color: 'white',
         marginBottom: '20px',
-        fontFamily: FontHelper.MIGHTY_SOULY_FONT,
+        fontFamily: 'Poppins, sans-serif',
         fontSize: '24px',
         fontWeight: 'bold',
         textTransform: 'uppercase',
@@ -45,7 +44,7 @@ export const UIStyles = {
             margin: '5px 0',
             border: '1px solid #5d5daa',
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
-            fontFamily: FontHelper.MIGHTY_SOULY_FONT
+            fontFamily: 'Poppins, sans-serif',
         },
         hover: {
             background: 'linear-gradient(to bottom, #5d5daa, #4a4a8f)',
@@ -103,7 +102,7 @@ export const UIStyles = {
         },
         text: {
             color: 'white',
-            fontFamily: FontHelper.MIGHTY_SOULY_FONT,
+            fontFamily: 'Poppins, sans-serif',
             fontSize: '18px'
         }
     }

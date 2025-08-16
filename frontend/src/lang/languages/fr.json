@@ -1,4 +1,136 @@
 {
-	"made-by" : "Créé avec ❤️ par la ",
-	"language-succesfully-changed" : "La langue a été changée en Français."
+  "app-title": "Dragon Pong - Gaming Moderne",
+
+  "noscript-title": "JavaScript requis",
+  "noscript-desc": "Veuillez activer JavaScript pour utiliser cette application.",
+
+  "nav-game": "Jeu",
+  "nav-home": "Accueil",
+  "nav-friends": "Amis",
+  "nav-chat": "Chat",
+
+  "settings-update-profile": "Mettre à jour le profil",
+  "settings-twofa": "Double authentification",
+  "settings-signout": "Se déconnecter",
+  "settings-delete": "Supprimer le compte",
+
+  "search-friend-title": "Rechercher des amis",
+  "search-friend-placeholder": "Saisissez le nom ou l’e-mail de l’ami",
+  "common-cancel": "Annuler",
+  "common-search": "Rechercher",
+
+  "video-error": "Votre navigateur ne prend pas en charge la lecture vidéo.",
+
+  "2fa-login-title": "Authentification à deux facteurs",
+  "2fa-login-desc": "Veuillez saisir votre code d’authentification à 6 chiffres pour continuer.",
+  "2fa-login-placeholder": "000000",
+  "2fa-login-verify": "Vérifier et se connecter",
+
+  "2fa-setup-title": "Configurer l’authentification à deux facteurs",
+  "2fa-step1": "Scannez ce QR code avec votre application d’authentification (Google Authenticator, Authy, etc.)",
+  "2fa-step2-label": "Saisissez le code de vérification depuis votre application :",
+  "2fa-setup-placeholder": "000000",
+  "2fa-backup-title": "Codes de secours",
+  "2fa-backup-desc": "Enregistrez ces codes dans un endroit sûr. Vous pourrez les utiliser si vous perdez votre appareil d’authentification.",
+  "2fa-enable": "Activer la 2FA",
+  "2fa-cancel": "Annuler",
+
+  "username-label": "Nom d’utilisateur",
+  "email-label": "E-mail",
+
+  "hero-title": "Jeu de Pong, Dragon Ball et plus encore",
+  "hero-subtitle": "Joue quand tu veux, où tu veux",
+  "cta-leadin": "Prêt à jouer ? Clique ici pour entrer dans l’arène",
+  "cta-google": "Se connecter avec Google",
+  "cta-google-aria": "Se connecter avec Google",
+  "google-logo-alt": "Logo Google",
+
+  "chat-header": "Discussions",
+  "new-chat-aria": "Nouveau chat",
+  "chat-search-placeholder": "Trouver ou démarrer une conversation",
+  "close-search-aria": "Fermer la recherche",
+
+  "credits-title": "BROKEN TEAM",
+
+  "member-mdembele-alt": "Mdembele - Broly",
+  "member-mdembele-tagline": "Le développeur légendaire",
+
+  "member-ithari-alt": "Ithari - Piccolo",
+  "member-ithari-tagline": "Le stratège de génie",
+
+  "member-rabouzia-alt": "Rabouzia - Yajirobe",
+  "member-rabouzia-tagline": "Le guerrier caché",
+
+  "member-ibaby-alt": "Ibaby",
+  "member-ibaby-role": "Boo enfant",
+  "member-ibaby-tagline": "Le fou du cluster",
+
+  "member-madamou-role": "Combattant mystère",
+  "member-madamou-tagline": "Mobuntu",
+
+  "team-quote": "« Individuellement nous sommes une goutte. Ensemble, nous sommes un océan. »",
+  "team-philosophy": "- Philosophie Broken Team",
+
+  "play-pong-btn": "JOUER À PONG",
+  "play-pong-aria": "Jouer à Pong",
+
+  "notfound-img-alt": "Utilisateur introuvable",
+  "notfound-title": "Utilisateur introuvable",
+  "notfound-desc": "Impossible de trouver cet utilisateur.<br>Il n’existe pas ou son profil a été supprimé.",
+  "notfound-back": "Retour à l'accueil",
+  "notfound-back-aria": "Retour à l'accueil",
+
+  "friends-title": "Espace Amis",
+  "friends-subtitle": "Connecte-toi avec ta communauté transcendence",
+  "friends-add-btn": "Ajouter un ami",
+  "friends-add-aria": "Ajouter un nouvel ami",
+  "friends-search-placeholder": "Rechercher un utilisateur par nom...",
+  "friends-close-search-aria": "Fermer la recherche",
+
+  "pong-bg-alt": "Arrière-plan Pong",
+
+  "ranked-img-alt": "Mode classé",
+  "ranked-title": "Classé",
+  "ranked-desc": "Mets tes compétences à l’épreuve contre des adversaires aléatoires venus de tout l’univers. Affronte l’imprévisible et grimpe au classement pour devenir l’ultime champion de Pong !",
+
+  "local-img-alt": "Partie locale",
+  "local-title": "Combat local",
+  "local-desc": "Défie tes amis dans des duels épiques en local ! Parfait pour l’entraînement ou pour régler les comptes à la façon des guerriers. Deux joueurs, un écran, une rivalité infinie !",
+  "local-badge-coop": "Coop locale",
+  "local-badge-players": "2 joueurs",
+
+  "tournament-img-alt": "Tournoi",
+  "tournament-title": "Arc Tournoi",
+  "tournament-desc": "Entre dans un tableau de tournoi légendaire ! Enchaîne les manches contre les combattants les plus forts. Seuls les plus doués atteindront la finale !",
+  "tournament-badge-bracket": "Mode tableau",
+  "tournament-badge-rounds": "Manches multiples",
+
+  "ai-img-alt": "Partie IA",
+  "ai-title": "Dojo d’entraînement IA",
+  "ai-desc": "Entraîne-toi contre une intelligence artificielle redoutable ! Maîtrise tes techniques face à des niveaux de difficulté croissants. Perfectionne-toi avant d’affronter de vrais guerriers !",
+  "ai-badge-opponent": "Adversaire IA",
+  "ai-badge-training": "Mode entraînement",
+
+  "play-btn": "COMBATS !",
+
+  "carousel-prev-aria": "Précédent",
+  "carousel-next-aria": "Suivant",
+
+  "auth-section-aria": "Section d’authentification",
+  "login-card-desktop-aria": "Carte de connexion (bureau)",
+  "login-card-mobile-aria": "Carte de connexion (mobile)",
+
+  "game-history-aria": "Panneau d’historique des matchs",
+  "match-history-title": "Historique des matchs",
+  "match-history-games": "Parties",
+  "common-friends-title": "Amis en commun",
+  "common-friends-aria": "Liste des amis en commun",
+
+  "language-menu-aria": "Changer de langue",
+  "language-menu-title": "Langue",
+  "language-menu-sub": "Choisis ta langue",
+  "lang-en": "English",
+  "lang-fr": "Français",
+  "lang-es": "Español",
+  "lang-de": "Deutsch"
 }

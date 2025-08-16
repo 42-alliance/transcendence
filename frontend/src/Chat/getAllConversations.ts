@@ -1,5 +1,5 @@
 import { Conversation } from "../types.js";
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 
 
@@ -11,10 +11,11 @@ import { fetchApi } from "../utils.js";
 
 export async function getAllConversations(): Promise<Conversation[]> {
   try {
-	const response = await fetchApi("http://localhost:8000/chat/conversations", {
+	const response = await fetchApi("/chat/conversations", {
 	  method: "GET",
 	});
 
+	
 	if (!response.ok) {
 	  throw new Error(`Error fetching conversations: ${response.statusText}`);
 	}

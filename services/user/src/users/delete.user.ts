@@ -17,7 +17,7 @@ export async function deleteMediaFile(file_url: string) {
 		const filepath = url.pathname.split('/').pop() || ""; // Get the last part of the pathname
 	
 		const headers = new Headers();
-		const response = await fetch(`http://${config.media.host}:${config.media.port}/files/${filepath}`, {
+		const response = await fetch(`https://${config.media.host}:${config.media.port}/files/${filepath}`, {
 			method: "DELETE",
 			headers: headers,
 		});
@@ -31,7 +31,7 @@ export async function deleteMediaFile(file_url: string) {
 
 async function deleteUserInChatService(userId: number) {
 	try {
-		const response = await fetch(`http://${config.chat.host}:${config.chat.port}/chat/conversations/users`, {
+		const response = await fetch(`https://${config.chat.host}:${config.chat.port}/chat/conversations/users`, {
 			method: "DELETE",
 			headers: {
 				"x-user-id": userId.toString(),

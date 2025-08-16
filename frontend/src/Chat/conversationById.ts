@@ -1,9 +1,9 @@
 import { Conversation } from "../types.js";
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 
 export async function conversationById(conversationId: number): Promise<Conversation> {
-	const response = await fetchApi(`http://localhost:8000/chat/conversations/${conversationId}/infos`, {
+	const response = await fetchApi(`chat/conversations/${conversationId}/infos`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",

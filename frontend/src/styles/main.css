@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Buttons */
+  .btn-ki {
+    @apply relative overflow-hidden px-6 py-3 rounded-lg font-dbz text-white transition-all duration-300 transform hover:scale-105;
+  }
+
+  .btn-ki-primary {
+    @apply bg-dbz-orange shadow-ki;
+  }
+
+  .btn-ki-primary:hover {
+    @apply bg-gradient-to-r from-dbz-orange to-dbz-yellow;
+  }
+
+  .btn-ki-secondary {
+    @apply bg-dbz-blue shadow-ssjb;
+  }
+
+  .btn-ki-secondary:hover {
+    @apply bg-gradient-to-r from-dbz-blue to-dbz-purple;
+  }
+
+  /* Cards */
+  .card-power {
+    @apply relative bg-background-dark rounded-lg p-6 transition-transform duration-300;
+  }
+
+  .card-power:hover {
+    @apply transform scale-105 shadow-ki;
+  }
+
+  /* Power Level Display */
+  .power-level {
+    @apply font-power text-2xl bg-clip-text text-transparent bg-gradient-to-r from-dbz-yellow to-dbz-orange;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply relative px-4 py-2 text-white font-dbz transition-colors duration-300 hover:text-dbz-yellow;
+  }
+
+  .nav-item.active {
+    @apply text-dbz-orange;
+  }
+
+  .nav-item.active::after {
+    @apply content-[''] absolute bottom-0 left-0 w-full h-0.5 bg-dbz-orange;
+  }
+
+  /* Modal */
+  .modal-dbz {
+    @apply fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50;
+  }
+
+  .modal-dbz-content {
+    @apply bg-background-dark p-8 rounded-lg shadow-ki relative animate-power-up;
+  }
+}

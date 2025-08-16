@@ -1,14 +1,15 @@
 import { Type } from "@sinclair/typebox";
 import { prisma } from "../index.js";
 import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
-import { extractUserId } from "../utils.js";
+import { extractUserId, getStatus } from "../utils.js";
+import { config } from "../config.js";
 
 export const getUserByNameSchema: FastifySchema = {
 	headers: Type.Object({
 		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
 	}),
 	params: Type.Object({
-		name: Type.String({maxLength: 100, pattern: "^[a-zA-Z0-9_]+$"}),
+		name: Type.String({pattern: config.name_pattern, }),
 	})
 };
 
@@ -17,6 +18,8 @@ export async function getUserByName(
 	reply: FastifyReply
 ) {
 	const { name } = request.params;
+
+	console.log("getUserByName called with name:", name);
 
 	try {
 		// Utilisation de $queryRawUnsafe pour insérer dynamiquement la valeur de name
@@ -189,7 +192,7 @@ export async function getUserByName(
     		banner: user.banner,
     		bio: user.bio,
     		created_at: user.created_at,
-			status: user.is_online === "online" && delta < 10 * 60 * 1000 ? "online" : user.is_online === "offline" ? "offline" : "away",
+			status: getStatus(user.is_online, user.lastSeen),
 			common_friends: common_friends_users,
 			games: user_games
 		});

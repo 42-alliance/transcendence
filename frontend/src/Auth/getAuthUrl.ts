@@ -1,4 +1,4 @@
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 /**
  * Fetches the authentication URL from the server and redirects the user to it.
@@ -6,7 +6,7 @@ import { fetchApi } from "../utils.js";
 export async function getAuthUrl(): Promise<void> {
 	try {
 		const headers = new Headers();
-		const response = await fetchApi('http://localhost:8000/auth/redirect', {
+		const response = await fetchApi('/auth/redirect', {
 			method: 'GET',
 			headers: headers,
 		});

@@ -1,7 +1,7 @@
 import { me } from "./me.js";
 
 /**
- * Checks if the user is logged in by calling the `me` function.
+ * Checks if the user is logged in by calling the `getUserInfo` function.
  * 
  * @returns A boolean indicating whether the user is logged in.
  */

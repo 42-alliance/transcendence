@@ -9,7 +9,7 @@ export async function updateLastSeen(server: FastifyInstance, request: FastifyRe
 		}
 
 		const userId = request.headers['x-user-id'];
-		await fetch(`http://${config.users.host}:${config.users.port}/users/clock`, {
+		await fetch(`https://${config.users.host}:${config.users.port}/users/clock`, {
 			method: 'GET',
 			headers: {
 				'x-user-id': String(userId) 

@@ -24,7 +24,9 @@
 		"fastify": "^5.2.1",
 		"fastify-plugin": "^5.0.1",
 		"nodemon": "^3.1.9",
-		"pino-pretty": "^13.0.0"
+		"pino-pretty": "^13.0.0",
+		"speakeasy": "^2.0.0",    
+  	"qrcode": "^1.5.3"        
 	},
 	"devDependencies": {
 		"@types/node": "^22.13.5",
