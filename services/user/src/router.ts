@@ -20,7 +20,7 @@ import {
 } from "./friends/status/updateFriendsStatus.js";
 import { getAllUsers, getAllUsersSchema } from "./users/getAllUsers.js";
 import { getUserByName, getUserByNameSchema } from "./users/getUserByName.js";
-import { addUserDatabase, addUserDatabaseSchema } from "./users/addUser.js";
+import { addUserDatabase, addUserDatabasePwd, addUserDatabasePwdSchema, addUserDatabaseSchema } from "./users/addUser.js";
 import { UpdateTwoFa } from "./users/@me/updateUserInfos.js";
 import { setupTwoFa } from "./users/@me/setupTwoFa.js";
 import { me, meSchema } from "./users/@me/@me.js";
@@ -34,6 +34,7 @@ import { storeGameDatabase } from "./game/storeGameDatabase.js";
 import { getUserBlockedList } from "./users/getUserBlockedList.js";
 import { unblockSomeone } from "./friends/status/unblockSomeone.js";
 import { blockSomeone } from "./friends/status/blockSomeone.js";
+import { get_password_hashSchema, get_password_hash } from "./users/get_Password_Hash.js"
 // import { check2faEnabled } from "./users/@me/check2faEnabled.js";
 // FIX: Update the path or create the file if missing
 import { check2faEnabled } from "./users/@me/check2faEnabled.js";
@@ -79,6 +80,14 @@ async function setupUsersRoute(server: FastifyInstance) {
       return await addUserDatabase(request, reply);
     }
   );
+
+  server.post(
+    "user-pwd",
+    { schema: addUserDatabasePwdSchema},
+    async function handler(request, reply) {
+      return await addUserDatabasePwd(request, reply);
+    }
+  )
 
   server.get(
     "/users/@me",
@@ -312,8 +321,20 @@ async function setupBlockRoute(server: FastifyInstance) {
   );
 }
 
+async function setupAuthRoute(server: FastifyInstance) {
+
+  server.get<{ Params: { email: string }}>(
+    "/pwd-by-email/:email",
+    { schema: get_password_hashSchema } ,
+    async function handler(request, reply) {
+      return await get_password_hash(request, reply);
+    }
+  );
+}
+
 export async function setupRoutes(server: FastifyInstance) {
   await setupUsersRoute(server);
+  await setupAuthRoute(server);
   await setupFriendsRoute(server);
   await setupBlockRoute(server);
   await setupGameRoute(server);
