@@ -5,9 +5,6 @@ import { extractUserId, getStatus } from "../utils.js";
 import { config } from "../config.js";
 
 export const get_password_hashSchema: FastifySchema = {
-	headers: Type.Object({
-		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
-	}),
 	params: Type.Object({
 		email: Type.String(), //TODO: peut-etre mettre un pattern
 	})

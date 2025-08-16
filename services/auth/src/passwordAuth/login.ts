@@ -29,8 +29,17 @@ export async function login_by_pwd(request: FastifyRequest, reply: FastifyReply)
             headers: headers,
         });
 
-        if (response.ok)
+        if (!response.ok)
             throw new Error("fail to resolve email " + response.statusText);
         const result: loginResponse = await response.json();
-    }
+        let pwd = result.hash;
+        bcrypt.compare(body.password, pwd, function(result, err) {
+            if (!result) {
+                return reply.status(400).send({ error: "Incorrect password"});
+            }
+        })
+    } catch (error: any) {
+            return reply.status(500).send({error: `Erreur serveur: ${error}`});
+    } 
+    return reply.status(200).send({message: "all right okay"});
 }

@@ -122,13 +122,16 @@ export async function addUserDatabase(request: FastifyRequest, reply: FastifyRep
  */
 export async function addUserDatabasePwd(request: FastifyRequest, reply: FastifyReply): Promise<object> {
     const body: userBodyPwd = request.body as userBodyPwd;
+	console.error("OKAY OKAY");
 
     try {
+		console.error("JE PASSE ICI");
 		const user = await prisma.users.findUnique({
 			where: {
 			  email: body.email 
 			}
 		});
+		console.error("L'EMAIL EST PASSE");
 
 		if (user) {
 			return reply.status(200).send({ id: user.id });

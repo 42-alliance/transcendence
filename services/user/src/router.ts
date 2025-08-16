@@ -38,6 +38,7 @@ import { get_password_hashSchema, get_password_hash } from "./users/get_Password
 // import { check2faEnabled } from "./users/@me/check2faEnabled.js";
 // FIX: Update the path or create the file if missing
 import { check2faEnabled } from "./users/@me/check2faEnabled.js";
+import { config } from "./config.js"
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -82,7 +83,7 @@ async function setupUsersRoute(server: FastifyInstance) {
   );
 
   server.post(
-    "user-pwd",
+    "/user-pwd",
     { schema: addUserDatabasePwdSchema},
     async function handler(request, reply) {
       return await addUserDatabasePwd(request, reply);
@@ -322,6 +323,7 @@ async function setupBlockRoute(server: FastifyInstance) {
 }
 
 async function setupAuthRoute(server: FastifyInstance) {
+
 
   server.get<{ Params: { email: string }}>(
     "/pwd-by-email/:email",
