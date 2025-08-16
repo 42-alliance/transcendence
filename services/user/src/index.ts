@@ -3,8 +3,12 @@ import { setupRoutes } from './router.js';
 import { PrismaClient } from '../prisma/node_modules/@prisma/client/client.js';
 import multipart from "@fastify/multipart";
 import cookie from "@fastify/cookie";
+
 import { setupWebsocket } from './websocket/setupWebsocket.js';
 import websocket, { WebSocket } from '@fastify/websocket';
+import fs from "fs"
+import path from 'path';
+
 
 export const prisma = new PrismaClient(); // client prisma
 
@@ -15,6 +19,11 @@ export const server = fastify({
             options: { colorize: true },
         },
     },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/user.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/user.crt")),
+		ca: fs.readFileSync(path.resolve("./ssl/ca.pem")),
+	}
 });
 
 server.register(cookie, {
@@ -41,7 +50,6 @@ server.register(async function (server) {
 		setupWebsocket(socket, req);
 	});
 });
-
 
 await setupRoutes(server);
 

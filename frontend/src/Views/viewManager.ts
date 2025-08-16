@@ -2,18 +2,25 @@ import { setupChatWebSocket } from "../Chat/setupWebSocket.js";
 import { WebSockets } from "../types.js";
 import { getUserInfos } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
-import Auth from "./Auth/Auth.js";
-import Game from "./Game/Game.js";
-import AuthSuccess from "./Auth/AuthSuccess.js";
-import Dashboard from "./Dashboard/Dashboard.js";
-import User from "./User/User.js";
+import {
+  isPending2FAVerification,
+  isProtectedRoute,
+  checkInitial2FAState,
+} from "../User/TwoFa/twoFaState.js";
+import { showLoginVerification } from "../User/TwoFa/verify2faLogin.js";
+import { default as Auth } from "./Auth/Auth.js";
+import { default as Game } from "./Game/Game.js";
+import { default as AuthSuccess } from "./Auth/AuthSuccess.js";
+import { default as Dashboard } from "./Dashboard/Dashboard.js";
+import { default as User } from "./User/User.js";
 import { dynamicDisplay } from "./dynamicDisplay.js";
-import Friends from "./Friends/Friends.js";
-import Chat from "./Chat/Chat.js";
-import AView from "./AView.js";
+import { default as Friends } from "./Friends/Friends.js";
+import { default as Chat } from "./Chat/Chat.js";
+import { default as AView } from "./AView.js";
 import { setupUserWebsocket } from "../User/setupWebsockets.js";
 import { GameWebSocket, setupGameWebSocket } from "./Game/GameWebSocket.js";
-import Me from "./Me/Me.js";
+import { default as Me } from "./Me/Me.js";
+import { default as Error404 } from "./Error404/Error404.js";
 
 // Initialisation du WebSocket
 export const webSockets: WebSockets = {
@@ -23,7 +30,7 @@ export const webSockets: WebSockets = {
 };
 
 export function setGameWsClass(instance: GameWebSocket): void {
-	gameWsClass = instance;
+  gameWsClass = instance;
 }
 
 export let gameWsClass: GameWebSocket | null = null;
@@ -36,21 +43,29 @@ export const navigateTo = (url: string): void => {
 
 // Fonction de vérification de l'authentification
 async function needToAuthenticate(currentPath: string): Promise<boolean> {
-  if ((currentPath != "/auth" && currentPath != "/auth-success") && (await userIsLogin()) === false)
+  if (
+    currentPath != "/auth" &&
+    currentPath != "/auth-success" &&
+    (await userIsLogin()) === false
+  )
     return true;
   return false;
 }
 
 let previousPage: string | undefined;
 
-function matchRoute(pathPattern: string, currentPath: string): { matched: boolean, params: Record<string, string> } {
-  const patternParts = pathPattern.split('/').filter(Boolean);
-  const pathParts = currentPath.split('/').filter(Boolean);
-  if (patternParts.length !== pathParts.length) return { matched: false, params: {} };
+function matchRoute(
+  pathPattern: string,
+  currentPath: string
+): { matched: boolean; params: Record<string, string> } {
+  const patternParts = pathPattern.split("/").filter(Boolean);
+  const pathParts = currentPath.split("/").filter(Boolean);
+  if (patternParts.length !== pathParts.length)
+    return { matched: false, params: {} };
 
   let params: Record<string, string> = {};
   for (let i = 0; i < patternParts.length; i++) {
-    if (patternParts[i].startsWith(':')) {
+    if (patternParts[i].startsWith(":")) {
       params[patternParts[i].slice(1)] = decodeURIComponent(pathParts[i]);
     } else if (patternParts[i] !== pathParts[i]) {
       return { matched: false, params: {} };
@@ -61,11 +76,16 @@ function matchRoute(pathPattern: string, currentPath: string): { matched: boolea
 
 // Fonction principale du routeur
 export const router = async (): Promise<void> => {
-
   console.error("entre dans le router");
-  const existingResultModal = document.getElementById('game-result');
+  const existingResultModal = document.getElementById("game-result");
   if (existingResultModal) {
     existingResultModal.remove();
+  }
+
+  // Vérifier l'état initial du 2FA au chargement
+  const isLogin = await userIsLogin();
+  if (isLogin) {
+    await checkInitial2FAState();
   }
 
   type Route = {
@@ -83,7 +103,6 @@ export const router = async (): Promise<void> => {
     { path: "/auth", view: Auth },
     { path: "/me", view: Me },
     { path: "/:username", view: User },
-    // { path: "/selection", view: Selection },
   ];
 
   let matchedRoute = null;
@@ -99,54 +118,60 @@ export const router = async (): Promise<void> => {
   }
 
   if (!matchedRoute) {
-	  matchedRoute = { view: Dashboard, path: "/" };
-	  routeParams = {};
-	}
+    matchedRoute = { view: Error404, path: "/" };
+    routeParams = {};
+  }
 
   // Check si changement réel de page/params
   const currentKey = location.pathname + JSON.stringify(routeParams);
-  if (previousPage && previousPage === currentKey && matchedRoute.path !== "/game") return;
+  if (
+    previousPage &&
+    previousPage === currentKey &&
+    matchedRoute.path !== "/game"
+  )
+    return;
   previousPage = currentKey;
 
-  await getUserInfos();
+  const user = await getUserInfos();
 
   // Vérifie authentification si nécessaire
-  if (await needToAuthenticate(matchedRoute.path) === true) {
+  if ((await needToAuthenticate(matchedRoute.path)) === true) {
     navigateTo("/auth");
     return;
   }
 
-  const isLogin = await userIsLogin();
-  // Setup websocket si loggé et pas encore fait
-  if (isLogin && webSockets.chat === null) {
-    setupChatWebSocket();
+  // Vérifier le statut 2FA
+  if (isLogin && isPending2FAVerification()) {
+    // Ne permettre l'accès qu'aux routes non protégées
+    if (isProtectedRoute(location.pathname)) {
+      console.log("Access blocked: 2FA verification required");
+      await showLoginVerification();
+      return;
+    }
   }
-  
-  // Setup websocket si loggé et pas encore fait
-  if (isLogin && webSockets.user === null) {
-    setupUserWebsocket();
-  }
-  
-  // Setup websocket si loggé et pas encore fait
-  if (isLogin && webSockets.game === null) {
-    setupGameWebSocket();
-    const gameInstance = new Game();
-    await gameInstance.executeViewScript();
-    console.error("execution du script");
-  }
-  // console.error("si je passe ici sans voir le log d'avant c'est que la condition pu des pieds");
-// Crée la vue (passe les params si besoin)
-const view = new matchedRoute.view();
 
-const appId = document.getElementById("app");
-if (appId) {
-	appId.innerHTML = await view.getHtml();
-}
+  // Setup websocket si loggé et pas encore fait
+  if (isLogin && !isPending2FAVerification()) {
+    if (webSockets.chat === null) {
+      await setupChatWebSocket();
+    }
+    if (webSockets.user === null) {
+      await setupUserWebsocket();
+    }
+    if (webSockets.game === null) {
+      await setupGameWebSocket();
+      const gameInstance = new Game();
+      await gameInstance.executeViewScript();
+    }
+  }
 
-// Script supplémentaire si Game (exécution du JS de la vue)
-// if (view instanceof Game) {
-// 	await view.executeViewScript();
-// }
+  // Crée la vue (passe les params si besoin)
+  const view = new matchedRoute.view();
+
+  const appId = document.getElementById("app");
+  if (appId) {
+    appId.innerHTML = await view.getHtml();
+  }
 
   // Toujours passer les params à ta fonction dynamique
   await dynamicDisplay(routeParams);

@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../index.js';
 import { extractUserIdHeader, getUserById } from '../utils.js';
 
-export async function getMessages(server: FastifyInstance, request: FastifyRequest<{Params: { conversationId: string }}>, reply: FastifyReply) {
+export async function getMessages(request: FastifyRequest<{Params: { conversationId: string }}>, reply: FastifyReply) {
 	try {
 		const { conversationId } = request.params;
 
@@ -42,11 +42,20 @@ export async function getMessages(server: FastifyInstance, request: FastifyReque
 			orderBy: {
 				createdAt: 'desc' // Messages les plus récents d'abord
 			},
-			include: {
+			select: {
+				id: true,
+				userId: true,
+				createdAt: true,
+				content: true,
+				conversationId: true,
+				name: true,
+				picture: true,
+				readBy: true,
 				conversation: {
 					select: {
 						id: true,
 						name: true,
+						isGroup: true,
 						members: {
 							select: {
 								userId: true,
@@ -56,8 +65,7 @@ export async function getMessages(server: FastifyInstance, request: FastifyReque
 						}
 					}
 				},
-				readBy: true // Inclure les informations de lecture
-			}
+			},
 		});
   
 		// Après avoir récupéré les messages :

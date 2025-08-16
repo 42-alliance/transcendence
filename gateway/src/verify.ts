@@ -1,6 +1,8 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 
 export async function verifyJWT(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
+	
+	if (request.method === 'OPTIONS') { console.log("je passe par ic alors que c'est une option"); return;}
 	try {
 		await request.jwtVerify(); // Verifies token & stores it in `request.user`
 
@@ -24,7 +26,9 @@ export async function verifyJWT(server: FastifyInstance, request: FastifyRequest
 	}
 }
 
+
 export async function verifyJWT_WebSocket(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
+	if (request.method === 'OPTIONS') { console.log("je passe par ic alors que c'est une option"); return;}
 	try {
 		// ✅ Récupérer le token depuis `Sec-WebSocket-Protocol`
 		const protocolHeader = request.headers["sec-websocket-protocol"];
@@ -32,7 +36,8 @@ export async function verifyJWT_WebSocket(server: FastifyInstance, request: Fast
 			throw new Error("Missing WebSocket protocol header");
 		}
 
-		const token = protocolHeader.split(", ")[1]; // ✅ Récupère le token
+		console.log("✅ WebSocket protocol header:", protocolHeader);
+		const token = protocolHeader.split(" ")[1]; // ✅ Récupère le token
 		if (!token) {
 			throw new Error("Missing token");
 		}

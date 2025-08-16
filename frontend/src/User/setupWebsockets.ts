@@ -3,10 +3,11 @@ import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "
 import { showToast } from "../Views/triggerToast.js";
 import { addAttribute, goChat, miniPendingUserCard, writeStatus } from "../Views/userCard/userCard.js";
 import { gameWsClass, navigateTo, webSockets } from "../Views/viewManager.js";
-import { getAccessToken } from "../utils.js";
+import { getAccessToken } from "../fetchApi.js";
 import { sidebar_visibility } from "../sidebar.js";
 import { createConversation } from "../Chat/createConversation.js";
 import { getUserInfos } from "./me.js";
+import { showPendingFriends } from "../Friends/showPendingRequest.js";
 
 async function insertPendingFriendRequest(friend: any) {
 	const incoming_card = document.getElementById("friend-list-card-incoming");
@@ -36,7 +37,6 @@ async function insertPendingFriendRequest(friend: any) {
 
 	let incomingFriendLengthElem = document.getElementById("incoming-friend-length");
 	if (incomingFriendLengthElem) {
-		console.log("Current incoming friend length:", incomingFriendLengthElem);
 		const newLength = parseInt(incomingFriendLengthElem.innerHTML) + 1;
 		incomingFriendLengthElem.innerHTML = newLength.toString();
 	}
@@ -44,15 +44,6 @@ async function insertPendingFriendRequest(friend: any) {
 	document.getElementById("no-incoming-friend")?.classList.add("hidden");
 
 	incoming_card.prepend(card);
-
-	console.log("Inserted pending friend request for:", friend.name);
-	// console.log("Inserting pending friend request for:", friend);
-	// const li = pendingFriendSidebarCard(friend);
-
-	// const header = document.getElementById("pending-friend-header");
-	// if (!header) return;
-
-	// header.after(li);
 }
 
 export function removePendingFriendRequest(friend: any) {
@@ -109,99 +100,112 @@ export function removeFriendDiv(friendId: number) {
 	}
 }
 
-export async function setupUserWebsocket() {
-	const wsUrl = `ws://localhost:8000/ws/users`
+function handleFriendRequest(msg: any) {
+	const friend = msg.friend;
+	showPendingFriends();
 
-	const token = getAccessToken();
-	if (!token) return;
+	showToast({
+		text: `${friend.name} send you a friend request !`,
+		img: friend.picture,
+		buttons: [
+			{ label: "Accept", onClick: async () => { await updateFriendStatus(friend.id, "accepted"); removePendingFriendRequest(friend) } },
+			{ label: "Refuse", onClick: async () => { await updateFriendStatus(friend.id, "rejected"); removePendingFriendRequest(friend) } }
+		],
+		duration: 8000
+	});
+	insertPendingFriendRequest(friend);
+}
 
-	webSockets.user = new WebSocket(wsUrl, ["Authorization", token]);
+function handleFriendRemoved(msg: any) {
+	const id = msg.data.friend_id;
+	removeFriendDiv(id);
+	console.log("📩 Friend removed => ", msg);
+}
 
-  
-  webSockets.user.onopen = () => {
-	console.log('WebSocket connection established');
-  };
-
-
-  webSockets.user.onmessage = async (event) => {
-	if (!event.data) return;
-
-	const msg = JSON.parse(event.data);
-
-
-	console.log("msg.type == ", msg.type)
-	if (msg.type === "friend_request") {
-
-		console.log("📩 Friend request received => ", msg);
-		const friend = msg.friend;
-		console.log("Friend request from: ", friend);
-		await sidebar_visibility();
-
-		showToast({
-			text: `${friend.name} send you a friend request !`,
-			img: friend.picture,
-			buttons: [
-				{ label: "Accept", onClick: async () => { await updateFriendStatus(friend.id, "accepted"); removePendingFriendRequest(friend) } },
-				{ label: "Refuse", onClick: async () => { await updateFriendStatus(friend.id, "rejected"); removePendingFriendRequest(friend) } }
-			],
-			duration: 8000 // 0 = ne s’enlève pas tant qu’on ferme pas
-		});
-		await insertPendingFriendRequest(friend);
-	}
-
-	else if (msg.type === "friend_removed") {
-		const id = msg.data.friend_id;
-		removeFriendDiv(id);
-		console.log("📩 Friend removed => ", msg);
-	}
-
-	else if (msg.type === "friendship_status_update" && msg.data.status === "accepted") {
-		console.log("📩 Friend request accepted => ", msg);
+function handleFriendshipStatusUpdate(msg: any) {
+	const status = msg.data.status;
+	if (status === "accepted") {
 		const friend = msg.data.friend;
 		showToast({
 			text: `${friend.name} accepted your friend request !`,
 			img: friend.picture,
-			buttons: [] ,
-			duration: 5000 // 0 = ne s’enlève pas tant qu’on ferme pas
+			buttons: [],
+			duration: 5000
 		});
 		sidebar_visibility();
 		displayAllFriendsDynamically();
-	}
-	else if (msg.type === "friendship_status_update" && msg.data.status === "rejected") {
+	} else if (status === "rejected") {
 		console.log("📩 Friend request rejected => ", msg);
 		displayPendingFriendsDynamically();
 	}
-	else if (msg.type === "online_status") {
-		const userId = msg.user_id;
-		const status = msg.status;
-		
-		const all_indicators = document.querySelectorAll(`.status-indicator-${userId}`);
-		if (all_indicators) {
-			all_indicators.forEach((elem) => {
-				addAttribute(elem, status);
-			});
-		}
+}
 
-		const all_status_texts = document.querySelectorAll(`.status-text-${userId}`);
-		if (all_status_texts) {
-			all_status_texts.forEach((elem) => {
-				writeStatus(elem, status);
-			});
-		}
-		sidebar_visibility();
+function handleOnlineStatus(msg: any) {
+	const userId = msg.user_id;
+	const status = msg.status;
+
+	const all_indicators = document.querySelectorAll(`.status-indicator-${userId}`);
+	if (all_indicators) {
+		all_indicators.forEach((elem) => {
+			addAttribute(elem, status);
+		});
 	}
 
+	const all_status_texts = document.querySelectorAll(`.status-text-${userId}`);
+	if (all_status_texts) {
+		all_status_texts.forEach((elem) => {
+			writeStatus(elem, status);
+		});
+	}
+	sidebar_visibility();
+}
 
-	console.log('Message from server:', event.data);
-  };
+function handleUserWebsocketMessage(event: MessageEvent) {
+	if (!event.data) return;
 
-  webSockets.user.onerror = (error) => {
-	console.error('WebSocket error:', error);
-  };
+	const msg = JSON.parse(event.data);
 
-  webSockets.user.onclose = () => {
-	console.log('WebSocket connection closed');
-	setTimeout(setupUserWebsocket, 3000);
+	console.log("msg.type == ", msg.type);
 
-  };
+	switch (msg.type) {
+		case "friend_request":
+			handleFriendRequest(msg);
+			break;
+		case "friend_removed":
+			handleFriendRemoved(msg);
+			break;
+		case "friendship_status_update":
+			handleFriendshipStatusUpdate(msg);
+			break;
+		case "online_status":
+			handleOnlineStatus(msg);
+			break;
+		default:
+			console.log('Unknown message type:', msg.type);
+	}
+
+}
+
+export async function setupUserWebsocket() {
+	const wsUrl = `wss://localhost:8000/ws/users`;
+
+	const token = await getAccessToken();
+	if (!token) return;
+
+	webSockets.user = new WebSocket(wsUrl, ["Authorization", token]);
+
+	webSockets.user.onopen = () => {
+		console.log('WebSocket connection established');
+	};
+
+	webSockets.user.onmessage = handleUserWebsocketMessage;
+
+	webSockets.user.onerror = (error) => {
+		console.error('WebSocket error:', error);
+	};
+
+	webSockets.user.onclose = () => {
+		console.log('WebSocket connection closed');
+		setTimeout(setupUserWebsocket, 3000);
+	};
 }

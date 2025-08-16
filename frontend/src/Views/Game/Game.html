@@ -1,166 +1,159 @@
-<div id="game-wrapper" class="h-full w-full flex items-center justify-center bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800 px-4 py-8">
-   <!-- Canvas container (hidden by default) -->
-    <div id="canvas-container" style="display: none;">
-        <canvas id="gameCanvas" width="1600" height="800">
-            Your browser does not support the HTML5 canvas tag.
-        </canvas>
-    </div>
-   
-    <div id="selection-grid" class="flex flex-col justify-center items-center w-full min-h-[80vh] max-w-5xl mx-auto relative">
-        <!-- Decorative blurred background shapes (subtle, consistent colors) -->
-        <div class="absolute -top-20 -left-20 w-72 h-72 bg-blue-900 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-blue-700 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
-        <!-- Game Mode Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
-            <div id="randomAdversaireButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-800 via-blue-700 to-blue-600 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
-                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">🌐</div>
-                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">Random Adversaire</h2>
-                <p class="text-blue-100 text-base mt-1">Play with a random online opponent</p>
-            </div>
-            <div id="localButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
-                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">👥</div>
-                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">Local</h2>
-                <p class="text-blue-100 text-base mt-1">Challenge a friend on your device</p>
-            </div>
-            <div id="tournamentButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-800 via-blue-700 to-blue-600 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
-                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">🏆</div>
-                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">Tournament</h2>
-                <p class="text-blue-100 text-base mt-1">Compete in a tournament bracket</p>
-            </div>
-            <div id="iaButton" class="group flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl p-10 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 border border-blue-500 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-lime-400">
-                <div class="text-6xl mb-5 drop-shadow group-hover:animate-bounce">🤖</div>
-                <h2 class="font-bold text-3xl mb-1 font-sans tracking-wide text-white">IA</h2>
-                <p class="text-blue-100 text-base mt-1">Play against the computer</p>
-            </div>
+<link rel="stylesheet" href="src/Views/Game/carousel.css" />
+
+<div
+  id="game-wrapper"
+  class="h-full w-full flex items-center justify-center px-4 py-8 overflow-hidden"
+>
+  <!-- Canvas container (hidden by default) -->
+  <div id="canvas-container" style="display: none">
+    <canvas id="gameCanvas" width="1600" height="800">
+      <img
+        src="assets/game/pong_background.webp"
+        alt="Pong Background"
+        data-i18n="pong-bg-alt"
+        data-i18n-attr="alt"
+      />
+    </canvas>
+  </div>
+
+  <div
+    id="slider"
+    class="flex flex-col justify-center items-center w-full min-h-[80vh] mx-auto relative"
+  >
+    <!-- Carousel Container -->
+    <div id="carousel-container" class="carousel-container">
+      <div id="carousel" class="carousel">
+
+        <!-- Ranked -->
+        <div class="card active" id="randomAdversaireButton" data-index="0">
+          <div class="card-image">
+            <img
+              src="assets/game/ranked_play.webp"
+              alt="Ranked mode"
+              class="game-mode-image"
+              data-i18n="ranked-img-alt"
+              data-i18n-attr="alt"
+            />
+          </div>
+          <div class="card-content">
+            <h3 class="card-title" data-i18n="ranked-title">Ranked</h3>
+            <p class="card-description" data-i18n="ranked-desc">
+              Test your skills against random warriors from across the universe.
+              Face unpredictable opponents and climb the power rankings to
+              become the ultimate Pong champion!
+            </p>
+            <div class="card-features"></div>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
+          </div>
         </div>
-        
+
+        <!-- Local Battle -->
+        <div class="card" id="localButton" data-index="1">
+          <div class="card-image">
+            <img
+              src="assets/game/local_game.webp"
+              alt="Local game"
+              class="game-mode-image"
+              data-i18n="local-img-alt"
+              data-i18n-attr="alt"
+            />
+          </div>
+          <div class="card-content">
+            <h3 class="card-title" data-i18n="local-title">Local Battle</h3>
+            <p class="card-description" data-i18n="local-desc">
+              Challenge your friends in epic local duels! Perfect for training
+              sessions or settling disputes the warrior way. Two players, one
+              screen, infinite rivalry!
+            </p>
+            <div class="card-features">
+              <span class="feature-badge" data-i18n="local-badge-coop">Local Co-op</span>
+              <span class="feature-badge" data-i18n="local-badge-players">2 Players</span>
+            </div>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
+          </div>
+        </div>
+
+        <!-- Tournament -->
+        <div class="card" id="tournamentButton" data-index="2">
+          <div class="card-image">
+            <img
+              src="assets/game/tournament.webp"
+              alt="Tournament"
+              class="game-mode-image"
+              data-i18n="tournament-img-alt"
+              data-i18n-attr="alt"
+            />
+          </div>
+          <div class="card-content">
+            <h3 class="card-title" data-i18n="tournament-title">Tournament Arc</h3>
+            <p class="card-description" data-i18n="tournament-desc">
+              Enter the legendary tournament bracket system! Battle through
+              multiple rounds against the strongest fighters. Only the most
+              skilled warriors will reach the finals!
+            </p>
+            <div class="card-features">
+              <span class="feature-badge" data-i18n="tournament-badge-bracket">Bracket Mode</span>
+              <span class="feature-badge" data-i18n="tournament-badge-rounds">Multiple Rounds</span>
+            </div>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
+          </div>
+        </div>
+
+        <!-- AI -->
+        <div class="card" id="iaButton" data-index="3">
+          <div class="card-image">
+            <img
+              src="assets/game/cops_vs_ia.jpg"
+              alt="AI game"
+              class="game-mode-image"
+              data-i18n="ai-img-alt"
+              data-i18n-attr="alt"
+            />
+          </div>
+          <div class="card-content">
+            <h3 class="card-title" data-i18n="ai-title">AI Training Grounds</h3>
+            <p class="card-description" data-i18n="ai-desc">
+              Train against the ultimate artificial intelligence! Master your
+              techniques against increasingly difficult AI opponents. Perfect
+              your skills before facing real warriors!
+            </p>
+            <div class="card-features">
+              <span class="feature-badge" data-i18n="ai-badge-opponent">AI Opponent</span>
+              <span class="feature-badge" data-i18n="ai-badge-training">Training Mode</span>
+            </div>
+            <button class="play-button" data-i18n="play-btn">FIGHT!</button>
+          </div>
+        </div>
+
+      </div>
     </div>
+
+    <!-- Navigation buttons -->
+    <div class="carousel-nav">
+      <button
+        id="previous"
+        class="nav-btn prev-btn"
+        data-i18n-attr="aria-label:carousel-prev-aria"
+        aria-label="Previous"
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+      <button
+        id="next"
+        class="nav-btn next-btn"
+        data-i18n-attr="aria-label:carousel-next-aria"
+        aria-label="Next"
+      >
+        <span aria-hidden="true">›</span>
+      </button>
+    </div>
+
+    <!-- Indicators -->
+    <div class="carousel-indicators" role="tablist" aria-label="Carousel indicators">
+      <div class="indicator active" data-index="0" role="tab" aria-selected="true"></div>
+      <div class="indicator" data-index="1" role="tab" aria-selected="false"></div>
+      <div class="indicator" data-index="2" role="tab" aria-selected="false"></div>
+      <div class="indicator" data-index="3" role="tab" aria-selected="false"></div>
+    </div>
+  </div>
 </div>
-
-<style>
-    #game-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-    }
-    
-    #canvas-container {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    #gameCanvas {
-        max-width: 100%;
-        max-height: 80vh;
-        object-fit: contain;
-    }
-    
-    .game-mode-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr);
-        gap: 30px;
-        width: 95%;
-        max-width: 1200px;
-        height: 90vh;
-        max-height: 800px;
-    }
-    
-    .game-mode-card {
-        background-color: #0c1b63;
-        border-radius: 16px;
-        padding: 40px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: white;
-        border: 3px solid #B9D6F2;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .game-mode-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(185, 214, 242, 0.5);
-        border-color: #CAFE48;
-    }
-    
-    .game-mode-card:active {
-        transform: translateY(2px);
-    }
-    
-    .game-mode-card.large {
-        grid-column: span 2;
-    }
-    
-    .game-mode-card.medium {
-        grid-column: span 1;
-    }
-    
-    .mode-icon {
-        font-size: 64px;
-        margin-bottom: 30px;
-    }
-    
-    .game-mode-card h2 {
-        font-family: 'Mighty Souly', Arial, sans-serif;
-        font-size: 38px;
-        margin: 0 0 20px 0;
-        color: #ffffff;
-    }
-    
-
-    /* Unique styling for each mode */
-    #randomAdversaireButton {
-        background: linear-gradient(135deg, #0c1b63 0%, #1a3fa0 100%);
-    }
-    
-    #localButton {
-        background: linear-gradient(135deg, #0c1b63 0%, #3a2a8e 100%);
-    }
-    
-    #tournamentButton {
-        background: linear-gradient(135deg, #0c1b63 0%, #762a8e 100%);
-    }
-    
-    #iaButton {
-        background: linear-gradient(135deg, #0c1b63 0%, #1e6a88 100%);
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .game-mode-grid {
-            grid-template-columns: 1fr;
-            grid-template-rows: repeat(4, 1fr);
-            height: auto;
-            gap: 25px;
-        }
-        
-        .game-mode-card.large,
-        .game-mode-card.medium {
-            grid-column: span 1;
-            padding: 30px;
-        }
-        
-        .mode-icon {
-            font-size: 48px;
-        }
-        
-        .game-mode-card h2 {
-            font-size: 44px;
-        }
-        
-        .game-mode-card p {
-            font-size: 24px;
-        }
-    }
-</style>

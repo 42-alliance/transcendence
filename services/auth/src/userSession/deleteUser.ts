@@ -16,7 +16,7 @@ export async function deleteUser(request: FastifyRequest, reply: FastifyReply) {
 		const headers = new Headers();
 		headers.append("x-user-id", userId.toString());
 
-		const response = await fetch(`http://${config.users.host}:${config.users.port}/users`,{
+		const response = await fetch(`https://${config.users.host}:${config.users.port}/users`,{
 			method: "DELETE",
 			headers: headers,
 		});

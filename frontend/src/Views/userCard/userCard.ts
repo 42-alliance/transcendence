@@ -9,6 +9,7 @@ import { removeFriend } from "../../Friends/removeFriend.js";
 import { addFriend } from "../../Friends/addFriend.js";
 import { updateFriendStatus } from "../../Friends/updateFriendStatus.js";
 import { on } from "events";
+import { blockUser, unblockUser } from "../../User/blockFunctions.js";
 
 // Définition de plusieurs constantes utiles pour la réutilisation (comme des "define")
 export const status: Record<string, string> = {
@@ -70,9 +71,7 @@ export function miniPendingUserCard(
 		"shadow-lg",
 		"hover:shadow-xl",
 		"overflow-hidden",
-		"min-w-[220px]",
-		"max-w-full",
-		"sm:max-w-xs"
+		"w-full",
 	);
 	card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
 	card.style.backgroundSize = "cover";
@@ -213,7 +212,6 @@ export function miniPendingUserCard(
 }
 
 export function addAttribute(Elem: Element, attribute: string) {
-	console.log("Adding attribute:", attribute);
 	if (!Elem) return;
 	Elem.classList.remove(status.online, status.offline, status.away, status.inGame);
 	if (attribute === "online") {
@@ -251,213 +249,227 @@ type DropdownOption = {
 };
 
 export async function miniUserCard(
-    targetElement: HTMLElement,
-    userInfos: UserData,
-    dropdownOptions: DropdownOption[] = []
+	targetElement: HTMLElement,
+	userInfos: UserData,
+	dropdownOptions: DropdownOption[] = []
 ) {
-	console.log("ok pas mal" );
-	console.log("dropdownOptions: ", dropdownOptions);
-    // Création de la carte d'ami moderne
-    const card = document.createElement("div");
-    card.classList.add(`friend-${userInfos.id}`);
-    card.classList.add(
-        "friend-card",
-        "rounded-xl",
-        "p-4",
-        "transition-all",
-        "duration-300",
-        "border",
-        "border-gray-700/30",
-        "hover:border-gray-600/50",
-        "flex",
-        "flex-col",
-        "relative",
-        "shadow-lg",
-        "hover:shadow-xl",
-        "overflow-hidden"
-    );
-    card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
-    card.style.backgroundSize = "cover";
-    card.style.backgroundAttachment = "local";
-    card.style.backgroundPosition = "center";
-    card.style.backgroundRepeat = "no-repeat";
-
-    // Overlay blur + opacité
-    const overlay = document.createElement("div");
-    overlay.className = "absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0 pointer-events-none rounded-xl";
-    card.appendChild(overlay);
-
-    // Conteneur principal avec avatar et nom
-    const topSection = document.createElement("div");
-    topSection.className = "flex items-center gap-3 mb-3 relative z-10";
-
-    // Avatar avec indicateur de statut
-    const avatarContainer = document.createElement("div");
-    avatarContainer.className = "relative";
-
-    const profileImg = document.createElement("img");
-    profileImg.className = "w-12 h-12 rounded-full object-cover border-2 border-blue-500/80";
-    profileImg.src = userInfos.picture || "assets/default.jpeg";
-    profileImg.alt = `${userInfos.name || "User"} profile picture`;
-
-    // Indicateur de statut (Online)
-    const statusIndicator = document.createElement("span");
-    statusIndicator.classList.add(`status-indicator-${userInfos.id}`);
-    addAttribute(statusIndicator, userInfos.status!);
-    statusIndicator.classList.add(
-        "absolute",
-        "bottom-0",
-        "right-0",
-        "w-3",
-        "h-3",
-        "rounded-full",
-        "border-2",
-        "border-gray-800"
-    );
-
-    avatarContainer.appendChild(profileImg);
-    avatarContainer.appendChild(statusIndicator);
-
-    // Section info utilisateur
-    const userInfo = document.createElement("div");
-
-    const userName = document.createElement("h3");
-    userName.className = "font-semibold text-white truncate max-w-[150px]";
-    userName.textContent = userInfos.name || "Unknown User";
-
-    const userStatus = document.createElement("p");
-    userStatus.className = `status-text-${userInfos.id} text-xs text-blue-400`;
-    writeStatus(userStatus, userInfos.status!);
-
-    userInfo.appendChild(userName);
-    userInfo.appendChild(userStatus);
-
-    topSection.appendChild(avatarContainer);
-    topSection.appendChild(userInfo);
-
-    // Dropdown dans le body
-    let dropdown: HTMLDivElement | null = null;
-
-    // Bouton d'options (ellipsis)
-    const optionsBtn = document.createElement("button");
-    optionsBtn.className =
-        "absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-transparent hover:bg-gray-700/50 rounded-full transition-colors z-20";
-    optionsBtn.title = "Plus d'options";
-    optionsBtn.innerHTML = `
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <circle cx="5" cy="12" r="1.5"></circle>
-            <circle cx="12" cy="12" r="1.5"></circle>
-            <circle cx="19" cy="12" r="1.5"></circle>
-        </svg>
-    `;
-    optionsBtn.onclick = (e) => {
-        e.stopPropagation();
-
-        // Fermer si déjà ouvert
-        if (dropdown) {
-            dropdown.remove();
-            dropdown = null;
-            return;
-        }
-
-        // Création du dropdown
-        dropdown = document.createElement("div");
-        dropdown.className = "absolute bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] min-w-[170px] animate-fade-in";
-
-        dropdown.innerHTML = dropdownOptions.map((opt, idx) => `
-            <button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-sm ${opt.colorClass || ""} ${idx === 0 ? "rounded-t-lg" : ""} ${idx === dropdownOptions.length - 1 ? "rounded-b-lg" : ""}" data-opt-index="${idx}">
-                ${opt.label}
-            </button>
-        `).join('');
-
-        // Placement dynamique, calcul pour pas dépasser la fenêtre
-        document.body.appendChild(dropdown);
-        const btnRect = optionsBtn.getBoundingClientRect();
-        const dropdownRect = dropdown.getBoundingClientRect();
-        let top = btnRect.bottom + window.scrollY + 4;
-        let left = btnRect.right - dropdown.offsetWidth + window.scrollX;
-
-        // Corriger si déborde en bas
-        if (top + dropdown.offsetHeight > window.scrollY + window.innerHeight) {
-            top = btnRect.top + window.scrollY - dropdown.offsetHeight - 4;
-        }
-        // Corriger si déborde à droite
-        if (left + dropdown.offsetWidth > window.scrollX + window.innerWidth) {
-            left = window.scrollX + window.innerWidth - dropdown.offsetWidth - 12;
-        }
-        // Corriger si trop à gauche
-        if (left < 0) left = 12;
-
-        dropdown.style.position = "absolute";
-        dropdown.style.top = `${top}px`;
-        dropdown.style.left = `${left}px`;
-
-        // Click en dehors = ferme le menu
-        function handleClickOutside(event: MouseEvent) {
-            if (dropdown && !dropdown.contains(event.target as Node) && event.target !== optionsBtn) {
-                dropdown.remove();
-                dropdown = null;
-                document.removeEventListener("mousedown", handleClickOutside);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-
-        // Ajout events dynamiquement
-        dropdown.querySelectorAll("button").forEach((btn, idx) => {
-            btn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                dropdownOptions[idx].onClick(userInfos, card);
-                dropdown?.remove();
-                dropdown = null;
-            });
-        });
-    };
-
-    // Conteneur des boutons d'action
-    const btnGroup = document.createElement("div");
-    btnGroup.className = "mt-auto flex gap-2 relative z-10";
-
-    // Bouton Chat
-    const chatBtn = document.createElement("button");
-    chatBtn.className = "flex-1 py-1.5 bg-blue-600/80 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors";
-    chatBtn.textContent = "Message";
-    chatBtn.onclick = async () => { await goChat(userInfos); };
-
-    // Bouton Inviter à jouer
-    const inviteBtn = document.createElement("button");
-    inviteBtn.className = "w-9 h-9 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors";
-    inviteBtn.title = "Inviter à jouer";
-    inviteBtn.innerHTML = `
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-    `;
-
-	const me = await getUserInfos();
-	if (!me) return;
-    inviteBtn.onclick = async () => {
-		navigateTo(`/game`);
-						gameWsClass?.sendMessage("create_inv_game", {
-							user: userInfos,
-							type: "create_inv_game",
-							conversationId: await createConversation([me.name!, userInfos.name!]),
-						});
-
-    };
-
-    btnGroup.appendChild(chatBtn);
-    btnGroup.appendChild(inviteBtn);
-
-    // Assemblage final
-    card.appendChild(optionsBtn);
-    card.appendChild(topSection);
-    card.appendChild(btnGroup);
-
-    // Injection dans l'élément cible
-    targetElement.appendChild(card);
+	const card = createMiniUserCard(userInfos, dropdownOptions);
+	targetElement.appendChild(card);
 }
 
+export function createMiniUserCard(
+	userInfos: UserData,
+	dropdownOptions: DropdownOption[] = []
+): HTMLDivElement {
+	const card = createMiniUserCardContainer(userInfos);
+	const overlay = createMiniUserCardOverlay();
+	card.appendChild(overlay);
 
+	const topSection = createMiniUserCardTopSection(userInfos);
+	card.appendChild(topSection);
+
+	let dropdown: HTMLDivElement | null = null;
+	const optionsBtn = createMiniUserCardOptionsBtn(() => dropdown, (d) => dropdown = d, userInfos, dropdownOptions, card);
+	card.appendChild(optionsBtn);
+
+	const btnGroup = createMiniUserCardBtnGroup(userInfos);
+	card.appendChild(btnGroup);
+
+	return card;
+}
+
+function createMiniUserCardContainer(userInfos: UserData): HTMLDivElement {
+	const card = document.createElement("div");
+	card.classList.add(`friend-${userInfos.id}`);
+	card.classList.add(
+		"friend-card",
+		"rounded-xl",
+		"p-4",
+		"transition-all",
+		"duration-300",
+		"border",
+		"border-gray-700/30",
+		"hover:border-gray-600/50",
+		"flex",
+		"flex-col",
+		"relative",
+		"shadow-lg",
+		"hover:shadow-xl",
+		"overflow-hidden"
+	);
+	card.style.backgroundImage = `url('${userInfos.banner || "assets/default_banner.jpeg"}')`;
+	card.style.backgroundSize = "cover";
+	card.style.backgroundAttachment = "local";
+	card.style.backgroundPosition = "center";
+	card.style.backgroundRepeat = "no-repeat";
+	return card;
+}
+
+function createMiniUserCardOverlay(): HTMLDivElement {
+	const overlay = document.createElement("div");
+	overlay.className = "absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0 pointer-events-none rounded-xl";
+	return overlay;
+}
+
+function createMiniUserCardTopSection(userInfos: UserData): HTMLDivElement {
+	const topSection = document.createElement("div");
+	topSection.className = "flex items-center gap-3 mb-3 relative z-10";
+
+	const avatarContainer = document.createElement("div");
+	avatarContainer.className = "relative";
+
+	const profileImg = document.createElement("img");
+	profileImg.className = "w-12 h-12 rounded-full object-cover border-2 border-blue-500/80";
+	profileImg.src = userInfos.picture || "assets/default.jpeg";
+	profileImg.alt = `${userInfos.name || "User"} profile picture`;
+
+	const statusIndicator = document.createElement("span");
+	statusIndicator.classList.add(`status-indicator-${userInfos.id}`);
+	addAttribute(statusIndicator, userInfos.status!);
+	statusIndicator.classList.add(
+		"absolute",
+		"bottom-0",
+		"right-0",
+		"w-3",
+		"h-3",
+		"rounded-full",
+		"border-2",
+		"border-gray-800"
+	);
+
+	avatarContainer.appendChild(profileImg);
+	avatarContainer.appendChild(statusIndicator);
+
+	const userInfo = document.createElement("div");
+
+	const userName = document.createElement("h3");
+	userName.className = "font-semibold text-white truncate max-w-[150px]";
+	userName.textContent = userInfos.name || "Unknown User";
+
+	const userStatus = document.createElement("p");
+	userStatus.className = `status-text-${userInfos.id} text-xs text-blue-400`;
+	writeStatus(userStatus, userInfos.status!);
+
+	userInfo.appendChild(userName);
+	userInfo.appendChild(userStatus);
+
+	topSection.appendChild(avatarContainer);
+	topSection.appendChild(userInfo);
+
+	return topSection;
+}
+
+function createMiniUserCardOptionsBtn(
+	getDropdown: () => HTMLDivElement | null,
+	setDropdown: (d: HTMLDivElement | null) => void,
+	userInfos: UserData,
+	dropdownOptions: DropdownOption[],
+	card: HTMLDivElement
+): HTMLButtonElement {
+	const optionsBtn = document.createElement("button");
+	optionsBtn.className =
+		"absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-transparent hover:bg-gray-700/50 rounded-full transition-colors z-20";
+	optionsBtn.title = "Plus d'options";
+	optionsBtn.innerHTML = `
+		<svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<circle cx="5" cy="12" r="1.5"></circle>
+			<circle cx="12" cy="12" r="1.5"></circle>
+			<circle cx="19" cy="12" r="1.5"></circle>
+		</svg>
+	`;
+	optionsBtn.onclick = (e) => {
+		e.stopPropagation();
+
+		let dropdown = getDropdown();
+		if (dropdown) {
+			dropdown.remove();
+			setDropdown(null);
+			return;
+		}
+
+		dropdown = document.createElement("div");
+		dropdown.className = "absolute bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[9999] min-w-[170px] animate-fade-in";
+
+		dropdown.innerHTML = dropdownOptions.map((opt, idx) => `
+			<button class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-sm ${opt.colorClass || ""} ${idx === 0 ? "rounded-t-lg" : ""} ${idx === dropdownOptions.length - 1 ? "rounded-b-lg" : ""}" data-opt-index="${idx}">
+				${opt.label}
+			</button>
+		`).join('');
+
+		document.body.appendChild(dropdown);
+		const btnRect = optionsBtn.getBoundingClientRect();
+		const dropdownRect = dropdown.getBoundingClientRect();
+		let top = btnRect.bottom + window.scrollY + 4;
+		let left = btnRect.right - dropdown.offsetWidth + window.scrollX;
+
+		if (top + dropdown.offsetHeight > window.scrollY + window.innerHeight) {
+			top = btnRect.top + window.scrollY - dropdown.offsetHeight - 4;
+		}
+		if (left + dropdown.offsetWidth > window.scrollX + window.innerWidth) {
+			left = window.scrollX + window.innerWidth - dropdown.offsetWidth - 12;
+		}
+		if (left < 0) left = 12;
+
+		dropdown.style.position = "absolute";
+		dropdown.style.top = `${top}px`;
+		dropdown.style.left = `${left}px`;
+
+		function handleClickOutside(event: MouseEvent) {
+			if (dropdown && !dropdown.contains(event.target as Node) && event.target !== optionsBtn) {
+				dropdown.remove();
+				setDropdown(null);
+				document.removeEventListener("mousedown", handleClickOutside);
+			}
+		}
+		document.addEventListener("mousedown", handleClickOutside);
+
+		dropdown.querySelectorAll("button").forEach((btn, idx) => {
+			btn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				dropdownOptions[idx].onClick(userInfos, card);
+				dropdown?.remove();
+				setDropdown(null);
+			});
+		});
+
+		setDropdown(dropdown);
+	};
+	return optionsBtn;
+}
+
+function createMiniUserCardBtnGroup(userInfos: UserData): HTMLDivElement {
+	const btnGroup = document.createElement("div");
+	btnGroup.className = "mt-auto flex gap-2 relative z-10";
+
+	const chatBtn = document.createElement("button");
+	chatBtn.className = "flex-1 py-1.5 bg-blue-600/80 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors";
+	chatBtn.textContent = "Message";
+	chatBtn.onclick = async () => { await goChat(userInfos); };
+
+	const inviteBtn = document.createElement("button");
+	inviteBtn.className = "w-9 h-9 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors";
+	inviteBtn.title = "Inviter à jouer";
+	inviteBtn.innerHTML = `
+		<svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+		</svg>
+	`;
+	inviteBtn.onclick = async () => {
+		const me = await getUserInfos();
+		if (!me) return;
+		navigateTo(`/game`);
+		gameWsClass?.sendMessage("create_inv_game", {
+			user: userInfos,
+			type: "create_inv_game",
+			conversationId: await createConversation([me.name!, userInfos.name!]),
+		});
+	};
+
+	btnGroup.appendChild(chatBtn);
+	btnGroup.appendChild(inviteBtn);
+
+	return btnGroup;
+}
 
 
 function updateUserCardMaxi(targetElement: HTMLElement, NewuserData: UserData, userInfos: UserData): void {
@@ -755,47 +767,25 @@ function createDropdownButton(
 }
 
 export async function createUserCard(targetElement: HTMLElement, userInfos: UserData): Promise<void> {
-	// Création du conteneur principal
-	const container = document.createElement("div");
-	container.className = "flex flex-col w-fit h-fit relative bg-[#1a1826] text-white p-8 rounded-2xl shadow-2xl";
-
-	// Bannière et image de profil
-	const bannerContainer = document.createElement("div");
-	bannerContainer.className = "h-[320px] relative";
-
-	// Conteneur de la bannière
-	const bannerWrapper = document.createElement("div");
-	bannerWrapper.className = "w-[700px] h-[250px] overflow-hidden relative rounded-lg shadow-xl";
-
-	const bannerImg = document.createElement("img");
-	bannerImg.id = "banner-card";
-	bannerImg.className = "bg-[#1a1826] w-[700px] h-[250px] object-cover";
-	bannerImg.src = userInfos.banner || "assets/default_banner.jpeg";
-	bannerImg.alt = "Bannière utilisateur";
-
-	bannerWrapper.appendChild(bannerImg);
-	bannerContainer.appendChild(bannerWrapper);
-
+	const container = createUserCardContainer();
+	const bannerContainer = createUserCardBanner(userInfos);
 	const me = await getUserInfos();
 	if (!me) return;
+
 	if (userInfos.id !== me.id) {
 		const isFriend = me.friends?.some(friend => friend.id === userInfos.id);
-		const isblocked = me.blocked?.some(
-					blockedUser => blockedUser.id === userInfos.id!
-				);
+		const isblocked = me.blocked?.some(blockedUser => blockedUser.id === userInfos.id!);
 		const dropdownBtn = createDropdownButton(
-			bannerContainer, 
-			async () => {
-				await goChat(userInfos);
-			}, 
+			bannerContainer,
+			async () => { await goChat(userInfos); },
 			async () => {
 				navigateTo(`/game`);
-								gameWsClass?.sendMessage("create_inv_game", {
-									user: userInfos,
-									type: "create_inv_game",
-									conversationId: await createConversation([me.name!, userInfos.name!]),
-								});
-			}, 
+				gameWsClass?.sendMessage("create_inv_game", {
+					user: userInfos,
+					type: "create_inv_game",
+					conversationId: await createConversation([me.name!, userInfos.name!]),
+				});
+			},
 			async () => {
 				if (isFriend) {
 					await removeFriend(userInfos.id!);
@@ -807,9 +797,9 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 			isFriend ? "text-red-400" : "text-green-400",
 			async () => {
 				if (isblocked) {
-					await updateFriendStatus(userInfos.id!, "unblocked");
+					await unblockUser(userInfos.id!);
 				} else {
-					await updateFriendStatus(userInfos.id!, "blocked");
+					await blockUser(userInfos.id!);
 				}
 			},
 			isblocked ? "Unblock User" : "Block User",
@@ -817,9 +807,46 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 		bannerContainer.appendChild(dropdownBtn);
 	}
 
-	// Conteneur de l'image de profil avec fond
+	const profileWrapper = createUserCardProfile(userInfos);
+	bannerContainer.appendChild(profileWrapper);
+
+	const userInfoContainer = createUserCardInfo(userInfos);
+
+	container.appendChild(bannerContainer);
+	container.appendChild(userInfoContainer);
+
+	targetElement.innerHTML = "";
+	targetElement.appendChild(container);
+}
+
+function createUserCardContainer(): HTMLDivElement {
+	const container = document.createElement("div");
+	container.className = "flex flex-col w-full h-120 relative bg-[#1a1826] text-white p-8 rounded-2xl shadow-2xl";
+	return container;
+}
+
+function createUserCardBanner(userInfos: UserData): HTMLDivElement {
+	const bannerContainer = document.createElement("div");
+	bannerContainer.className = "h-55 relative";
+
+	const bannerWrapper = document.createElement("div");
+	bannerWrapper.className = "w-full h-40 overflow-hidden relative rounded-lg shadow-xl place-self-center";
+
+	const bannerImg = document.createElement("img");
+	bannerImg.id = "banner-card";
+	bannerImg.className = "bg-[#1a1826] w-full h-full object-cover";
+	bannerImg.src = userInfos.banner || "assets/default_banner.jpeg";
+	bannerImg.alt = "Bannière utilisateur";
+
+	bannerWrapper.appendChild(bannerImg);
+	bannerContainer.appendChild(bannerWrapper);
+
+	return bannerContainer;
+}
+
+function createUserCardProfile(userInfos: UserData): HTMLDivElement {
 	const profileWrapper = document.createElement("div");
-	profileWrapper.className = "absolute top-[160px] left-[5%] w-[200px] h-[200px]";
+	profileWrapper.className = "absolute bottom-[1px] left-[5%] w-[120px] h-[120px]";
 
 	const profileBg = document.createElement("div");
 	profileBg.className = "absolute inset-0 bg-[#1a1826] rounded-full";
@@ -827,26 +854,24 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 	const profileImg = document.createElement("img");
 	profileImg.id = "profile-picture-card";
 	profileImg.className = "w-full h-full rounded-full border-8 border-[#1a1826] relative z-10";
-	profileImg.src = userInfos.picture || "assets/default.jpeg";
+	profileImg.src = userInfos.picture!;
 	profileImg.alt = "Photo de profil";
 
-	// Ajoute le badge de statut, plus gros et superposé à l'image de profil
 	const statusBadgeElement = document.createElement("span");
 	statusBadgeElement.className = `
 		status-indicator-${userInfos.id!}
 		absolute
-		bottom-2 right-2
-		w-12 h-12
+		bottom-[1px] right-[1px]
+		w-10 h-10
 		rounded-full
 		border-4 border-[#1a1826]
 		flex items-center justify-center
-		${status[userInfos.status || "offline"]}
+		${status[userInfos.status!]}
 		z-30
 		pointer-events-none
 		shadow-lg
 	`;
 
-	// Pour l'accessibilité (screen readers)
 	const srText = document.createElement("span");
 	srText.className = "sr-only";
 	srText.textContent = userStatusLabels[userInfos.status || "offline"];
@@ -855,32 +880,29 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 	profileWrapper.appendChild(profileBg);
 	profileWrapper.appendChild(profileImg);
 	profileWrapper.appendChild(statusBadgeElement);
-	bannerContainer.appendChild(profileWrapper);
 
-	// Infos utilisateur
+	return profileWrapper;
+}
+
+function createUserCardInfo(userInfos: UserData): HTMLDivElement {
 	const userInfoContainer = document.createElement("div");
-	userInfoContainer.className = "ml-16 mt-8";
+	userInfoContainer.className = "ml-12 mt-2";
 
 	const userName = document.createElement("h2");
 	userName.className = "text-3xl font-bold";
 	userName.id = "userCardName";
-	userName.textContent = userInfos.name || "Nom inconnu";
+	userName.textContent = userInfos.name!;
 
 	const userBio = document.createElement("p");
-	userBio.className = "text-gray-400 text-xl mt-2";
-	userBio.id = "userBio"
+	userBio.className = "text-gray-400 text-xl mt-2 break-words max-h-34 overflow-y-auto";
+	userBio.id = "userBio";
+	userBio.style.whiteSpace = "pre-line";
 	userBio.textContent = userInfos.bio || "Aucune biographie disponible.";
 
 	userInfoContainer.appendChild(userName);
 	userInfoContainer.appendChild(userBio);
 
-	// Assemblage final
-	container.appendChild(bannerContainer);
-	container.appendChild(userInfoContainer);
-
-	// Injection dans l'élément cible
-	targetElement.innerHTML = "";
-	targetElement.appendChild(container);
+	return userInfoContainer;
 }
 
 // 📌 Injecte la carte utilisateur dans l'élément cible
@@ -898,8 +920,6 @@ export async function injectUserCard(targetId: string): Promise<void> {
 export async function injectExportUserCard(targetId: string, username: string): Promise<void> {
     const targetElement = document.getElementById(targetId);
 
-
-    
     if (!targetElement) {
         return;
     }
@@ -911,20 +931,6 @@ export async function injectExportUserCard(targetId: string, username: string): 
 		return;
 	updateUserCardMaxi(targetElement, user, user);
 }
-
-// 📌 Met à jour les données utilisateur et réinjecte la carte
-// export function updateUserCardFromForm(formId: string, targetId: string): void {
-//     const form = document.getElementById(formId) as HTMLFormElement | null;
-    
-//     if (!form) {
-//         console.error(`Aucun formulaire trouvé avec l'ID "${formId}"`);
-//         return;
-//     }
-
-// 	NewuserData.name = (form.elements.namedItem("pseudo") as HTMLInputElement)?.value || "";
-
-//     injectUserCard(targetId);
-// }
 
 // 📌 Gère la prévisualisation des images et met à jour NewuserData
 export function previewImage(event: Event, targetId: string, otherTargetId: string, otherInputId: string): void {

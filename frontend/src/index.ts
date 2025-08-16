@@ -10,6 +10,12 @@ export const server: FastifyInstance = Fastify({
             options: { colorize: true },
         },
     },
+	https: {
+		key: fs.readFileSync(path.resolve("./ssl/frontend.key")),
+		cert: fs.readFileSync(path.resolve("./ssl/frontend.crt")),
+		ca: fs.readFileSync(path.resolve("./ssl/ca.pem")), // Si tu as un CA, sinon tu peux l'ignorer
+	},
+	
 });
 
 // 📌 Définis le dossier où sont tes fichiers

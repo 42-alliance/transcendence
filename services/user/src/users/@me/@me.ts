@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { prisma } from "../../index.js";
-import { extractUserId } from "../../utils.js"
+import { extractUserId, getStatus } from "../../utils.js"
 import { Type } from "@sinclair/typebox";
+import { getPendingFriendRequest } from "../../friends/pending/getPendingRequest.js";
 
 export const meSchema: FastifySchema = {
 	headers: Type.Object({
@@ -38,20 +39,22 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
         });
 
 
-		const blockList = await prisma.friends.findMany({
+		const blockedUsers = await prisma.blockedId.findMany({
 			where: {
-				status: "blocked",
-				whoBlockedId: userId,
+				userId: userId,
 			},
 			select: {
-				sender: true,
-				receiver: true
+				blocked: true
 			}
 		});
 
-		const blockedUser = blockList.map(block => {
-			return block.sender.id === userId ? block.receiver : block.sender;
-		});
+		const blockList = blockedUsers.map(blocked => ({
+			id: blocked.blocked.id,
+			name: blocked.blocked.name,
+			picture: blocked.blocked.picture,
+			bio: blocked.blocked.bio,
+			banner: blocked.blocked.banner
+		}));
 
 		const games = await prisma.game.findMany({
 			where: {
@@ -113,11 +116,14 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
                 id: friend.id,
                 name: friend.name,
                 picture: friend.picture,
-				bio: friend.bio,
 				banner: friend.banner,
+				bio: friend.bio,
+				status: getStatus(friend.is_online, friend.lastSeen),
                 created_at: friend.created_at
             };
         });
+
+		const { incoming, outgoing } = await getPendingFriendRequest(userId);
 
         return reply.status(200).send({
 			id: me.id,
@@ -130,7 +136,9 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
 			status: me.is_online,
 			created_at: me.created_at,
 			friends: friends,
-			blocked: blockedUser,
+			incoming_friends: incoming,
+			outgoing_friends: outgoing,
+			blocked: blockList,
 			games: games,
 			victories: victories,
 			defeats: defeats,

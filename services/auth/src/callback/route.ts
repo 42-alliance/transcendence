@@ -10,7 +10,7 @@ async function getUserGoogleInfo(code: string) {
     params.append("client_id", process.env.CLIENT_ID!);
     params.append("client_secret", process.env.CLIENT_SECRET!);
     params.append("code", code);
-    params.append("redirect_uri", "http://localhost:8000/auth/callback");
+    params.append("redirect_uri", "https://localhost:8000/auth/callback");
 
     try {
         const tokenResponse = await fetch(tokenUrl, {
@@ -44,7 +44,7 @@ async function getUserGoogleInfo(code: string) {
 
 
 async function uploadUserPicture(picture_url: string) {
-	const response = await fetch(`http://${config.media.host}:${config.media.port}/files/url`, {
+	const response = await fetch(`https://${config.media.host}:${config.media.port}/files/url`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
 		console.error("userInfo: ", userInfo);
 		
 		userInfo.picture = await uploadUserPicture(userInfo.picture);
-		const response = await fetch('http://user:4000/users', {
+		const response = await fetch('https://user:4000/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -112,9 +112,9 @@ export async function authCallback(server: FastifyInstance, request: FastifyRequ
             maxAge: 7 * 24 * 60 * 60, // 7 jours
         });
 		if (response.status === 200)
-			return reply.redirect(`http://localhost:8080/auth-success?token=${accessToken}`);
+			return reply.redirect(`https://localhost:8080/auth-success?token=${accessToken}`);
 		if (response.status === 201)
-			return reply.redirect(`http://localhost:8080/auth-success?token=${accessToken}&register=true`);
+			return reply.redirect(`https://localhost:8080/auth-success?token=${accessToken}&register=true`);
     } catch (error) {
         console.error("❌ Erreur d'authentification :", error);
         return reply.status(500).send({ error: "Erreur d'authentification" });

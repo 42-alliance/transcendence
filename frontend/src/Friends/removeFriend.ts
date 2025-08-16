@@ -1,10 +1,10 @@
-import { fetchApi } from "../utils.js";
+import { fetchApi } from "../fetchApi.js";
 
 export async function removeFriend(friendId: number) {
 	try {
 		const header = new Headers();
 
-		await fetchApi(`http://localhost:8000/friends/${friendId}`, {
+		await fetchApi(`/friends/${friendId}`, {
 			method: "DELETE",
 			headers: header,
 		});

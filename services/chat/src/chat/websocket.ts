@@ -31,6 +31,7 @@ async function broadcastMessage(conversationId: number, message: any) {
 							conversationId: conversationId,
 							userId: message.message.userId,
 							name: message.message.name,
+							createdAt: message.message.createdAt,
 							picture: message.message.picture,
 							expiredAt: message.message.expiredAt ? message.message.expiredAt.toISOString() : null,
 						})

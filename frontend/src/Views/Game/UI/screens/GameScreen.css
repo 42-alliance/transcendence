@@ -1,0 +1,83 @@
+/* Reset minimal pour cet écran uniquement */
+.game-screen-root,
+.game-screen-root * {
+  box-sizing: border-box;
+}
+
+/* Conteneur plein écran superposable comme DifficultyScreen */
+#game-screen.game-screen-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  z-index: 1000;
+}
+
+.game-screen-inner {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1920px; /* Largeur du canvas */
+  height: 1080px; /* Hauteur du canvas */
+}
+
+#gameCanvas {
+  margin-top: 60px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border-radius: 8px;
+}
+
+#game-result {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(640px, 95vw);
+  min-height: 420px;
+  border-radius: 26px;
+  overflow: hidden;
+  color: white;
+  z-index: 1100;
+  display: flex;
+  align-items: stretch;
+  box-shadow: 0 12px 38px -8px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .08) inset;
+  font-family: Poppins, sans-serif;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* Carte animée */
+.result-card { animation: resultIn 220ms ease-out both; }
+@keyframes resultIn { from { opacity: 0; transform: translate(-50%, -50%) scale(.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+/* Calque background (image) */
+.result-bg { position: absolute; inset: 0; transform: scale(1.03); filter: brightness(.86) saturate(1.05); }
+
+/* Overlay lisibilité */
+.result-overlay { position: absolute; inset: 0; background: linear-gradient(155deg, rgba(0, 0, 0, .38) 0%, rgba(24, 24, 42, .28) 55%, rgba(0, 0, 0, .42) 100%); }
+
+/* Contenu */
+.result-content { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 2.25rem 2.5rem; gap: 1.25rem; text-align: center; }
+
+/* Titre gradient à la manière du tournoi */
+.result-title { margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; background: linear-gradient(90deg, #ffdf6b, #ffb347, #ffdf6b); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 6px rgba(255, 180, 70, .4)); }
+
+/* Variantes couleurs (accent sous-titre et paragraphes si souhaité) */
+.result-win h2 { color: unset; }
+.result-lose h2 { color: unset; }
+
+/* Sous-titre (mode/tournoi) */
+#game-result .result-subtitle { margin-bottom: .5rem; font-size: .9rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.82); font-weight: 600; }
+
+#game-result p { margin: .5rem 0 1.5rem; font-size: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+
+#game-result button { width: 88%; max-width: 420px; padding: 14px 16px; background-color: #FF8C00; color: #0a0a0a; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; font-family: Poppins, sans-serif; transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease; }
+#game-result button:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(255, 140, 0, 0.35); }
+#game-result button:active { transform: translateY(0) scale(.985); }
+
+@media (max-width: 520px) { .result-content { padding: 2.25rem 1.4rem 2rem; } .result-title { font-size: 1.9rem; } }

@@ -34,6 +34,12 @@ model Users {
     picture String
     banner  String?
     bio     String?
+    
+    // Nouveaux champs 2FA
+    twoFactorEnabled    Boolean   @default(false)
+    twoFactorSecret     String?   // Secret TOTP
+    twoFactorSetupCompleted Boolean @default(false)
+    twoFactorBackupCodes String?  // Codes de récupération (JSON array)
 
   // Les utilisateurs que CE user a bloqués
   blockedUsers    BlockedId[] @relation("UserBlocking")
@@ -93,7 +99,6 @@ model Friends {
     status     Status   @default(pending)
     created_at DateTime @default(now())
 
-	whoBlockedId Int? // Si le statut est "blocked", qui a bloqué qui
     sender   Users @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
     receiver Users @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
 

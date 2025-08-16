@@ -1,36 +1,46 @@
+const getEnv = (key: string, fallback?: string): string => {
+	const value = process.env[key] || fallback;
+	if (!value) {
+		throw new Error(`Missing environment variable: ${key}`);
+	}
+	return value;
+};
+
 export const config = {
-	gateway: {	// Configuration du service gateway
-		port: parseInt(process.env.GATEWAY_PORT!),	// Port d'écoute du service gateway
+	gateway: {
+		port: parseInt(getEnv('GATEWAY_PORT')),
+		ssl: {
+			key: getEnv('GATEWAY_SSL_KEY'),
+			cert: getEnv('GATEWAY_SSL_CERT'),
+		}
 	},
-	auth: {	// Configuration du service AUTH_PORT
-		host: process.env.AUTH_HOST!,	// Host du service auth
-		port: parseInt(process.env.AUTH_PORT!),	// Port d'écoute du service auth
+	auth: {
+		host: getEnv('AUTH_HOST'),
+		port: parseInt(getEnv('AUTH_PORT')),
 	},
-	users: {	// Configuration du service USERS_PORT
-		host: process.env.USER_HOST!,	// Host du service users
-		port: parseInt(process.env.USER_PORT!),	// Port d'écoute du service users
+	users: {
+		host: getEnv('USER_HOST'),
+		port: parseInt(getEnv('USER_PORT')),
 	},
-	jwt: {	// Configuration du service
-		secret: process.env.JWT_SECRET!,	// Secret pour la génération des tokens JWT
+	jwt: {
+		secret: getEnv('JWT_SECRET'),
 	},
 	chat: {
-		host: process.env.CHAT_HOST!,
-		port: parseInt(process.env.CHAT_PORT!),
+		host: getEnv('CHAT_HOST'),
+		port: parseInt(getEnv('CHAT_PORT')),
 	},
 	media: {
-		host: process.env.MEDIA_HOST!,
-		port: parseInt(process.env.MEDIA_PORT!),
-		upload_folder: parseInt(process.env.UPLOAD_FOLDER!),
+		host: getEnv('MEDIA_HOST'),
+		port: parseInt(getEnv('MEDIA_PORT')),
+		upload_folder: getEnv('UPLOAD_FOLDER'),
 	},
 	frontend: {
-		host: process.env.FRONTEND_HOST!,
-		port: parseInt(process.env.FRONTEND_PORT!),
+		host: getEnv('FRONTEND_HOST'),
+		port: parseInt(getEnv('FRONTEND_PORT')),
 	},
-	// COnfig pour le service game
 	game: {
-		host: process.env.GAME_HOST!,
-		port: parseInt(process.env.GAME_PORT!),
-		ws_port: parseInt(process.env.GAME_WS_PORT!), // Port pour le websocket
+		host: getEnv('GAME_HOST'),
+		port: parseInt(getEnv('GAME_PORT')),
+		ws_port: parseInt(getEnv('GAME_WS_PORT')),
 	},
-
 };

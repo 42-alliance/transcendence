@@ -44,6 +44,30 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 			return reply.status(400).send({ message: "You cannot add yourself as a friend" });
 		}
 
+		const blocked = await prisma.blockedId.findFirst({
+			where: {
+				userId: userId,
+				blockedId: friend.id,
+			}
+		});
+
+		if (blocked) {
+			console.error("You cannot add a blocked user as a friend");
+			return reply.status(400).send({ message: "You cannot add a blocked user as a friend" });
+		}
+
+		const blockedBy = await prisma.blockedId.findFirst({
+			where: {
+				userId: friend.id,
+				blockedId: userId,
+			}
+		});
+
+		if (blockedBy) {
+			console.error("You cannot add a user who blocked you as a friend");
+			return reply.status(400).send({ message: "You cannot add a user who blocked you as a friend" });
+		}
+
 		const existingFriendChip = await prisma.friends.findFirst({
 			where: {
 				OR: [
@@ -63,6 +87,28 @@ export async function addFriend(request: FastifyRequest, reply: FastifyReply) {
 					status: "accepted",
 				}
 			});
+
+			try {
+				const response = await fetch("https://chat:5000/chat/create", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"x-user-id": userId.toString(), // header attendu par le microservice
+					},
+					body: JSON.stringify({
+						members: [me.name, friend.name]
+					})
+				});
+
+				if (!response.ok) {
+					const errorBody = await response.text(); // au cas où l'erreur est informative
+					console.warn("⚠️ La création de la conversation a échoué :", response.status, errorBody);
+				} else {
+					console.log("✅ Conversation créée ou existante après acceptation d'amitié.");
+				}
+			} catch (err) {
+				console.error("❌ Erreur réseau lors de la création de la conversation :", err);
+			}
 
 			connectedSockets.get(friend.id)?.forEach(socket => {
 			if (socket.readyState === socket.OPEN) {

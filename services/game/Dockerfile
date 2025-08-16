@@ -11,5 +11,6 @@ COPY . .
 RUN chmod 777 ./tools/script.sh
 
 EXPOSE 8765
+EXPOSE 8790
 
 CMD ["sh", "/app/tools/script.sh"]
