@@ -39,6 +39,8 @@ import { get_password_hashSchema, get_password_hash } from "./users/get_Password
 // FIX: Update the path or create the file if missing
 import { check2faEnabled } from "./users/@me/check2faEnabled.js";
 import { config } from "./config.js"
+import { IsNameDispo, IsNameDispoSchema } from "./users/IsNameDispo.js";
+import { IsEmailDispo, IsEmailDispoSchema } from "./users/@me/isEmailDispo.js";
 
 /**
  * Configure les routes pour les utilisateurs.
@@ -324,6 +326,19 @@ async function setupBlockRoute(server: FastifyInstance) {
 
 async function setupAuthRoute(server: FastifyInstance) {
 
+	server.post("/register/name/dispo",
+		{ schema: IsNameDispoSchema },
+		async function handler(request, reply) {
+			return await IsNameDispo(request, reply);
+		}
+	)
+
+	server.post("/register/email/dispo",
+		{ schema: IsEmailDispoSchema },
+		async function handler(request, reply) {
+			return await IsEmailDispo(request, reply);
+		}
+	)
 
   server.get<{ Params: { email: string }}>(
     "/pwd-by-email/:email",

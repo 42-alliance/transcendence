@@ -1,4 +1,4 @@
-import { getUserInfos } from "./me.js";
+import { getUserInfos, me } from "./me.js";
 import { userIsLogin } from "./userIsLogin.js";
 import { nbGames, nbWins } from "../utils.js";
 
@@ -59,34 +59,34 @@ function manageDropdownClick() {
 
 
 export async function setUserProfile() {
+	console.log("je passe ici0");
 	if (await userIsLogin() === false) {
 		ifUserIsNotLog();
 		return;
 	}
 
+	console.log("je passe ici1");
 	const userNameSpan = document.getElementById("username-navbar");
 	const profilePicture = document.getElementById("profile-picture-navbar") as HTMLImageElement;
 	const usernameDropdown = document.getElementById("username-dropdown");
 	const emailDropdown = document.getElementById("email-dropdown");
 
-	console.error("chef1");
+	console.log("userNameSpan: ", userNameSpan); 
+	console.log("profilePicture: ", profilePicture); 
+	console.log("usernameDropdown: ", usernameDropdown); 
+	console.log("emailDropdown: ", emailDropdown); 
+
 	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown)
 		return;
-	console.error("chef2");
 	
-	const user = await getUserInfos();
-	console.error("name", user?.name);
-	console.error("picture", user?.picture);
-	console.error("email", user?.email);
-	console.error("id", user?.id);
-	console.error("games", user?.games);
+	console.log("je passe ici2");
 
+	const user = await me();
+	console.log("USER = ", user);	
 
 	if (!user || !user.name || !user.picture || !user.email || !user.id || !user.games)
 		return;
-
-	
-	console.error("chef3");
+	console.log("je passe ici3");
 
 	const nb_wins = document.getElementById("nb-wins");
 	if (nb_wins) {

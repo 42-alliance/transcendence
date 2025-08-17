@@ -34,11 +34,10 @@ export async function login_pwd(email: string, password: string) {
 		
 		const data = await response.json();
 		to_return.access_token = data.access_token;
-		return to_return;
 	} catch (error: any) {
 		console.error("Error: ", error);
 		to_return.success = false;
 		to_return.error = error;
-		return to_return;
 	}
+	return to_return;
 }

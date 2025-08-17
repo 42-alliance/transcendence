@@ -51,7 +51,7 @@
       </div>
 
       <div
-        onclick="showModal('email-login-modal')"
+        onclick="openLoginModal()"
         class="group max-w-fit flex justify-center items-center gap-6 rounded-[20px] bg-blue-500 shadow-2xl shadow-black/40 px-8 md:px-12 py-4 md:py-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:shadow-blue-500/20 active:scale-95"
         role="button"
         tabindex="0"
@@ -74,7 +74,7 @@
         data-i18n="signup-open"
         aria-haspopup="dialog"
         aria-controls="signup-modal"
-        onclick="showModal('signup-modal')"
+        onclick="openRegisterModal()"
       >
         <i class="fa-solid fa-user-plus text-lg"></i>
         <span>Sign up</span>
@@ -151,7 +151,7 @@
       />
     </div>
 
-    <p id="text-center login-error-msg" class="mt-2 text-sm text-red-400 hidden">
+    <p id="login-error-msg" class="mb-2 text-sm text-red-400 hidden text-center">
       Invalid email or password.
     </p>
 
@@ -161,7 +161,7 @@
         id="cancel-login-email"
         class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
         data-i18n="email-login-cancel"
-        onclick="hideModal('email-login-modal')"
+        onclick="closeLoginModal()"
       >
         Cancel
       </button>
@@ -215,7 +215,7 @@
         placeholder="Your nickname"
       />
     </div>
-
+	<p id="signup-username-error" class="text-xs text-red-400 mt-2 hidden"></p>
     <!-- Email -->
     <div class="mb-4">
       <label
@@ -235,7 +235,7 @@
         placeholder="you@example.com"
       />
     </div>
-
+	<p id="signup-email-error" class="text-xs text-red-400 mt-2 hidden"></p>
     <!-- Password -->
     <div class="mb-4">
       <label
@@ -259,7 +259,7 @@
         At least 8 characters.
       </p>
     </div>
-
+	<p id="signup-password-error" class="text-xs text-red-400 mt-2 hidden"></p>
     <!-- Confirm Password -->
     <div class="mb-6">
       <label
@@ -310,14 +310,16 @@
         >.
       </span>
     </label>
-
+	    <p id="register-error-msg" class="mb-2 text-sm text-red-400 hidden text-center">
+      Fail to register.
+    </p>
     <!-- Actions -->
     <div class="flex gap-3">
       <button
         id="cancel-signup"
         class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
         data-i18n="signup-cancel"
-        onclick="hideModal('signup-modal')"
+        onclick="closeRegisterModal()"
       >
         Cancel
       </button>
