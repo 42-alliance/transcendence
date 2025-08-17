@@ -32,7 +32,7 @@ model Users {
     name    String  @unique
     email   String  @unique
     password String? 
-    picture String
+    picture String?
     banner  String?
     bio     String?
     

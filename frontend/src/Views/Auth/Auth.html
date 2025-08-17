@@ -1,5 +1,9 @@
-<div class="fixed inset-0 pt-20 flex flex-col items-center justify-center min-h-0">
-  <section class="w-4/5 max-w-4xl flex flex-col gap-12 justify-center items-center text-center px-4">
+<div
+  class="fixed inset-0 pt-20 flex flex-col items-center justify-center min-h-0 select-none"
+>
+  <section
+    class="w-4/5 max-w-4xl flex flex-col gap-12 justify-center items-center text-center px-4"
+  >
     <div class="flex flex-col items-center gap-4">
       <p
         class="text-[40px] md:text-[50px] lg:text-[60px] xl:text-[70px] font-bold leading-tight"
@@ -46,12 +50,285 @@
         </strong>
       </div>
 
+      <div
+        onclick="showModal('email-login-modal')"
+        class="group max-w-fit flex justify-center items-center gap-6 rounded-[20px] bg-blue-500 shadow-2xl shadow-black/40 px-8 md:px-12 py-4 md:py-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:shadow-blue-500/20 active:scale-95"
+        role="button"
+        tabindex="0"
+        data-i18n-attr="aria-label:cta-email-aria"
+        aria-label="Login with Email"
+      >
+        <i
+          class="fas fa-envelope text-3xl md:text-4xl text-white group-hover:rotate-6 transition-transform duration-300"
+        ></i>
+        <strong
+          class="text-2xl md:text-3xl lg:text-4xl text-white font-bold tracking-wide"
+          data-i18n="cta-email"
+        >
+          Login with Email
+        </strong>
+      </div>
+      <button
+        id="open-signup-modal"
+        class="group max-w-fit flex justify-center items-center gap-3 rounded-[14px] bg-gradient-to-r from-orange-500 to-yellow-500 shadow-2xl shadow-black/40 px-6 py-3 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:shadow-orange-500/20 active:scale-95 text-black font-bold"
+        data-i18n="signup-open"
+        aria-haspopup="dialog"
+        aria-controls="signup-modal"
+        onclick="showModal('signup-modal')"
+      >
+        <i class="fa-solid fa-user-plus text-lg"></i>
+        <span>Sign up</span>
+      </button>
+
       <!-- Animation d'arrière-plan subtile -->
       <div class="absolute inset-0 -z-10 opacity-20" aria-hidden="true">
-        <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-orange-500 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-24 h-24 bg-blue-500 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s"></div>
-        <div class="absolute top-3/4 left-3/4 w-20 h-20 bg-purple-500 rounded-full blur-xl animate-pulse" style="animation-delay: 2s"></div>
+        <div
+          class="absolute top-1/4 left-1/4 w-32 h-32 bg-orange-500 rounded-full blur-3xl animate-pulse"
+        ></div>
+        <div
+          class="absolute bottom-1/4 right-1/4 w-24 h-24 bg-blue-500 rounded-full blur-2xl animate-pulse"
+          style="animation-delay: 1s"
+        ></div>
+        <div
+          class="absolute top-3/4 left-3/4 w-20 h-20 bg-purple-500 rounded-full blur-xl animate-pulse"
+          style="animation-delay: 2s"
+        ></div>
       </div>
     </div>
   </section>
+</div>
+
+<div
+  id="email-login-modal"
+  class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 select-none"
+>
+  <div class="glass-dark rounded-3xl p-8 w-full max-w-md mx-4 animate-scale-in">
+    <h2
+      class="w-full text-center text-2xl font-bold text-gradient mb-4"
+      data-i18n="email-login-title"
+    >
+      Login with Email
+    </h2>
+    <p class="text-center text-gray-300 mb-6 leading-relaxed" data-i18n="email-login-desc">
+      Enter your email and password to continue.
+    </p>
+
+    <!-- Email -->
+    <div class="mb-4">
+      <label
+        for="login-email"
+        class="block text-gray-300 text-sm font-medium mb-2"
+        data-i18n="email-label"
+      >
+        Email
+      </label>
+      <input
+        type="email"
+        id="login-email"
+        class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
+        data-i18n="email-placeholder"
+        data-i18n-attr="placeholder"
+        placeholder="you@example.com"
+      />
+    </div>
+
+    <!-- Password -->
+    <div class="mb-6">
+      <label
+        for="login-password"
+        class="block text-gray-300 text-sm font-medium mb-2"
+        data-i18n="password-label"
+      >
+        Password
+      </label>
+      <input
+        type="password"
+        id="login-password"
+        class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
+        data-i18n="password-placeholder"
+        data-i18n-attr="placeholder"
+        placeholder="••••••••"
+      />
+    </div>
+
+    <p id="text-center login-error-msg" class="mt-2 text-sm text-red-400 hidden">
+      Invalid email or password.
+    </p>
+
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <button
+        id="cancel-login-email"
+        class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
+        data-i18n="email-login-cancel"
+        onclick="hideModal('email-login-modal')"
+      >
+        Cancel
+      </button>
+      <button
+        id="confirm-login-email"
+        class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
+        data-i18n="email-login-submit"
+        onclick="login()"
+      >
+        Login
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  id="signup-modal"
+  class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 select-none"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="signup-modal-title"
+>
+  <div class="glass-dark rounded-3xl p-8 w-full max-w-md mx-4 animate-scale-in">
+    <h2
+      id="signup-modal-title"
+      class="text-2xl font-bold text-gradient mb-4 text-center"
+      data-i18n="signup-title"
+    >
+      Create your account
+    </h2>
+    <p class="text-gray-300 mb-6 leading-relaxed text-center" data-i18n="signup-desc">
+      Fill in your details to get started.
+    </p>
+
+    <!-- Username -->
+    <div class="mb-4">
+      <label
+        for="signup-username"
+        class="block text-gray-300 text-sm font-medium mb-2"
+        data-i18n="signup-username-label"
+      >
+        Username
+      </label>
+      <input
+        id="signup-username"
+        type="text"
+        required
+        class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
+        data-i18n="signup-username-placeholder"
+        data-i18n-attr="placeholder"
+        placeholder="Your nickname"
+      />
+    </div>
+
+    <!-- Email -->
+    <div class="mb-4">
+      <label
+        for="signup-email"
+        class="block text-gray-300 text-sm font-medium mb-2"
+        data-i18n="signup-email-label"
+      >
+        Email
+      </label>
+      <input
+        id="signup-email"
+        type="email"
+        required
+        class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
+        data-i18n="signup-email-placeholder"
+        data-i18n-attr="placeholder"
+        placeholder="you@example.com"
+      />
+    </div>
+
+    <!-- Password -->
+    <div class="mb-4">
+      <label
+        for="signup-password"
+        class="block text-gray-300 text-sm font-medium mb-2"
+        data-i18n="signup-password-label"
+      >
+        Password
+      </label>
+      <input
+        id="signup-password"
+        type="password"
+        required
+        minlength="8"
+        class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
+        data-i18n="signup-password-placeholder"
+        data-i18n-attr="placeholder"
+        placeholder="••••••••"
+      />
+      <p class="text-xs text-gray-400 mt-2" data-i18n="signup-password-hint">
+        At least 8 characters.
+      </p>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="mb-6">
+      <label
+        for="signup-password-confirm"
+        class="block text-gray-300 text-sm font-medium mb-2"
+        data-i18n="signup-confirm-label"
+      >
+        Confirm Password
+      </label>
+      <input
+        id="signup-password-confirm"
+        type="password"
+        required
+        class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
+        data-i18n="signup-confirm-placeholder"
+        data-i18n-attr="placeholder"
+        placeholder="••••••••"
+      />
+    </div>
+
+    <p
+      id="signup-password-error"
+      class="mt-2 text-sm text-red-400 hidden"
+      data-i18n="signup-password-mismatch"
+    >
+      Passwords do not match.
+    </p>
+
+    <!-- Terms -->
+    <label class="flex items-start gap-3 mb-6 cursor-pointer">
+      <input id="signup-terms" type="checkbox" class="mt-1 accent-orange-500" />
+      <span class="text-sm text-gray-300">
+        <span data-i18n="signup-terms-1">I agree to the</span>
+        <a
+          href="/terms"
+          class="text-orange-400 hover:text-orange-300 underline"
+          data-link
+          data-i18n="signup-terms-2"
+          >Terms of Service</a
+        >
+        <span data-i18n="signup-terms-3">and</span>
+        <a
+          href="/privacy"
+          class="text-orange-400 hover:text-orange-300 underline"
+          data-link
+          data-i18n="signup-terms-4"
+          >Privacy Policy</a
+        >.
+      </span>
+    </label>
+
+    <!-- Actions -->
+    <div class="flex gap-3">
+      <button
+        id="cancel-signup"
+        class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
+        data-i18n="signup-cancel"
+        onclick="hideModal('signup-modal')"
+      >
+        Cancel
+      </button>
+      <button
+        id="confirm-signup"
+        class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
+        data-i18n="signup-submit"
+        onclick="register()"
+      >
+        Create account
+      </button>
+    </div>
+  </div>
 </div>

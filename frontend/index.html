@@ -692,43 +692,32 @@
     <script type="module" src="/.objs/include.js"></script>
 
     <script>
-      // Profile/settings dropdown logic
-    //   const userButton = document.getElementById("user-button-navbar");
-    //   const dropdown = document.getElementById("dropdown-user");
-
-    //   function toggleDropdown(event) {
-    //     event.stopPropagation();
-    //     dropdown.classList.toggle("hidden");
-    //   }
-    //   userButton && userButton.addEventListener("click", toggleDropdown);
-
-    //   document.addEventListener("click", function (event) {
-    //     if (
-    //       userButton &&
-    //       dropdown &&
-    //       !userButton.contains(event.target) &&
-    //       !settingsButton.contains(event.target) &&
-    //       !dropdown.contains(event.target)
-    //     ) {
-    //       dropdown.classList.add("hidden");
-    //     }
-    //   });
 
       // Modal helpers
       function showModal(modalId) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
-        modal.classList.remove("hidden");
-        modal.classList.add("show");
+  		modal.classList.remove("hidden", "animate-slide-down");
+		modal.classList.add("animate-slide-up");
+        // modal.classList.remove("hidden");
+        // modal.classList.add("show");
+
       }
 
       function hideModal(modalId) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
-        modal.classList.remove("show");
-        setTimeout(() => {
-          modal.classList.add("hidden");
-        }, 300);
+        // modal.classList.remove("show");
+        // setTimeout(() => {
+        //   modal.classList.add("hidden");
+        // }, 300);
+
+		  modal.classList.remove("animate-slide-up");
+  			modal.classList.add("animate-slide-down");
+
+  			setTimeout(() => {
+  			  modal.classList.add("hidden");
+  			}, 300);
       }
 
       // Click outside to close any "...-modal"

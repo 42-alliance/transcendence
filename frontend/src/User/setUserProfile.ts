@@ -69,12 +69,24 @@ export async function setUserProfile() {
 	const usernameDropdown = document.getElementById("username-dropdown");
 	const emailDropdown = document.getElementById("email-dropdown");
 
+	console.error("chef1");
 	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown)
 		return;
-
+	console.error("chef2");
+	
 	const user = await getUserInfos();
+	console.error("name", user?.name);
+	console.error("picture", user?.picture);
+	console.error("email", user?.email);
+	console.error("id", user?.id);
+	console.error("games", user?.games);
+
+
 	if (!user || !user.name || !user.picture || !user.email || !user.id || !user.games)
 		return;
+
+	
+	console.error("chef3");
 
 	const nb_wins = document.getElementById("nb-wins");
 	if (nb_wins) {

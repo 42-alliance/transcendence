@@ -32,10 +32,11 @@ export async function fetchApi(url: string, options: optionRequest, retry: boole
         return await fetchApi(url, options, false); // Ne réessaie qu'une seule fois
     }
 
-    if (!response.ok) {
-        console.error("Failed to fetch data from server: ", await response.json());
-        throw new Error("Failed to fetch data from server: " + response.statusText);
-    }
+    // if (!response.ok) {
+	// 	const error = await response.json();
+    //     console.error("Failed to fetch data from server: ", error.error);
+    //     throw new Error(error.error);
+    // }
 
     return response;
 }
