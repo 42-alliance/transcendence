@@ -100,12 +100,19 @@ async function applyLanguage(lang: Lang): Promise<void> {
 
 function openDropdown(): void {
   const dd = document.getElementById("dropdown-language");
-  dd?.classList.remove("hidden");
+  dd?.classList.remove("hidden", "animate-slide-down");
+  dd?.classList.add("animate-slide-up");
 }
 
 function closeDropdown(): void {
   const dd = document.getElementById("dropdown-language");
-  dd?.classList.add("hidden");
+
+  dd?.classList.remove("animate-slide-up");
+  dd?.classList.add("animate-slide-down");
+
+  setTimeout(() => {
+	  dd?.classList.add("hidden");
+  }, 300);
 }
 
 function isDropdownOpen(): boolean {
@@ -123,7 +130,6 @@ export function initLanguageDropdown(): void {
   if (!btn || !dd) return;
 
 
-  console.error("ouais la team");
   // Init UI selon la langue stockée
   const initial = getStoredLang();
   updateFlagUI(initial);
@@ -131,7 +137,6 @@ export function initLanguageDropdown(): void {
 
   // Toggle dropdown
   btn.addEventListener("click", (e) => {
-    e.stopPropagation();
     if (isDropdownOpen()) closeDropdown();
     else {
       openDropdown();
@@ -197,6 +202,5 @@ export async function language_manager() {
     const langData = await fetchLanguageData(userPreferredLanguage);
     updateContent(langData, userPreferredLanguage);
 
-    console.error("je passe par ici imad");
 	initLanguageDropdown();
 }

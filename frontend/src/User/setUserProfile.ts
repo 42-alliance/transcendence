@@ -9,29 +9,54 @@ function ifUserIsNotLog() {
 	userButton.innerHTML = "";
 }
 
-function manageDropdownClick() {
-	const userButton = document.getElementById("user-button-navbar");
-	const dropDown = document.getElementById("dropdown-user");
+function closeDropdown() {
+  const dd = document.getElementById("dropdown-user");
 
-	if (!userButton || !dropDown) return;
+  dd?.classList.remove("animate-slide-up");
+  dd?.classList.add("animate-slide-down");
 
-	userButton.onclick = () => {
-		const expanded = userButton.ariaExpanded === "true";
-		userButton.ariaExpanded = expanded ? "false" : "true";
-		dropDown.classList.toggle("hidden", expanded);
-	};
-
-	document.addEventListener("click", (event) => {
-		const isClickInside = dropDown.contains(event.target as Node) || userButton.contains(event.target as Node);
-		if (!isClickInside && !dropDown.classList.contains("hidden")) {
-			dropDown.classList.add("hidden");
-			userButton.ariaExpanded = "false";
-		} else if (dropDown.contains(event.target as Node)) {
-			dropDown.classList.add("hidden");
-			userButton.ariaExpanded = "false";
-		}
-	});
+  setTimeout(() => {
+    dd?.classList.add("hidden");
+  }, 300);
 }
+
+function openDropdown(): void {
+  const dd = document.getElementById("dropdown-user");
+  dd?.classList.remove("hidden", "animate-slide-down");
+  dd?.classList.add("animate-slide-up");
+}
+
+function manageDropdownClick() {
+  const userButton = document.getElementById("user-button-navbar");
+  const dropDown = document.getElementById("dropdown-user");
+
+  if (!userButton || !dropDown) return;
+
+  userButton.onclick = () => {
+    const expanded = userButton.getAttribute("aria-expanded") === "true";
+
+    if (expanded) {
+      closeDropdown();
+      userButton.setAttribute("aria-expanded", "false");
+    } else {
+      openDropdown();
+      userButton.setAttribute("aria-expanded", "true");
+    }
+  };
+
+  // clic extérieur
+  document.addEventListener("click", (event) => {
+    const isClickInside =
+      dropDown.contains(event.target as Node) ||
+      userButton.contains(event.target as Node);
+
+    if (!isClickInside && !dropDown.classList.contains("hidden")) {
+      closeDropdown();
+      userButton.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
 
 export async function setUserProfile() {
 	if (await userIsLogin() === false) {

@@ -42,6 +42,7 @@
             animation: {
               "fade-in": "fadeIn 0.3s ease-out",
               "slide-up": "slideUp 0.3s ease-out",
+              "slide-down": "slideDown 0.3s ease-out",
               "scale-in": "scaleIn 0.2s ease-out",
             },
             backdropBlur: {
@@ -73,6 +74,16 @@
         to {
           opacity: 1;
           transform: translateY(0);
+        }
+      }
+	  @keyframes slideDown {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(20px);
         }
       }
       @keyframes scaleIn {
@@ -175,49 +186,9 @@
       </div>
     </noscript>
 
-    <!-- Search Friend Modal -->
-    <div
-      id="search-friend-modal"
-      class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in"
-    >
-      <div
-        class="glass-dark rounded-3xl p-8 w-full max-w-md mx-4 animate-scale-in"
-      >
-        <h2
-          class="text-2xl font-bold text-gradient mb-6"
-          data-i18n="search-friend-title"
-        >
-          Search Friends
-        </h2>
-        <input
-          type="text"
-          id="search-friend-input"
-          class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300"
-          data-i18n="search-friend-placeholder"
-          data-i18n-attr="placeholder"
-          placeholder="Enter friend's name or email"
-        />
-        <div class="flex gap-3 mt-6">
-          <button
-            class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
-            data-i18n="common-cancel"
-          >
-            Cancel
-          </button>
-          <button
-            class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
-            data-i18n="common-search"
-          >
-            Search
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Navbar -->
-    <nav class="fixed top-0 z-50 w-full">
-      <div class="mx-auto">
-        <div class="flex items-center">
+    <nav class="fixed top-0 z-50 w-full h-30">
+      <div class="mx-auto h-full flex items-center">
           <!-- Logo -->
           <div
             id="dragon-pong-button"
@@ -328,7 +299,7 @@
               <button
                 id="user-button-navbar"
                 type="button"
-                class="flex items-center gap-3 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow group"
+                class="flex items-center gap-3 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow group select-none"
               >
                 <span
                   id="username-navbar"
@@ -346,7 +317,7 @@
               <button
                 id="language-button-navbar"
                 type="button"
-                class="transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1 group rounded-full"
+                class="transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1 group rounded-full select-none"
                 data-i18n-attr="aria-label:language-menu-aria"
                 aria-label="Change language"
               >
@@ -361,12 +332,12 @@
               <!-- Dropdown -->
               <div
                 id="dropdown-language"
-                class="hidden absolute right-0 mt-3 w-56 glass-dark rounded-2xl shadow-2xl shadow-black/50 animate-slide-up overflow-hidden"
+                class="hidden absolute right-0 top-full mt-3 w-56 glass-dark rounded-2xl shadow-2xl shadow-black/50 overflow-hidden select-none"
                 role="menu"
                 aria-labelledby="language-button-navbar"
               >
                 <!-- Header -->
-                <div class="gradient-primary p-4">
+                <div class="gradient-primary p-4 ">
                   <p
                     class="text-lg font-bold text-white"
                     data-i18n="language-menu-title"
@@ -446,10 +417,10 @@
                 </ul>
               </div>
 
-              <!-- Settings Dropdown -->
+              <!-- User Dropdown -->
               <div
                 id="dropdown-user"
-                class="hidden absolute right-0 mt-3 w-80 glass-dark rounded-2xl shadow-2xl shadow-black/50 animate-slide-up overflow-hidden"
+                class="hidden absolute right-0 top-full mt-2 w-80 glass-dark rounded-2xl shadow-2xl shadow-black/50 animate-slide-up overflow-hidden select-none"
               >
                 <!-- Header -->
                 <div class="gradient-primary p-6">
@@ -533,7 +504,6 @@
             </div>
           </div>
           <!-- /User Profile & Settings -->
-        </div>
       </div>
     </nav>
 
@@ -557,10 +527,8 @@
     ></div>
 
     <!-- Main Content -->
-    <div class="min-h-screen pt-24">
-      <div class="p-6 w-full">
-        <div id="app" class="h-full"></div>
-      </div>
+    <div class="min-h-screen pt-32">
+        <div id="app" class="p-6 w-full h-full"></div>
     </div>
 
     <!-- Toast Container -->
@@ -725,30 +693,26 @@
 
     <script>
       // Profile/settings dropdown logic
-      const userButton = document.getElementById("user-button-navbar");
-      const settingsButton = document.getElementById("settings-button-navbar");
-      const dropdown = document.getElementById("dropdown-user");
+    //   const userButton = document.getElementById("user-button-navbar");
+    //   const dropdown = document.getElementById("dropdown-user");
 
-      function toggleDropdown(event) {
-        event.stopPropagation();
-        dropdown.classList.toggle("hidden");
-      }
-      userButton && userButton.addEventListener("click", toggleDropdown);
-      settingsButton &&
-        settingsButton.addEventListener("click", toggleDropdown);
+    //   function toggleDropdown(event) {
+    //     event.stopPropagation();
+    //     dropdown.classList.toggle("hidden");
+    //   }
+    //   userButton && userButton.addEventListener("click", toggleDropdown);
 
-      document.addEventListener("click", function (event) {
-        if (
-          userButton &&
-          settingsButton &&
-          dropdown &&
-          !userButton.contains(event.target) &&
-          !settingsButton.contains(event.target) &&
-          !dropdown.contains(event.target)
-        ) {
-          dropdown.classList.add("hidden");
-        }
-      });
+    //   document.addEventListener("click", function (event) {
+    //     if (
+    //       userButton &&
+    //       dropdown &&
+    //       !userButton.contains(event.target) &&
+    //       !settingsButton.contains(event.target) &&
+    //       !dropdown.contains(event.target)
+    //     ) {
+    //       dropdown.classList.add("hidden");
+    //     }
+    //   });
 
       // Modal helpers
       function showModal(modalId) {
