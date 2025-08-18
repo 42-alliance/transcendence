@@ -1,5 +1,5 @@
 import { language_manager } from "../lang/langManager.js";
-import { sidebar_visibility } from "../sidebar.js";
+import { navbar_visibility } from "../navbar.js";
 import { setupSoundListener } from "../sounds/changeSound.js";
 import { getUserInfos } from "../User/me.js";
 import { setUserProfile } from "../User/setUserProfile.js";
@@ -47,7 +47,7 @@ export async function dynamicDisplay(params: {
 
 	await showUserProfile(params.username);
 	setupSoundListener();
-	await sidebar_visibility();
+	await navbar_visibility();
 	await injectFriends();
 	await setupAddFriendSearchBar();
 	await ChatViewListener(Number(params.conversationId));
@@ -57,4 +57,5 @@ export async function dynamicDisplay(params: {
 	await handleInviteToPlay();
 	await language_manager();
 	await setUserProfile();
+
 }

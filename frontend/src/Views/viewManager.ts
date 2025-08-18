@@ -76,7 +76,6 @@ function matchRoute(
 
 // Fonction principale du routeur
 export const router = async (): Promise<void> => {
-  console.error("entre dans le router");
   const existingResultModal = document.getElementById("game-result");
   if (existingResultModal) {
     existingResultModal.remove();

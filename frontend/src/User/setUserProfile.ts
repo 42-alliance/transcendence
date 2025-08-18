@@ -47,6 +47,14 @@ function manageDropdownClick() {
       userButton.setAttribute("aria-expanded", "false");
     }
   });
+
+  // clic sur un élément du dropdown
+  dropDown.querySelectorAll("a, button").forEach((el) => {
+    el.addEventListener("click", () => {
+      closeDropdown();
+      userButton.setAttribute("aria-expanded", "false");
+    });
+  });
 }
 
 

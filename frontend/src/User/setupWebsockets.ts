@@ -4,7 +4,6 @@ import { showToast } from "../Views/triggerToast.js";
 import { addAttribute, goChat, miniPendingUserCard, writeStatus } from "../Views/userCard/userCard.js";
 import { gameWsClass, navigateTo, webSockets } from "../Views/viewManager.js";
 import { getAccessToken } from "../fetchApi.js";
-import { sidebar_visibility } from "../sidebar.js";
 import { createConversation } from "../Chat/createConversation.js";
 import { getUserInfos } from "./me.js";
 import { showPendingFriends } from "../Friends/showPendingRequest.js";
@@ -132,7 +131,6 @@ function handleFriendshipStatusUpdate(msg: any) {
 			buttons: [],
 			duration: 5000
 		});
-		sidebar_visibility();
 		displayAllFriendsDynamically();
 	} else if (status === "rejected") {
 		console.log("📩 Friend request rejected => ", msg);
@@ -157,7 +155,6 @@ function handleOnlineStatus(msg: any) {
 			writeStatus(elem, status);
 		});
 	}
-	sidebar_visibility();
 }
 
 function handleUserWebsocketMessage(event: MessageEvent) {
