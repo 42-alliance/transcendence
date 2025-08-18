@@ -59,7 +59,6 @@ export async function setUserProfile() {
 	if (!userNameSpan || !profilePicture || !usernameDropdown || !emailDropdown)
 		return;
 	
-
 	const user = await me();
 
 	if (!user || !user.name || !user.picture || !user.email || !user.id || !user.games)

@@ -1,733 +1,693 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title data-i18n="app-title">Dragon Pong - Modern Gaming</title>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title data-i18n="app-title">Dragon Pong - Modern Gaming</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+		<!-- Tailwind CSS -->
+		<script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Fonts - Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+		<!-- Fonts - Poppins -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+			rel="stylesheet" />
 
-    <!-- Game Screens Styles -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/src/Views/Game/UI/screens/DifficultyScreen.css"
-    />
+		<!-- Game Screens Styles -->
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="/src/Views/Game/UI/screens/DifficultyScreen.css" />
 
-    <!-- Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
+		<!-- Icons -->
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/assets/favicon.ico" />
+		<!-- Favicon -->
+		<link rel="icon" type="image/png" href="/assets/favicon.ico" />
 
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              poppins: ["Poppins", "sans-serif"],
-            },
-            animation: {
-              "fade-in": "fadeIn 0.3s ease-out",
-              "slide-up": "slideUp 0.3s ease-out",
-              "slide-down": "slideDown 0.3s ease-out",
-              "scale-in": "scaleIn 0.2s ease-out",
-            },
-            backdropBlur: {
-              xs: "2px",
-            },
-            colors: {
-              glass: "rgba(255, 255, 255, 0.1)",
-              "glass-border": "rgba(255, 255, 255, 0.2)",
-            },
-          },
-        },
-      };
-    </script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						fontFamily: {
+							poppins: ["Poppins", "sans-serif"],
+						},
+						animation: {
+							"fade-in": "fadeIn 0.3s ease-out",
+							"slide-up": "slideUp 0.3s ease-out",
+							"slide-down": "slideDown 0.3s ease-out",
+							"scale-in": "scaleIn 0.2s ease-out",
+						},
+						backdropBlur: {
+							xs: "2px",
+						},
+						colors: {
+							glass: "rgba(255, 255, 255, 0.1)",
+							"glass-border": "rgba(255, 255, 255, 0.2)",
+						},
+					},
+				},
+			};
+		</script>
 
-    <style>
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-	  @keyframes slideDown {
-        from {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        to {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-      }
-      @keyframes scaleIn {
-        from {
-          opacity: 0;
-          transform: scale(0.9);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-      .glass-effect {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      .glass-dark {
-        background: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-      .gradient-secondary {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      }
-      .gradient-accent {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      }
-      .text-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-      /* Hide nav links and profile/settings on /auth, keep logo */
-      .auth-page #user-button-navbar,
-      .auth-page #settings-button-navbar,
-      .auth-page #dropdown-user,
-      .auth-page nav .nav-link,
-      .auth-page nav .ml-auto {
-        display: none !important;
-      }
-    </style>
+		<style>
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+			@keyframes slideUp {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+			@keyframes slideDown {
+				from {
+					opacity: 1;
+					transform: translateY(0);
+				}
+				to {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+			}
+			@keyframes scaleIn {
+				from {
+					opacity: 0;
+					transform: scale(0.9);
+				}
+				to {
+					opacity: 1;
+					transform: scale(1);
+				}
+			}
+			.glass-effect {
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(20px);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+			}
+			.glass-dark {
+				background: rgba(0, 0, 0, 0.3);
+				backdrop-filter: blur(20px);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+			}
+			.gradient-primary {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			}
+			.gradient-secondary {
+				background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+			}
+			.gradient-accent {
+				background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+			}
+			.text-gradient {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+			}
+			/* Hide nav links and profile/settings on /auth, keep logo */
+			.auth-page #user-button-navbar,
+			.auth-page #settings-button-navbar,
+			.auth-page #dropdown-user,
+			.auth-page nav .nav-link,
+			.auth-page nav .ml-auto {
+				display: none !important;
+			}
+		</style>
 
-    <script>
-      // Toggle .auth-page class on SPA navigation to hide navbar on /auth
-      (function () {
-        function syncAuthClass() {
-          const isAuth = location.pathname.startsWith("/auth");
-          const root = document.documentElement;
-          if (isAuth) root.classList.add("auth-page");
-          else root.classList.remove("auth-page");
-          const b = document.body;
-          if (b) {
-            if (isAuth) b.classList.add("auth-page");
-            else b.classList.remove("auth-page");
-          }
-        }
-        syncAuthClass();
-        const _push = history.pushState;
-        history.pushState = function () {
-          _push.apply(this, arguments);
-          window.dispatchEvent(new Event("locationchange"));
-        };
-        const _replace = history.replaceState;
-        history.replaceState = function () {
-          _replace.apply(this, arguments);
-          window.dispatchEvent(new Event("locationchange"));
-        };
-        window.addEventListener("popstate", () =>
-          window.dispatchEvent(new Event("locationchange")),
-        );
-        window.addEventListener("locationchange", syncAuthClass);
-        document.addEventListener("DOMContentLoaded", syncAuthClass);
-      })();
-    </script>
-  </head>
+		<script>
+			// Toggle .auth-page class on SPA navigation to hide navbar on /auth
+			(function () {
+				function syncAuthClass() {
+					const isAuth = location.pathname.startsWith("/auth");
+					const root = document.documentElement;
+					if (isAuth) root.classList.add("auth-page");
+					else root.classList.remove("auth-page");
+					const b = document.body;
+					if (b) {
+						if (isAuth) b.classList.add("auth-page");
+						else b.classList.remove("auth-page");
+					}
+				}
+				syncAuthClass();
+				const _push = history.pushState;
+				history.pushState = function () {
+					_push.apply(this, arguments);
+					window.dispatchEvent(new Event("locationchange"));
+				};
+				const _replace = history.replaceState;
+				history.replaceState = function () {
+					_replace.apply(this, arguments);
+					window.dispatchEvent(new Event("locationchange"));
+				};
+				window.addEventListener("popstate", () =>
+					window.dispatchEvent(new Event("locationchange"))
+				);
+				window.addEventListener("locationchange", syncAuthClass);
+				document.addEventListener("DOMContentLoaded", syncAuthClass);
+			})();
+		</script>
+	</head>
 
-  <body
-    class="font-poppins text-white bg-gradient-to-br from-gray-900 via-black to-gray-900 min-h-screen overflow-hidden"
-  >
-    <noscript>
-      <div
-        class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-      >
-        <div class="glass-effect rounded-2xl p-8 text-center max-w-md">
-          <h2
-            class="text-2xl font-bold text-gradient mb-4"
-            data-i18n="noscript-title"
-          >
-            JavaScript Required
-          </h2>
-          <p class="text-gray-300" data-i18n="noscript-desc">
-            Please enable JavaScript to use this application.
-          </p>
-        </div>
-      </div>
-    </noscript>
+	<body
+		class="font-poppins text-white bg-gradient-to-br from-gray-900 via-black to-gray-900 min-h-screen overflow-hidden">
+		<noscript>
+			<div
+				class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+				<div class="glass-effect rounded-2xl p-8 text-center max-w-md">
+					<h2
+						class="text-2xl font-bold text-gradient mb-4"
+						data-i18n="noscript-title">
+						JavaScript Required
+					</h2>
+					<p class="text-gray-300" data-i18n="noscript-desc">
+						Please enable JavaScript to use this application.
+					</p>
+				</div>
+			</div>
+		</noscript>
 
-    <!-- Navbar -->
-    <nav class="fixed top-0 z-50 w-full h-30">
-      <div class="mx-auto h-full flex items-center">
-          <!-- Logo -->
-          <div
-            id="dragon-pong-button"
-            class="flex items-center ml-4 cursor-pointer group"
-          >
-            <a href="/" class="flex items-center" data-link>
-              <img
-                src="/assets/navlogo.png"
-                alt="Dragon Pong Logo"
-                class="h-48 w-48 group-hover:scale-105 transition-transform duration-300 drop-shadow-lg"
-              />
-            </a>
-          </div>
+		<!-- Navbar -->
+		<nav class="fixed top-0 z-50 w-full h-30">
+			<div class="mx-auto h-full flex items-center">
+				<!-- Logo -->
+				<div
+					id="dragon-pong-button"
+					class="flex items-center ml-4 cursor-pointer group">
+					<a href="/" class="flex items-center" data-link>
+						<img
+							src="/assets/navlogo.png"
+							alt="Dragon Pong Logo"
+							class="h-48 w-48 group-hover:scale-105 transition-transform duration-300 drop-shadow-lg" />
+					</a>
+				</div>
 
-          <!-- Navigation Links -->
-          <div class="flex items-center gap-16 ml-12">
-            <a href="/game" class="nav-link group" data-link>
-              <div
-                class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1"
-              >
-                <svg
-                  class="w-12 h-12 text-orange-400 mb-1 mx-auto transition-colors duration-300"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                >
-                  <title>controller</title>
-                  <path
-                    d="M7.97,16L5,19C4.67,19.3 4.23,19.5 3.75,19.5A1.75,1.75 0 0,1 2,17.75V17.5L3,10.12C3.21,7.81 5.14,6 7.5,6H16.5C18.86,6 20.79,7.81 21,10.12L22,17.5V17.75A1.75,1.75 0 0,1 20.25,19.5C19.77,19.5 19.33,19.3 19,19L16.03,16H7.97M7,8V10H5V11H7V13H8V11H10V10H8V8H7M16.5,8A0.75,0.75 0 0,0 15.75,8.75A0.75,0.75 0 0,0 16.5,9.5A0.75,0.75 0 0,0 17.25,8.75A0.75,0.75 0 0,0 16.5,8M14.75,9.75A0.75,0.75 0 0,0 14,10.5A0.75,0.75 0 0,0 14.75,11.25A0.75,0.75 0 0,0 15.5,10.5A0.75,0.75 0 0,0 14.75,9.75M18.25,9.75A0.75,0.75 0 0,0 17.5,10.5A0.75,0.75 0 0,0 18.25,11.25A0.75,0.75 0 0,0 19,10.5A0.75,0.75 0 0,0 18.25,9.75M16.5,11.5A0.75,0.75 0 0,0 15.75,12.25A0.75,0.75 0 0,0 16.5,13A0.75,0.75 0 0,0 17.25,12.25A0.75,0.75 0 0,0 16.5,11.5Z"
-                  />
-                </svg>
-                <span
-                  class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
-                  data-i18n="nav-game"
-                  >Game</span
-                >
-              </div>
-            </a>
+				<!-- Navigation Links -->
+				<div class="flex items-center gap-16 ml-12">
+					<!-- Game -->
+					<a href="/game" class="nav-link group" data-link>
+						<div
+							class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+							<svg
+								class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
+								fill="currentColor"
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								aria-hidden="true">
+								<title>controller</title>
+								<path
+									d="M7.97,16L5,19C4.67,19.3 4.23,19.5 3.75,19.5A1.75,1.75 0 0,1 2,17.75V17.5L3,10.12C3.21,7.81 5.14,6 7.5,6H16.5C18.86,6 20.79,7.81 21,10.12L22,17.5V17.75A1.75,1.75 0 0,1 20.25,19.5C19.77,19.5 19.33,19.3 19,19L16.03,16H7.97M7,8V10H5V11H7V13H8V11H10V10H8V8H7M16.5,8A0.75,0.75 0 0,0 15.75,8.75A0.75,0.75 0 0,0 16.5,9.5A0.75,0.75 0 0,0 17.25,8.75A0.75,0.75 0 0,0 16.5,8M14.75,9.75A0.75,0.75 0 0,0 14,10.5A0.75,0.75 0 0,0 14.75,11.25A0.75,0.75 0 0,0 15.5,10.5A0.75,0.75 0 0,0 14.75,9.75M18.25,9.75A0.75,0.75 0 0,0 17.5,10.5A0.75,0.75 0 0,0 18.25,11.25A0.75,0.75 0 0,0 19,10.5A0.75,0.75 0 0,0 18.25,9.75M16.5,11.5A0.75,0.75 0 0,0 15.75,12.25A0.75,0.75 0 0,0 16.5,13A0.75,0.75 0 0,0 17.25,12.25A0.75,0.75 0 0,0 16.5,11.5Z" />
+							</svg>
+							<span
+								class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+								data-i18n="nav-game"
+								>Game</span
+							>
+						</div>
+					</a>
 
-            <a href="/" class="nav-link group" data-link>
-              <div
-                class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1"
-              >
-                <svg
-                  class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
-                  fill="currentColor"
-                  viewBox="0 0 18 18"
-                >
-                  <path
-                    d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"
-                  />
-                </svg>
-                <span
-                  class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
-                  data-i18n="nav-home"
-                  >Home</span
-                >
-              </div>
-            </a>
+					<!-- Home -->
+					<a href="/" class="nav-link group" data-link>
+						<div
+							class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+							<svg
+								class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
+								fill="currentColor"
+								viewBox="0 0 18 18"
+								aria-hidden="true">
+								<path
+									d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
+							</svg>
+							<span
+								class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+								data-i18n="nav-home"
+								>Home</span
+							>
+						</div>
+					</a>
 
-            <a href="/friends" class="nav-link group" data-link>
-              <div
-                class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1"
-              >
-                <svg
-                  class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
-                  fill="currentColor"
-                  viewBox="0 0 20 18"
-                >
-                  <path
-                    d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"
-                  />
-                </svg>
-                <span
-                  class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
-                  data-i18n="nav-friends"
-                  >Friends</span
-                >
-              </div>
-            </a>
+					<!-- Friends -->
+					<a href="/friends" class="nav-link group" data-link>
+						<div
+							class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+							<svg
+								class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
+								fill="currentColor"
+								viewBox="0 0 20 18"
+								aria-hidden="true">
+								<path
+									d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
+							</svg>
+							<span
+								class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+								data-i18n="nav-friends"
+								>Friends</span
+							>
+						</div>
+					</a>
 
-            <a href="/chat" class="nav-link group" data-link>
-              <div
-                class="flex flex-col items-center transition-all duration-300 hover:shadow hover:-translate-y-1"
-              >
-                <svg
-                  class="w-12 h-12 text-orange-400 mb-1 mx-auto transition-colors duration-300"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12,3C17.5,3 22,6.58 22,11C22,15.42 17.5,19 12,19C10.76,19 9.57,18.82 8.47,18.5C5.55,21 2,21 2,21C4.33,18.67 4.7,17.1 4.75,16.5C3.05,15.07 2,13.13 2,11C2,6.58 6.5,3 12,3Z"
-                  />
-                </svg>
-                <span
-                  class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
-                  data-i18n="nav-chat"
-                  >Chat</span
-                >
-              </div>
-            </a>
-          </div>
+					<!-- Chat -->
+					<a href="/chat" class="nav-link group" data-link>
+						<div
+							class="flex flex-col items-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+							<svg
+								class="w-10 h-10 text-orange-400 mb-1 mx-auto transition-colors duration-300"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								aria-hidden="true">
+								<path
+									d="M12,3C17.5,3 22,6.58 22,11C22,15.42 17.5,19 12,19C10.76,19 9.57,18.82 8.47,18.5C5.55,21 2,21 2,21C4.33,18.67 4.7,17.1 4.75,16.5C3.05,15.07 2,13.13 2,11C2,6.58 6.5,3 12,3Z" />
+							</svg>
+							<span
+								class="text-lg font-medium tracking-wide text-orange-300 opacity-80 group-hover:opacity-100"
+								data-i18n="nav-chat"
+								>Chat</span
+							>
+						</div>
+					</a>
+				</div>
 
-          <!-- User Profile & language -->
-          <div class="flex items-center gap-10 ml-auto mr-12">
-            <!-- User Profile -->
-            <div class="relative">
-              <button
-                id="user-button-navbar"
-                type="button"
-                class="flex items-center gap-3 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow group select-none"
-              >
-                <span
-                  id="username-navbar"
-                  class="hidden md:block text-lg font-semibold text-white group-hover:text-blue-200 transition-colors duration-300"
-                ></span>
-                <img
-                  id="profile-picture-navbar"
-                  class="w-12 h-12 rounded-full border-2 border-white border-opacity-30 group-hover:border-opacity-60 transition-all duration-300 group-hover:scale-105"
-                />
-              </button>
-            </div>
+				<!-- User Profile & language -->
+				<div class="flex items-center gap-10 ml-auto mr-12">
+					<!-- User Profile -->
+					<div class="relative">
+						<button
+							id="user-button-navbar"
+							type="button"
+							class="flex items-center gap-3 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow group select-none">
+							<span
+								id="username-navbar"
+								class="hidden md:block text-lg font-semibold text-white group-hover:text-blue-200 transition-colors duration-300"></span>
+							<img
+								id="profile-picture-navbar"
+								class="w-12 h-12 rounded-full border-2 border-white border-opacity-30 group-hover:border-opacity-60 transition-all duration-300 group-hover:scale-105" />
+						</button>
+					</div>
 
-            <!-- Language switcher -->
-            <div class="relative flex">
-              <button
-                id="language-button-navbar"
-                type="button"
-                class="transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1 group rounded-full select-none"
-                data-i18n-attr="aria-label:language-menu-aria"
-                aria-label="Change language"
-              >
-                <img
-                  id="current-language-flag"
-                  src="/assets/flags/en.svg"
-                  alt="Current language: English"
-                  class="w-12 h-12 mb-1 mx-auto rounded-full border border-white/30 group-hover:border-white/60 shadow group-hover:scale-110 object-cover transition-transform duration-300"
-                />
-              </button>
+					<!-- Language switcher -->
+					<div class="relative flex">
+						<button
+							id="language-button-navbar"
+							type="button"
+							class="transition-all duration-300 hover:shadow-lg hover:shadow hover:-translate-y-1 group rounded-full select-none"
+							data-i18n-attr="aria-label:language-menu-aria"
+							aria-label="Change language">
+							<img
+								id="current-language-flag"
+								src="/assets/flags/en.svg"
+								alt="Current language: English"
+								class="w-12 h-12 mb-1 mx-auto rounded-full border border-white/30 group-hover:border-white/60 shadow group-hover:scale-110 object-cover transition-transform duration-300" />
+						</button>
 
-              <!-- Dropdown -->
-              <div
-                id="dropdown-language"
-                class="hidden absolute right-0 top-full mt-3 w-56 glass-dark rounded-2xl shadow-2xl shadow-black/50 overflow-hidden select-none"
-                role="menu"
-                aria-labelledby="language-button-navbar"
-              >
-                <!-- Header -->
-                <div class="gradient-primary p-4 ">
-                  <p
-                    class="text-lg font-bold text-white"
-                    data-i18n="language-menu-title"
-                  >
-                    Language
-                  </p>
-                  <p
-                    class="text-blue-100 text-xs opacity-90"
-                    data-i18n="language-menu-sub"
-                  >
-                    Choose your language
-                  </p>
-                </div>
+						<!-- Dropdown -->
+						<div
+							id="dropdown-language"
+							class="hidden absolute right-0 top-full mt-3 w-56 glass-dark rounded-2xl shadow-2xl shadow-black/50 overflow-hidden select-none"
+							role="menu"
+							aria-labelledby="language-button-navbar">
+							<!-- Header -->
+							<div class="gradient-primary p-4">
+								<p
+									class="text-lg font-bold text-white"
+									data-i18n="language-menu-title">
+									Language
+								</p>
+								<p
+									class="text-blue-100 text-xs opacity-90"
+									data-i18n="language-menu-sub">
+									Choose your language
+								</p>
+							</div>
 
-                <!-- Options -->
-                <ul class="p-2 max-h-[50vh] overflow-auto" role="none">
-                  <!-- EN -->
-                  <li role="none">
-                    <button
-                      type="button"
-                      class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
-                      data-lang="en"
-                      role="menuitemradio"
-                      aria-checked="false"
-                    >
-                      <img
-                        src="/assets/flags/en.svg"
-                        alt=""
-                        class="w-5 h-5 rounded-full"
-                      />
-                      <span class="flex-1" data-i18n="lang-en">English</span>
-                      <i
-                        class="check hidden fa-solid fa-check text-green-400"
-                      ></i>
-                    </button>
-                  </li>
-                  <!-- FR -->
-                  <li role="none">
-                    <button
-                      type="button"
-                      class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
-                      data-lang="fr"
-                      role="menuitemradio"
-                      aria-checked="false"
-                    >
-                      <img
-                        src="/assets/flags/fr.svg"
-                        alt=""
-                        class="w-5 h-5 rounded-full"
-                      />
-                      <span class="flex-1" data-i18n="lang-fr">Français</span>
-                      <i
-                        class="check hidden fa-solid fa-check text-green-400"
-                      ></i>
-                    </button>
-                  </li>
-                  <!-- ES -->
-                  <li role="none">
-                    <button
-                      type="button"
-                      class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
-                      data-lang="es"
-                      role="menuitemradio"
-                      aria-checked="false"
-                    >
-                      <img
-                        src="/assets/flags/es.svg"
-                        alt=""
-                        class="w-5 h-5 rounded-full"
-                      />
-                      <span class="flex-1" data-i18n="lang-es">Español</span>
-                      <i
-                        class="check hidden fa-solid fa-check text-green-400"
-                      ></i>
-                    </button>
-                  </li>
-                </ul>
-              </div>
+							<!-- Options -->
+							<ul
+								class="p-2 max-h-[50vh] overflow-auto"
+								role="none">
+								<!-- EN -->
+								<li role="none">
+									<button
+										type="button"
+										class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
+										data-lang="en"
+										role="menuitemradio"
+										aria-checked="false">
+										<img
+											src="/assets/flags/en.svg"
+											alt=""
+											class="w-5 h-5 rounded-full" />
+										<span class="flex-1" data-i18n="lang-en"
+											>English</span
+										>
+										<i
+											class="check hidden fa-solid fa-check text-green-400"></i>
+									</button>
+								</li>
+								<!-- FR -->
+								<li role="none">
+									<button
+										type="button"
+										class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
+										data-lang="fr"
+										role="menuitemradio"
+										aria-checked="false">
+										<img
+											src="/assets/flags/fr.svg"
+											alt=""
+											class="w-5 h-5 rounded-full" />
+										<span class="flex-1" data-i18n="lang-fr"
+											>Français</span
+										>
+										<i
+											class="check hidden fa-solid fa-check text-green-400"></i>
+									</button>
+								</li>
+								<!-- ES -->
+								<li role="none">
+									<button
+										type="button"
+										class="lang-opt flex w-full items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl object-cover transition-all duration-200"
+										data-lang="es"
+										role="menuitemradio"
+										aria-checked="false">
+										<img
+											src="/assets/flags/es.svg"
+											alt=""
+											class="w-5 h-5 rounded-full" />
+										<span class="flex-1" data-i18n="lang-es"
+											>Español</span
+										>
+										<i
+											class="check hidden fa-solid fa-check text-green-400"></i>
+									</button>
+								</li>
+							</ul>
+						</div>
 
-              <!-- User Dropdown -->
-              <div
-                id="dropdown-user"
-                class="hidden absolute right-0 top-full mt-2 w-80 glass-dark rounded-2xl shadow-2xl shadow-black/50 animate-slide-up overflow-hidden select-none"
-              >
-                <!-- Header -->
-                <div class="gradient-primary p-6">
-                  <p
-                    id="username-dropdown"
-                    class="text-xl font-bold text-white mb-1"
-                  ></p>
-                  <p
-                    id="email-dropdown"
-                    class="text-blue-100 text-sm opacity-90"
-                  ></p>
-                </div>
+						<!-- User Dropdown -->
+						<div
+							id="dropdown-user"
+							class="hidden absolute right-0 top-full mt-2 w-80 glass-dark rounded-2xl shadow-2xl shadow-black/50 animate-slide-up overflow-hidden select-none">
+							<!-- Header -->
+							<div class="gradient-primary p-6">
+								<p
+									id="username-dropdown"
+									class="text-xl font-bold text-white mb-1"></p>
+								<p
+									id="email-dropdown"
+									class="text-blue-100 text-sm opacity-90"></p>
+							</div>
 
-                <!-- Menu Items -->
-                <div class="p-2">
-                  <a
-                    id="profile-link"
-                    href="/me"
-                    class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl transition-all duration-300 group"
-                    data-link
-                  >
-                    <i
-                      class="fas fa-user-edit text-blue-400 group-hover:text-blue-300"
-                    ></i>
-                    <span
-                      class="font-medium"
-                      data-i18n="settings-update-profile"
-                      >Update Profile</span
-                    >
-                  </a>
+							<!-- Menu Items -->
+							<div class="p-2">
+								<a
+									id="profile-link"
+									href="/me"
+									class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl transition-all duration-300 group"
+									data-link>
+									<i
+										class="fas fa-user-edit text-blue-400 group-hover:text-blue-300"></i>
+									<span
+										class="font-medium"
+										data-i18n="settings-update-profile"
+										>Update Profile</span
+									>
+								</a>
 
-                  <!-- 2FA Toggle -->
-                  <div
-                    class="flex items-center justify-between px-4 py-3 text-gray-300 hover:bg-white hover:bg-opacity-5 rounded-xl transition-all duration-300"
-                  >
-                    <div class="flex items-center gap-3">
-                      <i class="fas fa-shield-alt text-green-400"></i>
-                      <span class="font-medium" data-i18n="settings-twofa"
-                        >Two-Factor Auth</span
-                      >
-                    </div>
-                    <label
-                      class="relative inline-flex items-center cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        id="toggle-2fa"
-                        class="sr-only peer"
-                      />
-                      <div
-                        class="w-12 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-500"
-                      ></div>
-                    </label>
-                  </div>
+								<!-- 2FA Toggle -->
+								<div
+									class="flex items-center justify-between px-4 py-3 text-gray-300 hover:bg-white hover:bg-opacity-5 rounded-xl transition-all duration-300">
+									<div class="flex items-center gap-3">
+										<i
+											class="fas fa-shield-alt text-green-400"></i>
+										<span
+											class="font-medium"
+											data-i18n="settings-twofa"
+											>Two-Factor Auth</span
+										>
+									</div>
+									<label
+										class="relative inline-flex items-center cursor-pointer">
+										<input
+											type="checkbox"
+											id="toggle-2fa"
+											class="sr-only peer" />
+										<div
+											class="w-12 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-500"></div>
+									</label>
+								</div>
 
-                  <a
-                    href="#"
-                    class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl transition-all duration-300 group"
-                    onclick="logOutUser()"
-                  >
-                    <i
-                      class="fas fa-sign-out-alt text-yellow-400 group-hover:text-yellow-300"
-                    ></i>
-                    <span class="font-medium" data-i18n="settings-signout"
-                      >Sign Out</span
-                    >
-                  </a>
+								<a
+									href="#"
+									class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl transition-all duration-300 group"
+									onclick="logOutUser()">
+									<i
+										class="fas fa-sign-out-alt text-yellow-400 group-hover:text-yellow-300"></i>
+									<span
+										class="font-medium"
+										data-i18n="settings-signout"
+										>Sign Out</span
+									>
+								</a>
 
-                  <a
-                    href="#"
-                    class="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500 hover:bg-opacity-10 rounded-xl transition-all duration-300 group"
-                    onclick="deleteUser()"
-                  >
-                    <i class="fas fa-trash-alt group-hover:text-red-300"></i>
-                    <span class="font-medium" data-i18n="settings-delete"
-                      >Delete Account</span
-                    >
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- /User Profile & Settings -->
-      </div>
-    </nav>
+								<a
+									href="#"
+									class="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500 hover:bg-opacity-10 rounded-xl transition-all duration-300 group"
+									onclick="deleteUser()">
+									<i
+										class="fas fa-trash-alt group-hover:text-red-300"></i>
+									<span
+										class="font-medium"
+										data-i18n="settings-delete"
+										>Delete Account</span
+									>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /User Profile & Settings -->
+			</div>
+		</nav>
 
-    <!-- Background Video -->
-    <video
-      autoplay
-      loop
-      muted
-      playsinline
-      class="fixed top-0 left-0 w-full h-full object-cover brightness-50 -z-20"
-    >
-      <source src="/assets/goku.mp4" type="video/mp4" />
-      <span data-i18n="video-error"
-        >Your browser does not support video playback.</span
-      >
-    </video>
+		<!-- Background Video -->
+		<video
+			autoplay
+			loop
+			muted
+			playsinline
+			class="fixed top-0 left-0 w-full h-full object-cover brightness-50 -z-20">
+			<source src="/assets/goku.mp4" type="video/mp4" />
+			<span data-i18n="video-error"
+				>Your browser does not support video playback.</span
+			>
+		</video>
 
-    <!-- Overlay -->
-    <div
-      class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 -z-10"
-    ></div>
+		<!-- Overlay -->
+		<div
+			class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 -z-10"></div>
 
-    <!-- Main Content -->
-    <div class="min-h-screen pt-32">
-        <div id="app" class="p-6 w-full h-full"></div>
-    </div>
+		<!-- Main Content -->
+		<div class="min-h-screen pt-32">
+			<div id="app" class="p-6 w-full h-full"></div>
+		</div>
 
-    <!-- Toast Container -->
-    <div
-      id="toast-container"
-      class="fixed bottom-8 right-8 flex flex-col gap-4 z-50"
-    ></div>
+		<!-- Toast Container -->
+		<div
+			id="toast-container"
+			class="fixed bottom-8 right-8 flex flex-col gap-4 z-50"></div>
 
-    <!-- 2FA Login Modal -->
-    <div
-      id="twofa-login-modal"
-      class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50"
-    >
-      <div
-        class="glass-dark rounded-3xl p-8 w-full max-w-md mx-4 animate-scale-in"
-      >
-        <h2
-          class="text-2xl font-bold text-gradient mb-4"
-          data-i18n="2fa-login-title"
-        >
-          Two-Factor Authentication
-        </h2>
-        <p
-          class="text-gray-300 mb-6 leading-relaxed"
-          data-i18n="2fa-login-desc"
-        >
-          Please enter your 6-digit authentication code to continue.
-        </p>
-        <input
-          type="text"
-          id="login-verification-code"
-          class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300 text-center text-2xl font-mono tracking-widest mb-6"
-          maxlength="6"
-          data-i18n="2fa-login-placeholder"
-          data-i18n-attr="placeholder"
-          placeholder="000000"
-        />
-        <div class="flex gap-3">
-          <button
-            id="cancel-login-2fa"
-            class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
-            data-i18n="2fa-cancel"
-          >
-            Cancel
-          </button>
-          <button
-            id="verify-login-2fa"
-            class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
-            data-i18n="2fa-login-verify"
-          >
-            Verify & Login
-          </button>
-        </div>
-      </div>
-    </div>
+		<!-- 2FA Login Modal -->
+		<div
+			id="twofa-login-modal"
+			class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50">
+			<div
+				class="glass-dark rounded-3xl p-8 w-full max-w-md mx-4 animate-scale-in">
+				<h2
+					class="text-2xl font-bold text-gradient mb-4"
+					data-i18n="2fa-login-title">
+					Two-Factor Authentication
+				</h2>
+				<p
+					class="text-gray-300 mb-6 leading-relaxed"
+					data-i18n="2fa-login-desc">
+					Please enter your 6-digit authentication code to continue.
+				</p>
+				<input
+					type="text"
+					id="login-verification-code"
+					class="w-full p-4 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300 text-center text-2xl font-mono tracking-widest mb-6"
+					maxlength="6"
+					data-i18n="2fa-login-placeholder"
+					data-i18n-attr="placeholder"
+					placeholder="000000" />
+				<div class="flex gap-3">
+					<button
+						id="cancel-login-2fa"
+						class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
+						data-i18n="2fa-cancel">
+						Cancel
+					</button>
+					<button
+						id="verify-login-2fa"
+						class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
+						data-i18n="2fa-login-verify">
+						Verify & Login
+					</button>
+				</div>
+			</div>
+		</div>
 
-    <!-- 2FA Setup Modal -->
-    <div
-      id="twofa-setup-modal"
-      class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50"
-    >
-      <div
-        class="glass-dark rounded-3xl p-8 w-full max-w-lg mx-4 animate-scale-in"
-      >
-        <h2
-          class="text-2xl font-bold text-gradient mb-6"
-          data-i18n="2fa-setup-title"
-        >
-          Setup Two-Factor Authentication
-        </h2>
+		<!-- 2FA Setup Modal -->
+		<div
+			id="twofa-setup-modal"
+			class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50">
+			<div
+				class="glass-dark rounded-3xl p-8 w-full max-w-lg mx-4 animate-scale-in">
+				<h2
+					class="text-2xl font-bold text-gradient mb-6"
+					data-i18n="2fa-setup-title">
+					Setup Two-Factor Authentication
+				</h2>
 
-        <!-- QR Code -->
-        <div class="flex justify-center mb-6">
-          <div
-            class="bg-white bg-opacity-10 rounded-2xl p-4 border border-white border-opacity-20"
-          >
-            <img id="qrcode-image" alt="QR Code" class="rounded-xl" />
-          </div>
-        </div>
+				<!-- QR Code -->
+				<div class="flex justify-center mb-6">
+					<div
+						class="bg-white bg-opacity-10 rounded-2xl p-4 border border-white border-opacity-20">
+						<img
+							id="qrcode-image"
+							alt="QR Code"
+							class="rounded-xl" />
+					</div>
+				</div>
 
-        <!-- Instructions -->
-        <div class="space-y-4 mb-6">
-          <div class="flex items-start gap-3">
-            <div
-              class="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-sm font-bold mt-0.5"
-            >
-              1
-            </div>
-            <p class="text-gray-300" data-i18n="2fa-step1">
-              Scan this QR code with your authenticator app (Google
-              Authenticator, Authy, etc.)
-            </p>
-          </div>
-          <div class="flex items-start gap-3">
-            <div
-              class="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-sm font-bold mt-0.5"
-            >
-              2
-            </div>
-            <div class="flex-1">
-              <p class="text-gray-300 mb-2" data-i18n="2fa-step2-label">
-                Enter the verification code from your app:
-              </p>
-              <input
-                type="text"
-                id="verification-code"
-                class="w-full p-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300 text-center font-mono tracking-widest"
-                maxlength="6"
-                data-i18n="2fa-setup-placeholder"
-                data-i18n-attr="placeholder"
-                placeholder="000000"
-              />
-            </div>
-          </div>
-        </div>
+				<!-- Instructions -->
+				<div class="space-y-4 mb-6">
+					<div class="flex items-start gap-3">
+						<div
+							class="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-sm font-bold mt-0.5">
+							1
+						</div>
+						<p class="text-gray-300" data-i18n="2fa-step1">
+							Scan this QR code with your authenticator app
+							(Google Authenticator, Authy, etc.)
+						</p>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-sm font-bold mt-0.5">
+							2
+						</div>
+						<div class="flex-1">
+							<p
+								class="text-gray-300 mb-2"
+								data-i18n="2fa-step2-label">
+								Enter the verification code from your app:
+							</p>
+							<input
+								type="text"
+								id="verification-code"
+								class="w-full p-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-opacity-15 transition-all duration-300 text-center font-mono tracking-widest"
+								maxlength="6"
+								data-i18n="2fa-setup-placeholder"
+								data-i18n-attr="placeholder"
+								placeholder="000000" />
+						</div>
+					</div>
+				</div>
 
-        <!-- Backup Codes -->
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-3">
-            <i class="fas fa-key text-orange-400"></i>
-            <h3
-              class="font-semibold text-orange-400"
-              data-i18n="2fa-backup-title"
-            >
-              Backup Recovery Codes
-            </h3>
-          </div>
-          <p class="text-sm text-gray-400 mb-3" data-i18n="2fa-backup-desc">
-            Save these codes in a secure location. You can use them to access
-            your account if you lose your authenticator device.
-          </p>
-          <div
-            id="backup-codes"
-            class="bg-black bg-opacity-50 rounded-xl p-4 font-mono text-sm text-orange-300 border border-orange-500 border-opacity-30"
-          ></div>
-        </div>
+				<!-- Backup Codes -->
+				<div class="mb-6">
+					<div class="flex items-center gap-2 mb-3">
+						<i class="fas fa-key text-orange-400"></i>
+						<h3
+							class="font-semibold text-orange-400"
+							data-i18n="2fa-backup-title">
+							Backup Recovery Codes
+						</h3>
+					</div>
+					<p
+						class="text-sm text-gray-400 mb-3"
+						data-i18n="2fa-backup-desc">
+						Save these codes in a secure location. You can use them
+						to access your account if you lose your authenticator
+						device.
+					</p>
+					<div
+						id="backup-codes"
+						class="bg-black bg-opacity-50 rounded-xl p-4 font-mono text-sm text-orange-300 border border-orange-500 border-opacity-30"></div>
+				</div>
 
-        <!-- Buttons -->
-        <div class="flex gap-3">
-          <button
-            id="cancel-2fa"
-            class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
-            data-i18n="2fa-cancel"
-          >
-            Cancel
-          </button>
-          <button
-            id="verify-2fa"
-            class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
-            data-i18n="2fa-enable"
-          >
-            Enable 2FA
-          </button>
-        </div>
-      </div>
-    </div>
+				<!-- Buttons -->
+				<div class="flex gap-3">
+					<button
+						id="cancel-2fa"
+						class="flex-1 px-6 py-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all duration-300 font-medium"
+						data-i18n="2fa-cancel">
+						Cancel
+					</button>
+					<button
+						id="verify-2fa"
+						class="flex-1 px-6 py-3 gradient-primary hover:shadow-lg hover:shadow-purple-500/25 rounded-xl transition-all duration-300 font-medium"
+						data-i18n="2fa-enable">
+						Enable 2FA
+					</button>
+				</div>
+			</div>
+		</div>
 
-    <!-- Scripts -->
-    <script type="module" src="/.objs/lang/langManager.js"></script>
-    <script type="module" src="/.objs/Views/viewManager.js"></script>
-    <script type="module" src="/.objs/include.js"></script>
+		<!-- Scripts -->
+		<script type="module" src="/.objs/lang/langManager.js"></script>
+		<script type="module" src="/.objs/Views/viewManager.js"></script>
+		<script type="module" src="/.objs/include.js"></script>
 
-    <script>
+		<script>
+			// Modal helpers
+			function showModal(modalId) {
+				const modal = document.getElementById(modalId);
+				if (!modal) return;
+				modal.classList.remove("hidden", "animate-slide-down");
+				modal.classList.add("animate-slide-up");
+				// modal.classList.remove("hidden");
+				// modal.classList.add("show");
+			}
 
-      // Modal helpers
-      function showModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
-  		modal.classList.remove("hidden", "animate-slide-down");
-		modal.classList.add("animate-slide-up");
-        // modal.classList.remove("hidden");
-        // modal.classList.add("show");
+			function hideModal(modalId) {
+				const modal = document.getElementById(modalId);
+				if (!modal) return;
+				// modal.classList.remove("show");
+				// setTimeout(() => {
+				//   modal.classList.add("hidden");
+				// }, 300);
 
-      }
+				modal.classList.remove("animate-slide-up");
+				modal.classList.add("animate-slide-down");
 
-      function hideModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
-        // modal.classList.remove("show");
-        // setTimeout(() => {
-        //   modal.classList.add("hidden");
-        // }, 300);
+				setTimeout(() => {
+					modal.classList.add("hidden");
+				}, 300);
+			}
 
-		  modal.classList.remove("animate-slide-up");
-  			modal.classList.add("animate-slide-down");
-
-  			setTimeout(() => {
-  			  modal.classList.add("hidden");
-  			}, 300);
-      }
-
-      // Click outside to close any "...-modal"
-      document.querySelectorAll('[id$="-modal"]').forEach((modal) => {
-        modal.addEventListener("click", function (e) {
-          if (e.target === this) {
-            hideModal(this.id);
-          }
-        });
-      });
-    </script>
-  </body>
+			// Click outside to close any "...-modal"
+			document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+				modal.addEventListener("click", function (e) {
+					if (e.target === this) {
+						hideModal(this.id);
+					}
+				});
+			});
+		</script>
+	</body>
 </html>
