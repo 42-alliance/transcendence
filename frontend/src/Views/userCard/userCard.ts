@@ -775,13 +775,16 @@ export async function createUserCard(targetElement: HTMLElement, userInfos: User
 	if (userInfos.id !== me.id) {
 		const isFriend = me.friends?.some(friend => friend.id === userInfos.id);
 		const isblocked = me.blocked?.some(blockedUser => blockedUser.id === userInfos.id!);
+
+		console.log("userInfos => ", userInfos);
+		console.log("me => ", me);
 		const dropdownBtn = createDropdownButton(
 			bannerContainer,
 			async () => { await goChat(userInfos); },
 			async () => {
 				navigateTo(`/game`);
 				gameWsClass?.sendMessage("create_inv_game", {
-					user: userInfos,
+					user: me,
 					type: "create_inv_game",
 					conversationId: await createConversation([me.name!, userInfos.name!]),
 				});

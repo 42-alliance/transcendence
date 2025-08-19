@@ -246,11 +246,6 @@ class MatchManager {
 
     // Process invitation games
     const invQueue = queueManager.getQueueByType("create_inv_game");
-    if (invQueue.length !== 0) {
-      console.log(
-        `Processing invitation games, found ${invQueue.length} creators`
-      );
-    }
     const joinInvQueue = queueManager.getQueueByType("join_inv_game");
 
     // Process each join request
@@ -400,8 +395,9 @@ class WebSocketMessageHandler {
     this.player.username = data.user.name;
     this.player.type = data.type;
     this.player.user_id = data.user.id;
-    console.log(`data.type: ${data.type}`);
+    console.log("Invitation game data:", data);
     if (data.type === "create_inv_game") {
+      console.log("game created by ", data.user.name);
       this.player.uuid_room = uuidv4();
       console.log(
         `Invitation game created with UUID: ${this.player.uuid_room}`
