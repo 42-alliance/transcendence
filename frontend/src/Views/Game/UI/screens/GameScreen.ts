@@ -167,8 +167,34 @@ export class GameScreen extends BaseScreen {
     const gameInstance = (window as any).gameInstance;
     const currentUser = gameInstance?.getUser?.() || {};
     const userId = String(currentUser.id || '');
-    const localOrAI = data.mode === 'local' || data.mode === 'ia';
-    const isWinner = localOrAI ? false : (String(data.winner) === userId);
+
+    const mode = String(data.mode || '').toLowerCase();
+    const isLocal = mode === 'local';
+    const isIA = mode === 'ia' || mode === 'ai';
+
+    // Winner detection (robust): by id, by name (case-insensitive), then score fallback
+    const currentNameNorm = String(currentUser?.name || '').trim().toLowerCase();
+    const winnerIdMatch = data.winner != null && String(data.winner) === userId;
+    const winnerNameNorm = String(data.winner_name || '').trim().toLowerCase();
+    const winnerNameMatch = !!currentNameNorm && currentNameNorm === winnerNameNorm;
+
+    let computedWinner = winnerIdMatch || winnerNameMatch;
+
+    // Fallback via score if provided
+    if (!computedWinner && data.score) {
+      const p1n = String(data.score.p1_name || '').trim().toLowerCase();
+      const p2n = String(data.score.p2_name || '').trim().toLowerCase();
+      if (currentNameNorm && (p1n === currentNameNorm || p2n === currentNameNorm)) {
+        const myScore = p1n === currentNameNorm ? Number(data.score.p1) : Number(data.score.p2);
+        const oppScore = p1n === currentNameNorm ? Number(data.score.p2) : Number(data.score.p1);
+        if (!Number.isNaN(myScore) && !Number.isNaN(oppScore)) {
+          computedWinner = myScore > oppScore;
+        }
+      }
+    }
+
+    // For local mode, always display winner visuals; otherwise use computed result
+    const isWinner = isLocal ? true : computedWinner;
 
     // Background layer
     const bg = document.createElement('div');
@@ -186,12 +212,12 @@ export class GameScreen extends BaseScreen {
     resultDiv.appendChild(content);
 
     // Apply variant
-    resultDiv.classList.add(isWinner || localOrAI ? 'result-win' : 'result-lose');
+    resultDiv.classList.add(isWinner ? 'result-win' : 'result-lose');
 
     // Title
     const title = document.createElement("h2");
     title.className = 'result-title';
-    if (localOrAI) {
+    if (isLocal) {
       title.textContent = `${data.winner_name || 'Joueur'} wins!`;
     } else {
       title.textContent = isWinner ? "Vous avez gagné !" : "Vous avez perdu !";
@@ -258,7 +284,7 @@ export class GameScreen extends BaseScreen {
       bg.style.backgroundPosition = 'center';
     };
     img.onerror = () => {
-      bg.style.background = isWinner || localOrAI
+      bg.style.background = isWinner
         ? 'linear-gradient(135deg, rgba(16,185,129,.25), rgba(6,95,70,.35))'
         : 'linear-gradient(135deg, rgba(239,68,68,.25), rgba(127,29,29,.35))';
     };

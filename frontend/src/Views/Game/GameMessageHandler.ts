@@ -7,6 +7,7 @@ import { AnimationController } from "./AnimationController.js";
 import { webSockets } from "../viewManager.js";
 import { GameWebSocket } from "./GameWebSocket.js";
 import { userInfo } from "os";
+import Game from "./Game.js";
 
 export class GameMessageHandler {
   private state: WebSocketState;
@@ -79,6 +80,8 @@ export class GameMessageHandler {
         break;
       case "start_animation":
         console.log("Starting animation:", message.data);
+        GameUI.hideSpinner();
+        GameUI.hideLobbyButtons();
         GameUI.showAnimationMatch(
           message.player,
           message.opponent,
