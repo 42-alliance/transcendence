@@ -38,6 +38,13 @@ server.register(jwt, {
 
 server.register(proxy, {
   upstream: `https://${config.users.host}:${config.users.port}`,
+  prefix: "/register",
+  rewritePrefix: "/register",
+  http2: false,
+});
+
+server.register(proxy, {
+  upstream: `https://${config.users.host}:${config.users.port}`,
   prefix: "/users",
   rewritePrefix: "/users",
   http2: false,

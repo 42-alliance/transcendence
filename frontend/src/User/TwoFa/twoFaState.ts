@@ -1,3 +1,5 @@
+import { fetchApi, getHeader } from "../../fetchApi.js";
+
 // État 2FA global
 function getStoredPendingState(): boolean {
   return localStorage.getItem("2fa_pending") === "true";
@@ -42,10 +44,10 @@ export async function checkInitial2FAState(): Promise<void> {
   if (getStoredPendingState()) return;
 
   try {
-    const response = await fetch("/api/users/@me/twofa", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-      },
+	const header = getHeader();
+    const response = await fetchApi("/users/@me/twofa", {
+		method: "GET",
+	    headers: header,
     });
 
     if (response.ok) {

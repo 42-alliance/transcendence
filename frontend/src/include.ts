@@ -19,6 +19,7 @@ import { formSubmit } from "./Views/Login/Login.js";
 import { check2faEnabled } from "./User/TwoFa/setTwoFa.js";
 // ... autres imports ...
 import { initTwoFaToggle } from "./User/TwoFa/initTwoFaToggle.js";
+import { closeLoginModal, closeRegisterModal, login, openLoginModal, openRegisterModal, register } from "./Views/Auth/Auth.js";
 
 // ... autres code ...
 
@@ -44,6 +45,12 @@ import { initTwoFaToggle } from "./User/TwoFa/initTwoFaToggle.js";
 (window as any).getFriendStatus = getFriendStatus; // for test in navigator
 (window as any).updateFriendStatus = updateFriendStatus; // for test in navigator
 (window as any).GetUserByName = GetUserByName; // for test in navigator
+(window as any).register = register;
+(window as any).login = login;
+(window as any).openLoginModal = openLoginModal;
+(window as any).closeLoginModal = closeLoginModal;
+(window as any).openRegisterModal = openRegisterModal;
+(window as any).closeRegisterModal = closeRegisterModal;
 document.addEventListener("DOMContentLoaded", () => {
   initTwoFaToggle();
 });

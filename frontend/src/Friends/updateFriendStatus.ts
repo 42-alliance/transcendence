@@ -1,4 +1,3 @@
-import { sidebar_visibility } from "../sidebar.js";
 import { fetchApi } from "../fetchApi.js";
 import { displayAllFriendsDynamically, displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 
@@ -31,7 +30,6 @@ export async function updateFriendStatus(friendId: number, state: any): Promise<
 		console.log("Friend status updated:", result);
 		await displayPendingFriendsDynamically();
 		await displayAllFriendsDynamically();
-		await sidebar_visibility();
 	} catch (error) {
 		console.error("Error: ", error);
 	}

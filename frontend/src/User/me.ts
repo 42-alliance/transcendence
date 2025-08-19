@@ -49,6 +49,10 @@ export async function me(): Promise<UserData | null> {
       method: "GET",
       headers: headers,
     });
+
+	if (!response.ok) {
+		throw new Error("Fail to fetch user info");
+	}
     const data: UserData = await response.json();
     userInfos = data;
     return userInfos;

@@ -2,6 +2,8 @@ import { Type } from "@sinclair/typebox";
 import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { config } from "../config.js";
 import bcrypt from "bcrypt";
+import { FastifyInstance } from "fastify/fastify.js";
+import { error } from "console";
 
 
 export const loginForm: FastifySchema = {
@@ -18,9 +20,10 @@ interface loginBody {
 
 interface loginResponse {
     hash: string,
+	user_id: number
 }
 
-export async function login_by_pwd(request: FastifyRequest, reply: FastifyReply) {
+export async function login_by_pwd(server: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
     const body: loginBody = request.body as loginBody;
     const headers = new Headers();
     try {
@@ -29,8 +32,12 @@ export async function login_by_pwd(request: FastifyRequest, reply: FastifyReply)
             headers: headers,
         });
 
-        if (!response.ok)
+        if (!response.ok) {
+			if (response.status === 404) {
+				return reply.status(404).send({ error: "Email not found"});
+			}
             throw new Error("fail to resolve email " + response.statusText);
+		}
         const result: loginResponse = await response.json();
         let pwd = result.hash;
         bcrypt.compare(body.password, pwd, function(result, err) {
@@ -38,8 +45,24 @@ export async function login_by_pwd(request: FastifyRequest, reply: FastifyReply)
                 return reply.status(400).send({ error: "Incorrect password"});
             }
         })
+
+		const accessToken = server.jwt.sign(
+            { id: result.user_id, type: "access_token" },
+            { expiresIn: "15m" }
+        );
+        const refreshToken = server.jwt.sign(
+            { id: result.user_id, type: "refresh_token" },
+            { expiresIn: "7d" }
+        );
+
+        reply.setCookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/",
+            maxAge: 7 * 24 * 60 * 60, // 7 jours
+        });
+		return reply.send({access_token: accessToken});
     } catch (error: any) {
-            return reply.status(500).send({error: `Erreur serveur: ${error}`});
+        return reply.status(500).send({error: `Erreur serveur: ${error}`});
     } 
-    return reply.status(200).send({message: "all right okay"});
 }

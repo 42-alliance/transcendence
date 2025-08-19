@@ -100,12 +100,19 @@ async function applyLanguage(lang: Lang): Promise<void> {
 
 function openDropdown(): void {
   const dd = document.getElementById("dropdown-language");
-  dd?.classList.remove("hidden");
+  dd?.classList.remove("hidden", "animate-slide-down");
+  dd?.classList.add("animate-slide-up");
 }
 
 function closeDropdown(): void {
   const dd = document.getElementById("dropdown-language");
-  dd?.classList.add("hidden");
+
+  dd?.classList.remove("animate-slide-up");
+  dd?.classList.add("animate-slide-down");
+
+  setTimeout(() => {
+	  dd?.classList.add("hidden");
+  }, 300);
 }
 
 function isDropdownOpen(): boolean {
@@ -117,77 +124,35 @@ function focusFirstOption(): void {
   first?.focus();
 }
 
-export function initLanguageDropdown(): void {
-  const btn = document.getElementById("language-button-navbar");
-  const dd = document.getElementById("dropdown-language");
-  if (!btn || !dd) return;
-
-
-  console.error("ouais la team");
-  // Init UI selon la langue stockée
-  const initial = getStoredLang();
-  updateFlagUI(initial);
-  markActiveOption(initial);
-
-  // Toggle dropdown
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (isDropdownOpen()) closeDropdown();
+function ifBtnClick() {
+	if (isDropdownOpen()) closeDropdown();
     else {
       openDropdown();
       // Focus clavier
       setTimeout(focusFirstOption, 0);
     }
-  });
-
-  // Sélection d'une langue
-  dd.addEventListener("click", (e) => {
-    const target = (e.target as HTMLElement).closest<HTMLButtonElement>(".lang-opt");
-    if (!target) return;
-    const lang = target.dataset.lang as Lang | undefined;
-    if (lang && FLAG_BY_LANG[lang]) {
-      void applyLanguage(lang);
-      closeDropdown();
-      (btn as HTMLElement).focus();
-    }
-  });
-
-  // Navigation clavier
-  dd.addEventListener("keydown", (e: KeyboardEvent) => {
-    const opts = Array.from(dd.querySelectorAll<HTMLButtonElement>(".lang-opt"));
-    const currentIndex = opts.findIndex((el) => el === document.activeElement);
-    if (e.key === "Escape") {
-      closeDropdown();
-      (btn as HTMLElement).focus();
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      const next = opts[(currentIndex + 1 + opts.length) % opts.length];
-      next?.focus();
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      const prev = opts[(currentIndex - 1 + opts.length) % opts.length];
-      prev?.focus();
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      const focused = document.activeElement as HTMLButtonElement | null;
-      const lang = focused?.dataset.lang as Lang | undefined;
-      if (lang && FLAG_BY_LANG[lang]) {
-        void applyLanguage(lang);
-        closeDropdown();
-        (btn as HTMLElement).focus();
-      }
-    }
-  });
-
-  // Fermer au clic extérieur
-  document.addEventListener("click", (e) => {
-    const within = (e.target as Node) && (btn.contains(e.target as Node) || dd.contains(e.target as Node));
-    if (!within) closeDropdown();
-  });
-
-  // Fermer sur resize (optionnel)
-  window.addEventListener("resize", closeDropdown);
 }
+
+// export function initLanguageDropdown(): void {
+//   const btn = document.getElementById("language-button-navbar");
+//   const dd = document.getElementById("dropdown-language");
+//   if (!btn || !dd) return;
+
+
+//   // Init UI selon la langue stockée
+//   const initial = getStoredLang();
+//   updateFlagUI(initial);
+//   markActiveOption(initial);
+
+//   // Toggle dropdown
+// 	btn.removeEventListener("click", ifBtnClick); // REMOVE
+
+//   btn.addEventListener("click", ifBtnClick);
+
+
+//   // Fermer sur resize (optionnel)
+//   window.addEventListener("resize", closeDropdown);
+// }
 
 // for the language management
 export async function language_manager() {
@@ -197,6 +162,100 @@ export async function language_manager() {
     const langData = await fetchLanguageData(userPreferredLanguage);
     updateContent(langData, userPreferredLanguage);
 
-    console.error("je passe par ici imad");
 	initLanguageDropdown();
+}
+
+
+
+
+// --- Handlers globaux --- //
+function handleDropdownClick(e: Event) {
+  const dd = document.getElementById("dropdown-language");
+  const btn = document.getElementById("language-button-navbar");
+  if (!dd || !btn) return;
+
+  const target = (e.target as HTMLElement).closest<HTMLButtonElement>(".lang-opt");
+  if (!target) return;
+  const lang = target.dataset.lang as Lang | undefined;
+  if (lang && FLAG_BY_LANG[lang]) {
+    void applyLanguage(lang);
+    closeDropdown();
+    btn.focus();
+  }
+}
+
+function handleDropdownKeydown(e: KeyboardEvent) {
+  const dd = document.getElementById("dropdown-language");
+  const btn = document.getElementById("language-button-navbar");
+  if (!dd || !btn) return;
+
+  const opts = Array.from(dd.querySelectorAll<HTMLButtonElement>(".lang-opt"));
+  const currentIndex = opts.findIndex((el) => el === document.activeElement);
+
+  if (e.key === "Escape") {
+    closeDropdown();
+    btn.focus();
+  } else if (e.key === "ArrowDown") {
+    e.preventDefault();
+    const next = opts[(currentIndex + 1 + opts.length) % opts.length];
+    next?.focus();
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    const prev = opts[(currentIndex - 1 + opts.length) % opts.length];
+    prev?.focus();
+  } else if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    const focused = document.activeElement as HTMLButtonElement | null;
+    const lang = focused?.dataset.lang as Lang | undefined;
+    if (lang && FLAG_BY_LANG[lang]) {
+      void applyLanguage(lang);
+      closeDropdown();
+      btn.focus();
+    }
+  }
+}
+
+function handleOutsideClick(e: MouseEvent) {
+  const dd = document.getElementById("dropdown-language");
+  const btn = document.getElementById("language-button-navbar");
+  if (!dd || !btn) return;
+
+  const within = btn.contains(e.target as Node) || dd.contains(e.target as Node);
+  if (!within) closeDropdown();
+}
+
+function handleResize() {
+  closeDropdown();
+}
+
+// --- Init dropdown --- //
+export function initLanguageDropdown(): void {
+  const btn = document.getElementById("language-button-navbar");
+  const dd = document.getElementById("dropdown-language");
+  if (!btn || !dd) return;
+
+  // Init UI selon la langue stockée
+  const initial = getStoredLang();
+  updateFlagUI(initial);
+  markActiveOption(initial);
+
+  // Toggle dropdown
+  btn.removeEventListener("click", ifBtnClick);
+  btn.addEventListener("click", ifBtnClick);
+
+  // Click options
+  dd.removeEventListener("click", handleDropdownClick);
+  dd.addEventListener("click", handleDropdownClick);
+
+  // Key navigation
+  dd.removeEventListener("keydown", handleDropdownKeydown);
+  dd.addEventListener("keydown", handleDropdownKeydown);
+
+  // Outside click
+  document.removeEventListener("click", handleOutsideClick);
+  document.addEventListener("click", handleOutsideClick);
+
+  // Resize
+  window.removeEventListener("resize", handleResize);
+  window.addEventListener("resize", handleResize);
 }

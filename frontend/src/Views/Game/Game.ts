@@ -180,6 +180,7 @@ export default class extends AView {
       if (!window.location.pathname.includes("/game")) {
         // effacetr tout les element qui peuvent etre encore pressent
         GameUI.clearScreens();
+        GameUI.showLobbyButtons();
         console.warn("Quitting game page, sending leave_queue message");
 
         // Informer le serveur que l'utilisateur quitte la page

@@ -1,8 +1,9 @@
 import { language_manager } from "../lang/langManager.js";
-import { sidebar_visibility } from "../sidebar.js";
+import { navbar_visibility } from "../navbar.js";
 import { setupSoundListener } from "../sounds/changeSound.js";
 import { getUserInfos } from "../User/me.js";
 import { setUserProfile } from "../User/setUserProfile.js";
+import { inject_2fa_modals } from "./2FA/2fa.js";
 import { ChatViewListener } from "./Chat/Chat.js";
 import { setupAddFriendSearchBar } from "./Friends/addFriendSearch.js";
 import { injectFriends } from "./Friends/Friends.js";
@@ -45,10 +46,9 @@ export async function dynamicDisplay(params: {
 		await injectUserCard("card-login-container-id");
 	}
 
-	await setUserProfile();
 	await showUserProfile(params.username);
 	setupSoundListener();
-	await sidebar_visibility();
+	await navbar_visibility();
 	await injectFriends();
 	await setupAddFriendSearchBar();
 	await ChatViewListener(Number(params.conversationId));
@@ -56,5 +56,7 @@ export async function dynamicDisplay(params: {
 	await gameInstance.executeViewScript();
 
 	await handleInviteToPlay();
-	await language_manager()
+	await language_manager();
+	await setUserProfile();
+	await inject_2fa_modals();
 }

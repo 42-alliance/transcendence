@@ -1,4 +1,3 @@
-import { sidebar_visibility } from "../sidebar.js";
 import { fetchApi, getHeader } from "../fetchApi.js";
 import { displayPendingFriendsDynamically } from "../Views/Friends/Friends.js";
 import { showToast } from "../Views/triggerToast.js";

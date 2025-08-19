@@ -1,52 +1,53 @@
-import { stat } from "fs";
+import fs from "fs";
+import path from "path";
 import { config } from "../config.js";
 import { handleTournamentMatchEnd } from "../matchmaking/Matchmaking.js";
 
 async function saveMatchToDB(game: Game) {
-  try {
-    const header = new Headers();
-    header.append("Content-Type", "application/json");
-    const response = await fetch(
-      `http://${config.users.host}:${config.users.port}/game/store`,
-      {
-        method: "POST",
-        headers: header,
-        body: JSON.stringify({
-          mode: game.mode,
-          status: game.status,
-          score1: game.score_p1,
-          score2: game.score_p2,
-          players: [
-            {
-              name: game.p1.username,
-              id: game.p1.user_id,
-            },
-            {
-              name: game.p2.username,
-              id: game.p2.user_id,
-            },
-          ],
-          winner:
-            game.score_p1 > game.score_p2
-              ? game.p1.user_id
-              : game.score_p2 > game.score_p1
-              ? game.p2.user_id
-              : null,
-          started_at: game.started_at,
-          finished_at: game.finished_at,
-        }),
-      }
-    );
+   try {
+     const header = new Headers();
+     header.append("Content-Type", "application/json");
+     const response = await fetch(
+      `https://${config.users.host}:${config.users.port}/game/store`,
+       {
+         method: "POST",
+         headers: header,
+         body: JSON.stringify({
+           mode: game.mode,
+           status: game.status,
+           score1: game.score_p1,
+           score2: game.score_p2,
+           players: [
+             {
+               name: game.p1.username,
+               id: game.p1.user_id,
+             },
+             {
+               name: game.p2.username,
+               id: game.p2.user_id,
+             },
+           ],
+           winner:
+             game.score_p1 > game.score_p2
+               ? game.p1.user_id
+               : game.score_p2 > game.score_p1
+               ? game.p2.user_id
+               : null,
+           started_at: game.started_at,
+           finished_at: game.finished_at,
+         }),
+       }
+     );
+     
+     if (!response.ok) {
+       throw new Error(`Failed to save match: ${response.statusText}`);
+     }
 
-    if (!response.ok) {
-      throw new Error(`Failed to save match: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    console.log("Match sauvegardé dans la table Game.");
-    return data;
-  } catch (e) {
-    console.error("Erreur lors de la sauvegarde du match :", e);
+     const data = await response.json();
+     console.log("Match sauvegardé dans la table Game.");
+     return data;
+   } catch (e) {
+     console.error("Erreur lors de la sauvegarde du match :", e);
   }
 }
 
@@ -84,7 +85,7 @@ class Paddle {
       } else if (direction === "down" && this.y + this.height < 800) {
         this.y += this.speed;
       }
-      setTimeout(moveStep, 16); // Continue moving in the next frame (~60fps)
+      setTimeout(moveStep, 1000 / 60); // Continue moving in the next frame (~60fps)
     };
     moveStep();
   }
@@ -298,7 +299,7 @@ class Game {
     } else if (this.score_p1 == 5) {
       console.log(this.p1.user_id);
       if (this.mode === "local") return "PLAYER_A";
-      if (this.mode === "ia") return "You";
+      if (this.mode === "ia") return this.p1.username; // Retourner le nom du joueur IA
       return this.p1.user_id; // Retourner l'ID du gagnant
     }
     return null; // Pas encore de gagnant

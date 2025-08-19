@@ -27,10 +27,10 @@ export async function setAuthRoutes(server: FastifyInstance) {
 		return await logoutUser(request, reply);
 	});
 	server.post('/auth/register', {schema: registerForm}, async function handler(request, reply) {
-		return await register_by_pwd(request, reply);
+		return await register_by_pwd(server, request, reply);
 	});
 	server.post('/auth/login', {schema: loginForm}, async function handler(request, reply) {
-		return await login_by_pwd(request, reply);
+		return await login_by_pwd(server, request, reply);
 	});
 }
 
