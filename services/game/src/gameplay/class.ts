@@ -299,7 +299,7 @@ class Game {
     } else if (this.score_p1 == 5) {
       console.log(this.p1.user_id);
       if (this.mode === "local") return "PLAYER_A";
-      if (this.mode === "ia") return this.p1.user_id;
+      if (this.mode === "ia") return this.p1.username; // Retourner le nom du joueur IA
       return this.p1.user_id; // Retourner l'ID du gagnant
     }
     return null; // Pas encore de gagnant
