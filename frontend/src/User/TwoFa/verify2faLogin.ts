@@ -94,6 +94,7 @@ async function handleVerification(
     const success = await verifyLoginCode(code);
     if (success) {
       console.log("Verification successful, navigating to home");
+	  setPending2FA(false);
       navigateTo("/");
     } else {
       console.log("Verification failed, resetting input");

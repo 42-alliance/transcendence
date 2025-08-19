@@ -4,7 +4,7 @@ import AView from "../AView.js";
 import Login from "../Login/Login.js";
 import { navigateTo } from "../viewManager.js";
 import { setPending2FA } from "../../User/TwoFa/twoFaState.js";
-
+import { showLoginVerification, initLogin2faVerification } from "../../User/TwoFa/verify2faLogin.js";
 export default class extends AView {
   constructor() {
     super();
@@ -38,8 +38,7 @@ export default class extends AView {
         // Si 2FA est activé, définir l'état en attente et afficher le modal de vérification
         setPending2FA(true); // Définir l'état 2FA en attente
         console.warn("pending is true now ");
-        const { showLoginVerification, initLogin2faVerification } =
-          await import("../../User/TwoFa/verify2faLogin.js");
+
         showLoginVerification();
         initLogin2faVerification();
         return ""; // Retourner une page vide car le modal sera affiché par-dessus

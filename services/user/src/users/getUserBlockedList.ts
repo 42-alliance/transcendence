@@ -3,12 +3,12 @@ import { prisma } from "../index.js";
 import { FastifyReply, FastifyRequest, FastifySchema } from "fastify";
 import { extractUserId } from "../utils.js";
 
-export const getUserByNameSchema: FastifySchema = {
+export const getUserBlockedListSchema: FastifySchema = {
 	headers: Type.Object({
 		"x-user-id": Type.String({ pattern: "^[0-9]+$" }),
 	}),
 	params: Type.Object({
-		name: Type.String({maxLength: 100, pattern: "^[a-zA-Z0-9_]+$"}),
+		id: Type.String({pattern: "^[0-9]+$"}),
 	})
 };
 

@@ -41,7 +41,7 @@ export function isProtectedRoute(path: string): boolean {
 // Fonction pour vérifier l'état initial du 2FA au chargement
 export async function checkInitial2FAState(): Promise<void> {
   // Si déjà en attente, ne rien faire
-  if (getStoredPendingState()) return;
+  if (!getStoredPendingState()) return;
 
   try {
 	const header = getHeader();
