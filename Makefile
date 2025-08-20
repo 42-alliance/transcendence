@@ -18,6 +18,12 @@ downv :
 
 oui : down up
 
+# gen:
+# 	@grep -vE '^(UID|GID)=' .env 2>/dev/null > .env.tmp || true
+# 	@echo "UID=$$(id -u)" >> .env.tmp
+# 	@echo "GID=$$(id -g)" >> .env.tmp
+# 	@mv .env.tmp .env
+
 dbclean :
 	rm -rf services/chat/prisma/database services/chat/prisma/migrations
 	rm -rf services/user/prisma/database services/user/prisma/migrations

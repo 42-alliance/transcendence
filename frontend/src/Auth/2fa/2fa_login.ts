@@ -23,14 +23,12 @@ export async function verifyLoginCodeeeee(
 			body: JSON.stringify({ code, id }),
 		});
 
-		console.log("cheff 123");
 		if (!response.ok) {
 			to_return.error = "Not the good code";
 			return to_return;
 		}
 		const result = await response.json();
 		localStorage.setItem("access_token", result.access_token);
-		console.log("je passe ici");
 		console.log(localStorage);
 		
 		to_return.success = true;

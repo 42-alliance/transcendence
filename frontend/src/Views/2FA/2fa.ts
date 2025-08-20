@@ -1,5 +1,4 @@
 import { verifyLoginCodeeeee } from "../../Auth/2fa/2fa_login.js";
-import { verifyLoginCode } from "../../User/TwoFa/verify2faLogin.js";
 import { navigateTo } from "../viewManager.js";
 
 export async function inject_2fa_modals() {
@@ -46,7 +45,15 @@ function show_2fa_login_modal(id: number) {
 
 	const input = document.getElementById("login-verification-code");
 	if (!input) return;
-	input.addEventListener("keypress", (event) => listerEnterEvent(event, id));
+	input.addEventListener("keypress", event => listerEnterEvent(event, id));
+
+	const cancel_button = document.getElementById("cancel-login-2fa");
+	const verify_button = document.getElementById("verify-login-2fa");
+
+	cancel_button?.addEventListener("click", () => {
+		hide_2fa_login_modal(id), navigateTo("/auth");
+	});
+	verify_button?.addEventListener("click", () => send_2fa(id));
 }
 
 function hide_2fa_login_modal(id: number) {
@@ -61,7 +68,7 @@ function hide_2fa_login_modal(id: number) {
 		"login-verification-code"
 	) as HTMLInputElement;
 	if (!input) return;
-	input.removeEventListener("keypress", (event) => listerEnterEvent(event, id));
+	input.removeEventListener("keypress", event => listerEnterEvent(event, id));
 	input.value = "";
 	setTimeout(() => {
 		modal.classList.add("hidden");
@@ -70,7 +77,7 @@ function hide_2fa_login_modal(id: number) {
 
 function is_only_number(code: string): boolean {
 	for (let i = 0; i < code.length; i++) {
-		if (code[i] < '0' || code[i] > '9') {
+		if (code[i] < "0" || code[i] > "9") {
 			return false;
 		}
 	}
@@ -78,27 +85,29 @@ function is_only_number(code: string): boolean {
 }
 
 async function send_2fa(id: number) {
-	const input = document.getElementById("login-verification-code") as HTMLInputElement;
+	const input = document.getElementById(
+		"login-verification-code"
+	) as HTMLInputElement;
 	if (!input) return;
 
 	const code = input.value.trim();
 
 	if (code === "") {
-		 // TODO: afficher un message d'erreur en rouge
+		// TODO: afficher un message d'erreur en rouge
 		return;
 	}
 	if (code.length !== 6) {
 		// TODO: afficher un message d'erreur en rouge
-	   return;
+		return;
 	}
 	if (is_only_number(code) === false) {
 		// TODO: afficher un message d'erreur en rouge
-	   return;
+		return;
 	}
 	const result = await verifyLoginCodeeeee(code, id);
 	if (result.success === false) {
 		// TODO: afficher un message d'erreur en rouge
-	   return;
+		return;
 	}
 
 	navigateTo("/");

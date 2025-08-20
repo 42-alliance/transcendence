@@ -2,12 +2,6 @@ import { setupChatWebSocket } from "../Chat/setupWebSocket.js";
 import { WebSockets } from "../types.js";
 import { getUserInfos } from "../User/me.js";
 import { userIsLogin } from "../User/userIsLogin.js";
-import {
-	isPending2FAVerification,
-	isProtectedRoute,
-	checkInitial2FAState,
-} from "../User/TwoFa/twoFaState.js";
-import { showLoginVerification } from "../User/TwoFa/verify2faLogin.js";
 import { default as Auth } from "./Auth/Auth.js";
 import { default as Game } from "./Game/Game.js";
 import { default as AuthSuccess } from "./Auth/AuthSuccess.js";
@@ -84,9 +78,9 @@ export const router = async (): Promise<void> => {
 
 	// Vérifier l'état initial du 2FA au chargement
 	const isLogin = await userIsLogin();
-	if (isLogin) {
-		await checkInitial2FAState();
-	}
+
+
+	console.log("je passe ici");
 
 	type Route = {
 		path: string;
@@ -142,18 +136,8 @@ export const router = async (): Promise<void> => {
 		return;
 	}
 
-	// Vérifier le statut 2FA
-	if (isLogin && isPending2FAVerification()) {
-		// Ne permettre l'accès qu'aux routes non protégées
-		if (isProtectedRoute(location.pathname)) {
-			console.log("Access blocked: 2FA verification required");
-			await showLoginVerification();
-			return;
-		}
-	}
-
 	// Setup websocket si loggé et pas encore fait
-	if (isLogin && !isPending2FAVerification()) {
+	if (isLogin) {
 		if (webSockets.chat === null) {
 			await setupChatWebSocket();
 		}
