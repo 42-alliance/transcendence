@@ -145,7 +145,6 @@ export async function addUserDatabasePwd(request: FastifyRequest, reply: Fastify
 			body.name = await tryNameDatabase(body.name);
 		}
 
-		//TODO: hashe le password
 		const saltRounds = 10;
 		const pwd = await bcrypt.hash(body.password, saltRounds);
 		

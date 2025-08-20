@@ -8,7 +8,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js
 export const get_password_hashSchema: FastifySchema = {
 	params: Type.Object({
 		email: Type.String(), //TODO: peut-etre mettre un pattern
-	})
+	}),
 };
 
 export async function get_password_hash(
@@ -26,11 +26,16 @@ export async function get_password_hash(
 			},
 			select: {
 				password: true,
-				id: true
-			}
+				id: true,
+				twoFactorEnabled: true,
+			},
 		});
 
-		return reply.send({ hash: hashed_pwd.password, user_id: hashed_pwd.id });
+		return reply.send({
+			hash: hashed_pwd.password,
+			user_id: hashed_pwd.id,
+			twoFactorEnabled: hashed_pwd.twoFactorEnabled,
+		});
 	} catch (error) {
 		console.error("Error:", error);
 		if (error.code == "P2025") {

@@ -1,5 +1,5 @@
 import { UserData } from "../types.js";
-import { fetchApi } from "../fetchApi.js";
+import { fetchApi, getHeader } from "../fetchApi.js";
 
 export let userInfos: UserData = {};
 
@@ -42,8 +42,7 @@ export async function getUserInfos(): Promise<UserData | null> {
  * @returns The user data if the request is successful, otherwise null.
  */
 export async function me(): Promise<UserData | null> {
-  const headers = new Headers();
-  headers.append("Content-Type", "application/json");
+  const headers = getHeader();
   try {
     const response = await fetchApi("/users/@me", {
       method: "GET",

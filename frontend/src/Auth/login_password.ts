@@ -4,6 +4,7 @@ export interface LoginReturn {
 	success: boolean,
 	access_token?: string,
 	error?: string,
+	twoFactorEnabled?: boolean
 }
 
 export async function login_pwd(email: string, password: string) {

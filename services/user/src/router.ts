@@ -25,7 +25,7 @@ import { UpdateTwoFa } from "./users/@me/updateUserInfos.js";
 import { setupTwoFa } from "./users/@me/setupTwoFa.js";
 import { me, meSchema } from "./users/@me/@me.js";
 import { verifyTwoFaSetup } from "./users/@me/verifyTwoFaSetup.js";
-import { verifyTwoFaLogin } from "./users/@me/verifyTwoFaLogin.js";
+import { verifyTwoFaLogin, verifyTwoFaLoginn, verifyTwoFaLoginnSchema } from "./users/@me/verifyTwoFaLogin.js";
 import {
   getSendFriendRequest,
   getSendFriendRequestSchema,
@@ -355,6 +355,13 @@ async function setupAuthRoute(server: FastifyInstance) {
       return await get_password_hash(request, reply);
     }
   );
+
+  server.post("/internal/try-2fa",
+	{ schema: verifyTwoFaLoginnSchema},
+	async function handler(request, reply) {
+      return await verifyTwoFaLoginn(request, reply);
+    }
+  )
 }
 
 export async function setupRoutes(server: FastifyInstance) {
