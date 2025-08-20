@@ -1,6 +1,7 @@
 import { login_pwd } from "../../Auth/login_password.js";
 import { is_email_dispo, is_name_dispo, register_pwd } from "../../Auth/register_pwd.js";
 import { userIsLogin } from "../../User/userIsLogin.js";
+import { twoFactorLogin } from "../2FA/2fa.js";
 import AView from "../AView.js";
 import { navigateTo } from "../viewManager.js";
 
@@ -115,9 +116,14 @@ async function sendLogin(email: string, password: string) {
     	password_input.classList.add("border-red-500", "focus:ring-red-500");
     	password_input.focus();
 		return;
-	} 
-	localStorage.setItem("access_token", login.access_token!);
-	navigateTo("/");
+	}
+	console.log("login: ", login);
+	if (login.twoFactorEnabled! === false) {
+		localStorage.setItem("access_token", login.access_token!);
+		navigateTo("/");
+	} else {
+		await twoFactorLogin(login.id!);
+	}
 
 }
 

@@ -85,7 +85,7 @@ export async function addUserDatabase(request: FastifyRequest, reply: FastifyRep
 		
 		if (await prisma.users.findFirst({
 			where: {
-				name: body.name,
+				lower_name: body.name.toLowerCase(),
 			}
 		})) {
 			body.name = await tryNameDatabase(body.name);
@@ -96,7 +96,9 @@ export async function addUserDatabase(request: FastifyRequest, reply: FastifyRep
 			data: {
 				name: body.name,
 				email: body.email,
+				lower_name: body.name.toLowerCase(),
 				picture: body.picture,
+				is_google_account: true,
 			}
 		});
 		
@@ -139,13 +141,12 @@ export async function addUserDatabasePwd(request: FastifyRequest, reply: Fastify
 		
 		if (await prisma.users.findFirst({
 			where: {
-				name: body.name,
+				lower_name: body.name.toLowerCase(),
 			}
 		})) {
 			body.name = await tryNameDatabase(body.name);
 		}
 
-		//TODO: hashe le password
 		const saltRounds = 10;
 		const pwd = await bcrypt.hash(body.password, saltRounds);
 		
@@ -153,6 +154,7 @@ export async function addUserDatabasePwd(request: FastifyRequest, reply: Fastify
 		const result = await prisma.users.create({
 			data: {
 				name: body.name,
+				lower_name: body.name.toLowerCase(),
 				email: body.email,
 				picture: body.picture,
 				password: pwd,

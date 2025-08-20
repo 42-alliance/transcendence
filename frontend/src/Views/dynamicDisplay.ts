@@ -3,7 +3,6 @@ import { navbar_visibility } from "../navbar.js";
 import { setupSoundListener } from "../sounds/changeSound.js";
 import { getUserInfos } from "../User/me.js";
 import { setUserProfile } from "../User/setUserProfile.js";
-import { inject_2fa_modals } from "./2FA/2fa.js";
 import { ChatViewListener } from "./Chat/Chat.js";
 import { setupAddFriendSearchBar } from "./Friends/addFriendSearch.js";
 import { injectFriends } from "./Friends/Friends.js";
@@ -46,6 +45,8 @@ export async function dynamicDisplay(params: {
 		await injectUserCard("card-login-container-id");
 	}
 
+	await setUserProfile();
+
 	await showUserProfile(params.username);
 	setupSoundListener();
 	await navbar_visibility();
@@ -57,6 +58,4 @@ export async function dynamicDisplay(params: {
 
 	await handleInviteToPlay();
 	await language_manager();
-	await setUserProfile();
-	await inject_2fa_modals();
 }

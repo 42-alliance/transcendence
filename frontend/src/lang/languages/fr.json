@@ -25,6 +25,10 @@
 	"2fa-login-desc": "Veuillez saisir votre code d’authentification à 6 chiffres pour continuer.",
 	"2fa-login-placeholder": "000000",
 	"2fa-login-verify": "Vérifier et se connecter",
+	"2fa-error-required": "Le code est requis.",
+	"2fa-error-length": "Le code doit contenir 6 chiffres.",
+	"2fa-error-digits": "Le code ne doit contenir que des chiffres.",
+	"2fa-error-invalid": "Code invalide. Veuillez réessayer.",
 
 	"2fa-setup-title": "Configurer l’authentification à deux facteurs",
 	"2fa-step1": "Scannez ce QR code avec votre application d’authentification (Google Authenticator, Authy, etc.)",

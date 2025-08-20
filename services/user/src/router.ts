@@ -25,13 +25,13 @@ import { UpdateTwoFa } from "./users/@me/updateUserInfos.js";
 import { setupTwoFa } from "./users/@me/setupTwoFa.js";
 import { me, meSchema } from "./users/@me/@me.js";
 import { verifyTwoFaSetup } from "./users/@me/verifyTwoFaSetup.js";
-import { verifyTwoFaLogin } from "./users/@me/verifyTwoFaLogin.js";
+import { verifyTwoFaLogin, verifyTwoFaLoginn, verifyTwoFaLoginnSchema } from "./users/@me/verifyTwoFaLogin.js";
 import {
   getSendFriendRequest,
   getSendFriendRequestSchema,
 } from "./friends/pending/getSendFriendRequest.js";
 import { storeGameDatabase } from "./game/storeGameDatabase.js";
-import { getUserBlockedList } from "./users/getUserBlockedList.js";
+import { getUserBlockedList, getUserBlockedListSchema } from "./users/getUserBlockedList.js";
 import { unblockSomeone } from "./friends/status/unblockSomeone.js";
 import { blockSomeone } from "./friends/status/blockSomeone.js";
 import { get_password_hashSchema, get_password_hash } from "./users/get_Password_Hash.js"
@@ -63,6 +63,14 @@ async function setupUsersRoute(server: FastifyInstance) {
       return await getUserByName(request, reply);
     }
   );
+
+  server.get<{ Params: { id: string }}>(
+	"/users/get-blocked/:id",
+	{ schema: getUserBlockedListSchema},
+	async function handler(request, reply) {
+      return await getUserBlockedList(request, reply);
+    }
+  )
 
   server.put("/users/@me", async function handler(request, reply) {
 	return await updateUserInfos(request, reply);
@@ -347,6 +355,13 @@ async function setupAuthRoute(server: FastifyInstance) {
       return await get_password_hash(request, reply);
     }
   );
+
+  server.post("/internal/try-2fa",
+	{ schema: verifyTwoFaLoginnSchema},
+	async function handler(request, reply) {
+      return await verifyTwoFaLoginn(request, reply);
+    }
+  )
 }
 
 export async function setupRoutes(server: FastifyInstance) {

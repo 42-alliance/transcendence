@@ -4,6 +4,8 @@ export interface LoginReturn {
 	success: boolean,
 	access_token?: string,
 	error?: string,
+	twoFactorEnabled?: boolean,
+	id?: number
 }
 
 export async function login_pwd(email: string, password: string) {
@@ -33,7 +35,13 @@ export async function login_pwd(email: string, password: string) {
 		}
 		
 		const data = await response.json();
-		to_return.access_token = data.access_token;
+		to_return.twoFactorEnabled = data.twoFactorEnabled;
+		if (data.twoFactorEnabled === false) {
+			to_return.access_token = data.access_token;
+		}
+		else {
+			to_return.id = data.id;
+		}
 	} catch (error: any) {
 		console.error("Error: ", error);
 		to_return.success = false;

@@ -26,7 +26,7 @@ export async function IsNameDispo(
 
 		const user = await prisma.users.findUnique({
 			where: {
-				name: body.name,
+				lower_name: body.name.toLowerCase(),
 			},
 		});
 

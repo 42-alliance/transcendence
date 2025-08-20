@@ -13,6 +13,7 @@ export interface Games {
   player2_picture: string;
   player1: UserData;
   player2: UserData;
+  
   started_at: Date;
   finished_at: Date;
 }
@@ -38,6 +39,7 @@ export interface UserData {
   games?: Games[];
   bio?: string;
   created_at?: Date;
+  is_google_account?: boolean;
   TwofaEnabled?: boolean;
 }
 
