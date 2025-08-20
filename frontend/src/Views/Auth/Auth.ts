@@ -117,13 +117,13 @@ async function sendLogin(email: string, password: string) {
     	password_input.focus();
 		return;
 	}
+	console.log("login: ", login);
 	if (login.twoFactorEnabled! === false) {
 		localStorage.setItem("access_token", login.access_token!);
 		navigateTo("/");
 	} else {
-		await twoFactorLogin(1); // TODO: changer le 1 par le id
+		await twoFactorLogin(login.id!);
 	}
-	// TODO: mettre la page de 2fa si il est active
 
 }
 

@@ -35,6 +35,7 @@ model Users {
     picture String?
     banner  String?
     bio     String?
+	is_google_account Boolean @default(false) 
     
     // Nouveaux champs 2FA
     twoFactorEnabled    Boolean   @default(false)

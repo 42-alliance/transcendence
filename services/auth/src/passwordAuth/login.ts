@@ -74,7 +74,7 @@ export async function login_by_pwd(
 				twoFactorEnabled: false,
 			});
 		} else {
-			return reply.send({ twoFactorEnabled: true });
+			return reply.send({ twoFactorEnabled: true, id: result.user_id });
 		}
 	} catch (error: any) {
 		return reply.status(500).send({ error: `Erreur serveur: ${error}` });

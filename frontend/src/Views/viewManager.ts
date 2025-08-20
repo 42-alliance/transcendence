@@ -80,8 +80,6 @@ export const router = async (): Promise<void> => {
 	const isLogin = await userIsLogin();
 
 
-	console.log("je passe ici");
-
 	type Route = {
 		path: string;
 		view: new () => AView;
@@ -121,12 +119,10 @@ export const router = async (): Promise<void> => {
 	if (
 		previousPage &&
 		previousPage === currentKey &&
-		matchedRoute.path !== "/game"
+		matchedRoute.path !== "/game" && matchedRoute.path !== "/auth"
 	)
 		return;
 	previousPage = currentKey;
-
-	const user = await getUserInfos();
 
 	await inject_2fa_modals();
 

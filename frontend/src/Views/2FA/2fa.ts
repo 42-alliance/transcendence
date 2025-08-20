@@ -117,5 +117,4 @@ async function send_2fa(id: number) {
 export async function twoFactorLogin(id: number) {
 	erase_window();
 	show_2fa_login_modal(id);
-	console.log("je suis la");
 }
