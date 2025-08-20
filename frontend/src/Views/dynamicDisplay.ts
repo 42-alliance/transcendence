@@ -45,6 +45,8 @@ export async function dynamicDisplay(params: {
 		await injectUserCard("card-login-container-id");
 	}
 
+	await setUserProfile();
+
 	await showUserProfile(params.username);
 	setupSoundListener();
 	await navbar_visibility();
@@ -56,5 +58,4 @@ export async function dynamicDisplay(params: {
 
 	await handleInviteToPlay();
 	await language_manager();
-	await setUserProfile();
 }

@@ -84,6 +84,13 @@ function is_only_number(code: string): boolean {
 	return true;
 }
 
+function show2FAErrorKey(i18nKey: string) {
+	const el = document.getElementById("login-2fa-error");
+	if (!el) return;
+	el.dataset.i18n = i18nKey;
+	el.classList.remove("hidden");
+}
+
 async function send_2fa(id: number) {
 	const input = document.getElementById(
 		"login-verification-code"
@@ -93,26 +100,28 @@ async function send_2fa(id: number) {
 	const code = input.value.trim();
 
 	if (code === "") {
-		// TODO: afficher un message d'erreur en rouge
+		show2FAErrorKey("2fa-error-required");
 		return;
 	}
 	if (code.length !== 6) {
-		// TODO: afficher un message d'erreur en rouge
+		show2FAErrorKey("2fa-error-length");
 		return;
 	}
 	if (is_only_number(code) === false) {
-		// TODO: afficher un message d'erreur en rouge
+		show2FAErrorKey("2fa-error-digits");
 		return;
 	}
+
 	const result = await verifyLoginCodeeeee(code, id);
 	if (result.success === false) {
-		// TODO: afficher un message d'erreur en rouge
+		show2FAErrorKey("2fa-error-invalid");
 		return;
 	}
 
 	navigateTo("/");
 	hide_2fa_login_modal(id);
 }
+
 
 export async function twoFactorLogin(id: number) {
 	erase_window();

@@ -51,6 +51,4 @@ import { closeLoginModal, closeRegisterModal, login, openLoginModal, openRegiste
 (window as any).closeLoginModal = closeLoginModal;
 (window as any).openRegisterModal = openRegisterModal;
 (window as any).closeRegisterModal = closeRegisterModal;
-document.addEventListener("DOMContentLoaded", () => {
-  initTwoFaToggle();
-});
+

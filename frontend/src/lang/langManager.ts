@@ -133,27 +133,6 @@ function ifBtnClick() {
     }
 }
 
-// export function initLanguageDropdown(): void {
-//   const btn = document.getElementById("language-button-navbar");
-//   const dd = document.getElementById("dropdown-language");
-//   if (!btn || !dd) return;
-
-
-//   // Init UI selon la langue stockée
-//   const initial = getStoredLang();
-//   updateFlagUI(initial);
-//   markActiveOption(initial);
-
-//   // Toggle dropdown
-// 	btn.removeEventListener("click", ifBtnClick); // REMOVE
-
-//   btn.addEventListener("click", ifBtnClick);
-
-
-//   // Fermer sur resize (optionnel)
-//   window.addEventListener("resize", closeDropdown);
-// }
-
 // for the language management
 export async function language_manager() {
 		// TODO: changer ca par un appel api qui connait la langue de l'user

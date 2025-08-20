@@ -130,25 +130,90 @@ export function renderBlockedMessage(createdAt: Date) {
 	`;
 }
 
-export function renderMessage(msg: Message, isMe: boolean) {
-	return `
-		<div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
-			<a href="/${msg.name}" 
-				class="group transition-colors" data-link>
-			<img src="${msg.picture}" 
-				class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
-			</a>
-			<div>
-				<div class="${
-					isMe
-						? "bg-gradient-to-br from-orange-500 to-yellow-400 text-black"
-						: "bg-gray-800 text-white"
-				} px-4 py-2 rounded-2xl max-w-md break-words">${msg.content}</div>
-				<div class="text-xs text-gray-500 mt-1 ${isMe ? "text-right" : ""}">${timeAgo(msg.createdAt)}</div>
-			</div>
-		</div>
-	`;
+function escapeHTML(input: string): string {
+  // Échappe TOUT le contenu utilisateur avant insertion dans le DOM via innerHTML
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
+
+function sanitizePathSegment(name: string): string {
+  // Empêche la sortie du scope / et caractères louches
+  // (au besoin, adaptez la whitelist)
+  const safe = name.replace(/[^a-zA-Z0-9._-]/g, "");
+  return encodeURIComponent(safe);
+}
+
+function sanitizeURL(url: string, { allowBlob = true } = {}): string {
+  try {
+    const u = new URL(url, typeof window !== "undefined" ? window.location.origin : "https://example.com");
+    const okSchemes = new Set(["http:", "https:"]);
+    if (allowBlob) okSchemes.add("blob:");
+    // Pas de javascript:, data:, file:, etc.
+    if (!okSchemes.has(u.protocol)) return "about:blank";
+    return u.toString();
+  } catch {
+    return "about:blank";
+  }
+}
+
+// Optionnel : convertir les sauts de ligne en <br> après échappement
+function toSafeHtmlWithBreaks(text: string): string {
+  return escapeHTML(text).replace(/\r?\n/g, "<br>");
+}
+
+// Votre fonction, retravaillée :
+export function renderMessage(msg: Message, isMe: boolean) {
+  const safeName = sanitizePathSegment(String(msg.name ?? ""));
+  const safePicture = sanitizeURL(String(msg.picture ?? ""), { allowBlob: true });
+  const safeContent = toSafeHtmlWithBreaks(String(msg.content ?? ""));
+  const when = timeAgo(msg.createdAt); // suppose que timeAgo ne renvoie pas du HTML contrôlé par l’utilisateur
+  const safeWhen = escapeHTML(String(when));
+
+  return `
+    <div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
+      <a href="/${safeName}" 
+         class="group transition-colors" data-link>
+        <img src="${safePicture}"
+             referrerpolicy="no-referrer"
+             loading="lazy"
+             class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
+      </a>
+      <div>
+        <div class="${
+          isMe
+            ? "bg-gradient-to-br from-orange-500 to-yellow-400 text-black"
+            : "bg-gray-800 text-white"
+        } px-4 py-2 rounded-2xl max-w-md break-words">${safeContent}</div>
+        <div class="text-xs text-gray-500 mt-1 ${isMe ? "text-right" : ""}">${safeWhen}</div>
+      </div>
+    </div>
+  `;
+}
+
+
+// export function renderMessage(msg: Message, isMe: boolean) {
+// 	return `
+// 		<div class="flex items-end gap-3 ${isMe ? "flex-row-reverse" : ""}">
+// 			<a href="/${msg.name}" 
+// 				class="group transition-colors" data-link>
+// 			<img src="${msg.picture}" 
+// 				class="w-8 h-8 rounded-full border border-orange-400/30" alt="avatar">
+// 			</a>
+// 			<div>
+// 				<div class="${
+// 					isMe
+// 						? "bg-gradient-to-br from-orange-500 to-yellow-400 text-black"
+// 						: "bg-gray-800 text-white"
+// 				} px-4 py-2 rounded-2xl max-w-md break-words">${msg.content}</div>
+// 				<div class="text-xs text-gray-500 mt-1 ${isMe ? "text-right" : ""}">${timeAgo(msg.createdAt)}</div>
+// 			</div>
+// 		</div>
+// 	`;
+// }
 
 function renderChatInputArea(
 	chatInputArea: HTMLElement,

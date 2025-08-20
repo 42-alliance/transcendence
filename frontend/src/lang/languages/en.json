@@ -25,6 +25,10 @@
 	"2fa-login-desc": "Please enter your 6-digit authentication code to continue.",
 	"2fa-login-placeholder": "000000",
 	"2fa-login-verify": "Verify & Login",
+	"2fa-error-required": "The code is required.",
+	"2fa-error-length": "The code must be 6 digits long.",
+	"2fa-error-digits": "The code must contain only digits.",
+	"2fa-error-invalid": "Invalid code. Please try again.",
 
 	"2fa-setup-title": "Setup Two-Factor Authentication",
 	"2fa-step1": "Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)",
@@ -156,7 +160,7 @@
 	"language-menu-aria": "Change language",
 	"language-menu-title": "Language",
 	"language-menu-sub": "Choose your language",
-	
+
 	"lang-en": "English",
 	"lang-fr": "Français",
 	"lang-es": "Español"

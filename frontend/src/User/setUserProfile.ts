@@ -1,5 +1,6 @@
 import { me } from "./me.js";
 import { nbGames, nbWins } from "../utils.js";
+import { initTwoFaToggle } from "./TwoFa/initTwoFaToggle.js";
 
 function closeDropdown() {
 	const dd = document.getElementById("dropdown-user");
@@ -127,7 +128,9 @@ export async function setUserProfile() {
 											class="w-12 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-500"></div>
 									</label>
 		`;
-	}
+
+  		initTwoFaToggle();
+		}
 
 	userNameSpan.innerText = user.name;
 	profilePicture.src = user.picture;

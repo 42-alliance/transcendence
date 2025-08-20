@@ -197,8 +197,6 @@ function setupSuggestionsClickHandlers(me: any) {
 
 		if (target.closest('.more-options-btn')) {
 			const name = (target.closest('.more-options-btn') as HTMLElement).getAttribute('data-name');
-			// TODO: Implement more options logic
-			console.log('Plus d’options pour', name);
 			return;
 		}
 
