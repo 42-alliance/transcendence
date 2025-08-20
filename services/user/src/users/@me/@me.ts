@@ -18,6 +18,10 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
             where: {
                 id: userId,
             },
+			// select: {
+			// 	id: true,
+
+			// }
         });
 
         if (!me) {
@@ -138,6 +142,7 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
 			friends: friends,
 			incoming_friends: incoming,
 			outgoing_friends: outgoing,
+			is_google_account: me.is_google_account,
 			blocked: blockList,
 			games: games,
 			victories: victories,

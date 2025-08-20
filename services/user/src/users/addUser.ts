@@ -97,6 +97,7 @@ export async function addUserDatabase(request: FastifyRequest, reply: FastifyRep
 				name: body.name,
 				email: body.email,
 				picture: body.picture,
+				is_google_account: true,
 			}
 		});
 		
